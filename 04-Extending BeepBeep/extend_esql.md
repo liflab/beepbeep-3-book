@@ -1,13 +1,12 @@
 Extend ESQL
 ===========
 
-[Home](index.html) &gt; [Extending BeepBeep](extend.html)
-
 You know that by creating your own processor, you can pipe it to any other existing processor, provided that its input and output events are of compatible types. It is also possible to extend the grammar of the ESQL language, so that you can also use your processor directly in ESQL queries. All this in less than 10 lines of code.
 
 As an example, let us consider the following processor, which repeats every input event n times, where n is a parameter decided when the processor is instantiated. Its implementation is as follows:
 
-<pre><code>import ca.uqac.lif.cep.*;
+```java
+import ca.uqac.lif.cep.*;
 
 public class Repeater extends SingleProcessor {
 
@@ -18,39 +17,38 @@ public class Repeater extends SingleProcessor {
     this.numReps = n;
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
-    Queue&lt;Object[]&gt; queue = new LinkedList&lt;Object[]&gt;();
-    for (int i = 0; i &lt; this.numReps; i++) {
+  public Queue<Object[]> compute(Object[] inputs) {
+    Queue<Object[]> queue = new LinkedList<Object[]>();
+    for (int i = 0; i < this.numReps; i++) {
       queue.add(inputs);
     }
     return queue;
   }
 }
-</code>
-</pre>
+```
 
-## <a name="rule">Step 1: Defining a new grammar rule</a>
+## Step 1: Defining a new grammar rule
 
 We would like to be able to use this processor in ESQL queries. The first step is to decide what syntax one shall use to invoke the processor. In order to work, the processor requires two things: the output of another processor, and the number of times it should repeat each event. Therefore, an intuitive syntax for the processor could be:
 
-<pre><code>REPEAT (some processor) n TIMES
-</code>
-</pre>
+```
+REPEAT (some processor) n TIMES
+```
 
 In this syntax, some processor refers to any other ESQL expression that builds a processor, and n is a number. The result of this expression is itself another object of type processor.
 
 If you are familiar with EBNF grammars, what follows should be easy. We must first tell the ESQL interpreter to add to its grammar a new case for the parsing of the &lt;processor&gt; rule. This rule should correspond to the parsing of our new, Repeater processor. This is done as follows:
 
-<pre><code>Interpreter my_int = new Interpreter();
+```java
+Interpreter my_int = new Interpreter();
 my_int.addCaseToRule("&lt;processor&gt;", "&lt;repeater&gt;");
-</code>
-</pre>
+```
 
 At this point, the interpreter knows that &lt;processor&gt; can be parsed as a &lt;repeater&gt;, but it has no idea what this case corresponds to. We must tell the interpreter what is the parsing pattern for &lt;repeater&gt;, using method addRule():
 
-<pre><code>my_int.addRule("&lt;repeater&gt;", "REPEAT ( &lt;processor&gt; ) <number> TIMES");
-</code>
-</pre>
+```java
+my_int.addRule("<repeater>", "REPEAT ( <processor> ) <number> TIMES");
+```
 
 The first argument is the name of the new rule we with to add (i.e. the left-hand side of the BNF rule), and the second argument is the right-hand side, or parsing pattern, corresponding to that rule. This parsing pattern is made of:
 
@@ -63,11 +61,11 @@ The first argument is the name of the new rule we with to add (i.e. the left-han
 
 That's it. From now on, the interpreter will correctly parse an expression involving that syntax, and know that it represents an element of type &lt;processor&gt;. This means that such an expression can be written anywhere a &lt;processor&gt; is accepted; for example in the following:
 
-<pre><code>SELECT a FROM (
+```
+SELECT a FROM (
   REPEAT (THE TUPLES OF FILE "foo.csv") 3 TIMES
 )
-</code>
-</pre>
+```
 
 ## <a name="build">Step 2: build a processor form an expression</a>
 
