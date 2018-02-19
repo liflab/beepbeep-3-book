@@ -1,0 +1,38 @@
+% -------------------------------------------------------------------
+% A simple LaTeX book template
+% -------------------------------------------------------------------
+\documentclass{lifmanual}
+\usepackage{import}
+
+% Generate an index
+\makeindex
+
+% ---------------------------------------
+% The gitbook-pandoc script will generate a file
+% called pandoc.inc.tex, which contains many declarations
+% required to compile the book.
+% ---------------------------------------
+% Here we use a frozen version of pandoc.inc.tex, as we made a few
+% modifications to the Pandoc-generated file
+\input{pandoc.inc.freeze.tex}
+
+% ---------------------------------------
+% Title and author
+% ---------------------------------------
+\title{LabPal User Manual}
+\author{Sylvain Hallé}
+\hypersetup{
+  pdftitle = {Event Stream Processing with BeepBeep},
+  pdfauthor = {Sylvain Hallé}
+}
+
+\begin{document}
+\includepdf{Cover.pdf}
+\tableofcontents
+\newpage
+
+\subimport*{chapters/}{body}
+
+\printindex
+
+\end{document}
