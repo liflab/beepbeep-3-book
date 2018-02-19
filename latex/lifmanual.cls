@@ -37,9 +37,9 @@
 %% Classe de base
 %% ------------------------
 \ifx\pdfoutput\undefined
-\LoadClass[11pt,letterpaper,openright,dvips]{book}
+\LoadClass[10pt,letterpaper,openright,dvips]{book}
 \else
-\LoadClass[11pt,letterpaper,openright,pdftex]{book}
+\LoadClass[10pt,letterpaper,openright,pdftex]{book}
 \fi
 
 %% ------------------------
@@ -65,6 +65,7 @@
 \RequirePackage{multicol}
 
 \definecolor{Highlight}{RGB}{173,73,106}
+\renewcommand{\baselinestretch}{1.1}
 
 %% ------------------------
 %% Chargement conditionnel de packages selon le document produit

@@ -6,6 +6,7 @@ latex/body.tex
 latex/README.tex
 latex/Readme.tex
 latex/pandoc.inc.tex
+\#*.md\#
 
 
 # Don't version temporary files
