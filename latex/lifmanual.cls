@@ -81,7 +81,7 @@
 %% ------------------------
 %\RequirePackage[adobe-utopia]{mathdesign}
 %% Redefine default sans-serif font as Helvetica
-\RequirePackage{bookman}
+\RequirePackage{kerkis}
 %\renewcommand{\sfdefault}{pts}
 \RequirePackage[scaled]{beramono}
 \renewcommand{\ttdefault}{fvm}
