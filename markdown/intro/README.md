@@ -3,9 +3,21 @@ Introduction
 
 Many computing problems can be viewed as the evaluation of queries over data sources called *streams*. A stream is made of discrete data elements, called *events*; these can be as simple as a single number, or as complex as a special data structure with a large number of fields, a piece of text, or even a picture.
 
-Event streams can be generated from a wide variety of sources. A small temperature sensor that is periodically queried by a system produces a stream of numerical values. A web server log saved to a file contains the latest content of a stream that records page requests. Even your monthly credit card statement is a stream of timestamped payments and expenses. The rate at which such streams produce events can vary widely: your personal credit card stream probably contains no more than a few entries per day; a sensor can emit a temperature reading once per minute, while a very busy web server may log entries thousands of times per second.
+Event streams can be generated from a wide variety of sources. A small temperature sensor that is periodically queried by a system produces a stream of numerical values. A web server log saved to a file contains the latest content of a stream where page requests are recorded. Even your monthly credit card statement is a stream of timestamped payments and expenses. The rate at which such streams produce events can vary widely: your personal credit card stream probably contains no more than a few entries per day; a sensor can emit a temperature reading once per minute, while a very busy web server may log entries thousands of times per second.
 
-In most cases, these streams are not interesting by themselves.
+In most cases, these streams are not interesting by themselves. Rather, we are more likely to extract various kinds of information from them, in order to answer questions about their content. What is the maximum temperature reading over the last day? Have I ever bought something at grocery store two days in a row? How many times a certain page has been requested this week? Like the streams they refer to, the answer to these questions can be a single number, an interval, a table, a plot, or anything else. Computing the answer to these questions, in a nutshell, is the heart of stream processing.
+
+Stream processing can be found in an extremely wide range of applications, but it is not always named as such. For example, observing the behaviour of a program for testing purposes is often called *runtime verification*, yet the sequence of observations made on the program at various moments in time fits the definition of an event stream very well. Amplifying a feed of raw audio samples can also be seen as a very specific form of event stream processing, although an audio technician would probably never think about it in this way. Very often, a stream is analyzed and transformed on-the-fly, but this is not even a requirement: hence, reading a pre-recorded sequence of events from some static source also counts as stream processing.
+
+## Computations over streams
+
+At the onset, event stream processing looks like any normal programming activity. Given an input stream, one can write a script or a program in the language of their choice that performs the desired computation.
+
+1. As its name implies, the source of an event stream processor is a *stream*. This means that data elements arrive progressively, one event at a time. Accessing these event feeds is often more complex than simply opening a file or connecting to a database.
+2. We typically expect an answer to be produced as soon as it can be known. For example, if we want to calculate the average temperature on a window of the past 10 readings, the output value should be computed as soon as those 10 readings have been received. This "streaming" mode of operation is to be contrasted with a "batch" mode, where results for all windows of 10 events would be computed and output all at once at the end of the program.
+3. A stream unfolds in only one direction: forward. It is generally not possible for a stream processor to rewind an input stream and read previous events a second time. If something must be remembered about the past, it is up to the stream processor to store it somewhere.
+
+Some of these hypotheses can sometimes be modified. For example, if one is reading a stream from a pre-recorded file, it is indeed possible to move backwards and return to previous events, contrary to what condition #2 stipulates.
 
 ## What is BeepBeep?
 
