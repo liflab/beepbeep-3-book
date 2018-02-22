@@ -11,17 +11,21 @@ Stream processing can be found in an extremely wide range of applications, but i
 
 ## Computations over streams
 
-At the onset, event stream processing looks like any normal programming activity. Given an input stream, one can write a script or a program in the language of their choice that performs the desired computation.
+At the onset, event stream processing looks like any normal programming activity. Given an input stream, one can write a script or a program in the language of their choice that performs the desired computation. However, a few hypotheses make event stream processing more involved than simple scripting.
 
 1. As its name implies, the source of an event stream processor is a *stream*. This means that data elements arrive progressively, one event at a time. Accessing these event feeds is often more complex than simply opening a file or connecting to a database.
 2. We typically expect an answer to be produced as soon as it can be known. For example, if we want to calculate the average temperature on a window of the past 10 readings, the output value should be computed as soon as those 10 readings have been received. This "streaming" mode of operation is to be contrasted with a "batch" mode, where results for all windows of 10 events would be computed and output all at once at the end of the program.
 3. A stream unfolds in only one direction: forward. It is generally not possible for a stream processor to rewind an input stream and read previous events a second time. If something must be remembered about the past, it is up to the stream processor to store it somewhere.
 
-Some of these hypotheses can sometimes be modified. For example, if one is reading a stream from a pre-recorded file, it is indeed possible to move backwards and return to previous events, contrary to what condition #2 stipulates.
+Some of these hypotheses can sometimes be modified. For example, if one is reading a stream from a pre-recorded file, it is indeed possible to move backwards and return to previous events, contrary to what condition #3 stipulates. However, in the general case, processing a sequence of events in a streaming fashion is a little more involved than writing a generic piece of code.
+
+Over the years, various tools, libraries and systems have been developed  to help users process event streams. 
 
 ## What is BeepBeep?
 
-In this book, you will learn how to use the BeepBeep event stream query engine to perform various tasks over event streams of different nature.
+In this book, you will learn how to use an event stream query engine called BeepBeep to perform various tasks over event streams of different nature. BeepBeep started as an academic research tool developed by the author of this book while he was a PhD student at Université du Québec à Montréal, Canada. Version 1 of the system was developed from 2008 to 2013 and has been the subject of numerous papers and case studies. It was much more limited than the BeepBeep we are talking about in this book, and could only perform a specific kind of stream processing called *runtime verification*. The main distinguishing point of this first version was the handling of complex events with a nested structure (such as XML documents), and an input language that borrowed from a mathematical language called Linear Temporal Logic. BeepBeep 1 is no longer under active development and is considered obsolete for all practical purposes. 
+
+Version 2 was an attempt at implementing the same concepts as BeepBeep 3, which has been scrapped at an early stage of development and was never officially released. One can hence consider BeepBeep 3 as the second "real" incarnation of BeepBeep. It benefits from a complete redesign of the platform, which includes and significantly extends most of the 1.x features.
 
 BeepBeep has a few interesting features that distinguish it from other software systems based on events.
 
