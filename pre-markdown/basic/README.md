@@ -5,13 +5,19 @@ In this chapter, you will learn about the the fundamental principles for using B
 
 ## Processors
 
-The first fundamental building block of BeepBeep is an object called a **processor**. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality.
+The first fundamental building block of BeepBeep is an object called a **processor**. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality. In terms of Java, all processors are descendents of the generic {@link jdc:ca.uqac.lif.cep.Processor Processor} class.
 
-An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events from the processor (output pipes). The number of input and output pipes is called the (input and output) **arity** of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the following picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
+An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, we will often represent processors graphically exactly in this way, as the following figure shows. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
 ![A 1:1 processor](pipe-tuple.png)
 
-## <a name="example">A first example</a>
+The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
+
+The number of input and output pipes is called the (input and output) **arity** of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
+
+## Pulling events
+
+There are two ways to interact with a processor.
 
 The following code snippet shows a first example of processor called {@link jdc:ca.uqac.lif.cep.QueueSource QueueSource}.
 

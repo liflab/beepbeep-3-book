@@ -7,7 +7,7 @@ BeepBeep is organized along a modular architecture. The main part of BeepBeep is
 
 ## <a name="function">Function Processors</a>
 
-A first way to create a processor is by lifting any *m*:*n* function *f* into a *m:n* processor. This is done by applying *f* successively to each front of input events, producing the output events. The processor responsible for this is called a {@link jdc:ca.uqac.lif.cep.functions.FunctionProcessor FunctionProcessor}.
+A first way to create a processor is by lifting any *m*:*n* function *f* into a *m:n* processor. This is done by applying *f* successively to each front of input events, producing the output events. The processor responsible for this is called a [FunctionProcessor](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/FunctionProcessor.html).
 
 In the following bit of code, a `FunctionProcessor` is created by applying the Boolean negation function to an input trace of Boolean values:
 

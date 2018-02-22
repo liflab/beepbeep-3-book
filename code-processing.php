@@ -26,6 +26,7 @@ foreach (new RecursiveIteratorIterator($it) as $file)
 	}
 	$original_contents = file_get_contents($file);
 	$out_contents = insert_code_snippets($original_contents);
+	$out_contents = resolve_javadoc($out_contents);
 	file_put_contents($out_filename, $out_contents);
 }
 
@@ -211,11 +212,11 @@ function resolve_javadoc($s)
     $url = get_javadoc_url($match[1]);
     if (isset($match[2]) && !empty($match[2]))
     {
-      $s = str_replace($match[0], "<a href=\"$url\">".trim($match[2])."</a>", $s);
+      $s = str_replace($match[0], "[".trim($match[2])."]($url)", $s);
     }
     else
     {
-      $s = str_replace($match[0], "<a href=\"$url\">".trim($match[1])."</a>", $s);
+      $s = str_replace($match[0], "[".trim($match[1])."]($url)", $s);
     }
   }
   return $s;
