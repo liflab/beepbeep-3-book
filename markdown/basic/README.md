@@ -93,7 +93,9 @@ The next instruction uses the [Connector](http://liflab.github.io/beepbeep-3/jav
     The event is: 8
     ...
 
-As expected, each event of the output stream is the double of the one at matching position in the source's input stream.
+As expected, each event of the output stream is the double of the one at matching position in the source's input stream. Graphically, this can be represented as follows:
+
+![Piping the output of a `QueueSource` into a `Doubler` processor.](PipingUnary.png)
 
 Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s.
 

@@ -68,7 +68,9 @@ The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} ob
     The event is: 8
     ...
 
-As expected, each event of the output stream is the double of the one at matching position in the source's input stream.
+As expected, each event of the output stream is the double of the one at matching position in the source's input stream. Graphically, this can be represented as follows:
+
+{@img doc-files/basic/PipingUnary.png}{Piping the output of a `QueueSource` into a `Doubler` processor.}
 
 Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s.
 
