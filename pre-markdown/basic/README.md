@@ -9,7 +9,7 @@ The first fundamental building block of BeepBeep is an object called a **process
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, we will often represent processors graphically exactly in this way, as the following figure shows. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
-![A 1:1 processor](pipe-tuple.png)
+![A graphical representation of a generic processor taking one input stream, and producing one output stream.](pipe-tuple.png)
 
 The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
 
@@ -17,9 +17,9 @@ The number of input and output pipes is called the (input and output) **arity** 
 
 ## Pulling events
 
-There are two ways to interact with a processor.
+There are two ways to interact with a processor. The first is by getting a hold of the processor's output pipe, and by repeatedly asking for new events. The action of requesting a new output event is called **pulling**, and this mode of operation is called *pull mode*.
 
-The following code snippet shows a first example of processor called {@link jdc:ca.uqac.lif.cep.QueueSource QueueSource}.
+Let us instantiate a simple processor and pull events from it. The following code snippet shows such a thing, using a processor called {@link jdc:ca.uqac.lif.cep.QueueSource QueueSource}.
 
 {@snipm basic/QueueSourceUsage.java}{/}
 
@@ -40,19 +40,23 @@ Since the queue source loops through its array of events, after reaching the las
     The event is: 1
     The event is: 2
 
+Note that `source` springs into action only upon a call to `pull()` on its `Pullable` object. That is, it computes and returns a new output event only upon request. In other words, we can see it as some kind of gearbox that does something only when we turn the crank: each turn of the "crank" triggers the production of a new output event.
+    
 This simple example shows the basic concepts around the use of a processor:
 
 - An instance of a processor is first created
 - To read events from its output, we must obtain an instance of a `Pullable` object from this processor
 - Events can be queried by calling `pull()` on this `Pullable` object
 
-## <a name="piping">Piping processors</a>
+## Piping processors {#piping}
 
-Processors can be composed (or "piped") together, by letting the output of one processor be the input of another. This piping is possible as long as the type of the first processor's output matches the second processor's input type. This is exemplified by the following piece of code:
+BeepBeep provides dozens of processors, but each of them in isolation performs a simple operation. To perform more complex computations, processors can be composed (or "piped") together, by letting the output of one processor be the input of another. This piping is possible as long as the type of the first processor's output matches the type expected by the second processor's input.
+
+Let us create a simple example of piping by building upon the previous example, as follows:
 
 {@snipm basic/PipingUnary.java}{/}
 
-A `QueueSource` is created as before; then, an instance of another processor called `Doubler` is also created. For the sake of the example, the `Doubler` processor takes integers as input, and returns the double of each of them as its output.
+First, a `QueueSource` is created as before; then, an instance of another processor called `Doubler` is also created. For the sake of the example, let us simply assume that `Doubler` takes arbitrary integers as its input, multiples them by two, and returns the result as its output.
 
 The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} object to pipe the two processors together. The call to method {@link jdm:ca.uqac.lif.cep.Connector#connect(Processor ...) connect()} sets up the processors so that the output of `source` is sent directly to the input of `doubler`. We can then obtain `doubler`'s `Pullable` object, and fetch its output events like before. The output of this program will be:
 
@@ -61,6 +65,10 @@ The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} ob
     The event is: 6
     The event is: 8
     ...
+
+As expected, each event of the output stream is the double of the one at matching position in the source's input stream.
+
+Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s.
 
 We mentioned earlier that processors can have more than one input "pipe", or one or more output "pipe". The following example shows it:
 
