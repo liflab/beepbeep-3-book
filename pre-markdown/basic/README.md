@@ -1,7 +1,7 @@
 Basic Concepts
 ==============
 
-In this chapter, you will learn about the the fundamental principles for using BeepBeep through simple examples.
+In this chapter, you will learn about the the fundamental principles for using BeepBeep through simple examples. In particular, you'll be shown the basic usage of two types of objects: processors and functions.
 
 ## Processors
 
@@ -26,6 +26,8 @@ Let us instantiate a simple processor and pull events from it. The following cod
 `QueueSource` is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers).
 
 To collect events from a processor's output, one uses a special object called a {@link jdc:ca.uqac.lif.cep.Pullable Pullable}. The third instruction takes care of obtaining an instance of `Pullable` corresponding to `QueueSource`'s output.
+
+{@img doc-files/basic/QueueSourceUsage.png}{A first example}
 
 A `Pullable` can be seen as a form of iterator over an output trace. It provides a method, called {@link jdm:ca.uqac.lif.cep.Pullable#pull() pull()}; each call to `pull()` asks the corresponding processor to produce one more output event. The loop in the previous code snippet amounts to calling `pull()` eight times. Since events handled by processors can be anything (Booleans, numbers, strings, sets, etc.), the method returns an object of the most generic type, i.e. `Object`. It is up to the user of a processor to know what precise type of event this return value can be cast into. In our case, we know that the `QueueSource` we created returns integers, and so we manually cast the output of `pull()` into objects of this type.
 

@@ -27,6 +27,7 @@ foreach (new RecursiveIteratorIterator($it) as $file)
 	$original_contents = file_get_contents($file);
 	$out_contents = insert_code_snippets($original_contents);
 	$out_contents = resolve_javadoc($out_contents);
+	$out_contents = resolve_images($out_contents, dirname($out_filename)."/");
 	file_put_contents($out_filename, $out_contents);
 }
 
@@ -36,6 +37,21 @@ function insert_code_snippets($s)
   $s = resolve_snipm($s);
   $s = resolve_snips($s);
   return $s;
+}
+
+function resolve_images($s, $out_folder)
+{
+	global $source_location;
+	preg_match_all("/\\{@img (.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
+	foreach($matches as $match)
+	{
+		$filename = $source_location.$match[1];
+		$out_filename = $out_folder.get_basename($filename);
+		copy($filename, $out_filename);
+		$contents = "![".$match[2]."](".get_basename($out_filename).")";
+		$s = str_replace($match[0], $contents, $s);
+	}
+	return $s;
 }
 
 function resolve_snipm($s, $remove_comments = true)
@@ -76,6 +92,7 @@ function remove_comments($s)
 {
 	$star_s = preg_replace("/\\/\\*.*?\\*\\//ms", "", $s);
 	$lines = explode("\n", $star_s);
+	$out = "";
 	foreach ($lines as $line)
 	{
 		$new_line = rtrim(preg_replace("/\\/\\/.*$/", "", $line));
@@ -258,4 +275,12 @@ function get_javadoc_url($string)
   }
   return $url;
 }
+
+function get_basename($filename)
+{
+	$parts = explode("/", $filename);
+	return $parts[count($parts)-1];
+}
+
+// :tabWidth=2:
 ?>
