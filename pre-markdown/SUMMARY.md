@@ -1,6 +1,11 @@
 # Summary
 
-* [Introduction](intro/README.md)
+* [Introduction](README.md)
+  * [Computations over streams](README.md#computations)
+  * [What is BeepBeep?](README.md#what)
+  * [Getting started](README.md#setup)
+  * [Code examples and exercises](README.md#exercises)
+  * [Building BeepBeep](README.md#building)
 * [Basic Concepts](basic/README.md)
   * [Processors](basic/processors.md)
   * [Built-In Processors](basic/built-in-processors.md)
