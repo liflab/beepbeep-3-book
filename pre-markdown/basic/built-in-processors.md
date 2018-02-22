@@ -11,11 +11,11 @@ A first way to create a processor is by lifting any *m*:*n* function *f* into a 
 
 In the following bit of code, a `FunctionProcessor` is created by applying the Boolean negation function to an input trace of Boolean values:
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/Examples/src/queries/SimpleFunction.java</code></pre>
+{@snipm Examples/src/queries/SimpleFunction.java}{SNIP}
 
 We have already seen an example of a FunctionProcessor applying the addition function to pairs of inputs.
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/Examples/src/queries/PipingBinary.java</code></pre>
+{@snipm Examples/src/queries/PipingBinary.java}{SNIP}
 
 A function processor is created by applying the "+" (addition) function, represented by an oval, to the left and right inputs, producing the output. Recall that in BeepBeep, functions are first-class objects. Hence the \texttt{Addition} function can be passed as an argument when instantiating the \texttt{FunctionProcessor}. Since this function is 2:1, the resulting processor is also 2:1.
 
@@ -27,7 +27,7 @@ A variant of the function processor is the {@link ca.uqac.lif.cep.functions.Cumu
 
 Depending on the function *f*, cumulative processors can represent many things. In the following code example, *f* is addition and 0 is the start value.
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/Examples/src/queries/CumulativeSum.java</code></pre>
+{@snipm Examples/src/queries/CumulativeSum.java}{SNIP}
 
 The processor outputs the cumulative sum of all values received so far:
 

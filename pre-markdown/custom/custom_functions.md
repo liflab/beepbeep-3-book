@@ -15,7 +15,7 @@ public class IsPrime extends UnaryFunction&lt;Number,Boolean&gt;
 
 As you can see, you must also declare the input and output type for the function; here, the function accepts a `Number` and returns a `Boolean`. These types must also be reflected in the function's constructor, where you must call the superclass constructor and pass it a `Class` instance of each input and output argument.
 
-<pre><code>Source code not found</code></pre>
+{@snips Examples/src/functions/IsPrime.java}{private IsPrime()}
 
 Method `getValue()` is where the output of the function is computed for the input. For the sake of our example, the actual way to check if x is prime does not matter; we'll simply enumerate all numbers up to sqrt(x) until we find one that divides x, and otherwise return true.
 

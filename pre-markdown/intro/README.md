@@ -77,18 +77,7 @@ Most of the code examples in this book are also available online in a single big
 
 When a code snippet is followed by the ⚓ symbol, this indicates that this piece of code is also available online in the code example repository. When viewing an electronic version of this book (such as an online website or a PDF), the ⚓ symbol is actually a hyperlink that takes you directly to the first line of of that snippet in the GitHub repository. As an example, try to grab the link corresponding to the following code block:
 
-``` java
-QueueSource source = new QueueSource();
-source.setEvents(1, 2, 4, 8, 16, 32);
-Pullable p = source.getPullableOutput();
-for (int i = 0; i < 8; i++)
-{
-    int x = (Integer) p.pull();
-    System.out.println("The event is: " + x);
-}
-```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/QueueSourceUsage.java#L39)
-
+{@snipm basic/QueueSourceUsage.java}{/}
 
 You will see that the online version of the code is sometimes interspersed with comment lines that are absent from the book examples. This is done to improve the legibility of the examples, given that they are already discussed at length in the text itself.
 

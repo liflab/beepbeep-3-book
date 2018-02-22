@@ -1,11 +1,11 @@
-Processors: Basic Concepts
-==========================
+Basic Concepts
+==============
 
-[Home](index.html) &gt; [Basic Concepts](concepts.html)
+In this chapter, you will learn about the the fundamental principles for using BeepBeep through simple examples.
 
-A *processor* is an object that takes one or more *event traces* as its input, and and returns one or more *event traces* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past.
+## Processors
 
-The processor is the fundamental concept around which BeepBeep is designed. Virtually all the processing of event traces is done through the action of a processor, or of a combination of multiple processors chained together to achieve the desired functionality.
+The first fundamental building block of BeepBeep is an object called a **processor**. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality.
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events from the processor (output pipes). The number of input and output pipes is called the (input and output) **arity** of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the following picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
 
@@ -15,7 +15,7 @@ An easy way to understand processors is to think of them as "boxes" having one o
 
 The following code snippet shows a first example of processor called {@link jdc:ca.uqac.lif.cep.QueueSource QueueSource}.
 
-{@snipm Examples/src/queries/QueueSourceUsage.java}{SNIP}
+{@snipm basic/QueueSourceUsage.java}{/}
 
 `QueueSource` is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers).
 
@@ -44,7 +44,7 @@ This simple example shows the basic concepts around the use of a processor:
 
 Processors can be composed (or "piped") together, by letting the output of one processor be the input of another. This piping is possible as long as the type of the first processor's output matches the second processor's input type. This is exemplified by the following piece of code:
 
-{@snipm Examples/src/queries/PipingUnary.java}{SNIP}
+{@snipm basic/PipingUnary.java}{/}
 
 A `QueueSource` is created as before; then, an instance of another processor called `Doubler` is also created. For the sake of the example, the `Doubler` processor takes integers as input, and returns the double of each of them as its output.
 
@@ -58,7 +58,7 @@ The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} ob
 
 We mentioned earlier that processors can have more than one input "pipe", or one or more output "pipe". The following example shows it:
 
-{@snipm Examples/src/queries/PipingBinary.java}{SNIP}
+{@snipm basic/PipingBinary.java}{/}
 
 This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to {@link jdm:ca.uqac.lif.cep.Connector#connect(ca.uqac.lif.cep.Processor, int, ca.uqac.lif.cep.Processor, int) connect()}, which now includes a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. The rest is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
 
@@ -76,7 +76,7 @@ When a processor has an arity of 2 or more, the processing of its input is done 
 
 We said earlier that any processor can be piped to any other, *provided that they have matching types*. The following code example shows what happens when types do not match:
 
-{@snipm Examples/src/queries/IncorrectPiping.java}{SNIP}
+{@snipm basic/IncorrectPiping.java}{/}
 
 The problem lies in the fact that processor `av` sends out events of type `Number` as its output, while processor `neg` expects events of type `Boolean` as its input. Since the former cannot be converted into the latter, the call to `connect()` will throw an exception similar to this one:
 
@@ -103,6 +103,3 @@ A processor produces its output in a *streaming* fashion: this means that output
 Each processor instance is also associated with a **context**. A context is a persistent and modifiable map that associates names to arbitrary objects. When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context} object.
 
 <!-- :wrap=soft: -->
----
-slug: processors
-...

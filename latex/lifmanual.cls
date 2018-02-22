@@ -79,10 +79,9 @@
 %% ------------------------
 %% Choix de la police de caractère
 %% ------------------------
+\usepackage{pifont}
 \RequirePackage[adobe-utopia]{mathdesign}
-%% Redefine default sans-serif font as Helvetica
 \usepackage{PTSans}
-%\renewcommand{\sfdefault}{pts}
 \usepackage[scaled]{beramono}
 \renewcommand{\ttdefault}{fvm}
 
