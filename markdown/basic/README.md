@@ -15,6 +15,8 @@ The color of the pipes themselves will be used to denote the type of events pass
 
 The number of input and output pipes is called the (input and output) **arity** of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
 
+A processor produces its output in a *streaming* fashion: this means that output events are made available progressively while the input events are consumed. In other words, a processor does not wait to read its entire input trace before starting to produce output events. However, a processor can require more than one input event to create an output event, and hence may not always output something right away.
+
 ## Pulling events
 
 There are two ways to interact with a processor. The first is by getting a hold of the processor's output pipe, and by repeatedly asking for new events. The action of requesting a new output event is called **pulling**, and this mode of operation is called *pull mode*.
@@ -253,15 +255,98 @@ Since numbers cannot be converted into Booleans, the call to `connect()` will th
 		at ca.uqac.lif.cep.Connector.checkForException(Connector.java:268)
 		...
 
-Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively.
+Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively. As with the `PullableException` discussed earlier, this is a *runtime* error. Processor inputs and outputs are not statically typed, so the above program compiles without problem. The error is only spotted when the program is being executed, and the `Connector` object realizes that it is being asked to link processors of incorrect types.
 
-A processor can be queried for the types it accepts for input number *n* by using the [getInputType()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getInputType(int)); ditto for the type produced at output number *n* with [getOutputType()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getOutputType(int)).
-		
-## <a name="class">The <code>Processor</code> class</a>
+A processor can be queried for the types it accepts for input number *n* by using the method [getInputType()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getInputType(int)); ditto for the type produced at output number *n* with [getOutputType()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getOutputType(int)).
 
-Processors in BeepBeep all descend from the abstract class [Processor](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html), which provides a few common functionalities, such as obtaining a reference to the n-th input or output, getting the type of the n-th input or output, etc.
+## Pushing events {#pushing}
 
-A processor produces its output in a *streaming* fashion: this means that output events are made available progressively while the input events are consumed. In other words, a processor does not wait to read its entire input trace before starting to produce output events. However, a processor can require more than one input event to create an output event, and hence may not always output something right away.
+Earlier we mentioned there were two ways to interact with a processor. The first, which we have used so far, is called *pulling*. The second, as you may guess, is called **pushing**, and works more or less in reverse. In so-called *push mode*, rather than querying events form a processor's output, we give events to a processor's input. This has for effect of triggering the processor's computation and "pushing" events (if any) to the processor's output.
+
+Let us instantiate a simple processor and push events to it. The following code snippet shows such a thing, using a processor called [QueueSink](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/QueueSink.html).
+
+``` java
+QueueSink sink = new QueueSink();
+Pushable p = sink.getPushableInput();
+p.push("foo");
+p.push("bar");
+Queue<Object> queue = sink.getQueue();
+System.out.println("Events in the sink: " + queue);
+queue.remove();
+p.push("baz");
+System.out.println("Events in the sink: " + queue);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/QueueSinkUsage.java#L45)
+
+
+`QueueSink` is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
+
+![Pushing events to a `QueueSink`.](QueueSinkUsage.png)
+
+In order to push events to this processor, we need to get a reference to its input pipe; this is done with method [getPushableInput()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getPushableInput()), which gives us an instance of a [Pushable](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pushable.html) object. A `Pushable` defines one important method, called `push()`, which allows us to give events to its associated processor. In the previous code snippet, we see two calls to method `push`, sending the strings "foo" and "bar".
+
+As we said, `QueueSink` simply accumulates the pushed events into a queue. It is possible to access that queue by calling a method called `getQueue()` on the processor, as is done on line 5. The contents of that queue are then printed; at this point in the program, the queue contains the strings "foo" and "bar", resulting in the first line printed at the console:
+
+    Events in the sink: [foo, bar]
+
+We then pop the first event of that queue, and then push a new string ("baz") to the sink. The second line the program prints shows the content of the sink at that moment, namely:
+
+    Events in the sink: [bar, baz]
+
+In the same way that calls to `pull` on a processor may result in calls to `pull` on upstream processors, in push mode, calls to `push` may result in calls to `push` on downstream processors. In the following code snippet, we connect a `Doubler` processor to a special type of sink, called `Print`, that simply prints to the console every event it receives.
+
+``` java
+Doubler doubler = new Doubler();
+Print print = new Print();
+Connector.connect(doubler, print);
+Pushable p = doubler.getPushableInput();
+for (int i = 0; i < 8; i++)
+{
+    p.push(i);
+    UtilityMethods.pause(1000);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingUnaryPush.java#L48)
+
+
+![Pushing events to a `Print` processor.](PipingUnaryPush.png)
+
+The `for` loop pushes the integers 0 to 7 into the input pipe of `doubler`; the `pause` method causes the loop to wait one second (1,000 milliseconds) between each call to 
+`push`. The output of this program, unsurprisingly, is the following:
+
+    0,2,4,6,8,10,12,14,
+
+Notice the one-second interval between each number. This shows that, in pull mode, nothing happens until an upstream call to `push` triggers the chain of computation.
+
+## Pulling without source, pushing without sink {#without}
+
+![A passthrough without a source or a sink.](Passthrough.png)
+
+``` java
+Passthrough passthrough = new Passthrough();
+Pullable p = passthrough.getPullableOutput();
+p.pull();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullWithoutSource.java#L57)
+
+
+``` java
+Passthrough passthrough = new Passthrough();
+Pushable p = passthrough.getPushableInput();
+p.push("foo");
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PushWithoutSink.java#L55)
+
+
+## Functions {#functions}
+
+ARF
+
+## Exercises {#ex-basic}
+
+1. Using the `QueueSource` and `Doubler` processors shown in this chapter, create a chain of processors that outputs the quadruple of the first five odd numbers. That is, the first five output events should be 4, 12, 20, 28, 36.
+
+2. Using the `QueueSource` and `Add` processors shown in this chapter, create a chain of processors that outputs the sum of each two consecutive prime numbers. The first six prime numbers are 2, 3, 5, 7, 11 and 13. That is, the first five output events should be 5, 8, 12, 18, 24. (Hint: you will need two `QueueSource`s.)
 
 
 ## <a name="context">Context</a>
