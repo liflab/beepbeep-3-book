@@ -33,11 +33,11 @@ function replace_images($s, $out_dir, $out_filename)
     $out_pdf_filename = $out_dir.str_replace(".png", ".pdf", $basename);
     if (!file_exists($out_pdf_filename))
     {
-      $command = $inkscape_command." -D -z --file=$svg_filename --export-pdf=$out_pdf_filename\n";
+      $command = $inkscape_command." -z --file=$svg_filename --export-pdf=$out_pdf_filename\n";
       echo "Converting $svg_filename to $out_pdf_filename\n";
       exec($command);
     }
-    $latex_contents = preg_replace("/\\\\includegraphics\\{.*?".preg_quote($basename)."\\}/", "\\includegraphics[".$match[3]."]{".get_basename($out_pdf_filename)."}", $latex_contents);
+    $latex_contents = preg_replace("/\\\\includegraphics\\{(.*?)".preg_quote($basename)."\\}/", "\\scalebox{".$match[3]."}{\\includegraphics{\\1".str_replace(".png", ".pdf", $basename)."}}", $latex_contents);
   }
   return $latex_contents;
 }

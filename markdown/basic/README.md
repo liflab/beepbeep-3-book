@@ -9,7 +9,7 @@ The first fundamental building block of BeepBeep is an object called a **process
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, we will often represent processors graphically exactly in this way, as the following figure shows. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
-![A graphical representation of a generic processor taking one input stream, and producing one output stream.](pipe-tuple.png)
+![A graphical representation of a generic processor taking one input stream, and producing one output stream](Schematics.png)
 
 The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
 
@@ -34,11 +34,13 @@ for (int i = 0; i < 8; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/QueueSourceUsage.java#L39)
 
 
-`QueueSource` is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers).
-
-To collect events from a processor's output, one uses a special object called a [Pullable](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pullable.html). The third instruction takes care of obtaining an instance of `Pullable` corresponding to `QueueSource`'s output.
+`QueueSource` is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers). Graphically, this can be represented as follows:
 
 ![A first example](QueueSourceUsage.png)
+
+As one can see, the `QueueSource` object is a special type of processor that has an output pipe, but no input pipe (that is, its input arity is zero). This means that it does not produce events based on the output produced by other processors; in other words, it is impossible to connect another processor into a `QueueSource` (or into any other processor of input arity zero, for that matter). Rather, output events are produced "out of thin air" --or more accurately, from a list of values that is given to the source when it instantiated. In the schema, this list is shown in the white rectangle that overlaps with the source's box.
+
+To collect events from a processor's output, one uses a special object called a [Pullable](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pullable.html). The third instruction takes care of obtaining an instance of `Pullable` corresponding to `QueueSource`'s output.
 
 A `Pullable` can be seen as a form of iterator over an output trace. It provides a method, called [pull()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pullable.html#pull()); each call to `pull()` asks the corresponding processor to produce one more output event. The loop in the previous code snippet amounts to calling `pull()` eight times. Since events handled by processors can be anything (Booleans, numbers, strings, sets, etc.), the method returns an object of the most generic type, i.e. `Object`. It is up to the user of a processor to know what precise type of event this return value can be cast into. In our case, we know that the `QueueSource` we created returns integers, and so we manually cast the output of `pull()` into objects of this type.
 
@@ -85,7 +87,13 @@ for (int i = 0; i < 8; i++)
 
 First, a `QueueSource` is created as before; then, an instance of another processor called `Doubler` is also created. For the sake of the example, let us simply assume that `Doubler` takes arbitrary integers as its input, multiples them by two, and returns the result as its output.
 
-The next instruction uses the [Connector](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html) object to pipe the two processors together. The call to method [...) connect()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(Processor) sets up the processors so that the output of `source` is sent directly to the input of `doubler`. We can then obtain `doubler`'s `Pullable` object, and fetch its output events like before. The output of this program will be:
+The next instruction uses the [Connector](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html) object to pipe the two processors together. The call to method [...) connect()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(Processor) sets up the processors so that the output of `source` is sent directly to the input of `doubler`. Graphically, this can be represented as follows:
+
+![Piping the output of a `QueueSource` into a `Doubler` processor.](PipingUnary.png)
+
+Notice how the schema now contains two boxes: one for the source, and one for the doubler. The call to `connect` is represented by the "pipe" that links the output of the source to the input of the doubler.
+
+We can then obtain `doubler`'s `Pullable` object, and fetch its output events like before. The output of this program will be:
 
     The event is: 2
     The event is: 4
@@ -93,11 +101,57 @@ The next instruction uses the [Connector](http://liflab.github.io/beepbeep-3/jav
     The event is: 8
     ...
 
-As expected, each event of the output stream is the double of the one at matching position in the source's input stream. Graphically, this can be represented as follows:
+As expected, each event of the output stream is the double of the one at matching position in the source's input stream.
 
-![Piping the output of a `QueueSource` into a `Doubler` processor.](PipingUnary.png)
+Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s. It is up to the downstream processor to call `pull` on any upstream processors it is connected to, if needed. Concretely, this is what happens:
 
-Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s.
+1. A call to `pull` is made on `doubler`'s `Pullable` object
+2. In order to produce an output event, `doubler` needs a new input event. It calls `pull` on `source`'s `Pullable` object
+3. Processor `source` produces a new event, and emits it as the return value to its call on `pull`
+4. Processor `doubler` now has a new input event; it multiplies it by two, and emits it as the return value to its own call on `pull`
+
+## Two common mistakes {#mistakes}
+
+This simple example of processor piping brings us to talk about two common mistakes one can make when creating processors and connecting them.
+
+The first mistake is to **forget to connect two processors**. Suppose that in the original `Doubler` example, we omit the call to `connect`, resulting in a schema that looks like this:
+
+![Forgetting to pipe two processors.](PipingUnaryMissing.png)
+
+Notice how the pipe between the source and the Doubler processor is missing. Attempting to call `pull` on `doubler` will throw an exception. The expected output of the program should look like this:
+
+    Exception in thread "main" ca.uqac.lif.cep.Pullable$PullableException:
+    Input 0 of this processor is connected to nothing
+	  at ca.uqac.lif.cep.SingleProcessor$OutputPullable.hasNext...
+
+What happens concretely is that, when a call to `doubler`'s `Pullable` object is made, it turns around to ask for an input event from upstream, and realizes that it has never been told whom to ask (this is what the call to `connect` does). Consequently, it throws a `PullableException` alerting the user of that issue. Notice that this is a *runtime* error; the program still compiles perfectly.
+
+The second mistake is to **call `pull` on an intermediate processor**. In our original example, it would be an error for the user to perform their own pulls on `source`, instead of or in addition to the pulls on `doubler`. Consider the same chain of processors as above, but with the loop replaced by the following instructions:
+
+``` java
+Pullable p = doubler.getPullableOutput();
+System.out.println("The event is: " + p.pull());
+System.out.println("The event is: " + p.pull());
+Pullable p2 = source.getPullableOutput();
+System.out.println("The event is: " + p2.pull());
+System.out.println("The event is: " + p.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingUnaryIncorrect.java#L62)
+
+
+Notice how, after performing two pulls on `doubler`'s `Pullable`, we perform one call to `source`'s `Pullable`, and then resume pulling on `doubler`. The output of this program is this:
+
+
+    The event is: 2
+    The event is: 4
+    The event is: 3
+    The event is: 8
+
+The first two outputs are identical to our original program. As we just explained, the first two pulls on `doubler` resulted in the background in two pulls on `source` as well. The third line corresponds to the pull on `source` directly; it outputs the third event of its list, which is 3. However, since we pulled on `source` directly, that event never reaches the input of `doubler`. As far as `source` is concerned, its third event has duly been sent, and it moves on to the next. Therefore, when calling `pull` again on `doubler`, `source` sends it its *fourth* event (the integer 4), and hence the next line of the output is 8.
+
+As one can see, it generally does not make much sense to pull on processors that are not at the very end of the chain. To prevent the possibility of mistakes, it is possible to encapsulate a group of processors into a "box" that only gives access to the very last `Pullable`s of a chain --more on that later.
+
+## Processors with more than one input {#binary}
 
 We mentioned earlier that processors can have more than one input "pipe", or one or more output "pipe". The following example shows it:
 
@@ -119,7 +173,11 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinary.java#L41)
 
 
-This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [int, ca.uqac.lif.cep.Processor, int) connect()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(ca.uqac.lif.cep.Processor,), which now includes a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. The rest is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
+This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [int, ca.uqac.lif.cep.Processor, int) connect()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(ca.uqac.lif.cep.Processor,), which now includes a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
+
+![A processor with an input arity of two.](PipingBinary.png)
+
+The rest is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
 
 	The event is: 5.0
 	The event is: 8.0
@@ -127,11 +185,45 @@ This time, we create *two* sources of numbers. We intend to connect these two so
 	The event is: 9.0
 	...
 
-The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. Indeed, 2+3=5, 7+1=8, 1+4=5, etc. This is indeed exactly the case. When a processor has an input arity of 2 or more, it processes its inputs in batches we call **fronts**. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
+The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. Indeed, 2+3=5, 7+1=8, 1+4=5, and so on. This is indeed exactly the case. When a processor has an input arity of 2 or more, it processes its inputs in batches we call **fronts**. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
 
-When a processor has an arity of 2 or more, the processing of its input is done *synchronously*. This means that a computation step will be performed if and only if a new event can be consumed from each input trace. More on that later.
+When a processor has an arity of 2 or more, the processing of its input is done *synchronously*. This means that a computation step will be performed if and only if a new event can be consumed from each input stream. It this is not the case, the processor **waits** (and the call to `pull` blocks) until a complete front is ready to be processed. This can be exemplified in the following code example:
 
-## <a name="mismatch">When types do not match</a>
+``` java
+SlowQueueSource source1 = new SlowQueueSource();
+source1.setEvents(2, 7, 1, 8, 3);
+QueueSource source2 = new QueueSource();
+source2.setEvents(3, 1, 4, 1, 6);
+ApplyFunction add = new ApplyFunction(Numbers.addition);
+Connector.connect(source1, 0, add, 0);
+Connector.connect(source2, 0, add, 1);
+Pullable p = add.getPullableOutput();
+for (int i = 0; i < 5; i++)
+{
+    float x = (Float) p.pull();
+    System.out.println("The event is: " + x);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinaryWait.java#L47)
+
+
+The chain of processors in this example is almost identical to the previous example, and can be represented graphically as:
+
+![A fast source and a slow source.](PipingBinaryWait.png)
+
+The difference is that the first queue source has been replaced by a "slow" queue source, that waits 5 seconds before outputting each event. This is represented by the little "clock" in the topmost source box. The output of this program is identical:
+
+	The event is: 5.0
+	The event is: 8.0
+	...
+
+However, a new line is only printed every five seconds. This can be explained as follows: when a call to `pull` is made on `add`'s `Pullable` object, the processor checks whether a complete front can be consumed. It asks both `source1` and `source2` for a new event; `source2` answers immediately, but `source1` takes five seconds before producing an event. In the meantime, `add` can do nothing but wait. The whole process repeats upon every subsequent call to `pull`. Note that `add` only asks for *one* new event at a time from each source; that is, it does not keep on pulling on `source2` while it waits for an answer from `source1`.
+
+Synchronous processing is a strong assumption; many other stream processing engines allow events to be processed asynchronously, meaning that the output of a query may depend on what input stream produced an event first. One can easily imagine situations where synchronous processing is not appropriate. However, in use cases where it is suitable, assuming synchronous processing greatly simplifies the definition and implementation of processors. The output result is no longer sensitive to the order in which events arrive at each input, or to the time it takes for an upstream processor to compute an output (the order of arrival of events from the same input trace, obviously, is preserved). Since the timing of arrival of events is irrelevant to the result of a computation, this means that one can perform a "pen and paper" calculation of a chain of processors, and arrive at the same output as the real one, given knolwedge of the contents of each input stream.
+
+We shall discuss synchronous processing in more detail in a later chapter.
+
+## When types do not match {#mismatch}
 
 We said earlier that any processor can be piped to any other, *provided that they have matching types*. The following code example shows what happens when types do not match:
 
@@ -147,14 +239,19 @@ System.out.println("This line will not be reached");
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/IncorrectPiping.java#L58)
 
 
-The problem lies in the fact that processor `av` sends out events of type `Number` as its output, while processor `neg` expects events of type `Boolean` as its input. Since the former cannot be converted into the latter, the call to `connect()` will throw an exception similar to this one:
+The culprit lies in the next-to-last line of the program; this is due to the fact that processor `av` sends out events of type `Number` as its output, while processor `neg` expects events of type `Boolean` as its input. This can be illustrated as follows:
 
-	Exception in thread "main" ca.uqac.lif.cep.Connector$IncompatibleTypesException:
+![Piping processors whose input/output types do not match.](IncorrectPiping.png)
+
+This is the first of our examples that uses color coding to represent the type of each stream. Note how number streams and pipes are shown in turquoise, while Booleans are represented using a greyish shade of blue. Using such a graphical representation, the problem can easily be spotted: the call to `connect` attempts to link a turquoise output pipe to a grey-blue input pipe.
+
+Since numbers cannot be converted into Booleans, the call to `connect()` will throw an exception similar to this one:
+
+	Exception in thread "main"
+	ca.uqac.lif.cep.Connector$IncompatibleTypesException:
 	Cannot connect output 0 of ABS to input 0 of !: incompatible types
 		at ca.uqac.lif.cep.Connector.checkForException(Connector.java:268)
-		at ca.uqac.lif.cep.Connector.connect(Connector.java:123)
-		at ca.uqac.lif.cep.Connector.connect(Connector.java:191)
-		at queries.IncorrectPiping.main(IncorrectPiping.java:43)
+		...
 
 Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively.
 

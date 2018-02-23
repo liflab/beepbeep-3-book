@@ -10,6 +10,8 @@
   * [Processors](basic/README.md#processors)
   * [Pulling events](basic/README.md#pulling)
   * [Piping processors](basic/README.md#piping)
+  * [Two common mistakes](basic/README.md#mistakes)
+  * [Processors with more than one input](basic/README.md#binary)
 * [Extending BeepBeep](custom/README.md)
   * [Custom Functions](custom/custom_functions.md)
   * [Custom Processors](custom/custom_processors.md)
