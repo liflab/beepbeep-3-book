@@ -31,7 +31,6 @@ foreach (new RecursiveIteratorIterator($it) as $file)
 	file_put_contents($out_filename, $out_contents);
 }
 
-
 function insert_code_snippets($s)
 {
   $s = resolve_snipm($s);
@@ -42,7 +41,7 @@ function insert_code_snippets($s)
 function resolve_images($s, $out_folder)
 {
 	global $source_location;
-	preg_match_all("/\\{@img (.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
+	preg_match_all("/\\{@img (.*?)\\}\\{(.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
 	foreach($matches as $match)
 	{
 		$filename = $source_location.$match[1];

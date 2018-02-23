@@ -27,7 +27,7 @@ Let us instantiate a simple processor and pull events from it. The following cod
 
 To collect events from a processor's output, one uses a special object called a {@link jdc:ca.uqac.lif.cep.Pullable Pullable}. The third instruction takes care of obtaining an instance of `Pullable` corresponding to `QueueSource`'s output.
 
-{@img doc-files/basic/QueueSourceUsage.png}{A first example}
+{@img doc-files/basic/QueueSourceUsage.png}{A first example}{}
 
 A `Pullable` can be seen as a form of iterator over an output trace. It provides a method, called {@link jdm:ca.uqac.lif.cep.Pullable#pull() pull()}; each call to `pull()` asks the corresponding processor to produce one more output event. The loop in the previous code snippet amounts to calling `pull()` eight times. Since events handled by processors can be anything (Booleans, numbers, strings, sets, etc.), the method returns an object of the most generic type, i.e. `Object`. It is up to the user of a processor to know what precise type of event this return value can be cast into. In our case, we know that the `QueueSource` we created returns integers, and so we manually cast the output of `pull()` into objects of this type.
 
@@ -70,7 +70,7 @@ The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} ob
 
 As expected, each event of the output stream is the double of the one at matching position in the source's input stream. Graphically, this can be represented as follows:
 
-{@img doc-files/basic/PipingUnary.png}{Piping the output of a `QueueSource` into a `Doubler` processor.}
+{@img doc-files/basic/PipingUnary.png}{Piping the output of a `QueueSource` into a `Doubler` processor.}{}
 
 Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull` calls on *that* object --not on `source`'s.
 
