@@ -143,7 +143,6 @@ System.out.println("The event is: " + p.pull());
 
 Notice how, after performing two pulls on `doubler`'s `Pullable`, we perform one call to `source`'s `Pullable`, and then resume pulling on `doubler`. The output of this program is this:
 
-
     The event is: 2
     The event is: 4
     The event is: 3
@@ -162,7 +161,7 @@ QueueSource source1 = new QueueSource();
 source1.setEvents(2, 7, 1, 8, 3);
 QueueSource source2 = new QueueSource();
 source2.setEvents(3, 1, 4, 1, 6);
-ApplyFunction add = new ApplyFunction(Numbers.addition);
+Adder add = new Adder();
 Connector.connect(source1, 0, add, 0);
 Connector.connect(source2, 0, add, 1);
 Pullable p = add.getPullableOutput();
@@ -172,14 +171,16 @@ for (int i = 0; i < 5; i++)
     System.out.println("The event is: " + x);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinary.java#L41)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinary.java#L42)
 
 
 This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [int, ca.uqac.lif.cep.Processor, int) connect()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(ca.uqac.lif.cep.Processor,), which now includes a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
 
 ![A processor with an input arity of two.](PipingBinary.png)
 
-The rest is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
+In a program, the two input pipes of `add` can be easily accessed through their number (0 or 1). However, in a drawing, it may be hard to decide which is which. In this book, we will follow the convention that the topmost input pipe is that with the lowest number. Hence, in the previous schema, input pipe 0 is the one connected to the queue 2-7-1-8-3. For some schemas, this may still not be clear enough; in such cases, we will explicitly write numbers next to the pipes to tell them apart.
+
+The rest of our program is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
 
 	The event is: 5.0
 	The event is: 8.0
@@ -196,7 +197,7 @@ SlowQueueSource source1 = new SlowQueueSource();
 source1.setEvents(2, 7, 1, 8, 3);
 QueueSource source2 = new QueueSource();
 source2.setEvents(3, 1, 4, 1, 6);
-ApplyFunction add = new ApplyFunction(Numbers.addition);
+Adder add = new Adder();
 Connector.connect(source1, 0, add, 0);
 Connector.connect(source2, 0, add, 1);
 Pullable p = add.getPullableOutput();
@@ -206,7 +207,7 @@ for (int i = 0; i < 5; i++)
     System.out.println("The event is: " + x);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinaryWait.java#L47)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinaryWait.java#L46)
 
 
 The chain of processors in this example is almost identical to the previous example, and can be represented graphically as:
@@ -318,9 +319,86 @@ The `for` loop pushes the integers 0 to 7 into the input pipe of `doubler`; the 
 
 Notice the one-second interval between each number. This shows that, in pull mode, nothing happens until an upstream call to `push` triggers the chain of computation.
 
-## Pulling without source, pushing without sink {#without}
+## Pushing on binary processors {#pushbinary}
+
+Push mode exhibits a special behaviour in the case where a processor has an input arity of 2 or more. Consider the following piece of code:
+
+``` java
+Adder add = new Adder();
+Print print = new Print().setSeparator("\n");
+Connector.connect(add, print);
+Pushable p0 = add.getPushableInput(0);
+Pushable p1 = add.getPushableInput(1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/BinaryPush.java#L44)
+
+
+This sets up an `Adder` processor, whose output is connected to a `Print` processor, as illustrated below:
+
+![Pushing events into a processor of input arity 2.](PipingBinaryPush.png)
+
+Since `add` is of input arity 2, it has two `Pushable` objects, numbered 0 and 1. We use a different version of method `getPushableInput()`, which takes an integer as an argument. By convention in our drawings, the first Pullable object is generally located at the top (or the left) of the box, and the second at the bottom (or the right). We shall put little numbers next to the pipes when the context is not clear.
+
+Let us see what happens when pushing numbers into `p0` and `p1`.
+
+``` java
+p0.push(3);
+System.out.println("This is the first printed line");
+p1.push(1);
+p1.push(4);
+p1.push(1);
+System.out.println("This is the third printed line");
+p0.push(5);
+p0.push(9);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/BinaryPush.java#L62)
+
+
+The first line pushes the number 3 into `p0`. However, since nothing has yet been pushed into `p1`, the first front of events is not complete; `add` is not ready to compute an addition, and nothing is pushed to the printer. This means that the next statement, which prints "This is the first printed line", is indeed the first line to be printed at the console. We then push the number 1 into `p1`; now a complete front is ready to be processed, and `add` pushes the number 4 (3+1) to its output pipe. This event is received by the printer, which prints it at the console.
+
+The next two instructions push two numbers into `p1`. Again, nothing is printed, since no new events have been received from `p0`. Hence the next instruction, "This is the third printed line", does produce the third line of the output. We then push the number 5 into `p0`. An event was already pushed into `p1`, so `add` is ready to compute a new addition, and outputs 9 (4+5).
+
+Here, an important remark must be made. The `add` processor computed the addition of number 5 pushed into `p0` with the number **4** that was pushed earlier into `p1`. That is, a processor consumes events from the same pullable **in the order they arrive**. Number 4 is the second event pushed into `p1`; hence it is matched with the second event pushed into `p0`.
+
+The last instruction pushes the number 9 into `p0`. The third event pushed into `p0` is matched with the third event pushed into `p1`, and `add` pushes 10 (1+9) to its output pipe. The end result of this program should be this:
+
+    This is the first printed line
+    4
+    This is the third printed line
+    9
+    10
+
+The remark on the order of arrival is important. It means that each processor has **input queues** to buffer events pushed from upstream until they can be consumed. Here, the numbers 4 and 5 were put into an event queue associated to `p1`, until events were pushed into `p0` and made a computation possible. The nice thing about BeepBeep is that you don't have to worry about these buffers: the system takes care of them by itself in a completely transparent manner.
+
+Note that the order in which events at the same position in two different streams are pushed still does not matter, though. That is, assuming that we are at the start of the program, writing this:
+
+``` java
+p0.push(3);
+p1.push(2);
+```
+
+will produce the same output as writing this:
+
+``` java
+p1.push(2);
+p0.push(3);
+```
+
+The next question that generally comes to one's mind is this: what happens if we keep pushing events on only one of the pullables, and nothing on the other? Since no computation can be made, won't this fill the first Pullable's queue forever? The simple answer to this question is: yes. If we keep pushing events on only one pullable (or more likely, if one of the upstream sources pushes events much faster than the other), we may end up filling one of the event queues and run out of memory.
+
+Although people are very quick to imagine such a catastrophe scenario, they are much slower at identifying a *realistic* use case where this could actually happen. Notice also that this is not a limitation on BeepBeep's side: if your goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, you *have* to store those excess numbers somewhere, and that storage *has* to increase linearly with time. There is no escaping it, whether you use BeepBeep or not!
+
+## A few final notes {#notes}
+
+With these code examples, you know pretty much everything there is about processors in BeepBeep. We have seen how a few simple processor objects can be instantiated and piped together by means of the `Connector` object. We have also explored the two modes by which events can be passed around: *pull* mode where output events are queried by the user, and *push* mode where input events are produced by the user. We also delved on the principles of synchronous processing, and the fact that processors manage internal queues to make sure they always process events at matching positions in their input streams.
+
+The rest of this book is, more or less, simply playing around with these basic concepts. However, before moving on to the fun part, here are a few last comments to be made on processors.
+
+We mentioned earlier that a common mistake is to forget to connect two processors. A variant of this mistake is to forget to attach sources or sinks to the endpoints of a processor chain. Take the very simple example of the `Passthrough` processor, which simply takes input events and returns them as is to its output pipe. It can be drawn as follows:
 
 ![A passthrough without a source or a sink.](Passthrough.png)
+
+Let us create a `Passthrough`, and call `pull` on it, as in the following code example.
 
 ``` java
 Passthrough passthrough = new Passthrough();
@@ -330,6 +408,8 @@ p.pull();
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullWithoutSource.java#L57)
 
 
+This program will throw a `ConnectorException` for the same reasons as before: `passthrough` is asked for a new output event, but it is not connected to anything upstream. That makes sense. What is more surprising is that the reverse mistake also exists in push mode. Consider the following example:
+
 ``` java
 Passthrough passthrough = new Passthrough();
 Pushable p = passthrough.getPushableInput();
@@ -338,9 +418,12 @@ p.push("foo");
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PushWithoutSink.java#L55)
 
 
-## Functions {#functions}
+This time, we attempt to push a string ("foo") into `passthrough` --but this, too, will throw a `ConnectorException`. Indeed: passthrough is asked to relay an event downstream, but nothing is connected to its output pipe. In the same way events cannot be created out of thin air (in pull mode), they cannot vanish into thin air either (in push mode). In other words, a chain of processors must always be **closed**:
 
-ARF
+- In pull mode, all upstream endpoints must be connected to a source
+- In push mode, all downstream endpoints must be connected to a sink
+
+If, for whatever reason, you want to discard events from a downstream processor, you still must connect it to a sink. However, there is a special sink, called [BlackHole](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmp/BlackHole.html), that does exactly that.
 
 ## Exercises {#ex-basic}
 
@@ -348,9 +431,5 @@ ARF
 
 2. Using the `QueueSource` and `Add` processors shown in this chapter, create a chain of processors that outputs the sum of each two consecutive prime numbers. The first six prime numbers are 2, 3, 5, 7, 11 and 13. That is, the first five output events should be 5, 8, 12, 18, 24. (Hint: you will need two `QueueSource`s.)
 
-
-## <a name="context">Context</a>
-
-Each processor instance is also associated with a **context**. A context is a persistent and modifiable map that associates names to arbitrary objects. When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [jdc:ca.uqac.lif.cep.Context](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
 
 <!-- :wrap=soft: -->

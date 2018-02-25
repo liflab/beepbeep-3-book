@@ -1,3 +1,5 @@
+markdown/dictionary/
+
 # Don't version the auto-generated LaTeX sources...
 latex/chapters/
 latex/all.temp.*
