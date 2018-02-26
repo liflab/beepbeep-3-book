@@ -228,11 +228,11 @@ function resolve_javadoc($s)
     $url = get_javadoc_url($match[1]);
     if (isset($match[2]) && !empty($match[2]))
     {
-      $s = str_replace($match[0], "[".trim($match[2])."]($url)", $s);
+      $s = str_replace($match[0], "[`".trim($match[2])."`]($url)", $s);
     }
     else
     {
-      $s = str_replace($match[0], "[".trim($match[1])."]($url)", $s);
+      $s = str_replace($match[0], "[`".trim($match[1])."`]($url)", $s);
     }
   }
   return $s;
