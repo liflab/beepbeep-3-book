@@ -269,11 +269,7 @@ The next question that generally comes to one's mind is this: what happens if we
 
 Although people are very quick to imagine such a catastrophe scenario, they are much slower at identifying a *realistic* use case where this could actually happen. Notice also that this is not a limitation on BeepBeep's side: if your goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, you *have* to store those excess numbers somewhere, and that storage *has* to increase linearly with time. There is no escaping it, whether you use BeepBeep or not!
 
-## A few final notes {#notes}
-
-With these code examples, you know pretty much everything there is about processors in BeepBeep. We have seen how a few simple processor objects can be instantiated and piped together by means of the `Connector` object. We have also explored the two modes by which events can be passed around: *pull* mode where output events are queried by the user, and *push* mode where input events are produced by the user. We also delved on the principles of synchronous processing, and the fact that processors manage internal queues to make sure they always process events at matching positions in their input streams.
-
-The rest of this book is, more or less, simply playing around with these basic concepts. However, before moving on to the fun part, here are a few last comments to be made on processors.
+## Closing processor chains {#closing}
 
 We mentioned earlier that a common mistake is to forget to connect two processors. A variant of this mistake is to forget to attach sources or sinks to the endpoints of a processor chain. Take the very simple example of the `Passthrough` processor, which simply takes input events and returns them as is to its output pipe. It can be drawn as follows:
 
@@ -293,6 +289,12 @@ This time, we attempt to push a string ("foo") into `passthrough` --but this, to
 - In push mode, all downstream endpoints must be connected to a sink
 
 If, for whatever reason, you want to discard events from a downstream processor, you still must connect it to a sink. However, there is a special sink, called {@link jdc:ca.uqac.lif.cep.tmp.BlackHole BlackHole}, that does exactly that.
+
+- - -
+
+With these code examples, you know pretty much everything there is about processors in BeepBeep. We have seen how a few simple processor objects can be instantiated and piped together by means of the `Connector` object. We have also explored the two modes by which events can be passed around: *pull* mode where output events are queried by the user, and *push* mode where input events are produced by the user. We also delved on the principles of synchronous processing, and the fact that processors manage internal queues to make sure they always process events at matching positions in their input streams.
+
+The rest of this book is, more or less, simply playing around with these basic concepts.
 
 ## Exercises {#ex-basic}
 

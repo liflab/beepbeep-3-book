@@ -222,7 +222,7 @@ function fix_indentation($s)
  */
 function resolve_javadoc($s)
 {
-  preg_match_all("/\\{@link\\s*(jd.:.*?)(\\s+.*?){0,1}\\}/", $s, $matches, PREG_SET_ORDER);
+  preg_match_all("/\\{@link\\s*(jd.:.*?)(\\s+[^\\s]*?){0,1}\\}/", $s, $matches, PREG_SET_ORDER);
   foreach ($matches as $match)
   {
     $url = get_javadoc_url($match[1]);
