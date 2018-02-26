@@ -137,7 +137,7 @@ for (int i = 0; i < 5; i++)
 
 Here, we create three sources of numbers; events from the first two are added, and the result is multiplied by the event at the corresponding position in the third stream. The schema of such a program becomes more interesting:
 
-![Chaining function processors.](SimpleFunction.png)
+![Chaining function processors.](FunctionChain.png)
 
 The expected output of the program should look like this:
 
@@ -151,34 +151,201 @@ Indeed, (2+3)×1=5, (7+1)×1=8, (1+4)×2=10, and so on.
 
 ## Function trees {#trees}
 
-Trees.
-    
+In the previous example, if we name the three input streams *x*, *y* and *z*, the processor chain we created corresponds informally to the expression (*x*+*y*)×*z*. However, having to write each arithmetical operator as an individual processor can become tedious. After all, (*x*+*y*)×*z* is itself a function *f*(*x*,*y*,*z*) of three variables; isn't there a way to create a `Function` object corresponding to this expression, and to give *that* to a single `ApplyFunction` processor?
+
+Fortunately, the answer is yes. It is possible to create complex functions by composing simpler ones, through the use of a special `Function` object called the [FunctionTree](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/FunctionTree.html). As its name implies, a `FunctionTree` is exactly that: a tree structure whose nodes can either be:
+
+- a `Function` object;
+- another `FunctionTree`;
+- or a special type of variable, called a `StreamVariable`.
+
+By nesting function trees within each other, it is possible to create complex expressions from simpler functions. As an example, let us revisit the previous program, and simplify the chain of `ApplyFunction` processors:
+
+``` java
+QueueSource source1 = new QueueSource().setEvents(2, 7, 1, 8, 3);
+QueueSource source2 = new QueueSource().setEvents(3, 1, 4, 1, 6);
+QueueSource source3 = new QueueSource().setEvents(1, 1, 2, 3, 5);
+FunctionTree tree = new FunctionTree(Numbers.multiplication,
+        new FunctionTree(Numbers.addition,
+                StreamVariable.X, StreamVariable.Y),
+        StreamVariable.Z);
+ApplyFunction exp = new ApplyFunction(tree);
+Connector.connect(source1, 0, exp, 0);
+Connector.connect(source2, 0, exp, 1);
+Connector.connect(source3, 0, exp, 2);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionTreeUsage.java#L42)
+
+
+After creating the three sources, we instantiate a new `FunctionTree` object. The first argument is the function at the root of the tree; in an expression using parentheses, this corresponds to the operator that is to be evaluated *last* (here, the multiplication). The number of arguments that follow is variable: it corresponds to the expressions that are the arguments of the operator. In our example, the left-hand side of the multiplication is itself a `FunctionTree`. The operator of this inner tree is the addition, followed by its two arguments. Since we want to add the events coming from the first and second streams, these arguments are two `StreamVariable` objects. By convention, `StreamVariable.X` corresponds to input stream number 0, while `StreamVariable.Y` corresponds to input stream number 1. Finally, the right-hand side of the multiplication is `StreamVariable.Z`, which by convention corresponds to input stream number 2.
+
+This single-line instruction effectively created a new `Function` object with three arguments, which is then given to an `ApplyFunction` processor like any other function. Processor `exp` has an input arity of 3; we can connect all three sources directly into it: `source1` into input stream 0, `source2` into input stream 1, and `source3` into input stream 2. Graphically, this can be illustrated as follows:
+
+![Chaining function processors.](FunctionTreeUsage.png)
+
+As one can see, the single `ApplyFunction` processor is attached to a tree of functions, which corresponds to the object built by line 4. By convention, stream variables are represented by diamonds, with either the name of a stream variable (*x*, *y* or *z*), or equivalently with a number designating the input stream. Again, the color of the nodes depicts the type of objects being manipulated. For the sake of clarity, in the remainder of the book, we will sometimes forego the representation of a function as a tree, and use an inline notation such as (*x*+*y*)×*z* to simplify the drawing.
+
+Pulling events from `exp` will result in the same result as before:
+
+    The event is: 5.0
+    The event is: 8.0
+    The event is: 10.0
+    The event is: 27.0
+    The event is: 45.0
+
+Note that a stream variable may appear more than once in a function tree. Hence an expression like (*x*+*y*)×(*x*+*z*) is perfectly fine.
+
 ## Forking a stream {#fork}
 
-The fork
+Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to "split" the original stream into multiple identical copies. This is the purpose of the [Fork](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Fork.html) processor.
 
-## Trimming events {#trim}
+As a first example, let us connect a queue source to create a fork processor that will replicate each input event in two output streams. The "2" passed as an argument to the fork's constructor signifies this.
 
-Coupled with the fork, `Trim` can be useful to perform a computation on successive events. For example, we can compute the sum of each pair of two successive events...
+``` java
+QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5);
+Fork fork = new Fork(2);
+Connector.connect(source, fork);
+Pullable p0 = fork.getPullableOutput(0);
+Pullable p1 = fork.getPullableOutput(1);
+System.out.println("Output from p0: " + p0.pull());
+System.out.println("Output from p1: " + p1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ForkPull.java#L48)
 
-We can also use trim to check if an event is 
+
+![Pulling events from a fork.](ForkPull.png)
+
+We get Pullables on both outputs of the fork (`p0` and `p1`), and then pull a first event from `p0`. As expected, `p1` returns the first event of the source, which is the number 1:
+
+    Output from p0: 1
+
+We then pull an event from `p1`. Surprisingly (perhaps), the output is:
+
+    Output from p1: 1
+
+...and not 2 as we might have expected. This can be explained by the fact that each input event in the fork is replicated to all its output pipes. The fact that we pulled an event from `p0` has no effect on `p1`, and vice versa. The independence between the fork's two outputs is further illustrated by this sequence of calls:
+
+``` java
+System.out.println("Output from p0: " + p0.pull());
+System.out.println("Output from p0: " + p0.pull());
+System.out.println("Output from p1: " + p1.pull());
+System.out.println("Output from p0: " + p0.pull());
+System.out.println("Output from p1: " + p1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ForkPull.java#L76)
+
+
+which produces the output:
+
+    Output from p0: 2
+    Output from p0: 3
+    Output from p1: 2
+    Output from p0: 4
+    Output from p1: 3
+
+Notice how each pullable moves through the input stream independently of calls to the other pullable.
+
+Forks also exhibit a special behaviour in push mode. Consider the following example:
+
+``` java
+Fork fork = new Fork(3);
+Print p0 = new Print().setSeparator("\n").setPrefix("P0 ");
+Print p1 = new Print().setSeparator("\n").setPrefix("P1 ");
+Print p2 = new Print().setSeparator("\n").setPrefix("P2 ");
+Connector.connect(fork, 0, p0, INPUT);
+Connector.connect(fork, 1, p1, INPUT);
+Connector.connect(fork, 2, p2, INPUT);
+Pushable p = fork.getPushableInput();
+p.push("foo");
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ForkPush.java#L54)
+
+
+We create a fork processor that will replicate each input event in three output streams. We now create three "print" processors. Each simply prints to the console whatever event they receive. We ask each of them to append their printed line with a different prefix ("Px") so we can know who is printing what. Finally, we connect each of the three outputs streams of the fork (numbered 0, 1 and 2) to the input of each print processor. This corresponds to the following schema:
+
+![Pushing events into a fork.](ForkPush.png)
+
+Let's now push an event to the input of the fork and see what happens. We should see on the console:
+
+    P0 foo
+    P1 foo
+    P2 foo
+
+The three lines should be printed almost instantaneously. This shows that all three print processors received their input event at the "same" time. This is not exactly true: the fork processor pushes the event to each of its outputs in sequence; however, since the time it takes to do so is so short, we can consider this to be instantaneous.
 
 ## Cumulate values {#cumulate}
 
-A variant of the function processor is the {@link ca.uqac.lif.cep.functions.CumulativeProcessor CumulativeProcessor}. Contrarily to the processors above, which are stateless, a cumulative processor is stateful. A `CumulativeProcessor` is given a binary function *f*. Intuitively, if *x* is the previous value returned by the processor, its output on the next event *y* will be *f(x,y)*. The processor requires an initial value *t* to compute its first output.
+A variant of the function processor is the {@link ca.uqac.lif.cep.functions.Cumulate Cumulate} processor. Contrary to all the processors we have seen so far, which are stateless, `Cumulate` is our first example of a **stateful** processor: this means that the output it returns for a given event depends on what it has output in the past. In other words, a stateful processor has a "memory", and the same input event may produce different outputs. 
 
-Depending on the function *f*, cumulative processors can represent many things. In the following code example, *f* is addition and 0 is the start value.
+A `Cumulate` is given a function *f* of two arguments. Intuitively, if *x* is the previous value returned by the processor, its output on the next event *y* will be *f(x,y)*. Upon receiving the first event, since no previous value was ever set, the processor requires an initial value *t* to use in place of *x*.
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/Examples/src/queries/CumulativeSum.java</code></pre>
+As its name implies, `Cumulate` is intended to compute a cumulative "sum" of all the values received so far. The simplest example is when *f* is addition, and 0 is used as the start value *t*.
 
-The processor outputs the cumulative sum of all values received so far:
+``` java
+QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
+Cumulate sum = new Cumulate(
+        new CumulativeFunction<Number>(Numbers.addition));
+Connector.connect(source, sum);
+Pullable p = sum.getPullableOutput();
+for (int i = 0; i < 5; i++)
+{
+    System.out.println("The event is: " + p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/CumulativeSum.java#L41)
 
-    The event is: 1
-    The event is: 3
-    The event is: 6
-    The event is: 10
+
+We first wrap the `Addition` function into a [CumulativeFunction](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/CumulativeFunction.html). This object extends addition by defining a start value *t*. It is then given to the `Cumulate` processor. Graphically, this can be drawn as follows:
+
+![Computing the cumulative sum of numbers.](CumulativeSum.png)
+
+The `Cumulate` processor is represented by a box with the Greek letter sigma. On one side of the box is the function used for the cumulation (here addition), and on the other side is the start value *t* used when receiving the first event (here 0).
+
+Upon receiving the first event *y*=1, the cumulate processor computes *f*(*x*,1). Since no previous value *x* has yet been output, the processor uses the start value *t*=0 instead. Hence, the processor computes *f*(0,1), that is, 0+1=1, and returns 1 as its first output event.
+
+Upon receiving the second event *y*=2, the cumulate processor computes *f*(*x*,2), with *x* being the event output at the previous step --that is, *x*=1. This amounts to computing *f*(1,2), that is 1+2=3. Upon receiving the third event *y*=3, the processor computes *f*(3,3) = 3+3 = 6. As we can see, the processor outputs the cumulative sum of all values received so far:
+
+    The event is: 1.0
+    The event is: 3.0
+    The event is: 6.0
+    The event is: 10.0
     ...
 
-As another example, if *f* is the [three-valued logical conjunction](https://en.wikipedia.org/wiki/Three-valued_logic#Kleene_and_Priest_logics) and "?" is the start value, then the processor computes the three-valued conjunction of events received so far, and has the same semantics as the LTL3 "Globally" operator.
+Cumulative processors and function processors can be put toghether into a common pattern, illustrated by the following schema:
+
+![The running average of a stream of numbers.](Average.png)
+
+We first create a source of arbitrary numbers. We pipe the output of this processor to a cumulative processor. Then, we create a source of 1s and sum it; this is done with the same process as above, but on a stream that output the value 1 all the time. This effectively creates a counter outputting 1, 2, 3, etc. We finally divide one stream by the other.
+
+Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{runnning average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
+
+``` java
+       QueueSource numbers = new QueueSource(1);
+       numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+               4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+       Cumulate sum_proc = new Cumulate(
+               new CumulativeFunction<Number>(Numbers.addition));
+       Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
+       QueueSource ones = new QueueSource(1);
+       ones.addEvent(1);
+       Cumulate counter = new Cumulate(
+               new CumulativeFunction<Number>(Numbers.addition));
+       Connector.connect(ones, OUTPUT, counter, INPUT);
+       ApplyFunction division = new ApplyFunction(Numbers.division);
+       Connector.connect(sum_proc, OUTPUT, division, LEFT);
+       Connector.connect(counter, OUTPUT, division, RIGHT);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/Average.java#L73)
+
+
+This example, however, requires a second queue just to count events received. Our chain of processors can be refined by creating a counter out of the original stream of values, as follows:
+
+![Running average that does not rely on an external counter.](AverageFork.png)
+
+We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called [TurnInto](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/TurnInto.html); this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to turn every event into the number 1. This stream of 1s is then summed, and the two streams are divided.
+
+However, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things.
+
+
 
 <!-- :wrap=soft: -->
