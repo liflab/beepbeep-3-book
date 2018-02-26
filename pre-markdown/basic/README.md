@@ -5,7 +5,7 @@ In this chapter, you will learn about the the fundamental principles for using B
 
 ## Processors
 
-The first fundamental building block of BeepBeep is an object called a **processor**. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality. In terms of Java, all processors are descendents of the generic {@link jdc:ca.uqac.lif.cep.Processor Processor} class.
+The first fundamental building block of BeepBeep is an object called a <!--\index{processor} \textbf{processor}-->**processor**<!--/i-->. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality. In terms of Java, all processors are descendents of the generic {@link jdc:ca.uqac.lif.cep.Processor Processor} class.
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, we will often represent processors graphically exactly in this way, as the following figure shows. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
@@ -13,25 +13,25 @@ An easy way to understand processors is to think of them as "boxes" having one o
 
 The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
 
-The number of input and output pipes is called the (input and output) **arity** of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
+The number of input and output pipes is called the (input and output) <!--\index{arity} \textbf{processor!arity}-->**arity**<!--/i--> of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
 
 A processor produces its output in a *streaming* fashion: this means that output events are made available progressively while the input events are consumed. In other words, a processor does not wait to read its entire input trace before starting to produce output events. However, a processor can require more than one input event to create an output event, and hence may not always output something right away.
 
 ## Pulling events
 
-There are two ways to interact with a processor. The first is by getting a hold of the processor's output pipe, and by repeatedly asking for new events. The action of requesting a new output event is called **pulling**, and this mode of operation is called *pull mode*.
+There are two ways to interact with a processor. The first is by getting a hold of the processor's output pipe, and by repeatedly asking for new events. The action of requesting a new output event is called **pulling**, and this mode of operation is called <!--\index{pull mode} \emph{pull mode}-->*pull mode*<!--/i-->.
 
 Let us instantiate a simple processor and pull events from it. The following code snippet shows such a thing, using a processor called {@link jdc:ca.uqac.lif.cep.QueueSource QueueSource}.
 
 {@snipm basic/QueueSourceUsage.java}{/}
 
-`QueueSource` is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers). Graphically, this can be represented as follows:
+<!--\index{QueueSource@\texttt{QueueSource}} \texttt{QueueSource}-->`QueueSource`<!--/i--> is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers). Graphically, this can be represented as follows:
 
 {@img doc-files/basic/QueueSourceUsage.png}{A first example}{.6}
 
 As one can see, the `QueueSource` object is a special type of processor that has an output pipe, but no input pipe (that is, its input arity is zero). This means that it does not produce events based on the output produced by other processors; in other words, it is impossible to connect another processor into a `QueueSource` (or into any other processor of input arity zero, for that matter). Rather, output events are produced "out of thin air" --or more accurately, from a list of values that is given to the source when it instantiated. In the schema, this list is shown in the white rectangle that overlaps with the source's box.
 
-To collect events from a processor's output, one uses a special object called a {@link jdc:ca.uqac.lif.cep.Pullable Pullable}. The third instruction takes care of obtaining an instance of `Pullable` corresponding to `QueueSource`'s output.
+To collect events from a processor's output, one uses a special object called a {@link jdc:ca.uqac.lif.cep.Pullable Pullable}. The third instruction takes care of obtaining an instance of <!--\index{Pullable@\texttt{Pullable}} \texttt{Pullable}-->`Pullable`<!--/i--> corresponding to `QueueSource`'s output.
 
 A `Pullable` can be seen as a form of iterator over an output trace. It provides a method, called {@link jdm:ca.uqac.lif.cep.Pullable#pull() pull()}; each call to `pull()` asks the corresponding processor to produce one more output event. The loop in the previous code snippet amounts to calling `pull()` eight times. Since events handled by processors can be anything (Booleans, numbers, strings, sets, etc.), the method returns an object of the most generic type, i.e. `Object`. It is up to the user of a processor to know what precise type of event this return value can be cast into. In our case, we know that the `QueueSource` we created returns integers, and so we manually cast the output of `pull()` into objects of this type.
 
@@ -62,13 +62,13 @@ Let us create a simple example of piping by building upon the previous example, 
 
 {@snipm basic/PipingUnary.java}{/}
 
-First, a `QueueSource` is created as before; then, an instance of another processor called `Doubler` is also created. For the sake of the example, let us simply assume that `Doubler` takes arbitrary integers as its input, multiples them by two, and returns the result as its output.
+First, a `QueueSource` is created as before; then, an instance of another processor called <!--\index{Doubler@\texttt{Doubler}} \texttt{Doubler}-->`Doubler`<!--/i--> is also created. For the sake of the example, let us simply assume that `Doubler` takes arbitrary integers as its input, multiples them by two, and returns the result as its output.
 
 The next instruction uses the {@link jdc:ca.uqac.lif.cep.Connector Connector} object to pipe the two processors together. The call to method {@link jdm:ca.uqac.lif.cep.Connector#connect(Processor ...) connect()} sets up the processors so that the output of `source` is sent directly to the input of `doubler`. Graphically, this can be represented as follows:
 
 {@img doc-files/basic/PipingUnary.png}{Piping the output of a `QueueSource` into a `Doubler` processor.}{.6}
 
-Notice how the schema now contains two boxes: one for the source, and one for the doubler. The call to `connect` is represented by the "pipe" that links the output of the source to the input of the doubler.
+Notice how the schema now contains two boxes: one for the source, and one for the doubler. The call to <!--\index{Connector@\texttt{Connector}} \texttt{Connector}-->`Connector`<!--/i-->'s `connect` is represented by the "pipe" that links the output of the source to the input of the doubler.
 
 We can then obtain `doubler`'s `Pullable` object, and fetch its output events like before. The output of this program will be:
 
@@ -101,7 +101,7 @@ Notice how the pipe between the source and the Doubler processor is missing. Att
     Input 0 of this processor is connected to nothing
 	  at ca.uqac.lif.cep.SingleProcessor$OutputPullable.hasNext...
 
-What happens concretely is that, when a call to `doubler`'s `Pullable` object is made, it turns around to ask for an input event from upstream, and realizes that it has never been told whom to ask (this is what the call to `connect` does). Consequently, it throws a `PullableException` alerting the user of that issue. Notice that this is a *runtime* error; the program still compiles perfectly.
+What happens concretely is that, when a call to `doubler`'s `Pullable` object is made, it turns around to ask for an input event from upstream, and realizes that it has never been told whom to ask (this is what the call to `connect` does). Consequently, it throws a <!--\index{PullableException@\texttt{PullableException}} \texttt{PullableException}-->`PullableException`<!--/i--> alerting the user of that issue. Notice that this is a *runtime* error; the program still compiles perfectly.
 
 The second mistake is to **call `pull` on an intermediate processor**. In our original example, it would be an error for the user to perform their own pulls on `source`, instead of or in addition to the pulls on `doubler`. Consider the same chain of processors as above, but with the loop replaced by the following instructions:
 
@@ -186,17 +186,17 @@ A processor can be queried for the types it accepts for input number *n* by usin
 
 ## Pushing events {#pushing}
 
-Earlier we mentioned there were two ways to interact with a processor. The first, which we have used so far, is called *pulling*. The second, as you may guess, is called **pushing**, and works more or less in reverse. In so-called *push mode*, rather than querying events form a processor's output, we give events to a processor's input. This has for effect of triggering the processor's computation and "pushing" events (if any) to the processor's output.
+Earlier we mentioned there were two ways to interact with a processor. The first, which we have used so far, is called *pulling*. The second, as you may guess, is called **pushing**, and works more or less in reverse. In so-called <!--\index{push mode} \emph{push mode}-->*push mode*<!--/i-->, rather than querying events form a processor's output, we give events to a processor's input. This has for effect of triggering the processor's computation and "pushing" events (if any) to the processor's output.
 
 Let us instantiate a simple processor and push events to it. The following code snippet shows such a thing, using a processor called {@link jdc:ca.uqac.lif.cep.QueueSink QueueSink}.
 
 {@snipm basic/QueueSinkUsage.java}{/}
 
-`QueueSink` is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
+<!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!--/i--> is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
 
 {@img doc-files/basic/QueueSinkUsage.png}{Pushing events to a `QueueSink`.}{.6}
 
-In order to push events to this processor, we need to get a reference to its input pipe; this is done with method {@link jdm:ca.uqac.lif.cep.Processor#getPushableInput() getPushableInput()}, which gives us an instance of a {@link jdc:ca.uqac.lif.cep.Pushable Pushable} object. A `Pushable` defines one important method, called `push()`, which allows us to give events to its associated processor. In the previous code snippet, we see two calls to method `push`, sending the strings "foo" and "bar".
+In order to push events to this processor, we need to get a reference to its input pipe; this is done with method {@link jdm:ca.uqac.lif.cep.Processor#getPushableInput() getPushableInput()}, which gives us an instance of a {@link jdc:ca.uqac.lif.cep.Pushable Pushable} object. A <!--\index{Pushable@\texttt{Pushable}} \texttt{Pushable}-->`Pushable`<!--/i--> defines one important method, called `push()`, which allows us to give events to its associated processor. In the previous code snippet, we see two calls to method `push`, sending the strings "foo" and "bar".
 
 As we said, `QueueSink` simply accumulates the pushed events into a queue. It is possible to access that queue by calling a method called `getQueue()` on the processor, as is done on line 5. The contents of that queue are then printed; at this point in the program, the queue contains the strings "foo" and "bar", resulting in the first line printed at the console:
 
@@ -225,7 +225,7 @@ Push mode exhibits a special behaviour in the case where a processor has an inpu
 
 {@snipm basic/BinaryPush.java}{/}
 
-This sets up an `Adder` processor, whose output is connected to a `Print` processor, as illustrated below:
+This sets up an <!--\index{Adder@\texttt{Adder}} \texttt{Adder}-->`Adder`<!--/i--> processor, whose output is connected to a <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, as illustrated below:
 
 {@img doc-files/basic/PipingBinaryPush.png}{Pushing events into a processor of input arity 2.}{.6}
 
@@ -271,7 +271,7 @@ Although people are very quick to imagine such a catastrophe scenario, they are 
 
 ## Closing processor chains {#closing}
 
-We mentioned earlier that a common mistake is to forget to connect two processors. A variant of this mistake is to forget to attach sources or sinks to the endpoints of a processor chain. Take the very simple example of the `Passthrough` processor, which simply takes input events and returns them as is to its output pipe. It can be drawn as follows:
+We mentioned earlier that a common mistake is to forget to connect two processors. A variant of this mistake is to forget to attach sources or sinks to the endpoints of a processor chain. Take the very simple example of the <!--\index{Passthrough@\texttt{Passthrough}} \texttt{Passthrough}-->`Passthrough`<!--/i--> processor, which simply takes input events and returns them as is to its output pipe. It can be drawn as follows:
 
 {@img doc-files/basic/Passthrough.png}{A passthrough without a source or a sink.}{.6}
 
@@ -279,7 +279,7 @@ Let us create a `Passthrough`, and call `pull` on it, as in the following code e
 
 {@snipm basic/PullWithoutSource.java}{/}
 
-This program will throw a `ConnectorException` for the same reasons as before: `passthrough` is asked for a new output event, but it is not connected to anything upstream. That makes sense. What is more surprising is that the reverse mistake also exists in push mode. Consider the following example:
+This program will throw a <!--\index{ConnectorException@\texttt{ConnectorException}} \texttt{ConnectorException}-->`ConnectorException`<!--/i--> for the same reasons as before: `passthrough` is asked for a new output event, but it is not connected to anything upstream. That makes sense. What is more surprising is that the reverse mistake also exists in push mode. Consider the following example:
 
 {@snipm basic/PushWithoutSink.java}{/}
 
