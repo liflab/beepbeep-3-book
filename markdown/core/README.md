@@ -5,9 +5,9 @@ BeepBeep is organized along a modular architecture. The main part of BeepBeep is
 
 ## Function objects {#functions}
 
-A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something that accepts *arguments* and produces a return *value*. In BeepBeep, functions are "first-class citizens"; this means that every function that is to be applied on an event is itself an object, which inherits from a generic class called [Function](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Function.html). For example, the negation of a Boolean value is a function object called [Negation](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans/Negation.html); the sum of two numbers is also a function object called [Addition](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html).
+A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something that accepts *arguments* and produces a return *value*. In BeepBeep, functions are "first-class citizens"; this means that every function that is to be applied on an event is itself an object, which inherits from a generic class called [`Function`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Function.html). For example, the negation of a Boolean value is a function object called [`Negation`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans/Negation.html); the sum of two numbers is also a function object called [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html).
 
-Function objects can be instantiated and manipulated directly. The BeepBeep classes [Booleans](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [Numbers](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [Sets](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
+Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
         Function negation = Booleans.not;
@@ -18,15 +18,15 @@ Function objects can be instantiated and manipulated directly. The BeepBeep clas
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L37)
 
 
-The first instruction gets a reference to a `Function` object, corresponding to the static member field `not` of class `Booleans`. This field refers to an instance of a function called [Negation](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans/Negation.html). As a matter of fact, this is the only way to get an instance of <!--\index{Negation@\texttt{Negation}} \texttt{Negation}-->`negation`<!--/i-->: its constructor is declared as `private`, which makes it impossible to create a new instance of the object using `new`. This is done on purpose, so that only one instance of `Negation` ever exists in a program --effectively making `Negation` a <!--\index{singleton} \emph{singleton}-->*singleton*<!--/i--> object. We shall see that the vast majority of `Function` objects are singletons, and are referred to using a static member field of some other object.
+The first instruction gets a reference to a `Function` object, corresponding to the static member field `not` of class `Booleans`. This field refers to an instance of a function called [`Negation`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans/Negation.html). As a matter of fact, this is the only way to get an instance of <!--\index{Negation@\texttt{Negation}} \texttt{Negation}-->`negation`<!--/i-->: its constructor is declared as `private`, which makes it impossible to create a new instance of the object using `new`. This is done on purpose, so that only one instance of `Negation` ever exists in a program --effectively making `Negation` a <!--\index{singleton} \emph{singleton}-->*singleton*<!--/i--> object. We shall see that the vast majority of `Function` objects are singletons, and are referred to using a static member field of some other object.
 
-In order to perform a computation, every function defines a method called [evaluate()](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Function.html#evaluate(Object[], Object[])). This method takes two arguments; the first is an array of objects, corresponding to the input values of the function. The second is another array of objects, intended to receive the output values of the function. Hence, like for a processor, a function also has an input arity and an output arity.
+In order to perform a computation, every function defines a method called [`evaluate()`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Function.html#evaluate(Object[], Object[])). This method takes two arguments; the first is an array of objects, corresponding to the input values of the function. The second is another array of objects, intended to receive the output values of the function. Hence, like for a processor, a function also has an input arity and an output arity.
 
 For function `Negation`, both are equal to one: the negation takes one Boolean value as its argument, and returns the negation of that value. The second line of the example creates an array of size 1 to hold the return value of the function. Line 3 calls `evaluate`, with the Boolean value `true` used as the argument of the function. Finally, line 4 prints the result:
 
     The return value of the function is: false
 
-Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [Addition](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
+Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
 
 ``` java
         Function addition = Numbers.addition;
@@ -58,7 +58,7 @@ The first instruction creates a new instance of another `Function` object, this 
 
 ## Applying a function on a stream {#applyfunction}
 
-A function is a "static" object: a call to `evaluate` receives a single set of arguments, computes a return value, and ends. In many cases, it may be desirable to apply a function to each event of a stream. In other words, we would like to "turn" a function into a processor that applies this function. The processor responsible for this is called [ApplyFunction](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/ApplyFunction.html). When instantiated, <!--\index{ApplyFunction@\texttt{ApplyFunction}} \texttt{ApplyFunction}-->`ApplyFunction`<!--/i--> must be given a `Function` object; it calls this function's `evaluate` on each input event, and returns the result on its output pipe.
+A function is a "static" object: a call to `evaluate` receives a single set of arguments, computes a return value, and ends. In many cases, it may be desirable to apply a function to each event of a stream. In other words, we would like to "turn" a function into a processor that applies this function. The processor responsible for this is called [`ApplyFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/ApplyFunction.html). When instantiated, <!--\index{ApplyFunction@\texttt{ApplyFunction}} \texttt{ApplyFunction}-->`ApplyFunction`<!--/i--> must be given a `Function` object; it calls this function's `evaluate` on each input event, and returns the result on its output pipe.
 
 In the following bit of code, an `ApplyFunction` is created by applying the Boolean negation function to an input trace of Boolean values:
 
@@ -153,7 +153,7 @@ Indeed, (2+3)×1=5, (7+1)×1=8, (1+4)×2=10, and so on.
 
 In the previous example, if we name the three input streams *x*, *y* and *z*, the processor chain we created corresponds informally to the expression (*x*+*y*)×*z*. However, having to write each arithmetical operator as an individual processor can become tedious. After all, (*x*+*y*)×*z* is itself a function *f*(*x*,*y*,*z*) of three variables; isn't there a way to create a `Function` object corresponding to this expression, and to give *that* to a single `ApplyFunction` processor?
 
-Fortunately, the answer is yes. It is possible to create complex functions by composing simpler ones, through the use of a special `Function` object called the [FunctionTree](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/FunctionTree.html). As its name implies, a <!--\index{FunctionTree@\texttt{FunctionTree}} \texttt{FunctionTree}-->`FunctionTree`<!--/i--> is exactly that: a tree structure whose nodes can either be:
+Fortunately, the answer is yes. It is possible to create complex functions by composing simpler ones, through the use of a special `Function` object called the [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/FunctionTree.html). As its name implies, a <!--\index{FunctionTree@\texttt{FunctionTree}} \texttt{FunctionTree}-->`FunctionTree`<!--/i--> is exactly that: a tree structure whose nodes can either be:
 
 - a `Function` object;
 - another `FunctionTree`;
@@ -197,7 +197,7 @@ Note that a stream variable may appear more than once in a function tree. Hence 
 
 ## Forking a stream {#fork}
 
-Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} ``split''-->"split"<!--/i--> the original stream into multiple identical copies. This is the purpose of the [Fork](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Fork.html) processor.
+Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} ``split''-->"split"<!--/i--> the original stream into multiple identical copies. This is the purpose of the [`Fork`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Fork.html) processor.
 
 As a first example, let us connect a queue source to create a fork processor that will replicate each input event in two output streams. The "2" passed as an argument to the fork's constructor signifies this.
 
@@ -275,7 +275,7 @@ The three lines should be printed almost instantaneously. This shows that all th
 
 ## Cumulate values {#cumulate}
 
-A variant of the function processor is the [Cumulate](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Cumulate.html) processor. Contrary to all the processors we have seen so far, which are stateless, <!--\index{Cumulate@\texttt{Cumulate}} \texttt{Cumulate}-->`Cumulate`<!--/i--> is our first example of a <!--\index{stateful processor} \textbf{stateful}-->**stateful**<!--/i--> processor: this means that the output it returns for a given event depends on what it has output in the past. In other words, a stateful processor has a "memory", and the same input event may produce different outputs. 
+A variant of the function processor is the [`Cumulate`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Cumulate.html) processor. Contrary to all the processors we have seen so far, which are stateless, <!--\index{Cumulate@\texttt{Cumulate}} \texttt{Cumulate}-->`Cumulate`<!--/i--> is our first example of a <!--\index{stateful processor} \textbf{stateful}-->**stateful**<!--/i--> processor: this means that the output it returns for a given event depends on what it has output in the past. In other words, a stateful processor has a "memory", and the same input event may produce different outputs. 
 
 A `Cumulate` is given a function *f* of two arguments. Intuitively, if *x* is the previous value returned by the processor, its output on the next event *y* will be *f(x,y)*. Upon receiving the first event, since no previous value was ever set, the processor requires an initial value *t* to use in place of *x*.
 
@@ -295,7 +295,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/CumulativeSum.java#L41)
 
 
-We first wrap the `Addition` function into a [CumulativeFunction](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/CumulativeFunction.html). This object extends addition by defining a start value *t*. It is then given to the `Cumulate` processor. Graphically, this can be drawn as follows:
+We first wrap the `Addition` function into a [`CumulativeFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/CumulativeFunction.html). This object extends addition by defining a start value *t*. It is then given to the `Cumulate` processor. Graphically, this can be drawn as follows:
 
 ![Computing the cumulative sum of numbers.](CumulativeSum.png)
 
@@ -326,11 +326,7 @@ Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the fi
         Cumulate sum_proc = new Cumulate(
                 new CumulativeFunction<Number>(Numbers.addition));
         Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
-        QueueSource ones = new QueueSource(1);
-        ones.addEvent(1);
-        Cumulate counter = new Cumulate(
-                new CumulativeFunction<Number>(Numbers.addition));
-        Connector.connect(ones, OUTPUT, counter, INPUT);
+        QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
         ApplyFunction division = new ApplyFunction(Numbers.division);
         Connector.connect(sum_proc, OUTPUT, division, LEFT);
         Connector.connect(counter, OUTPUT, division, RIGHT);
@@ -342,10 +338,34 @@ This example, however, requires a second queue just to count events received. Ou
 
 ![Running average that does not rely on an external counter.](AverageFork.png)
 
-We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called [TurnInto](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/TurnInto.html); this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, and the two streams are divided.
+We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called [`TurnInto`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/TurnInto.html); this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, effectively creating a counter 1, 2, 3, etc. The two streams are then divided as in the original example.
 
-However, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things.
+It shall be noted that, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things. For example, in the next code snippet, we create a stream of Boolean values, and pipe it into a `Cumulate` processor, using <!--\index{conjunction (logical operator)} logical conjunction-->logical conjunction<!--/i--> ("and") as the function, and `true` as the start value:
+
+``` java
+QueueSource source = new QueueSource().setEvents(true, true, false, true, true);
+Cumulate and = new Cumulate(
+        new CumulativeFunction<Boolean>(Booleans.and));
+Connector.connect(source, and);
+Pullable p = and.getPullableOutput();
+for (int i = 0; i < 5; i++)
+{
+    System.out.println("The event is: " + p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/CumulateAnd.java#L41)
 
 
+![Using the Boolean "and" operator in a `Cumulate` processor.](CumulateAnd.png)
+
+When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, no matter the input events that arrive. This is because the conjunction of `false` with anything always returns `false`. Hence, the expected output of the program is this:
+
+    The event is: true
+    The event is: true
+    The event is: false
+    The event is: false
+    The event is: false
+
+Intuitively, this processor performs the logical conjunction of all events received so far. This conjunction becomes false forever, as soon as a `false` event is received.
 
 <!-- :wrap=soft: -->

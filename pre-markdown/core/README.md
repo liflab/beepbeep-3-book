@@ -201,10 +201,22 @@ This example, however, requires a second queue just to count events received. Ou
 
 {@img doc-files/basic/AverageFork.png}{Running average that does not rely on an external counter.}{.6}
 
-We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called {@link jdc:ca.uqac.lif.cep.functions.TurnInto TurnInto}; this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, and the two streams are divided.
+We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called {@link jdc:ca.uqac.lif.cep.functions.TurnInto TurnInto}; this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, effectively creating a counter 1, 2, 3, etc. The two streams are then divided as in the original example.
 
-However, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things.
+It shall be noted that, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things. For example, in the next code snippet, we create a stream of Boolean values, and pipe it into a `Cumulate` processor, using <!--\index{conjunction (logical operator)} logical conjunction-->logical conjunction<!--/i--> ("and") as the function, and `true` as the start value:
 
+{@snipm functions/CumulateAnd.java}{/}
 
+{@img doc-files/functions/CumulateAnd.png}{Using the Boolean "and" operator in a `Cumulate` processor.}{.6}
+
+When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, no matter the input events that arrive. This is because the conjunction of `false` (the previous output event) with anything always returns `false`. Hence, the expected output of the program is this:
+
+    The event is: true
+    The event is: true
+    The event is: false
+    The event is: false
+    The event is: false
+
+Intuitively, this processor performs the logical conjunction of all events received so far. This conjunction becomes false forever, as soon as a `false` event is received.
 
 <!-- :wrap=soft: -->
