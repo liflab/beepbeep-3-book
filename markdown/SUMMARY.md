@@ -24,6 +24,8 @@
   * [Forking a stream](core/README.md#fork)
   * [Cumulate values](core/README.md#cumulate)
   * [Trimming events](core/README.md#trim)
+  * [Sliding windows](core/README.md#windows)
+  * [Group processors](core/README.md#group)
   * [Exercises](core/README.md#ex-core)
 * [Extending BeepBeep](custom/README.md)
   * [Custom Functions](custom/custom_functions.md)

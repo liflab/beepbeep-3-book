@@ -13,7 +13,7 @@ An easy way to understand processors is to think of them as "boxes" having one o
 
 The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
 
-The number of input and output pipes is called the (input and output) <!--\index{arity} \textbf{processor!arity}-->**arity**<!--/i--> of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
+The number of input and output pipes is called the (input and output) <!--\index{processor!arity} \textbf{arity}-->**arity**<!--/i--> of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
 
 A processor produces its output in a *streaming* fashion: this means that output events are made available progressively while the input events are consumed. In other words, a processor does not wait to read its entire input trace before starting to produce output events. However, a processor can require more than one input event to create an output event, and hence may not always output something right away.
 

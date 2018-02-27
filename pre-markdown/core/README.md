@@ -259,7 +259,7 @@ Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers
 
 The `Trim` processor introduces an important point: from now on, the number of calls to `pull` or `push` is not necessarily equal across all processors of a chain. For example, in the last piece of code, we performed six `push` calls on `trim`, but `print` was pushed events only three times.
 
-Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This allows us to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; one one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
+Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This allows us to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; on one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
 
 {@img doc-files/basic/SumTwo.png}{Computing the sum of two successive events.}{.6}
 
@@ -271,8 +271,79 @@ From this point on, the top and the bottom pipe of the addition processor are al
 
 ## Sliding windows {#windows}
 
+For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, {@link jdc:ca.uqac.lif.cep.tmf.Window Window}.
+
+<!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
+
+The second step is to encase this `Cumulate` processor within a `Window` processor, and to specify a window width (3 in our present case). A simple example of a window processor is the following piece of code:
+
+{@snipm basic/WindowSimple.java}{/}
+
+This code is relatively straightforward. The main novelty is the fact that the `Cumulate` processor, `sum`, is instantiated, and then given as a *parameter* to the `Window` constructor. As you can see, `sum` never appears in a call to `connect`. This is because the cumulative sum is what `Window` should compute internally on each window. Graphically, this is illustrated as follows:
+
+{@img doc-files/basic/WindowSimple.png}{Using the `Window` processor to perform a computation over a sliding window of events.}{.6}
+
+The `Window` processor is depicted by a box with events grouped by a curly bracket. The number under that bracket indicates the width of the window. On one side of the box is a circle that leads to yet another box. This is to represent the fact that `Window` takes another processor as a parameter; in this box, we recognize the cumulative sum processor we used before. Notice how that processor lies alone in its box; as in the code fragment, it is not connected to anything. **Calling `pull` or `push` on that processor does not make sense, and will cause incorrect results, if not runtime exceptions.**
+
+Let us now see what happens when we call `pull` on `win`. The window processor requires three events before being able to output anything. Since we just started the program, currently, `win`'s window is empty. Therefore, three calls to `pull` are made on the source, in order to fetch the events 1, 2 and 3. Now that `win` has the correct number of input events, it pushes them into `sum` one by one. Since `sum` is a cumulative processor, it will successively output the events 1, 3 and 6 --corresponding to the sum of the first, the first two, and all three events, respectively. The window processor ignores all of these event except the last (6): this is the event that is return from the first call to `pull`:
+
+    First window: 6.0
+
+Things are slightly different on the second call to `pull`. This time, `win`'s window already contains three events; it only needs to discard the first event it received (1), and to let in one new event at the other end of the window. Therefore, it makes only one `pull` on `source`; this produces the event 4, and the contents of the window become 2, 3 and 4. As we can see, the window of three events has shifted one event forward, and now contains the second, third and fourth event of the input stream.
+
+The window processor cannot push these three events to `sum` immediately. Remember that `sum` is a cumulative processor, and that it has already received three events. Pushing three more would not result in the sum of events in the current window. In fact, `sum` has a "memory", which must be wiped so that the processor returns to its original state. Every processor has a method that allows this, called {@link jdm:ca.uqac.lif.cep.Processor#reset() reset()}. `Window` first calls <!--\index{Processor!reset@\texttt{reset}} \texttt{reset}-->`reset`<!--/i--> on `sum`, and then proceeds to push the three events of the current window into it. The last collected event is 2+3+4=9, and hence the second line printed by the program is:
+    
+    Second window: 9.0
+
+The process then restarts for the third window, exactly in the same way as before. This results in the third printed line:
+
+    Third window: 12.0
+
+Computing an average over a sliding window is a staple of event stream processing. This example pops up in every textbook on the topic, and virtually all event stream processing engines provide facilities to make such kinds of computations. However, typically, sliding windows only apply to streams of numerical values, and the computation over each window is almost always one of a few <!--\index{aggregation function} \emph{aggregation}-->*aggregation*<!--/i--> functions, such as `min`, `max`, `avg` (average) or `sum`. BeepBeep distinguishes itself from most other tools in that `Window` computations are much more generic. Basically, **any computation  can be encased in a sliding window**. To prove our point, consider the following chain of processors:
+
+{@img doc-files/basic/WindowEven.png}{Sliding windows can be applied on streams that are not numeric.}{.6}
+
+{@snipi basic/WindowEven.java}{/}
+
+A numerical stream is passed into an `ApplyFunction` processor; the function evaluates whether a number is even, using a built-in function called {@link jdc:ca.uqac.lif.cep.util.Numbers.IsEven IsEven}. This function takes a number as input, and returns a Boolean value. This stream of *Booleans* is then piped into a `Window` processor, which will handle windows of Booleans. On each window, a `Cumulate` processor computes the disjunction (logical "or") of all events in the window. On a given window of three successive events, the output is `true` if and only if there is at least one even number. The end result of this whole chain is a stream of Booleans; it returns `false` whenever three input events in a row are odd, and `true` otherwise.
+
+As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows if unique among existing stream processors.
+
+This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function `IsEven` in the drawing has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
+
+## Group processors {#group}
+
+We claimed a few moments ago that "anything can be encased in a sliding window". This means that, instead of a single processor, we could give `Window` a more complex chain, like the one that computes the <!--\index{runnning average} running average-->running average<!--/i--> of a stream of numbers, as illustrated below.
+
+{@img doc-files/basic/RunningAverage.png}{A chain of processors that computes the running average of a stream.}{.6}
+
+But how exactly can we give this *chain* of processors as a parameter to `Window`? Its constructor expects a *single* `Processor` object, so which one shall we give? If we pass the input fork, how is `Window` supposed to know where is the output of the chain? And conversely, if we pass the downstream processor that computes the division, how is `Window` supposed to learn where to push events?
+
+The answer to this is a special type of processor called {@link jdc:ca.uqac.lif.cep.GroupProcessor GroupProcessor}. The <!--\index{GroupProcessor@\texttt{GroupProcessor}} \texttt{GroupProcessor}-->`GroupProcessor`<!--/i--> allows a user to encapsulate a complete chain of processors into a composite object that can be manipulated as if it were a single `Processor`. In other words, `GroupProcessor` hides its contents into a "black box", and only exposes the input and output pipes at the very ends of the chain.
+
+Let us revisit a previous example ({@snipi basic/SumTwo.java}{/}), and use a group processor, as in the following code fragment.
+
+{@snipm basic/GroupSimple.java}{/}
+
+After creating a source of numbers, we create a new empty `GroupProcessor`. The constructor takes two arguments, corresponding to the input and output <!--\index{processor!arity} arity-->arity<!--/i--> of the group. Here, our group processor will have one input pipe, and one output pipe. The block of instructions enclosed inside the pair of braces put contents inside the group. The first six lines work as usual: we create a fork, a trim and a function processor, and connect them all together. The remaining three lines are specific to the creation of a group. The seventh line calls method {@link jdm:GroupProcessor#addProcessors(ca.uqac.lif.cep.Processor...) addProcessors()}; this puts the created processors inside the group object.
+
+However, merely putting processors inside a group is not sufficient. The `GroupProcessor` has no way to know what are the inputs and outputs of the chain. This is done with calls to {@link jdm:GroupProcessor#associateInput(int, ca.uqac.lif.cep.Processor, int) asociateInput()} and {@link jdm:GroupProcessor#associateOutput(int, ca.uqac.lif.cep.Processor, int) asociateOutput()}. The eight line tells the group processor that its input pipe number 0 should be connect to input pipe number 0 of `fork`. The ninth line tells the group processor that its output pipe number 0 should be connect to output pipe number 0 of `add`.
+
+It is now possible to use `group` as if it were a single processor box. The remaining lines connect `source` to `group`, and fetch a `Pullable` object from `group`'s output pipe. Graphically, this is illustrated as follows:
+
+{@img doc-files/basic/GroupSimple.png}{Simple usage of a `GroupProcessor`.}{.6}
+
+Note how the chain of processors is enclosed in a large rectangle, which has one input and one output pipe. The calls to `associateInput()` and `associateOutput()` correspond to the dashed lines that link the group's input pipe to the input pipe of the enclosed chain, and similarly for the output pipe.
+
+Equipped with a `GroupProcessor`, it now becomes easy to compute the average over a sliding window we started this section with. This can be illustrated as follows:
+
+{@img doc-files/basic/WindowAverage.png}{Computing the running average over a sliding window.}{.6}
+
+{@snipi basic/WindowAverage.java}{/}
+
 ## Exercises {#ex-core}
 
+1. Write a processor chain that computes the sum of each event with the one two positions away in the stream. That is, output event 0 is the sum of input events 0 and 2; output event 1 is the sum of input events 1 and 3, and so on. You can do this using a very slight modification to one of the examples in this chapter.
 1. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
     
 <!-- :wrap=soft: -->

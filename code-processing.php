@@ -91,6 +91,7 @@ function resolve_snipi($s)
   preg_match_all("/\\{@snipi (.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
   foreach($matches as $match)
   {
+    $contents = "";
     $filename = $source_location.$match[1];
     if (file_exists($filename))
     {
