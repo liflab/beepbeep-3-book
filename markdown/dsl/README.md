@@ -150,8 +150,3 @@ From then on, you can add this extension to the interpreter by calling:
 </pre>
 
 <!-- :wrap=soft: -->
----
-slug: extend-esql
-section-slug: doc
-lang: en
-...

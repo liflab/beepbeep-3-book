@@ -341,6 +341,34 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 
 {@snipi basic/WindowAverage.java}{/}
 
+Groups can have an arbitrary input and output arity, as is shown in the example below:
+
+{@img doc-files/basic/GroupBinary.png}{A group processor with more than one output pipe.}{.6}
+
+Here, we create two copies of the input stream offset by one event. These two streams are sent to an `ApplyFunction` processor that evaluates function <!--\index{IntegerDivision@\texttt{IntegerDivision}} \texttt{IntegerDivision}-->`IntegerDivision`<!--/i-->, which we encountered earlier in this chapter. This function has an input and output arity of 2. We want the group processor to output both the quotient and the remainder of the division as two output streams. Since the group has two output pipes, two calls to `associateOutput` must be made. The first associates output 0 of the function processor to output 0 of the group, and the second associates output 1 of the function processor to output 1 of the group. The code that creates the group is hence written as follows:
+
+{@snipm basic/GroupBinary.java}{/}
+
+## Decimating events {#decimate}
+
+## Filtering events {#filter}
+
+{@img doc-files/basic/FilterSimple.png}{Filtering events.}{.6}
+
+{@snipm basic/FilterSimple.java}{/}
+
+{@img doc-files/basic/FilterConditionSimple.png}{Filtering events.}{.6}
+
+{@snipm basic/FilterConditionSimple.java}{/}
+
+{@img doc-files/basic/FilterConditionComposite.png}{Filtering events.}{.6}
+
+{@snipi basic/FilterConditionComposite.java}{/}
+
+## Slicing a stream {#slicer}
+
+TODO
+
 ## Exercises {#ex-core}
 
 1. Write a processor chain that computes the sum of each event with the one two positions away in the stream. That is, output event 0 is the sum of input events 0 and 2; output event 1 is the sum of input events 1 and 3, and so on. You can do this using a very slight modification to one of the examples in this chapter.

@@ -549,7 +549,56 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 
 ![Computing the running average over a sliding window.](WindowAverage.png)
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/basic/WindowAverage.java</code></pre>
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowAverage.java)
+
+
+Groups can have an arbitrary input and output arity, as is shown in the example below:
+
+![A group processor with more than one output pipe.](GroupBinary.png)
+
+Here, we create two copies of the input stream offset by one event. These two streams are sent to an `ApplyFunction` processor that evaluates function <!--\index{IntegerDivision@\texttt{IntegerDivision}} \texttt{IntegerDivision}-->`IntegerDivision`<!--/i-->, which we encountered earlier in this chapter. This function has an input and output arity of 2. We want the group processor to output both the quotient and the remainder of the division as two output streams. Since the group has two output pipes, two calls to `associateOutput` must be made. The first associates output 0 of the function processor to output 0 of the group, and the second associates output 1 of the function processor to output 1 of the group. The code that creates the group is hence written as follows:
+
+``` java
+Fork fork = new Fork(2);
+ApplyFunction div = new ApplyFunction(IntegerDivision.instance);
+Connector.connect(fork, 0, div, 0);
+Trim trim = new Trim(1);
+Connector.connect(fork, 1, trim, 0);
+Connector.connect(trim, 0, div, 1);
+group.addProcessors(fork, trim, div);
+group.associateInput(0, fork, 0);
+group.associateOutput(0, div, 0);
+group.associateOutput(1, div, 1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/GroupBinary.java#L50)
+
+
+## Decimating events {#decimate}
+
+## Filtering events {#filter}
+
+![Filtering events.](FilterSimple.png)
+
+``` java
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/FilterSimple.java#L0)
+
+
+![Filtering events.](FilterConditionSimple.png)
+
+``` java
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/FilterConditionSimple.java#L0)
+
+
+![Filtering events.](FilterConditionComposite.png)
+
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/FilterConditionComposite.java)
+
+
+## Slicing a stream {#slicer}
+
+TODO
 
 ## Exercises {#ex-core}
 
