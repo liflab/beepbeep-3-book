@@ -10,10 +10,10 @@ A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something th
 Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
-        Function negation = Booleans.not;
-        Object[] out = new Object[1];
-        negation.evaluate(new Object[]{true}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function negation = Booleans.not;
+       Object[] out = new Object[1];
+       negation.evaluate(new Object[]{true}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L37)
 
@@ -29,9 +29,9 @@ For function `Negation`, both are equal to one: the negation takes one Boolean v
 Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
 
 ``` java
-        Function addition = Numbers.addition;
-        addition.evaluate(new Object[]{2, 3}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function addition = Numbers.addition;
+       addition.evaluate(new Object[]{2, 3}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L52)
 
@@ -320,16 +320,16 @@ We first create a source of arbitrary numbers. We pipe the output of this proces
 Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{runnning average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
 
 ``` java
-        QueueSource numbers = new QueueSource(1);
-        numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
-                4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
-        Cumulate sum_proc = new Cumulate(
-                new CumulativeFunction<Number>(Numbers.addition));
-        Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
-        QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
-        ApplyFunction division = new ApplyFunction(Numbers.division);
-        Connector.connect(sum_proc, OUTPUT, division, LEFT);
-        Connector.connect(counter, OUTPUT, division, RIGHT);
+       QueueSource numbers = new QueueSource(1);
+       numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+               4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+       Cumulate sum_proc = new Cumulate(
+               new CumulativeFunction<Number>(Numbers.addition));
+       Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
+       QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
+       ApplyFunction division = new ApplyFunction(Numbers.division);
+       Connector.connect(sum_proc, OUTPUT, division, LEFT);
+       Connector.connect(counter, OUTPUT, division, RIGHT);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/Average.java#L73)
 
@@ -358,7 +358,7 @@ for (int i = 0; i < 5; i++)
 
 ![Using the Boolean "and" operator in a `Cumulate` processor.](CumulateAnd.png)
 
-When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, no matter the input events that arrive. This is because the conjunction of `false` with anything always returns `false`. Hence, the expected output of the program is this:
+When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, no matter the input events that arrive. This is because the conjunction of `false` (the previous output event) with anything always returns `false`. Hence, the expected output of the program is this:
 
     The event is: true
     The event is: true
@@ -368,4 +368,82 @@ When receiving the first event (`true`), the processor computes its conjunction 
 
 Intuitively, this processor performs the logical conjunction of all events received so far. This conjunction becomes false forever, as soon as a `false` event is received.
 
+## Trimming events {#trim}
+
+So far, all the processors we have studied are <!--\index{uniform processor} \textbf{uniform}-->**uniform**<!--/i-->: for each input event, they emit exactly one output event (or more precisely, for each input *front*, they emit exactly one output *front*). Not all processors need to be uniform; as a first example, let us have a look at the [`Trim`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Trim.html) processor.
+
+The purpose of <!--\index{Trim@\texttt{Trim}} \texttt{Trim}-->`Trim`<!--/i--> is simple: it discards a fixed number of events from the beginning of a stream. This number is specified by passing it to the processor's constructor. Consider for example the following code:
+
+``` java
+QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
+Trim trim = new Trim(3);
+Connector.connect(source, trim);
+Pullable p = trim.getPullableOutput();
+for (int i = 0; i < 6; i++)
+{
+    int x = (Integer) p.pull();
+    System.out.println("The event is: " + x);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/TrimPull.java#L40)
+
+
+The `Trim` processor is connected to a source, and is instructed to trim 3 events from the beginning of the stream. Graphically, this is represented as follows:
+
+![Pulling events from a `Trim` processor.](TrimPull.png)
+
+As one can see, the `Trim` processor is depicted as a box with a pair of scissors; the number of events to be trimmed is shown in a small box on one of the sides of the processor. Let us see what happens when we call `pull` on `Trim` six times. The first call to `pull` produces the following line:
+
+    The event is: 4
+
+This indeed corresponds to the *fourth* event in `source`'s list of events; the first three seem to have been cut off. But how can `trim` instruct `source` to start sending events at the fourth? Then answer is: it does not. There is no way for a processor upstream or downstream to "talk" to another and give it instructions to behave in a special way. What `trim` does is much easier: upon its first call to `pull`, it simply calls `pull` on its upstream processor four times, and discards the events returned by the first three calls.
+
+At this point, `pull` behaves like `Passthrough`: it lets all events out without modification. The rest of the program goes as follows:
+
+    The event is: 5
+    The event is: 6
+    The event is: 1
+    The event is: 2
+    The event is: 3
+
+Do not forget that a `QueueSource` loops through its list of events; this is why after reaching 6, it goes back to the beginning and outputs 1, 2 and 3.
+
+The `Trim` processor behaves in a similar way in push mode, such as in this example:
+
+``` java
+       Trim trim = new Trim(3);
+       Print print = new Print();
+       Connector.connect(trim, print);
+       Pushable p = trim.getPushableInput();
+       for (int i = 0; i < 6; i++)
+       {
+           p.push(i);
+       }
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/TrimPush.java#L40)
+
+
+![Pushing events into a `Trim` processor.](TrimPush.png)
+
+Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers 0 to 5 into `trim`; however, the first three events are discarded, and do not reach `print`. It is only at the fourth event that a push on `trim` will result in a downstream push on `print`. Hence the output of the program is:
+
+    3,4,5,
+
+The `Trim` processor introduces an important point: from now on, the number of calls to `pull` or `push` is not necessarily equal across all processors of a chain. For example, in the last piece of code, we performed six `push` calls on `trim`, but `print` was pushed events only three times.
+
+Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This allows us to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; one one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
+
+![Computing the sum of two successive events.](SumTwo.png)
+
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SumTwo.java)
+
+
+On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The procesor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
+
+From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{sliding window} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
+
+## Exercises {#ex-core}
+
+1. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
+    
 <!-- :wrap=soft: -->

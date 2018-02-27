@@ -35,6 +35,7 @@ function insert_code_snippets($s)
 {
   $s = resolve_snipm($s);
   $s = resolve_snips($s);
+  $s = resolve_snipi($s);
   return $s;
 }
 
@@ -74,6 +75,26 @@ function resolve_snipm($s, $remove_comments = true)
       }
       $contents = "``` java\n".$code."```\n";
       $contents .= "[⚓](".$github_source_location.$match[1]."#L".($line_nb + 1).")\n";
+      $s = str_replace($match[0], $contents, $s);
+    }
+    else
+    {
+      $s = str_replace($match[0], "<pre><code>Source code not found: $filename</code></pre>", $s);
+    }
+  }
+  return $s;
+}
+
+function resolve_snipi($s)
+{
+  global $source_location, $github_source_location;
+  preg_match_all("/\\{@snipi (.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
+  foreach($matches as $match)
+  {
+    $filename = $source_location.$match[1];
+    if (file_exists($filename))
+    {
+      $contents .= "[⚓](".$github_source_location.$match[1].")\n";
       $s = str_replace($match[0], $contents, $s);
     }
     else

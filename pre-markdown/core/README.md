@@ -219,4 +219,60 @@ When receiving the first event (`true`), the processor computes its conjunction 
 
 Intuitively, this processor performs the logical conjunction of all events received so far. This conjunction becomes false forever, as soon as a `false` event is received.
 
+## Trimming events {#trim}
+
+So far, all the processors we have studied are <!--\index{uniform processor} \textbf{uniform}-->**uniform**<!--/i-->: for each input event, they emit exactly one output event (or more precisely, for each input *front*, they emit exactly one output *front*). Not all processors need to be uniform; as a first example, let us have a look at the {@link jdc:ca.uqac.lif.cep.tmf.Trim Trim} processor.
+
+The purpose of <!--\index{Trim@\texttt{Trim}} \texttt{Trim}-->`Trim`<!--/i--> is simple: it discards a fixed number of events from the beginning of a stream. This number is specified by passing it to the processor's constructor. Consider for example the following code:
+
+{@snipm basic/TrimPull.java}{/}
+
+The `Trim` processor is connected to a source, and is instructed to trim 3 events from the beginning of the stream. Graphically, this is represented as follows:
+
+{@img doc-files/basic/TrimPull.png}{Pulling events from a `Trim` processor.}{.6}
+
+As one can see, the `Trim` processor is depicted as a box with a pair of scissors; the number of events to be trimmed is shown in a small box on one of the sides of the processor. Let us see what happens when we call `pull` on `Trim` six times. The first call to `pull` produces the following line:
+
+    The event is: 4
+
+This indeed corresponds to the *fourth* event in `source`'s list of events; the first three seem to have been cut off. But how can `trim` instruct `source` to start sending events at the fourth? Then answer is: it does not. There is no way for a processor upstream or downstream to "talk" to another and give it instructions to behave in a special way. What `trim` does is much easier: upon its first call to `pull`, it simply calls `pull` on its upstream processor four times, and discards the events returned by the first three calls.
+
+At this point, `pull` behaves like `Passthrough`: it lets all events out without modification. The rest of the program goes as follows:
+
+    The event is: 5
+    The event is: 6
+    The event is: 1
+    The event is: 2
+    The event is: 3
+
+Do not forget that a `QueueSource` loops through its list of events; this is why after reaching 6, it goes back to the beginning and outputs 1, 2 and 3.
+
+The `Trim` processor behaves in a similar way in push mode, such as in this example:
+
+{@snipm basic/TrimPush.java}{/}
+
+{@img doc-files/basic/TrimPush.png}{Pushing events into a `Trim` processor.}{.6}
+
+Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers 0 to 5 into `trim`; however, the first three events are discarded, and do not reach `print`. It is only at the fourth event that a push on `trim` will result in a downstream push on `print`. Hence the output of the program is:
+
+    3,4,5,
+
+The `Trim` processor introduces an important point: from now on, the number of calls to `pull` or `push` is not necessarily equal across all processors of a chain. For example, in the last piece of code, we performed six `push` calls on `trim`, but `print` was pushed events only three times.
+
+Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This allows us to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; one one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
+
+{@img doc-files/basic/SumTwo.png}{Computing the sum of two successive events.}{.6}
+
+{@snipi basic/SumTwo.java}{/}
+
+On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The procesor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
+
+From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{sliding window} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
+
+## Sliding windows {#windows}
+
+## Exercises {#ex-core}
+
+1. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
+    
 <!-- :wrap=soft: -->
