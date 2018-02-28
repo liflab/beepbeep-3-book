@@ -197,7 +197,7 @@ Note that a stream variable may appear more than once in a function tree. Hence 
 
 ## Forking a stream {#fork}
 
-Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} ``split''-->"split"<!--/i--> the original stream into multiple identical copies. This is the purpose of the [`Fork`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Fork.html) processor.
+Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} split-->split<!--/i--> the original stream into multiple identical copies. This is the purpose of the [`Fork`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Fork.html) processor.
 
 As a first example, let us connect a queue source to create a fork processor that will replicate each input event in two output streams. The "2" passed as an argument to the fork's constructor signifies this.
 
@@ -694,7 +694,7 @@ The `Slice` processor is represented by a box with a piece of cheese (yes, chees
 
 Let us now see what happens when we start pulling events on `slicer`. On the first call to `pull`, `slicer` pulls on the source and receives the number 1. It evaluates the slicing function, which (obviously) returns 1. It then looks in its memory for an instance of the slice processor associated to the value 1. There is none, so `slicer` creates a new copy of the slice processor, and pushes the value 1 into it. It then collects the output from that slice processor, which is (again) the value 1.
 
-The last step is to return something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
+The last step is to mreturn something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
 
     {1=1.0}
 
@@ -708,8 +708,18 @@ A similar process occurs for the next three input events, creating three new map
     {1=1.0, 3=1.0, 4=1.0, 6=1.0}
     {1=1.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
 
+Something a little different happens in the next call to `pull`. The `slicer` receives the number 1, evaluates the slice function, which returns 1. It turns out that this is a value for which there already exists a slice processor. Therefore, `slicer` retrieves that processor instance, and pushes the value 1 into it. Note that for this slice processor, this is the *second* time it is given an event; since it acts as a counter, it returns the value 2. Then, `slicer` updates its map by associating to slice 1 the value 2, which replaces the original entry. The map that is returned on the call to `pull` is:
+
     {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
-    {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0, 9=1.0}
+
+The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
+
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this.
+
+![Adding odd and even numbers separately.](SlicerOddEven.png)
+
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SlicerOddEven.java)
+
 
 ## Exercises {#ex-core}
 
