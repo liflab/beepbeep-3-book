@@ -449,7 +449,11 @@ Something a little different happens in the next call to `pull`. The `slicer` re
 
 The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
 
-As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original ex
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this.
+
+{@img doc-files/basic/SlicerOddEven.png}{Adding odd and even numbers separately.}{.6}
+
+{@snipi basic/SlicerOddEven.java}{/}
 
 ## Exercises {#ex-core}
 
