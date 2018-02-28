@@ -443,8 +443,13 @@ A similar process occurs for the next three input events, creating three new map
     {1=1.0, 3=1.0, 4=1.0, 6=1.0}
     {1=1.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
 
+Something a little different happens in the next call to `pull`. The `slicer` receives the number 1, evaluates the slice function, which returns 1. It turns out that this is a value for which there already exists a slice processor. Therefore, `slicer` retrieves that processor instance, and pushes the value 1 into it. Note that for this slice processor, this is the *second* time it is given an event; since it acts as a counter, it returns the value 2. Then, `slicer` updates its map by associating to slice 1 the value 2, which replaces the original entry. The map that is returned on the call to `pull` is:
+
     {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
-    {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0, 9=1.0}
+
+The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
+
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original ex
 
 ## Exercises {#ex-core}
 
