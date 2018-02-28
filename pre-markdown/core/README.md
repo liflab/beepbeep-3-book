@@ -351,27 +351,106 @@ Here, we create two copies of the input stream offset by one event. These two st
 
 ## Decimating events {#decimate}
 
+We have seen earlier how to calculate 
+
 ## Filtering events {#filter}
+
+The `CountDecimate` processor acts as a kind of filter, based on the events' position. If an input event is at a position that is an integer multiple of the decimation interval, it is let through to the output, otherwise it is discarded. Apart from the `Trim` processor we have encountered earlier, this is so far the only way to discard events from an input stream.
+
+The {@link jdc:ca.uqac.lif.cep.tmf.Filter Filter} processor allows a user to keep or discard events from an input stream in a completely arbitrary way. In its simplest form, a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i--> has two input pipes and one output pipe. The first input pipe is called the *data pipe*: it consists of the stream of events that has to be filtered. The second input pipe is called the *control pipe*: it receives a stream of Boolean values. As its name implies, this Boolean stream is responsible for deciding what events coming into the data pipe will be let through, and what events will be discarded. The event at position *n* in the data stream is sent to the output, if and only if the event at position *n* in the control stream is the Boolean value `true`.
+
+As a first example, consider the following piece of code, which connects two sources to a `Filter` processor:
 
 {@img doc-files/basic/FilterSimple.png}{Filtering events.}{.6}
 
+The first source corresponds to the data stream, and in this case consists of a sequence of arbitrary numbers. The second source corresponds to the control stream, which we populate with randomly chosen Boolean values. These two sources are connected to a `Filter`. By convention, the *last* input pipe of a filter is the control stream; the remaining input pipes are the data streams. It is a common mistake to connect what is intended to be the control stream into the wrong pipe of the filter. This is illustrated below:
+
 {@snipm basic/FilterSimple.java}{/}
+
+The `Filter` is represented by a box with a traffic light as a pictogram. Since the data stream is made of numbers, both the data input pipe and the output pipes are coloured in green. Obviously, the control pipe, which is made of Booleans, is always grey-blue.
+
+The last part of the program, as usual, simply pulls on the output of the `Filter` and prints what is received. In this case, the output of the program is:
+
+    Output event #0 is 6
+    Output event #1 is 3
+    Output event #2 is 8
+    Output event #3 is 1
+    Output event #4 is 4
+
+As we can see, the events from `source_values` that are output are only those at a position where the corresponding value in `source_bool` is `true`. At position 0, the event in `source_bool` is `true`, so the value 6 is output. On the second call to `pull`, `filter` pulls on both its input pipes; it receives the value 5 from `source_values`, and the value `false` from `source_bool`. Since the control pipe holds the value `false`, the number 5 has to be discarded, meaning that `filter` has nothing to output. Consequently, it pulls again on its input pipes to receive another event front. This time, it receives the pair 3/`true`, so it can return 3 as its second event.
+
+Since the output of events depends entierly on the contents of the control stream, the relative positions of the events in the input and output streams do not follow any predictable pattern:
+
+- event at position 0 in the output corresponds to event at position 0 in the input;
+- event at position 1 in the output corresponds to event at position 2 in the input;
+- event at position 2 in the output corresponds to event at position 3 in the input;
+- event at position 3 in the output corresponds to event at position 7 in the input.
+
+Note also that on a call to `pull`, a filter *must* return something. Therefore, it will keep pulling on its input pipes until it receives an event front where the control event is `true`. If that event never comes, **the call to `pull` will never end**. As a small exercise, try to replace all the Boolean values in `source_bool` by `false`, and run the program again. You will see that nothing is printed on the console, and that the program loops forever.
+
+Like other processors in BeepBeep, the filtering mechanism is very generic and flexible. Any stream can be filtered, as long as a control stream is provided. As we have seen in our example, this control stream does not even need to be related to the data stream: any Boolean stream will do. In many cases, though, the decision on whether to filter an event or not depends on the event itself. For example, we would like to keep an event only if it is an even number. How can we accommodate such a situation?
+
+The solution is to combine the `Filter` with another processor we have seen earlier, the `Fork`. From a given input stream, we use a fork to create two copies. The first copy is our data stream, and is sent directly to the filter's data pipe. We then use the second copy of the stream to evaluate a condition that will serve as our data stream. This is exactly what is done in the following example:
 
 {@img doc-files/basic/FilterConditionSimple.png}{Filtering events.}{.6}
 
-{@snipm basic/FilterConditionSimple.java}{/}
+{@snipi basic/FilterConditionSimple.java}{/}
 
-{@img doc-files/basic/FilterConditionComposite.png}{Filtering events.}{.6}
-
-{@snipi basic/FilterConditionComposite.java}{/}
+As we can see, the bottom part of the chain passes the input stream through an `ApplyFunction` processor, which evaluates the function {@link jdc:ca.uqac.lif.cep.util.Numbers.IsEven IsEven}. This function turns the stream of numbers into a stream of Booleans, which is then connected to the filter's control pipe. The end result of this chain is to produce an output stream where all odd numbers from the input stream have been removed. Obviously, if a more complex condition needs to be evaluated, you can use a `FunctionTree` instead of a single function. As a matter of fact, you are not limited to a single `ApplyFunction` processor, and can create whatever chain of processors you wish, as long as it produces a Boolean stream!
 
 ## Slicing a stream {#slicer}
 
-TODO
+The `Filter` is a powerful processor in our toolbox. Using a filter, we can take a larger stream and create a "sub-stream" --that is, a stream that contains a subset of the events of the original stream. Using forks, we can even create *multiple* different sub-streams from the same input stream. For example, we can separate a stream of numbers into a sub-stream of even numbers on one side, and a sub-stream of odd numbers on the other. This is perfectly possible, as the picture below shows.
+
+{@img doc-files/basic/OddEvenSubstreams.png}{Creating two sub-streams of events: a stream of odd numbers, and a stream of even numbers.}{.6}
+
+However, we can see that this drawing contains lots of repetitions. The chains of processors at both ends of the first fork are almost identical; the only difference is the function passed to each instance of `ApplyFunction`: in the top chain, we keep even numbers, while in the bottom chain, a negation is added to the condition, so that we keep odd numbers. The two output pipes at the far right of the drawing hence produce a stream of even numbers (at the top) and a stream of odd numbers (at the bottom).
+
+Suppose however that we need to perform further processing on both these sub-streams. For example, we would like to compute their cumulative sum. We would need to repeat the same chain of processors at the end of both pipes. Suppose further we would like to create *three* sub-streams instead of two, by filtering events according to their value modulo 3 (which returns either 0, 1 or 2): we would need to copy-paste even more processors and pipes. There must be a better way, isn't it?
+
+Fortunately, there is. It turns out that there are many situations in which we would like to separate a stream into multiple sub-streams, and perform the same computation over each of these sub-streams separately. This happens often enough for BeepBeep to provide a processor dedicated to this task: {@link jdc:ca.uqac.lif.cep.tmf.Slice Slice}.
+
+Creating a <!--\index{Slice@\texttt{Slice}} \texttt{Slice}-->`Slice`<!--/i--> processor works in a similar way to `Window`. The constructor to `Slice` takes two parameters: 
+
+1. The first is a **slicing function**, which is evaluated on each incoming event. The value of that function decides what sub-stream that event belongs to. Typically, there will exist as many sub-streams as there are possible output values for the slicing function. These sub-streams are called *slices*, hence the name of the processor.
+2. The second is a **slice processor**. A different instance of this processor is created for each possible value of the slicing function. When an incoming event is evaluated by the slicing function, it is then pushed to the instance of the slice processor associated to that value.
+
+As with the `Window` processor, the `Slice` processor expects a single object as its slice processor. If you would like to pass a chain of multiple processors, you must encapsulate it into a `GroupProcessor`, as we have seen before.
+
+To illustrate the operation of a slice processor, consider the following code example:
+
+{@snipm basic/SlicerSimple.java}{/}
+
+In this program, we first create a simple source of numbers, and connect it to an instance of `Slice`. In this case, the slicing function is the {@link jdc:ca.uqac.lif.cep.functions.IdentityFunction IdentityFunction}: this function returns its input as is. The slice processor is a simple counter that increments every time an event is received, which we encapsulate into a `GroupProcessor`. Since there will be one such counter instance for each different input event, the slicer effectively maintains the count of how many times each value has been seen in its input stream. Graphically, this can be represented as: 
+
+{@img doc-files/basic/SlicerSimple.png}{Using a `Slice` processor.}{.6}
+
+The `Slice` processor is represented by a box with a piece of cheese (yes, cheese) as its pictogram. Like the `Window` processor, one of its arguments (the slicing function) is placed on one side of the box, and the other argument (the slice processor) is linked to the box by a circle and a line. We took the artistic license of putting the slice processor inside a "cloud" instead of a plain rectangle. As expected, this slice processor is itself a group that encapsulates a `TurnInto` and a `Cumulate` processor.
+
+Let us now see what happens when we start pulling events on `slicer`. On the first call to `pull`, `slicer` pulls on the source and receives the number 1. It evaluates the slicing function, which (obviously) returns 1. It then looks in its memory for an instance of the slice processor associated to the value 1. There is none, so `slicer` creates a new copy of the slice processor, and pushes the value 1 into it. It then collects the output from that slice processor, which is (again) the value 1.
+
+The last step is to return something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
+
+    {1=1.0}
+
+The second call to `pull` works in a similar fashion. The slicer receives the value 6 from the source; no slice processor exists for that value, so a new one is created. Event 6 is pushed into it, and the output value (1) is collected. A new entry is added to the map, associating slice 6 to the value 1. Note that the previous entry is still there, so that the next printed line is:
+
+    {1=1.0, 6=1.0}
+
+A similar process occurs for the next three input events, creating three new map entries:
+
+    {1=1.0, 4=1.0, 6=1.0}
+    {1=1.0, 3=1.0, 4=1.0, 6=1.0}
+    {1=1.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
+
+    {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
+    {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0, 9=1.0}
 
 ## Exercises {#ex-core}
 
 1. Write a processor chain that computes the sum of each event with the one two positions away in the stream. That is, output event 0 is the sum of input events 0 and 2; output event 1 is the sum of input events 1 and 3, and so on. You can do this using a very slight modification to one of the examples in this chapter.
-1. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
+2. Using `CountDecimate` and `Trim`, write a processor chain that outputs events at position 3*n*+1 and discards the others. That is, from the input stream, the output should contain events at position 1, 4, 7, 10, etc.
+3. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
+4. Write a processor chain that outputs events at position *n*^2. That is, from the input stream, the output should contain events at position 1, 4, 9, 16, etc.
     
 <!-- :wrap=soft: -->
