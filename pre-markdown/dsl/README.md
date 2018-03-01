@@ -1,152 +1,137 @@
-Extend ESQL
-===========
+Design a query language
+=======================
 
-You know that by creating your own processor, you can pipe it to any other existing processor, provided that its input and output events are of compatible types. It is also possible to extend the grammar of the ESQL language, so that you can also use your processor directly in ESQL queries. All this in less than 10 lines of code.
+In this chapter, we shall explore a unique feature of BeepBeep, which is the possibility to create custom **query languages**. Rather than instantiate and pipe processors directly through Java code, a query language allows a user to create processor chains by writing expressions using a custom syntax.
 
-As an example, let us consider the following processor, which repeats every input event n times, where n is a parameter decided when the processor is instantiated. Its implementation is as follows:
+As we already mentioned at the very beginning of this book, many other event stream processing engines provide the user with their own query language. In most of these systems, the syntax for these languages is borrowed from SQL, and many stream processing operations can be accomplished by writing statements such as `SELECT`. In the field of runtime verification, the majority of tools rather use variants of languages closer to mathematical logic or finite-state machines.
 
-```java
-import ca.uqac.lif.cep.*;
+The main problem with all these systems is that they force you to use them through their query language exclusively. Contrary to BeepBeep, you seldom have a direct access to the underlying objects that perform the computations. Most importantly, as each of these systems aim to be versatile and applicable to a wide variety of problems, their query language becomes extremely complex: every possible operation on streams has to be written as an expression of the single query language they provide. A typical symptom of this, in some CEP systems, is the presence  of tentacular `SELECT` statements with a dozen optional clauses attempting to cover every possible case. Runtime verification tools fare no better on this respect, and complex nested logical expressions of multiple lines regularly show up in research papers about them. In all cases, the legibility of the resulting expressions suffers a lot. Although there is almost always a way to twist a problem so that it can fit inside any system's language *in theory*, in practice many such expressions are often plain unusable. This can arguably fall into the category of what computer scientist Alan Perlis has described as a "Turing tarpit":
 
-public class Repeater extends SingleProcessor {
+> Beware of the Turing tar-pit in which everything is possible
+> but nothing of interest is easy.
 
-  private final int numReps;
+In contrast, BeepBeep was designed based on the observation that no single language could accommodate every conceivable problem on streams --at least in a simple and intuitive way. Rather that try to design a "one-size-fits-all" language, and falling victim to the same problem as other systems, BeepBeep provides no built-in query language at all.
 
-  public Repeater(int n) {
-    super(1, 1);
-    this.numReps = n;
-  }
+This is possible thanks to a special palette 
 
-  public Queue<Object[]> compute(Object[] inputs) {
-    Queue<Object[]> queue = new LinkedList<Object[]>();
-    for (int i = 0; i < this.numReps; i++) {
-      queue.add(inputs);
+## The Bullinkle parser {#bullwinkle}
+
+<!--\index{Bullwinkle parser} Bullwinkle-->Bullwinkle<!--/i--> is a parser for languages that operates through recursive descent with backtracking. Contrary to [parser generators](http://en.wikipedia.org/wiki/Parser_generator) such as ANTLR, <!--\index{YACC} Yacc-->Yacc<!--/i--> or <!--\index{Bison (parser)} Bison-->Bison<!--/i--> take a <!--\index{grammar} grammar-->grammar<!--/i--> as input and produce code for a parser specific to that grammar, which must then be compiled to be used. On the contrary, Bullwinkle reads the definition of the grammar (expressed in [Backus-Naur Form](http://en.wikipedia.org/wiki/Backus-Naur_form) (<!--\index{Backus-Naur Form (BNF)} BNF-->BNF<!--/i-->)) at *runtime* and can parse strings on the spot.
+
+    <exp> := <add> | <sub> | <mul> | <div> | - <exp> | <num>;
+    <add> := <num> + <num> | ( <exp> + <exp> );
+    <sub> := <num> - <num> | ( <exp> - <exp> );
+    <mul> := <num> × <num> | ( <exp> × <exp> );
+    <div> := <num> ÷ <num> | ( <exp> ÷ <exp> );
+    <num> := ^[0-9]+;
+
+For Bullwinkle to work, the grammar must be [LL(k)](http://en.wikipedia.org/wiki/LL_parser). Roughly, this means that it must not contain a production rules of the form `<S> := <S> something`. Trying to parse such a rule by recursive descent causes an infinite recursion (which will throw a `ParseException` when the maximum recursion depth is reached).
+
+Defining a grammar can be done in two ways. The first way is by parsing a character string (taken from a file or created directly) that contains the grammar declaration. This format uses a fairly intuitive syntax, as the example above has shown.
+   
+- Non-terminal symbols are enclosed in `<` and `>` and their names must not contain spaces.
+- Rules are defined with `:=` and cases are separated by the pipe character.
+- A rule can span multiple lines (any whitespace character after the first one is ignored, as in e.g. HTML) and must end by a semicolon.
+- Terminal symbols are defined by typing them directly in a rule, or through regular expressions and begin with the `^` (hat) character. The example above   shows both cases: the `+` symbol is typed directly into the rules, while the   terminal symbol `<num>` is defined with a regex. **Look out:**
+  - If a space needs to be used in the regular expression, it must be
+    declared by using the regex sequence `\s`, and *not* by putting a space.
+  - Beware not to put an extra space before the ending semicolon, or that
+    space will count as part of the regex
+  - Caveat emptor: a few corner cases are not covered at the moment, such as a regex that would contain a semicolon.
+- The left-hand side symbol of the first rule found is assumed to be the start symbol. This can be overridden by calling method `setStartSymbol()` on an   instance of the parser.
+- Whitespace acts as a token separator, so there is no need to declare terminal   tokens separately. This means that the rule `<num> + <num>` matches any string   with a number, the symbol +, and another number, separated by any number of   spaces, including none. This also means that writing `1+2` defines a *single*   token that matches only the string "1+2". When declaring rules, tokens *must* be separated by a space. Writing `(<exp>)` is illegal and will throw an   exception; one must write `( <exp> )` (note the spaces). However, since   whitespace is ignored when parsing, this rule would still match the string
+  "(1+1)".
+
+Some symbols or sequences of symbols, such as `:=`, `|`, `<`, `>` and `;`, have a special meaning and cannot be used directly inside terminal symbols (note that this limitation applies only when parsing a grammar from a text file). However, these symbols can be included by *escaping* them, i.e. replacing them with their UTF-8 hex code.
+
+- `|` can be replaced by `\u007c`
+- `<` can be replaced by `\u003c`
+- `<` can be replaced by `\u003e`
+- `;` can be replaced by `\u003b`
+- `:=` can be replaced by `\u003a\u003d`
+
+The characters should appear as is (i.e. unescaped) in the string to parse.
+
+### Building the rules manually
+
+A second way of defining a grammar consists of assembling rules by creating instances of objects programmatically. Roughly:
+
+- A `BnfRule` contains a left-hand side that must be a `NonTerminalToken`, and a right-hand side containing multiple cases that are added through method `addAlternative()`.
+- Each case is itself a `TokenString`, formed of multiple `TerminalToken`s and `NonTerminalToken`s which can be `add`ed. Terminal tokens include `NumberTerminalToken`, `StringTerminalToken` and `RegexTerminalToken`.
+- `BnfRule`s are `add`ed to an instance of the `BnfParser`.
+
+Once a grammar has been loaded into an instance of `BnfParser`, the `parse()` method is used to parse a given string and produce a parse tree (or null if the string does not parse). This parse tree can then be explored in two ways:
+
+1. In a manner similar to the DOM, by calling the `getChildren()` method of an instance of a `ParseNode` to get the list of its children (and so on, recursively);
+2. Through the [Visitor design pattern](http://en.wikipedia.org/wiki/Visitor_pattern). In that case, one creates a class that implements the `ParseNodeVisitor` interface, and passes this visitor to the `ParseNode`'s `acceptPostfix()` or `acceptPrefix()` method, depending on the desired mode of traversal.
+
+Many times, the goal of parsing an expression is to create some "object" out of the resulting parse tree. The `ParseTreeObjectBuilder` class in Bullwinkle simplifies the task of creating such objects.
+
+Suppose for example that you created objects to represent simple arithmetical expressions: there is one class for `Add`, another for `Sub`(traction), another for plain `Num`bers, etc. (See the `Examples` folder in the sources, where such classes are indeed shown in `ArithExp.java`.) You can create and nest such objects programmatically, for example to represent 10+(6-4):
+
+    ArithExp a = new Add(new Num(10), new Sub(new Num(6), new Num(4));
+
+Suppose you created a simple grammar to represent such expressions in "forward" Polish notation, such as this:
+
+    <exp> := <add> | <sub> | <num>;
+    <add> := + <exp> <exp>;
+    <sub> := - <exp> <exp>;
+    <num> := ^[0-9]+;
+
+Using such a grammar, the previous expression would be written as `+ 10 - 6 4`. You would like to be able to instantiate `ArithExp` objects from expressions following this syntax.
+
+The `ParseTreeObjectBuilder` makes such a task simple. It performs a *postfix* traversal of a parse tree and maintains a stack of arbitrary objects. When visiting a parse node that corresponds to a non-terminal token, such as &lt;foo&gt;, it looks for a method that handles this symbol. This is done by adding an annotation `@Builds` to the method, as follows:
+
+``` java
+@Builds(rule="<foo>")
+public void myMethod(Stack<Object> stack) { ...
+```
+
+The object builder calls this method, and passes it the current contents
+of the object stack. It is up to this method to pop and push objects
+from that stack, in order to recursively create the desired object at the
+end. For example, in the grammar above, the code to handle token `add`
+would look like:
+
+``` java
+@Builds(rule="<add>")
+public void handleAdd(Stack<Object> stack) {
+  ArithExp e2 = (ArithExp) stack.pop();
+  ArithExp e1 = (ArithExp) stack.pop();
+  stack.pop(); // To remove the "+" symbol
+  stack.push(new Add(e1, e2));
+}
+```
+
+Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `ArithExp` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add`; has three tokens, and so the method handling `add` pops three objects.
+
+As one can see, it is possible to create object builders that read expressions in just a few lines of code. This can be even further simplified using the `pop` and `clean` parameters. Instead of popping objects manually, and pushing a new object back onto the stack, one can use the `pop` parameter to ask for the object builder to already pop the appropriate number of objects from the stack. The method for `add` would then become:
+
+``` java
+@Builds(rule="<add>", pop=true, clean=true)
+public ArithExp handleAdd(Object ... parts) {
+  return new Add((ArithExp) parts[0], (ArithExp) parts[1]);
+}
+```
+
+Notice how this time, the method's arguments is an array of objects; in that case, the array has three elements, corresponding to the three tokens of the `add`; rule. The first is the "+" symbol, and the other two are the
+`ArithExp` objects created from the two sub-expressions. Similarly, instead of pushing an object to the stack, the method simply returns it; the object builder takes care of pushing it. By not accessing the contents of the stack directly, it is harder to make mistakes.
+
+As a further refinement, the `clean` option can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Consider a grammar for infix arithmetical expressions, where parentheses are optional around single numbers. This grammar would look like:
+
+    <exp> := <add> ...
+    <add> := <num> + <num> | ( <exp> ) + <num> | <num> + ( <exp> ) ...
+
+This time, the rules for each operator must take into account whether any of their operands is a number or a compound expression. The code handling
+`add`; would be more complex, as one would have to carefully pop an
+element, check if it is a parenthesis, and if so, take care of popping the
+matching parenthesis later on, etc. However, one can see that each case of
+the rule has exactly two non-terminal tokens, and that both are `ArithExp`. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
+
+    @Builds(rule="<add>", pop=true, clean=true)
+    public ArithExp handleAdd(Object ... parts) {
+      return new Add((ArithExp) parts[0], (ArithExp) parts[1]);
     }
-    return queue;
-  }
-}
-```
 
-## Step 1: Defining a new grammar rule
-
-We would like to be able to use this processor in ESQL queries. The first step is to decide what syntax one shall use to invoke the processor. In order to work, the processor requires two things: the output of another processor, and the number of times it should repeat each event. Therefore, an intuitive syntax for the processor could be:
-
-```
-REPEAT (some processor) n TIMES
-```
-
-In this syntax, some processor refers to any other ESQL expression that builds a processor, and n is a number. The result of this expression is itself another object of type processor.
-
-If you are familiar with EBNF grammars, what follows should be easy. We must first tell the ESQL interpreter to add to its grammar a new case for the parsing of the &lt;processor&gt; rule. This rule should correspond to the parsing of our new, Repeater processor. This is done as follows:
-
-```java
-Interpreter my_int = new Interpreter();
-my_int.addCaseToRule("&lt;processor&gt;", "&lt;repeater&gt;");
-```
-
-At this point, the interpreter knows that &lt;processor&gt; can be parsed as a &lt;repeater&gt;, but it has no idea what this case corresponds to. We must tell the interpreter what is the parsing pattern for &lt;repeater&gt;, using method addRule():
-
-```java
-my_int.addRule("<repeater>", "REPEAT ( <processor> ) <number> TIMES");
-```
-
-The first argument is the name of the new rule we with to add (i.e. the left-hand side of the BNF rule), and the second argument is the right-hand side, or parsing pattern, corresponding to that rule. This parsing pattern is made of:
-
-- The literal REPEAT
-- An opening parenthesis
-- The &lt;processor&gt; rule name. This means that what follows the parenthesis should follow the syntax of the &lt;processor&gt; rule.
-- A closing parenthesis
-- The <number> rule name. This means that what follows the parenthesis should follow the syntax of the <number> rule (which corresponds to any character string with the format of a number).
-- The literal TIMES
-
-That's it. From now on, the interpreter will correctly parse an expression involving that syntax, and know that it represents an element of type &lt;processor&gt;. This means that such an expression can be written anywhere a &lt;processor&gt; is accepted; for example in the following:
-
-```
-SELECT a FROM (
-  REPEAT (THE TUPLES OF FILE "foo.csv") 3 TIMES
-)
-```
-
-## <a name="build">Step 2: build a processor form an expression</a>
-
-The previous step allows the interpreter to know that REPEAT xxx n TIMES corresponds to a processor, but it doesn't know what processor it actually is, or how to instantiate it from the expression. We must therefore tell the processor what object class corresponds to the parsing of such an expression. This is done through the addAssociation() method.
-
-<pre><code>my_int.addAssociation("&lt;repeater&gt;", "Repeater");
-</code>
-</pre>
-
-The method tells the interpreter that encountering the &lt;repeater&gt; rule will result in the instantiation of a Java object of the class Repeater. This second argument should be the fully qualified name of the class. That is, if Repeater is located in package my.package, then one should write my.package.Repeater in the call to addAssociation().
-
-Upon parsing the &lt;repeater&gt; rule, the interpreter will look for a method called build() in the corresponding class. We must therefore provide such a method in Repeater. Its signature should be the following (it it's different, or absent, the interpreter will complain):
-
-<pre><code>public static void build(Stack&lt;Object&gt; stack) {
-
-}
-</code>
-</pre>
-
-The task of the `build()` method is to consume elements of the stack to build a new instance of the object to create, and to put that new object back on the stack so that other objects can consume it during their own construction. The contents of the stack correspond to the grammar rule we gave the interpreter in the very beginning. In our case, this means that the stack contains, from top to bottom:
-
-- A String object containing the word "TIMES"
-- A Number object corresponding to the actual value of n that was written in the expression
-- A String object containing a closing paremthesis
-- An object of class `ca.uqac.lif.cep.Processor`, which is the processor resulting from the parsing of the inner expression
-- A String object containing an opening paremthesis
-- A String object containing the word "REPEAT"
-
-Creating a new instance of Repeater is therefore straightforward. One simply has to `pop()` the stack to fetch the value of n and the Processor object to use as input, and discard all "useless" keywords (it is important to remove them from the stack, though, otherwise other objects accessing the stack afterwards will be confused by what they find there). One can then instantiate a new Repeater, pipe the input into it (using `Connector.connect()`), and put the resulting object on the stack.
-
-<pre><code>public static void build(Stack&lt;Object&gt; stack) {
-  stack.pop(); // TIMES
-  Number n = (Number) stack.pop();
-  stack.pop(); // )
-  Processor p = (Processor) stack.pop();
-  stack.pop(); // (
-  stack.pop(); // REPEAT
-  Repeater r = new Repeater(n.intValue());
-  Connector.connect(p, r);
-  stack.push(r);
-}
-</code>
-</pre>
-
-All done! As you can see, adding a new processor to the ESQL grammar took us 3 lines of code to extend the grammar, and another 9 lines for building it from the parse stack. (Try doing that with another software!)
-
-## <a name="extension">Creating a grammar extension</a>
-
-If you write a lot of extensions to the syntax (great! please tell us), it might be a good idea to "package" these extensions so that you don't have to manually put them into the interpreter every time. BeepBeep provides a class that allows you to do this easily, called `GrammarExtension`. The boilerplate code for an extension is this:
-
-<pre><code>public class MyGrammar extends GrammarExtension {
-
-  public MyGrammar() {
-    super(MyGrammar.class);
-  }
-}
-</code>
-</pre>
-
-As a matter of fact, you have nothing else to write. However, two text files should be present in the same folder as your extension class:
-
-- The first, called `eml.bnf`, should contain all the new BNF rules that should be added to the interpreter
-- The second, called `associations.txt`, should contain the list of all associations between grammar rules and objects (what you pass to the interpreter's `addAssociation()` method)
-
-For our grammar extension, here's what would be the contents of `eml.bnf`:
-
-<pre><code>&lt;processor&gt; := &lt;repeater&gt; ;
-&lt;repeater&gt;  := REPEAT ( &lt;processor&gt; ) &lt;number&gt; TIMES ;
-</code>
-</pre>
-
-and the contents of associations.txt:
-
-<pre><code>&lt;repeater&gt;,my.package.Repeater
-</code>
-</pre>
-
-From then on, you can add this extension to the interpreter by calling:
-
-<pre><code>my_int.addExtension(MyExtension.class);
-</code>
-</pre>
-
+The array indices become 0 and 1, since only the two `ArithExp` objects remain as the arguments.
 <!-- :wrap=soft: -->

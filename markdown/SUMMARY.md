@@ -39,4 +39,4 @@
 * [Extending BeepBeep](custom/README.md)
   * [Custom Functions](custom/README.md#custom-functions)
   * [Custom Processors](custom/README.md#custom-processors)
-* [Using a query language](dsl/README.md)
+* [Designing a query language](dsl/README.md)
