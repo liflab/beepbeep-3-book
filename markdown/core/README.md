@@ -10,10 +10,10 @@ A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something th
 Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
-        Function negation = Booleans.not;
-        Object[] out = new Object[1];
-        negation.evaluate(new Object[]{true}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function negation = Booleans.not;
+       Object[] out = new Object[1];
+       negation.evaluate(new Object[]{true}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L37)
 
@@ -29,9 +29,9 @@ For function `Negation`, both are equal to one: the negation takes one Boolean v
 Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
 
 ``` java
-        Function addition = Numbers.addition;
-        addition.evaluate(new Object[]{2, 3}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function addition = Numbers.addition;
+       addition.evaluate(new Object[]{2, 3}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L52)
 
@@ -320,16 +320,16 @@ We first create a source of arbitrary numbers. We pipe the output of this proces
 Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{runnning average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
 
 ``` java
-        QueueSource numbers = new QueueSource(1);
-        numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
-                4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
-        Cumulate sum_proc = new Cumulate(
-                new CumulativeFunction<Number>(Numbers.addition));
-        Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
-        QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
-        ApplyFunction division = new ApplyFunction(Numbers.division);
-        Connector.connect(sum_proc, OUTPUT, division, LEFT);
-        Connector.connect(counter, OUTPUT, division, RIGHT);
+       QueueSource numbers = new QueueSource(1);
+       numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+               4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+       Cumulate sum_proc = new Cumulate(
+               new CumulativeFunction<Number>(Numbers.addition));
+       Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
+       QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
+       ApplyFunction division = new ApplyFunction(Numbers.division);
+       Connector.connect(sum_proc, OUTPUT, division, LEFT);
+       Connector.connect(counter, OUTPUT, division, RIGHT);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/Average.java#L73)
 
@@ -411,14 +411,14 @@ Do not forget that a `QueueSource` loops through its list of events; this is why
 The `Trim` processor behaves in a similar way in push mode, such as in this example:
 
 ``` java
-        Trim trim = new Trim(3);
-        Print print = new Print();
-        Connector.connect(trim, print);
-        Pushable p = trim.getPushableInput();
-        for (int i = 0; i < 6; i++)
-        {
-            p.push(i);
-        }
+       Trim trim = new Trim(3);
+       Print print = new Print();
+       Connector.connect(trim, print);
+       Pushable p = trim.getPushableInput();
+       for (int i = 0; i < 6; i++)
+       {
+           p.push(i);
+       }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/TrimPush.java#L40)
 
@@ -440,7 +440,7 @@ Coupled with `Fork`, the `Trim` processor can be useful to create two copies of 
 
 On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The procesor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
 
-From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{sliding window} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
+From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{window!sliding} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
 
 ## Sliding windows {#windows}
 
@@ -495,7 +495,7 @@ A numerical stream is passed into an `ApplyFunction` processor; the function eva
 
 As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows if unique among existing stream processors.
 
-This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function `IsEven` in the drawing has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
+This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> in the drawing has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
 
 ## Group processors {#group}
 
@@ -511,26 +511,26 @@ Let us revisit a previous example ([⚓](https://github.com/liflab/beepbeep-3-ex
 ), and use a group processor, as in the following code fragment.
 
 ``` java
-        QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
-        GroupProcessor group = new GroupProcessor(1, 1);
-        {
-            Fork fork = new Fork(2);
-            ApplyFunction add = new ApplyFunction(Numbers.addition);
-            Connector.connect(fork, 0, add, 0);
-            Trim trim = new Trim(1);
-            Connector.connect(fork, 1, trim, 0);
-            Connector.connect(trim, 0, add, 1);
-            group.addProcessors(fork, trim, add);
-            group.associateInput(0, fork, 0);
-            group.associateOutput(0, add, 0);
-        }
-        Connector.connect(source, group);
-        Pullable p = group.getPullableOutput();
-        for (int i = 0; i < 6; i++)
-        {
-            float x = (Float) p.pull();
-            System.out.println("The event is: " + x);
-        }
+       QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
+       GroupProcessor group = new GroupProcessor(1, 1);
+       {
+           Fork fork = new Fork(2);
+           ApplyFunction add = new ApplyFunction(Numbers.addition);
+           Connector.connect(fork, 0, add, 0);
+           Trim trim = new Trim(1);
+           Connector.connect(fork, 1, trim, 0);
+           Connector.connect(trim, 0, add, 1);
+           group.addProcessors(fork, trim, add);
+           group.associateInput(0, fork, 0);
+           group.associateOutput(0, add, 0);
+       }
+       Connector.connect(source, group);
+       Pullable p = group.getPullableOutput();
+       for (int i = 0; i < 6; i++)
+       {
+           float x = (Float) p.pull();
+           System.out.println("The event is: " + x);
+       }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/GroupSimple.java#L28)
 
@@ -575,13 +575,57 @@ group.associateOutput(1, div, 1);
 
 ## Decimating events {#decimate}
 
-We have seen earlier how to calculate 
+A common task in event stream processing is to discard events from an input stream at periodic intervals. This process is called <!--\index{decimation} \textbf{decimation}-->**decimation**<!--/i-->. The two common ways to decimate events are:
+
+- based on a fixed number of events (*count decimation*), and
+- based on a fixed interval of time (*time decimation*).
+
+In this section, we concentrate on the former; time decimation will be discussed in the next chapter.
+
+To perform count decimation, BeepBeep provides a processor called [`CountDecimate`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/CountDecimate.html). Let us push events to such a processor, as in the following code fragment.
+
+``` java
+CountDecimate dec = new CountDecimate(3);
+Print print = new Print();
+Connector.connect(dec, print);
+Pushable p = dec.getPushableInput();
+for (int i = 0; i < 10; i++)
+{
+    p.push(i);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/CountDecimateSimple.java#L42)
+
+
+Here, a `CountDecimate` processor is created and connected into a `Print` processor. The decimate processor is instructed to keep one event every 3, and to discard the others. This is the meaning of value 3 passed to its constructor, which is called the *decimation interval*. This can be drawn as follows:
+
+![Pushing events to a `CountDecimate` processor.](CountDecimateSimple.png)
+
+The `CountDecimate` processor is designated by a pictogram where some events are transprent, representing decimation. Like many other processors that receive parameters, the decimation interval is written on one side of the box. Let us now push the integers 0 to 9 into this processor, and watch the output printed at the console. We get the following:
+
+    0,3,6,9,
+
+As expected, the processor passed the first event (0), discarded the next two (1 and 2), then passed the fourth (3), and so on.
+
+An important remark must be made when `CountDecimate` is used in pull mode, as in the following chain:
+
+![Pulling events from a `CountDecimate` processor.](CountDecimatePull.png)
+
+<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/basic/CountDecimatePull.java</code></pre>
+
+In such a case, the events received by each call to `pull` will be 1, 4, 7, etc. That is, after outputting event 1, the decimate processor does not ignore our next two calls to `pull` by returning nothing. Rather, it pulls three events from the queue source and discards the first two.
+
+The decimate procssor can be mixed with the other processors we have seen so far. For example, we have seen earlier how we can use a `Window` processor to calculate the sum of events on a sliding window of width *n*. We can affix a `CountDecimate` processor to the end of such a chain to create what is called a <!--\index{window!hopping} \textbf{hopping window}-->**hopping window**<!--/i-->. Contrary to sliding windows, where the content of two successive windows overlap, hopping windows are disjoint. For example, one can compute the sum of the first five events, then the sum of the next five, and so on. The difference between the two types of windows is illustrated in the following figure; sliding windows are shown at the left, and hopping windows are shown at the right.
+
+![Difference between a sliding window (left) and a hopping window (right).](Hopping.png)
+
+As one can see, hopping windows can be created out of sliding windows of width *n* by simply keeping one window out of every *n*.
 
 ## Filtering events {#filter}
 
 The `CountDecimate` processor acts as a kind of filter, based on the events' position. If an input event is at a position that is an integer multiple of the decimation interval, it is let through to the output, otherwise it is discarded. Apart from the `Trim` processor we have encountered earlier, this is so far the only way to discard events from an input stream.
 
-The [`Filter`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Filter.html) processor allows a user to keep or discard events from an input stream in a completely arbitrary way. In its simplest form, a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i--> has two input pipes and one output pipe. The first input pipe is called the *data pipe*: it consists of the stream of events that has to be filtered. The second input pipe is called the *control pipe*: it receives a stream of Boolean values. As its name implies, this Boolean stream is responsible for deciding what events coming into the data pipe will be let through, and what events will be discarded. The event at position *n* in the data stream is sent to the output, if and only if the event at position *n* in the control stream is the Boolean value `true`.
+The [`Filter`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Filter.html) processor allows a user to keep or discard events from an input stream in a completely arbitrary way. In its simplest form, a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i--> has two input pipes and one output pipe. The first input pipe is called the *data pipe*: it consists of the stream of events that needs to be filtered. The second input pipe is called the *control pipe*: it receives a stream of Boolean values. As its name implies, this Boolean stream is responsible for deciding what events coming into the data pipe will be let through, and what events will be discarded. The event at position *n* in the data stream is sent to the output, if and only if the event at position *n* in the control stream is the Boolean value `true`.
 
 As a first example, consider the following piece of code, which connects two sources to a `Filter` processor:
 
@@ -714,18 +758,30 @@ Something a little different happens in the next call to `pull`. The `slicer` re
 
 The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
 
-As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this.
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this. Giving it to the `Slice` processor will generate two streams: one made with the numbers for which `IsEven` returns `true` (the even numbers), and another made with the numbers for which `IsEven` returns `false` (the odd numbers). We then affix as the slice procesor a `GroupProcessor` that encapsulates a chain computing the cumulative sum of numbers.
 
 ![Adding odd and even numbers separately.](SlicerOddEven.png)
 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SlicerOddEven.java)
 
 
+The end result of this program is map with two keys (`true` and `false`), associated with the cumulative sum of even numbers and odd numbers, respectively.
+
+- - -
+
+In this chapter, we have covered the dozen or so fundamental processors provided by BeepBeep's core. These processors allow us to manipulate event streams in various ways: applying a function to each event, filtering, decimating, slicing and creating sliding windows. Most of these processors are "type agnostic": the actual type of events they handle has no influence in the way they operate. Therefore, a lot of event processing tasks can be achieved by appropriately combining these basic building blocks together. We could show many other examples of graphs that mix processors in various ways; we rather left them as exercises in the section below. It takes a little time to get used to decomposing a problem in terms of streams; this is why we recommend you to try some of these exercises and develop your intuition before moving on to the next chapter.
+
 ## Exercises {#ex-core}
 
 1. Write a processor chain that computes the sum of each event with the one two positions away in the stream. That is, output event 0 is the sum of input events 0 and 2; output event 1 is the sum of input events 1 and 3, and so on. You can do this using a very slight modification to one of the examples in this chapter.
 2. Using `CountDecimate` and `Trim`, write a processor chain that outputs events at position 3*n*+1 and discards the others. That is, from the input stream, the output should contain events at position 1, 4, 7, 10, etc.
 3. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
-4. Write a processor chain that outputs events at position *n*^2. That is, from the input stream, the output should contain events at position 1, 4, 9, 16, etc.
-    
+4. Write a processor chain that outputs events at position *n*². That is, from the input stream, the output should contain events at position 1, 4, 9, 16, etc.
+5. Write a `GroupProcessor` that takes a stream of numbers, and alternates their sign: it multiplies the first event by -1, the second by 1, the third by -1, and so on. This processor only needs to work in pull mode.
+6. The value of pi can be estimated using the [Leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80). According to this formula, pi is four times the infinite expression 1/1 - 1/3 + 1/5 - 1/7 + 1/9... Create a chain of processors that produces an increasingly precise approximation of the value of pi using this formula.
+7. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[X²]-E[X]², where E[X] is the running average, and E[X²] is the running average of the square of each input even.
+8. Write a processor chain that prints "This is a multiple of 5" when a multiple of 5 is pushed, and prints "This is something else" otherwise.
+9. From a stream of Boolean values, write a processor chain that computes the number of times a window of width 3 contains more `false` than `true`. That is, from the input stream TTFFTFTT, the processor should output the values 0, 1, 2, 3, 3, 3.
+10. Write a processor chain that counts the number of times a positive number is immediately followed by a negative number.
+
 <!-- :wrap=soft: -->
