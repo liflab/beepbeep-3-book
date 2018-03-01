@@ -774,14 +774,25 @@ In this chapter, we have covered the dozen or so fundamental processors provided
 ## Exercises {#ex-core}
 
 1. Write a processor chain that computes the sum of each event with the one two positions away in the stream. That is, output event 0 is the sum of input events 0 and 2; output event 1 is the sum of input events 1 and 3, and so on. You can do this using a very slight modification to one of the examples in this chapter.
+
 2. Using `CountDecimate` and `Trim`, write a processor chain that outputs events at position 3*n*+1 and discards the others. That is, from the input stream, the output should contain events at position 1, 4, 7, 10, etc.
+
 3. Using only the `Fork`, `Trim` and `ApplyFunction` processors, write a processor chain that computes the sum of all three successive events. (Hint: you will need two `Trim`s.)
+
 4. Write a processor chain that outputs events at position *n*². That is, from the input stream, the output should contain events at position 1, 4, 9, 16, etc.
+
 5. Write a `GroupProcessor` that takes a stream of numbers, and alternates their sign: it multiplies the first event by -1, the second by 1, the third by -1, and so on. This processor only needs to work in pull mode.
+
 6. The value of pi can be estimated using the [Leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80). According to this formula, pi is four times the infinite expression 1/1 - 1/3 + 1/5 - 1/7 + 1/9... Create a chain of processors that produces an increasingly precise approximation of the value of pi using this formula.
-7. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[X²]-E[X]², where E[X] is the running average, and E[X²] is the running average of the square of each input even.
-8. Write a processor chain that prints "This is a multiple of 5" when a multiple of 5 is pushed, and prints "This is something else" otherwise.
-9. From a stream of Boolean values, write a processor chain that computes the number of times a window of width 3 contains more `false` than `true`. That is, from the input stream TTFFTFTT, the processor should output the values 0, 1, 2, 3, 3, 3.
-10. Write a processor chain that counts the number of times a positive number is immediately followed by a negative number.
+
+7. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[X²]-E[X]², where E[X] is the running average, and E[X²] is the running average of the square of each input event.
+
+8. Write a processor chain that takes as input a stream of numbers, and outputs a stream of Booleans. Output event at position *i* should be true if and only if input event at position *i* is more than two standard deviations away from the running average of the stream at this point. (Hint: the standard deviation is the square root of the running variance.)
+
+9. Write a processor chain that prints "This is a multiple of 5" when a multiple of 5 is pushed, and prints "This is something else" otherwise.
+
+10. From a stream of Boolean values, write a processor chain that computes the number of times a window of width 3 contains more `false` than `true`. That is, from the input stream TTFFTFTT, the processor should output the values 0, 1, 2, 3, 3, 3.
+
+11. Write a processor chain that counts the number of times a positive number is immediately followed by a negative number.
 
 <!-- :wrap=soft: -->

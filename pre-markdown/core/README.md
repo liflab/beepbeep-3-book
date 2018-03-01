@@ -510,10 +510,12 @@ In this chapter, we have covered the dozen or so fundamental processors provided
 
 7. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[X²]-E[X]², where E[X] is the running average, and E[X²] is the running average of the square of each input event.
 
-8. Write a processor chain that prints "This is a multiple of 5" when a multiple of 5 is pushed, and prints "This is something else" otherwise.
+8. Write a processor chain that takes as input a stream of numbers, and outputs a stream of Booleans. Output event at position *i* should be true if and only if input event at position *i* is more than two standard deviations away from the running average of the stream at this point. (Hint: the standard deviation is the square root of the running variance.)
 
-9. From a stream of Boolean values, write a processor chain that computes the number of times a window of width 3 contains more `false` than `true`. That is, from the input stream TTFFTFTT, the processor should output the values 0, 1, 2, 3, 3, 3.
+9. Write a processor chain that prints "This is a multiple of 5" when a multiple of 5 is pushed, and prints "This is something else" otherwise.
 
-10. Write a processor chain that counts the number of times a positive number is immediately followed by a negative number.
+10. From a stream of Boolean values, write a processor chain that computes the number of times a window of width 3 contains more `false` than `true`. That is, from the input stream TTFFTFTT, the processor should output the values 0, 1, 2, 3, 3, 3.
+
+11. Write a processor chain that counts the number of times a positive number is immediately followed by a negative number.
 
 <!-- :wrap=soft: -->
