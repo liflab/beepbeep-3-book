@@ -273,7 +273,7 @@ From this point on, the top and the bottom pipe of the addition processor are al
 
 For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, {@link jdc:ca.uqac.lif.cep.tmf.Window Window}.
 
-<!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
+The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
 
 The second step is to encase this `Cumulate` processor within a `Window` processor, and to specify a window width (3 in our present case). A simple example of a window processor is the following piece of code:
 
@@ -375,8 +375,6 @@ As expected, the processor passed the first event (0), discarded the next two (1
 An important remark must be made when `CountDecimate` is used in pull mode, as in the following chain:
 
 {@img doc-files/basic/CountDecimatePull.png}{Pulling events from a `CountDecimate` processor.}{.6}
-
-{@snipi basic/CountDecimatePull.java}{/}
 
 In such a case, the events received by each call to `pull` will be 1, 4, 7, etc. That is, after outputting event 1, the decimate processor does not ignore our next two calls to `pull` by returning nothing. Rather, it pulls three events from the queue source and discards the first two.
 

@@ -10,10 +10,10 @@ A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something th
 Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
-       Function negation = Booleans.not;
-       Object[] out = new Object[1];
-       negation.evaluate(new Object[]{true}, out);
-       System.out.println("The return value of the function is: " + out[0]);
+        Function negation = Booleans.not;
+        Object[] out = new Object[1];
+        negation.evaluate(new Object[]{true}, out);
+        System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L37)
 
@@ -29,9 +29,9 @@ For function `Negation`, both are equal to one: the negation takes one Boolean v
 Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
 
 ``` java
-       Function addition = Numbers.addition;
-       addition.evaluate(new Object[]{2, 3}, out);
-       System.out.println("The return value of the function is: " + out[0]);
+        Function addition = Numbers.addition;
+        addition.evaluate(new Object[]{2, 3}, out);
+        System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L52)
 
@@ -320,16 +320,16 @@ We first create a source of arbitrary numbers. We pipe the output of this proces
 Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{runnning average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
 
 ``` java
-       QueueSource numbers = new QueueSource(1);
-       numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
-               4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
-       Cumulate sum_proc = new Cumulate(
-               new CumulativeFunction<Number>(Numbers.addition));
-       Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
-       QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
-       ApplyFunction division = new ApplyFunction(Numbers.division);
-       Connector.connect(sum_proc, OUTPUT, division, LEFT);
-       Connector.connect(counter, OUTPUT, division, RIGHT);
+        QueueSource numbers = new QueueSource(1);
+        numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+                4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+        Cumulate sum_proc = new Cumulate(
+                new CumulativeFunction<Number>(Numbers.addition));
+        Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
+        QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
+        ApplyFunction division = new ApplyFunction(Numbers.division);
+        Connector.connect(sum_proc, OUTPUT, division, LEFT);
+        Connector.connect(counter, OUTPUT, division, RIGHT);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/Average.java#L73)
 
@@ -411,14 +411,14 @@ Do not forget that a `QueueSource` loops through its list of events; this is why
 The `Trim` processor behaves in a similar way in push mode, such as in this example:
 
 ``` java
-       Trim trim = new Trim(3);
-       Print print = new Print();
-       Connector.connect(trim, print);
-       Pushable p = trim.getPushableInput();
-       for (int i = 0; i < 6; i++)
-       {
-           p.push(i);
-       }
+        Trim trim = new Trim(3);
+        Print print = new Print();
+        Connector.connect(trim, print);
+        Pushable p = trim.getPushableInput();
+        for (int i = 0; i < 6; i++)
+        {
+            p.push(i);
+        }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/TrimPush.java#L40)
 
@@ -446,7 +446,7 @@ From this point on, the top and the bottom pipe of the addition processor are al
 
 For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, [`Window`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Window.html).
 
-<!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
+The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
 
 The second step is to encase this `Cumulate` processor within a `Window` processor, and to specify a window width (3 in our present case). A simple example of a window processor is the following piece of code:
 
@@ -511,26 +511,26 @@ Let us revisit a previous example ([⚓](https://github.com/liflab/beepbeep-3-ex
 ), and use a group processor, as in the following code fragment.
 
 ``` java
-       QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
-       GroupProcessor group = new GroupProcessor(1, 1);
-       {
-           Fork fork = new Fork(2);
-           ApplyFunction add = new ApplyFunction(Numbers.addition);
-           Connector.connect(fork, 0, add, 0);
-           Trim trim = new Trim(1);
-           Connector.connect(fork, 1, trim, 0);
-           Connector.connect(trim, 0, add, 1);
-           group.addProcessors(fork, trim, add);
-           group.associateInput(0, fork, 0);
-           group.associateOutput(0, add, 0);
-       }
-       Connector.connect(source, group);
-       Pullable p = group.getPullableOutput();
-       for (int i = 0; i < 6; i++)
-       {
-           float x = (Float) p.pull();
-           System.out.println("The event is: " + x);
-       }
+        QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
+        GroupProcessor group = new GroupProcessor(1, 1);
+        {
+            Fork fork = new Fork(2);
+            ApplyFunction add = new ApplyFunction(Numbers.addition);
+            Connector.connect(fork, 0, add, 0);
+            Trim trim = new Trim(1);
+            Connector.connect(fork, 1, trim, 0);
+            Connector.connect(trim, 0, add, 1);
+            group.addProcessors(fork, trim, add);
+            group.associateInput(0, fork, 0);
+            group.associateOutput(0, add, 0);
+        }
+        Connector.connect(source, group);
+        Pullable p = group.getPullableOutput();
+        for (int i = 0; i < 6; i++)
+        {
+            float x = (Float) p.pull();
+            System.out.println("The event is: " + x);
+        }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/GroupSimple.java#L28)
 
@@ -610,8 +610,6 @@ As expected, the processor passed the first event (0), discarded the next two (1
 An important remark must be made when `CountDecimate` is used in pull mode, as in the following chain:
 
 ![Pulling events from a `CountDecimate` processor.](CountDecimatePull.png)
-
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/basic/CountDecimatePull.java</code></pre>
 
 In such a case, the events received by each call to `pull` will be 1, 4, 7, etc. That is, after outputting event 1, the decimate processor does not ignore our next two calls to `pull` by returning nothing. Rather, it pulls three events from the queue source and discards the first two.
 
