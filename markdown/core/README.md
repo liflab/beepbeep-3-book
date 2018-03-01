@@ -10,10 +10,10 @@ A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something th
 Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
-        Function negation = Booleans.not;
-        Object[] out = new Object[1];
-        negation.evaluate(new Object[]{true}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function negation = Booleans.not;
+       Object[] out = new Object[1];
+       negation.evaluate(new Object[]{true}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L37)
 
@@ -29,9 +29,9 @@ For function `Negation`, both are equal to one: the negation takes one Boolean v
 Functions with an input arity of size greater than 1 work in the same way. In the following example, we get an instance of the [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html) function, and make a call on `evaluate` to get the value of 2+3.
 
 ``` java
-        Function addition = Numbers.addition;
-        addition.evaluate(new Object[]{2, 3}, out);
-        System.out.println("The return value of the function is: " + out[0]);
+       Function addition = Numbers.addition;
+       addition.evaluate(new Object[]{2, 3}, out);
+       System.out.println("The return value of the function is: " + out[0]);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L52)
 
@@ -320,16 +320,16 @@ We first create a source of arbitrary numbers. We pipe the output of this proces
 Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{runnning average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
 
 ``` java
-        QueueSource numbers = new QueueSource(1);
-        numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
-                4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
-        Cumulate sum_proc = new Cumulate(
-                new CumulativeFunction<Number>(Numbers.addition));
-        Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
-        QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
-        ApplyFunction division = new ApplyFunction(Numbers.division);
-        Connector.connect(sum_proc, OUTPUT, division, LEFT);
-        Connector.connect(counter, OUTPUT, division, RIGHT);
+       QueueSource numbers = new QueueSource(1);
+       numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+               4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+       Cumulate sum_proc = new Cumulate(
+               new CumulativeFunction<Number>(Numbers.addition));
+       Connector.connect(numbers, OUTPUT, sum_proc, INPUT);
+       QueueSource counter = new QueueSource().setEvents(1, 2, 3, 4, 5, 6, 7);
+       ApplyFunction division = new ApplyFunction(Numbers.division);
+       Connector.connect(sum_proc, OUTPUT, division, LEFT);
+       Connector.connect(counter, OUTPUT, division, RIGHT);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/Average.java#L73)
 
@@ -411,14 +411,14 @@ Do not forget that a `QueueSource` loops through its list of events; this is why
 The `Trim` processor behaves in a similar way in push mode, such as in this example:
 
 ``` java
-        Trim trim = new Trim(3);
-        Print print = new Print();
-        Connector.connect(trim, print);
-        Pushable p = trim.getPushableInput();
-        for (int i = 0; i < 6; i++)
-        {
-            p.push(i);
-        }
+       Trim trim = new Trim(3);
+       Print print = new Print();
+       Connector.connect(trim, print);
+       Pushable p = trim.getPushableInput();
+       for (int i = 0; i < 6; i++)
+       {
+           p.push(i);
+       }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/TrimPush.java#L40)
 
@@ -511,26 +511,26 @@ Let us revisit a previous example ([⚓](https://github.com/liflab/beepbeep-3-ex
 ), and use a group processor, as in the following code fragment.
 
 ``` java
-        QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
-        GroupProcessor group = new GroupProcessor(1, 1);
-        {
-            Fork fork = new Fork(2);
-            ApplyFunction add = new ApplyFunction(Numbers.addition);
-            Connector.connect(fork, 0, add, 0);
-            Trim trim = new Trim(1);
-            Connector.connect(fork, 1, trim, 0);
-            Connector.connect(trim, 0, add, 1);
-            group.addProcessors(fork, trim, add);
-            group.associateInput(0, fork, 0);
-            group.associateOutput(0, add, 0);
-        }
-        Connector.connect(source, group);
-        Pullable p = group.getPullableOutput();
-        for (int i = 0; i < 6; i++)
-        {
-            float x = (Float) p.pull();
-            System.out.println("The event is: " + x);
-        }
+       QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
+       GroupProcessor group = new GroupProcessor(1, 1);
+       {
+           Fork fork = new Fork(2);
+           ApplyFunction add = new ApplyFunction(Numbers.addition);
+           Connector.connect(fork, 0, add, 0);
+           Trim trim = new Trim(1);
+           Connector.connect(fork, 1, trim, 0);
+           Connector.connect(trim, 0, add, 1);
+           group.addProcessors(fork, trim, add);
+           group.associateInput(0, fork, 0);
+           group.associateOutput(0, add, 0);
+       }
+       Connector.connect(source, group);
+       Pullable p = group.getPullableOutput();
+       for (int i = 0; i < 6; i++)
+       {
+           float x = (Float) p.pull();
+           System.out.println("The event is: " + x);
+       }
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/GroupSimple.java#L28)
 
