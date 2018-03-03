@@ -227,6 +227,8 @@ function fix_indentation($s)
   for ($i = 1; $i < count($lines) - 1; $i++)
   {
     $line = $lines[$i];
+    if (trim($line) === "")
+    	continue; // Ignore empty lines in calculation
     $sp = strlen($line) - strlen(ltrim($line));
     $num_spaces = min($num_spaces, $sp);
   }

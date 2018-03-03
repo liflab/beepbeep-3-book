@@ -19,7 +19,7 @@ The basic process of creating a DSL is as follows:
 1. We first decide what expressions of the language will look like by defining what is called a *grammar*
 2. We then devise a mechanism to build objects (typically `Function` and `Processor` objects) from expressions of the language
 
-## Defining a grammar
+## Defining a grammar {#grammar}
 
 A special palette called `dsl` allows the user to design query languages for various purposes. Under the hood, `dsl` uses <!--\index{Bullwinkle parser} Bullwinkle-->Bullwinkle<!--/i-->, a parser for languages that operates through recursive descent with backtracking. Typical [parser generators](http://en.wikipedia.org/wiki/Parser_generator) such as ANTLR, <!--\index{Yacc} Yacc-->Yacc<!--/i--> or <!--\index{Bison (parser)} Bison-->Bison<!--/i--> take a <!--\index{grammar} grammar-->grammar<!--/i--> as input and produce code for a parser specific to that grammar, which must then be compiled to be used. On the contrary, Bullwinkle reads the definition of a grammar at *runtime* and can parse strings on the spot.
 
@@ -67,8 +67,6 @@ In this new grammar, it is now possible to write a more natural expression such 
 
 The Bullwinkle parser offers many more features, which we shall not discuss here. For example, it accepts a second way of defining a grammar by assembling rules and creating instances of objects programmatically; we refer the reader to the online documentation for more detals. A final remark regarding grammars is that they must belong to a special family called [LL(k)](http://en.wikipedia.org/wiki/LL_parser). Roughly, this means that they must not contain a production rules of the form `<S> := <S> something`. Trying to parse such a rule by recursive descent (the algorithm used by Bullwinkle) causes an infinite recursion (which will throw a `ParseException` when the maximum recursion depth is reached).
 
-## Using the parse tree
-
 From a grammar defined as above, we can create an instance of an object called a `BnfParser`. For example, suppose that the grammar for arithmetical expressions is contained in a text file called `arithmetic.bnf`. Obtaining a parser for that object can be done as follows:
 
 ``` java
@@ -85,9 +83,11 @@ Once a grammar has been loaded into an instance of `BnfParser`, we are ready to 
 
 The leaves of this tree are literals; all the other nodes correspond to non-terminal symbols. Intuitively, a node represents the application of a rule, and the children of that node are the symbols in the specific case of the rule that was applied. For example, the root of the tree corresponds to the start symbol `<exp>`; this symbol is transformed into `<add>` by applying the first case of rule 1. The symbol `add`, in turn, is transformed into the expression `<num> + ( <exp> )` by applying the second case of rule 2 --and so on.
 
+## Using the parse tree {#objectbuilder}
+
 As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parse tree, and to build the parts of the object piece by piece. This is done using an object called the  <!--\index{GrammarObjectBuilder@\texttt{GrammarObjectBuilder}} \texttt{GrammarObjectBuilder}-->`GrammarObjectBuilder`<!--/i-->.
 
-To illustrate the principle, consider this simple grammar to represent arithmetic expressions in "forward" Polish notation, such as this:
+To illustrate the principle, consider this simple grammar to represent arithmetic expressions in <!--\index{Polish notation} Polish notation-->Polish notation<!--/i-->, such as this:
 
     <exp> := <add> | <sbt> | <num>;
     <add> := + <exp> <exp>;
@@ -114,7 +114,7 @@ public ArithmeticBuilder()
     }
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L15)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L49)
 
 
 The `GrammarObjectBuilder` class defines a method called `build()`, which takes as input a character string. It first parses that string, and then performs a *postfix* traversal of the resulting parse tree, maintaining  in its memory a stack of arbitrary objects along the way. A postfix traversal means that the nodes of the tree are visited one by one; furthermore, before a parent node is visited, all its children are visited first. Hence, in the tree shown above, the first node to be visited will be the leftmost number `3`, followed by its parent `<num>`, and so on.
@@ -124,7 +124,7 @@ The `GrammarObjectBuilder` treats any terminal symbol as a character string. The
 Let us start with the simplest case, that of the `<num>` symbol. When a `<num>` node is visited in the parse tree, as per the postfix traversal we described earlier, we know that the top of the stack contains a string with the number that was parsed. The task of our method is to take this string, convert it into a Java `Number` object, and then create a BeepBeep `Constant` object from this number. Therefore, we can create a method called `handleNum` that goes as follows:
 
 ``` java
-public void handleNum(Stack<Object> stack)
+public void handleNum(ArrayDeque<Object> stack)
 {
     String s_num = (String) stack.pop();
     Number n_num = Float.parseFloat(s_num);
@@ -132,11 +132,11 @@ public void handleNum(Stack<Object> stack)
     stack.push(c);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L40)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L68)
 
 
 As you can see, this method receives as an argument the current contents of the object stack maintained by the `GrammarObjectBuilder` object.
-What remains to be done is to signal to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> `@Builds` to the method, which reads as follows:
+What remains to be done is to signal to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> <!--\index{Builds@\texttt{\@Builds}} \texttt{pop}-->`@Builds`<!--/i--> to the method, which reads as follows:
 
 ``` java
 @Builds(rule="<num>")
@@ -148,7 +148,7 @@ It is up to each method to pop and push objects from the stack, in order to recu
 
 ``` java
 @Builds(rule="<add>")
-public void handleAdd(Stack<Object> stack)
+public void handleAdd(ArrayDeque<Object> stack)
 {
     Function f2 = (Function) stack.pop();
     Function f1 = (Function) stack.pop();
@@ -156,7 +156,7 @@ public void handleAdd(Stack<Object> stack)
     stack.push(new FunctionTree(Numbers.addition, f1, f2));
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L50)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L78)
 
 
 Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `Function` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add` has three tokens, and so the method handling `<add>` pops three objects. In particular, the third line of the method pops and immediately discards an object from the stack, which corresponds to the "+" string that is present in the rule for `<add>`. Notice how, since we are operating on a stack, objects are popped in the reverse order that they appear in the corresponding rule in the grammar.
@@ -165,7 +165,7 @@ For the sake of completion, let us write a method that handles the rule for the 
 
 ``` java
 @Builds(rule="<sbt>")
-public void handleSbt(Stack<Object> stack)
+public void handleSbt(ArrayDeque<Object> stack)
 {
     Function f2 = (Function) stack.pop();
     Function f1 = (Function) stack.pop();
@@ -173,36 +173,175 @@ public void handleSbt(Stack<Object> stack)
     stack.push(new FunctionTree(Numbers.subtraction, f1, f2));
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L61)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L89)
 
 
-As one can see, it is possible to create object builders that read expressions in just a few lines of code. This can be even further simplified using the `pop` and `clean` parameters. Instead of popping objects manually, and pushing a new object back onto the stack, one can use the `pop` parameter to ask for the object builder to already pop the appropriate number of objects from the stack. The method for `add` would then become:
+We are now ready to use the object builder we just created. Parsing an expression and using the resulting `Function` object can be done in a few lines, as the code below illustrates.
 
 ``` java
-@Builds(rule="<add>", pop=true, clean=true)
-public ArithExp handleAdd(Object ... parts) {
-  return new Add((ArithExp) parts[0], (ArithExp) parts[1]);
+ArithmeticBuilder builder = new ArithmeticBuilder();
+Function f = builder.build("+ 3 - 4 5");
+Object[] value = new Object[1];
+f.evaluate(new Object[]{}, value);
+System.out.println(value[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L40)
+
+
+The first instruction creates a new instance of our `ArithmeticBuilder`. The second calls the `build` method on the string `+ 3 - 4 5`. Since we parameterized `ArithmeticBuilder` with the type `Function`, the return value of `build`, `f`, is correctly cast as a `Function` object. The remaining lines simply prepare a call to `evaluate` on `f` and print its return value. Our function contains no `StreamVariables`, hence it takes no argument as its input. The end result, printed at the console, is indeed the value of `3+(4-5)`:
+
+    2.0
+
+As a matter of fact, we have just written a simple <!--\index{calculator} calculator-->calculator<!--/i--> that can read strings in Polish notation and compute their value. This was done using BeepBeep's `Function` objects, a simple grammar and a custom-built `GrammarObjectBuilder`. This has required, so far, only 4 lines of text for the grammar, and about 20 lines of code for the interpreter. Just for fun, we can even turn our program into an interactive command line tool, as follows:
+
+``` java
+Scanner scanner = new Scanner(System.in);
+ArithmeticBuilder builder = new ArithmeticBuilder();
+while (true)
+{
+    System.out.print("? ");
+    String line = scanner.nextLine();
+    if (line.equalsIgnoreCase("q"))
+        break;
+    Function f = builder.build(line);
+    Object[] value = new Object[1];
+    f.evaluate(new Object[]{}, value);
+    System.out.println(value[0]);
+}
+scanner.close();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/Calculator.java#L35)
+
+
+This program simply reads expressions at the console, parses and evaluates them, and prints their result until the user writes `q`:
+
+    ? + 2 3
+    5.0
+    ? - 5 + 4 4
+    -3.0
+    ? q
+
+
+## Simpler stack manipulations {#stack}
+
+As one can see, it is possible to create builders that read expressions and create new objects with very little effort. However, the manipulation of the stack in each method remains a delicate operation. Popping one object too much, or one too many, may put the stack in an inconsistent state and have disastrous cascading effects on the build process. As a simple example, suppose we modify method `handleAdd` as follows:
+
+``` java
+@Builds(rule="<add>")
+public void handleAdd(ArrayDeque<Object> stack)
+{
+    Function f2 = (Function) stack.pop();
+    stack.pop();
+    Function f1 = (Function) stack.pop();
+    stack.push(new FunctionTree(Numbers.addition, f1, f2));
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilderIncorrect.java#L81)
+
+
+We simply swapped the last two calls to `pop`, meaning we now discard the second object on the stack, and try to cast the first and third as `Function` objects. Trying to run this modified program will produce a screenful of exceptions:
+
+```
+Exception in thread "main" 
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.build(ParseTreeObjectBuilder.java:92)
+	at ca.uqac.lif.cep.dsl.GrammarObjectBuilder.build(GrammarObjectBuilder.java:64)
+	at dsl.ArithmeticBuilderIncorrect.main(ArithmeticBuilderIncorrect.java:44)
+Caused by: 
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.visit(ParseTreeObjectBuilder.java:161)
+	at ca.uqac.lif.bullwinkle.ParseNode.postfixAccept(ParseNode.java:176)
+	...
+```
+
+As a result, one has to be very careful when interacting with the object stack. However, it turns out that in many cases, a user does not need to manipulate this stack directly. Looking back at the `ArithmeticBuilder` we wrote earlier, we can realize that every method actually does the same thing:
+
+- It pops as many objects from the stack as there are tokens in the corresponding grammar rule, in reverse from the order they appear in the rule.
+- It instantiates a new object, using elements that were popped from the stack
+- It puts that new object back onto the stack
+
+It is possible to instruct the object builder to automate this repetitive process, using an additional argument to the `@Builds` annotation called <!--\index{pop@\texttt{pop} (annotation)} \texttt{pop}-->`pop`<!--/i-->. For example, the annotation for the `<num>` symbol would now read:
+
+``` java
+@Builds(rule="<num>", pop=true)
+```
+
+The use of `pop` also changes the signature of our handler method, which becomes:
+
+``` java
+@Builds(rule="<num>", pop=true)
+public Constant handleNum(Object ... parts)
+{
+    return new Constant(Float.parseFloat((String) parts[0]));
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilderPop.java#L65)
+
+
+First, one should notice that the method no longer receives a stack as an argument, but rather an array of objects called `parts`. The use of `pop` instructs the builder to already pop the appropriate number of objects from the stack, based on the number of tokens in the corresponding rule of the grammar. Here, the rule for `<num>` has a single token, which is a string of digits. Therefore, the array `parts` will contain a single `String` object at index 0.
+
+The second observation is that the method now returns something. The return value should correspond to the object that should be put back onto the stack at the end of the operation. In the case of `<num>`, the return value is a `Constant` object created by extracting a `Float` from the string received from `parts`. Notice how the original 4-line method has been simplified to a single instruction. Moreover, we no longer have to manually pop and push objects onto the stack: the object builder takes care of this outside of our handler method. This reduces the amount of work required, but also the possibility of making mistakes.
+
+Similarly, a handler method for `<add>` would look like this:
+
+``` java
+@Builds(rule="<add>", pop=true)
+public FunctionTree handleAdd(Object ... parts)
+{
+    return new FunctionTree(Numbers.addition,
+            (Function) parts[1], (Function) parts[2]);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilderPop.java#L73)
+
+
+The rule for `<add>` has three tokens. Based on that rule, the contents of `parts` will be made of three objects: the first is the "+" string, and the other two are the `Function` objects that are the operands of the addition. We know that, by the time this method is called, these two functions have already been created by the previous building steps and placed on the stack. Notice how, again, the five lines of the original method have been replaced by a single instruction.
+
+Let us now consider a more complex grammar, this time defining arithmetic operations using the more natural *infix* notation.
+
+    <exp> := <add> | <sbt> | <num> ;
+    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+    <num> := ^[0-9]+
+
+This time, the rules for each operator must take into account whether any of their operands is a number or a compound expression. Writing an object builder for this grammar is slightly more complex. The handler methods for `<add>` and `<sbt>` now have multiple cases; these cases do not have the same number of operands, and the position of the `<exp>` operands among the tokens for each case is not always the same. Therefore, one would have to carefully pop an element, check if it is a parenthesis, and if so, take care of popping the matching parenthesis later on, and so on. This is perfectly possible, but a little tedious:
+
+``` java
+public ArithExp handleAdd(Object ... parts)
+{
+	Function left, right;
+	int index ;
+	if (parts[0] instanceof String)
+	{
+		left = (Function) parts[1];
+		index = 4;
+	}
+	else
+	{
+		left = (Function) parts[0];
+		index = 2;
+	}
+	if (parts[index] instanceof String)
+	{
+		right = (Function) parts[index + 1];
+	}
+	else
+	{
+		right = (Function) parts[index];
+	}
+	return new FunctionTree(Addition.instance, left, right);
 }
 ```
 
-Notice how this time, the method's arguments is an array of objects; in that case, the array has three elements, corresponding to the three tokens of the `add`; rule. The first is the "+" symbol, and the other two are the
-`ArithExp` objects created from the two sub-expressions. Similarly, instead of pushing an object to the stack, the method simply returns it; the object builder takes care of pushing it. By not accessing the contents of the stack directly, it is harder to make mistakes.
+Notice how we must first check if the first object in parts is a string (corresponding to an opening parenthesis); if so, the first operand is located at index 1, otherwise it is at index 0. This, in turn, shifts the index of the second operand, which may or may not be surrounded by parentheses.
 
-As a further refinement, the `clean` option can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Consider a grammar for infix arithmetical expressions, where parentheses are optional around single numbers. This grammar would look like:
+However, one can see that each case of the rule has exactly two non-terminal tokens, and that both are `FunctionTrees`. As a further refinement to the object builder, the `clean` annotation can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
 
-    <exp> := <add> ...
-    <add> := <num> + <num> | ( <exp> ) + <num> | <num> + ( <exp> ) ...
+``` java
+@Builds(rule="<add>", pop=true, clean=true)
+public FunctionTree handleAdd(Object ... parts) {
+  return new FunctionTree(Addition.instance,
+	(Function) parts[0], (Function) parts[1]);
+}
+```
 
-This time, the rules for each operator must take into account whether any of their operands is a number or a compound expression. The code handling
-`add`; would be more complex, as one would have to carefully pop an
-element, check if it is a parenthesis, and if so, take care of popping the
-matching parenthesis later on, etc. However, one can see that each case of
-the rule has exactly two non-terminal tokens, and that both are `ArithExp`. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
-
-    @Builds(rule="<add>", pop=true, clean=true)
-    public ArithExp handleAdd(Object ... parts) {
-      return new Add((ArithExp) parts[0], (ArithExp) parts[1]);
-    }
-
-The array indices become 0 and 1, since only the two `ArithExp` objects remain as the arguments.
+The array indices become 0 and 1, since only the two `FunctionTree` objects remain as the arguments.
 <!-- :wrap=soft: -->

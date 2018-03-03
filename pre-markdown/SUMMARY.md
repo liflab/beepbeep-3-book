@@ -40,3 +40,6 @@
   * [Custom Functions](custom/README.md#custom-functions)
   * [Custom Processors](custom/README.md#custom-processors)
 * [Designing a query language](dsl/README.md)
+  * [Defining a grammar](dsl/README.md#grammar)
+  * [Using the parse tree](dsl/README.md#objectbuilder)
+  * [Simpler stack manipulations](dsl/README.md#stack)
