@@ -73,13 +73,13 @@ From a grammar defined as above, we can create an instance of an object called a
 
 {@snipm dsl/ParserExample.java}{/}
 
-Once a grammar has been loaded into an instance of `BnfParser`, we are ready to read character strings through its `parse()` method. This is what is done the last instruction above: the string `3+(4-5)` is passed to `parse`, and the method returns an object of type `ParseNode`. This object corresponds to the root of a structure called a **parse tree**. The tree gives the structure of the parsed expression, and specifies how it can be derived from the start symbol using the rules in the grammar. The parse tree for the expression `3+(4-5)` looks like this:
+Once a grammar has been loaded into an instance of `BnfParser`, we are ready to read character strings through its `parse()` method. This is what is done the last instruction above: the string `3+(4-5)` is passed to `parse`, and the method returns an object of type `ParseNode`. This object corresponds to the root of a structure called a <!--\index{parse tree} \textbf{parse tree}-->**parse tree**<!--/i-->. The tree gives the structure of the parsed expression, and specifies how it can be derived from the start symbol using the rules defined by the grammar. The parse tree for the expression `3+(4-5)` looks like this:
 
 {@img doc-files/dsl/tree.png}{The parse tree for the expression `3+(4-5)`.}{.6}
 
 The leaves of this tree are literals; all the other nodes correspond to non-terminal symbols. Intuitively, a node represents the application of a rule, and the children of that node are the symbols in the specific case of the rule that was applied. For example, the root of the tree corresponds to the start symbol `<exp>`; this symbol is transformed into `<add>` by applying the first case of rule 1. The symbol `add`, in turn, is transformed into the expression `<num> + ( <exp> )` by applying the second case of rule 2 --and so on.
 
-As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parse tree, and to build the parts of the object piece by piece. This is done using an object called the  `ParseTreeObjectBuilder`.
+As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parse tree, and to build the parts of the object piece by piece. This is done using an object called the  <!--\index{GrammarObjectBuilder@\texttt{GrammarObjectBuilder}} \texttt{GrammarObjectBuilder}-->`GrammarObjectBuilder`<!--/i-->.
 
 To illustrate the principle, consider this simple grammar to represent arithmetic expressions in "forward" Polish notation, such as this:
 
@@ -90,26 +90,36 @@ To illustrate the principle, consider this simple grammar to represent arithmeti
 
 Using such a grammar, the expression `3+(4-5)` is written as `+ 3 - 4 5`. We would like to be able to create a `FunctionTree` object from expressions following this syntax.
 
-The `ParseTreeObjectBuilder` makes such a task simple. It performs a *postfix* traversal of a parse tree and maintains in its memory a stack of arbitrary objects. When visiting a parse node that corresponds to a non-terminal token, such as `<foo>`, it looks for a method that handles this symbol. This is done by adding an annotation `@Builds` to the method, as follows:
+The first step is to create a new empty class that extends `GrammarObjectBuilder`. The constructor of this class should call a method called `setGrammar()`, and pass a string containing the BNF grammar corresponding to the language.
+
+{@snipm dsl/ArithmeticBuilder.java}{/}
+
+The `GrammarObjectBuilder` class defines a method called `build()`, which takes as input a character string. It first parses that string, and then performs a *postfix* traversal of the resulting parse tree, maintaining  in its memory a stack of arbitrary objects along the way. A postfix traversal means that the nodes of the tree are visited one by one; furthermore, before a parent node is visited, all its children are visited first. Hence, in the tree shown above, the first node to be visited will be the leftmost number `3`, followed by its parent `<num>`, and so on.
+
+The `GrammarObjectBuilder` treats any terminal symbol as a character string. Therefore, when visiting a leaf of the parse tree, `GrammarObjectBuilder` puts on its stack a `String` object whose value is the contents of that specific literal. When visiting a parse node that corresponds to a non-terminal token, such as `<add>`, the builder looks for a method that handles this symbol. "Handling" a symbol generally means popping objects from the stack, creating one or more new objects, and pushing these objects back onto the stack. Therefore, to build a `FunctionTree` from an expression, our `ArithmeticBuilder` class must define methods that take care of each non-terminal symbol in the grammar we defined.
+
+Let us start with the simplest case, that of the `<num>` symbol. When a `<num>` node is visited in the parse tree, as per the postfix traversal we described earlier, we know that the top of the stack contains a string with the number that was parsed. The task of our method is to take this string, convert it into a Java `Number` object, and then create a BeepBeep `Constant` object from this number. Therefore, we can create a method called `handleNum` that goes as follows:
+
+{@snipm dsl/ArithmeticBuilder.java}{\*}
+
+As you can see, this method receives as an argument the current contents of the object stack maintained by the `GrammarObjectBuilder` object.
+What remains to be done is to signal to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> `@Builds` to the method, which reads as follows:
 
 ``` java
-@Builds(rule="<foo>")
-public void myMethod(Stack<Object> stack) { ...
+@Builds(rule="<num>")
 ```
 
-The object builder calls this method, and passes it the current contents of the object stack. It is up to this method to pop and push objects from that stack, in order to recursively create the desired object at the end. For example, in the grammar above, the code to handle token `add` would look like:
+You should place this annotation just above the first line that declares the method signature.
 
-``` java
-@Builds(rule="<add>")
-public void handleAdd(Stack<Object> stack) {
-  ArithExp e2 = (ArithExp) stack.pop();
-  ArithExp e1 = (ArithExp) stack.pop();
-  stack.pop(); // To remove the "+" symbol
-  stack.push(new Add(e1, e2));
-}
-```
+It is up to each method to pop and push objects from the stack, in order to recursively create the desired object at the end. For example, in the grammar above, the code to handle token `add` would look like:
 
-Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `ArithExp` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add`; has three tokens, and so the method handling `add` pops three objects.
+{@snipm dsl/ArithmeticBuilder.java}{%}
+
+Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `Function` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add` has three tokens, and so the method handling `<add>` pops three objects. In particular, the third line of the method pops and immediately discards an object from the stack, which corresponds to the "+" string that is present in the rule for `<add>`. Notice how, since we are operating on a stack, objects are popped in the reverse order that they appear in the corresponding rule in the grammar.
+
+For the sake of completion, let us write a method that handles the rule for the `<sbt>` non-terminal symbol:
+
+{@snipm dsl/ArithmeticBuilder.java}{@}
 
 As one can see, it is possible to create object builders that read expressions in just a few lines of code. This can be even further simplified using the `pop` and `clean` parameters. Instead of popping objects manually, and pushing a new object back onto the stack, one can use the `pop` parameter to ask for the object builder to already pop the appropriate number of objects from the stack. The method for `add` would then become:
 

@@ -14,114 +14,167 @@ The main problem with all these systems is that they force you to use them throu
 
 In contrast, BeepBeep was designed based on the observation that no single language could accommodate every conceivable problem on streams --at least in a simple and intuitive way. Rather that try to design a "one-size-fits-all" language, and falling victim to the same problem as other systems, BeepBeep provides no built-in query language at all. Rather it offers users the possibility to easily create their own query languages, using the syntax they wish, and including only the features they need.
 
+The basic process of creating a DSL is as follows:
+
+1. We first decide what expressions of the language will look like by defining what is called a *grammar*
+2. We then devise a mechanism to build objects (typically `Function` and `Processor` objects) from expressions of the language
+
 ## Defining a grammar
 
-A special palette called `dsl` allows the user to design query languages for various purposes. Under the hood, `dsl` uses <!--\index{Bullwinkle parser} Bullwinkle-->Bullwinkle<!--/i-->, a parser for languages that operates through recursive descent with backtracking. Typical [parser generators](http://en.wikipedia.org/wiki/Parser_generator) such as ANTLR, <!--\index{YACC} Yacc-->Yacc<!--/i--> or <!--\index{Bison (parser)} Bison-->Bison<!--/i--> take a <!--\index{grammar} grammar-->grammar<!--/i--> as input and produce code for a parser specific to that grammar, which must then be compiled to be used. On the contrary, Bullwinkle reads the definition of a grammar at *runtime* and can parse strings on the spot.
+A special palette called `dsl` allows the user to design query languages for various purposes. Under the hood, `dsl` uses <!--\index{Bullwinkle parser} Bullwinkle-->Bullwinkle<!--/i-->, a parser for languages that operates through recursive descent with backtracking. Typical [parser generators](http://en.wikipedia.org/wiki/Parser_generator) such as ANTLR, <!--\index{Yacc} Yacc-->Yacc<!--/i--> or <!--\index{Bison (parser)} Bison-->Bison<!--/i--> take a <!--\index{grammar} grammar-->grammar<!--/i--> as input and produce code for a parser specific to that grammar, which must then be compiled to be used. On the contrary, Bullwinkle reads the definition of a grammar at *runtime* and can parse strings on the spot.
 
-The first step in creating a language is therefore to define its **grammar**, i.e. the concrete rules that define how valid expressions can be created. This can be done in two ways. The first way is by parsing a character string (taken from a file or created directly) that contains the grammar declaration. As a simple example, here is a grammar for defining simple arithmetical expressions:
+The first step in creating a language is therefore to define its **grammar**, i.e. the concrete rules that define how valid expressions can be created. This can be done by parsing a character string (taken from a file or created directly) that contains the grammar declaration. Here is a very simple example of such a declaration:
 
-    <exp> := <add> | <sub> | <mul> | <div> | - <exp> | <num>;
-    <add> := <num> + <num> | ( <exp> + <exp> );
-    <sub> := <num> - <num> | ( <exp> - <exp> );
-    <mul> := <num> × <num> | ( <exp> × <exp> );
-    <div> := <num> ÷ <num> | ( <exp> ÷ <exp> );
+    <exp> := <add> | <sbt> | <num> ;
+    <add> := <num> + <num> ;
+    <sbt> := <num> - <num> ;
+    <num> := 0 | 1 | 2 ;
+
+The definition of the grammar must follow a well-known notation called [Backus-Naur Form](http://en.wikipedia.org/wiki/Backus-Naur_form) (<!--\index{Backus-Naur Form (BNF)}BNF-->BNF<!--/i-->)). In this notation, the grammar is defined as a series of **rules** (one rule per line). The part of the rule at the left of the `:=` character contains exactly one **non-terminal symbol**. The right-hand side of the rule contains one or more **cases**, separated by the pipe (`|`) character. Each case is a sequence made of literals (character strings to be interpreted literally) and non-terminal symbols. The first non-terminal appearing in the grammar has a special meaning, and is called the **start symbol**.
+
+Taken together, the rules define a set of expressions called *valid* expressions. In the above example, our grammar defines a simple subset of arithmetical expressions, involving only addition, subtraction, and three numbers. An expression is valid if there exists a way to begin at the start symbol, and successively apply rules from the grammar to ultimately produce that expression.
+
+According to the grammar above, the expression `1 + 0` is valid, since it is possible to begin at the start symbol `<exp>` and apply rules to obtain the expression:
+
+1. We transform `<exp>` into `<add>` according to the first case of rule 1.
+2. We transform `<add>` into `<num> + <num>` according to the (only) case of rule 2.
+3. We transform the first `<num>` into `1` according to the second case of rule 4; our expression becomes `1 + <num>`.
+3. We transform the second `<num>` into `0` according to the first case of rule 4; our expression becomes `1 + 0`.
+
+On the contrary, the expression `1 + 0 - 2` is not valid, as there is no possible way to apply the rules in the grammar to transform `<exp>` into that expression.
+
+To define a grammar from a set of BNF rules, a few conventions must be followed. First, non-terminal symbols are enclosed in `<` and `>` and their names must not contain spaces. As we have seen, rules are defined with `:=` and cases are separated by the pipe character. A rule may span multiple lines (any whitespace character after the first one is ignored, as in e.g. HTML) and must end by a semicolon.
+
+In our previous example, the grammar can accommodate only the numbers 0 to 2. Since Bullwinkle only accepts the terminal symbols that are explicitly written into the grammar, we would need to write as many cases for `<num>` as there are integers, which is not very practical. Fortunately, terminal symbols can also be defined through <!--\index{regular expression} \emph{regular expressions}-->*regular expressions*<!--/i-->. A regular expression (regex for short) describes a pattern of characters. Regex terminals are identified with the `^` (hat) character. For example, to indicate that any string of one or more digits is accepted, we could rewrite the rule for `<num>` as follows: 
+
     <num> := ^[0-9]+;
 
-The definition of the grammar must follow a well-known notation called [Backus-Naur Form](http://en.wikipedia.org/wiki/Backus-Naur_form) (<!--\index{Backus-Naur Form (BNF)} BNF-->BNF<!--/i-->)). In this notation, the grammar is defined as a series of **rules** (one rule per line). The part of the rule at the left of the `:=` character contains exactly one **non-terminal symbol**. The right-hand side of the rule contains one or more **cases**, separated by the pipe (`|`) character. Each case is a sequence made of literals (character strings to be interpreted literally) and non-terminal symbols. The first non-terminal appearing in the grammar has a special meaning, and is called the **start symbol**.
+The expression `[0-9]+` is called a regex pattern; here, it designates any string of numbers. Explaining regular expressions is beyond the scope of this chapter. The reader is referred to the very large documentation on the topic available in books and online.
 
-Taken together, the rules define a set of expressions called *valid* expressions. An expression is valid if there exists a way to begin at the start symbol, and successively apply rules from the grammar to ultimately produce that expression. Consider for example this very simple grammar:
+A BNF grammar can also be *recursive*; that is, a rule `<A>` can contain a case that involves the non-terminal `<B>`, which itself can have a case that refers to `<A>`. We can rewrite our original grammar in a slightly more complex way, such that nested operations are allowed:
 
-    <S> := foo <X> | bar <Y>;
-    <X> := 0 | 1 <Y>;
-    <Y> := 2 | 3;
-
-According to this grammar, the expression `foo 1 2` is valid, since it is possible to begin at the start symbol `S` and apply rules to obtain the expression:
-
-1. We transform `<S>` into `foo <X>` according to the first case of rule 1.
-2. We transform `<X>` into `1 <Y>` according to the second case of rule 2; our expression becomes `foo 1 <Y>`.
-3. We transform `<Y>` into `2` according to the first case of rule 3; our expression becomes `foo 1 2`.
-
-On the contrary, the expression `bar 0` is not valid, as there is no possible way to apply the rules in the grammar to transform `<S>` into that expression.
-
-To define a grammar from a set of BNF rules, a few conventions must be followed:
-
-- Non-terminal symbols are enclosed in `<` and `>` and their names must not contain spaces.
-- Rules are defined with `:=` and cases are separated by the pipe character.
-- A rule can span multiple lines (any whitespace character after the first one is ignored, as in e.g. HTML) and must end by a semicolon.
-- Terminal symbols are defined by typing them directly in a rule, or through regular expressions and begin with the `^` (hat) character. The example above   shows both cases: the `+` symbol is typed directly into the rules, while the   terminal symbol `<num>` is defined with a regex. **Look out:**
-  - If a space needs to be used in the regular expression, it must be
-    declared by using the regex sequence `\s`, and *not* by putting a space.
-  - Beware not to put an extra space before the ending semicolon, or that
-    space will count as part of the regex
-  - Caveat emptor: a few corner cases are not covered at the moment, such as a regex that would contain a semicolon.
-- The left-hand side symbol of the first rule found is assumed to be the start symbol. This can be overridden by calling method `setStartSymbol()` on an   instance of the parser.
-- Whitespace acts as a token separator, so there is no need to declare terminal   tokens separately. This means that the rule `<num> + <num>` matches any string   with a number, the symbol +, and another number, separated by any number of   spaces, including none. This also means that writing `1+2` defines a *single*   token that matches only the string "1+2". When declaring rules, tokens *must* be separated by a space. Writing `(<exp>)` is illegal and will throw an   exception; one must write `( <exp> )` (note the spaces). However, since   whitespace is ignored when parsing, this rule would still match the string
-  "(1+1)".
-
-Some symbols or sequences of symbols, such as `:=`, `|`, `<`, `>` and `;`, have a special meaning and cannot be used directly inside terminal symbols (note that this limitation applies only when parsing a grammar from a text file). However, these symbols can be included by *escaping* them, i.e. replacing them with their UTF-8 hex code.
-
-- `|` can be replaced by `\u007c`
-- `<` can be replaced by `\u003c`
-- `<` can be replaced by `\u003e`
-- `;` can be replaced by `\u003b`
-- `:=` can be replaced by `\u003a\u003d`
-
-The characters should appear as is (i.e. unescaped) in the string to parse.
-
-For Bullwinkle to work, the grammar must be [LL(k)](http://en.wikipedia.org/wiki/LL_parser). Roughly, this means that it must not contain a production rules of the form `<S> := <S> something`. Trying to parse such a rule by recursive descent causes an infinite recursion (which will throw a `ParseException` when the maximum recursion depth is reached).
-
-### Building the rules manually
-
-A second way of defining a grammar consists of assembling rules by creating instances of objects programmatically. Roughly:
-
-- A `BnfRule` contains a left-hand side that must be a `NonTerminalToken`, and a right-hand side containing multiple cases that are added through method `addAlternative()`.
-- Each case is itself a `TokenString`, formed of multiple `TerminalToken`s and `NonTerminalToken`s which can be `add`ed. Terminal tokens include `NumberTerminalToken`, `StringTerminalToken` and `RegexTerminalToken`.
-- `BnfRule`s are `add`ed to an instance of the `BnfParser`.
-
-Once a grammar has been loaded into an instance of `BnfParser`, the `parse()` method is used to parse a given string and produce a parse tree (or null if the string does not parse). This parse tree can then be explored in two ways:
-
-1. In a manner similar to the DOM, by calling the `getChildren()` method of an instance of a `ParseNode` to get the list of its children (and so on, recursively);
-2. Through the [Visitor design pattern](http://en.wikipedia.org/wiki/Visitor_pattern). In that case, one creates a class that implements the `ParseNodeVisitor` interface, and passes this visitor to the `ParseNode`'s `acceptPostfix()` or `acceptPrefix()` method, depending on the desired mode of traversal.
-
-Many times, the goal of parsing an expression is to create some "object" out of the resulting parse tree. The `ParseTreeObjectBuilder` class in Bullwinkle simplifies the task of creating such objects.
-
-Suppose for example that you created objects to represent simple arithmetical expressions: there is one class for `Add`, another for `Sub`(traction), another for plain `Num`bers, etc. (See the `Examples` folder in the sources, where such classes are indeed shown in `ArithExp.java`.) You can create and nest such objects programmatically, for example to represent 10+(6-4):
-
-    ArithExp a = new Add(new Num(10), new Sub(new Num(6), new Num(4));
-
-Suppose you created a simple grammar to represent such expressions in "forward" Polish notation, such as this:
-
-    <exp> := <add> | <sub> | <num>;
-    <add> := + <exp> <exp>;
-    <sub> := - <exp> <exp>;
+    <exp> := <add> | <sbt> | <num> ;
+    <add> := ( <exp> ) + ( <exp> ) ;
+    <sbt> := ( <exp> ) - ( <exp> ) ;
     <num> := ^[0-9]+;
 
-Using such a grammar, the previous expression would be written as `+ 10 - 6 4`. You would like to be able to instantiate `ArithExp` objects from expressions following this syntax.
+Note how the operands for `<add>` and `<sbt>` involve the non-terminal `<exp>`. Using such a grammar, an expression like `(3)+((4)-(5))` is valid. However, according to the rules, the use of parentheses is mandatory, even around single numbers. This can be relaxed by adding further cases to `<add>` and `<sbt>`, which become:
 
-The `ParseTreeObjectBuilder` makes such a task simple. It performs a *postfix* traversal of a parse tree and maintains a stack of arbitrary objects. When visiting a parse node that corresponds to a non-terminal token, such as &lt;foo&gt;, it looks for a method that handles this symbol. This is done by adding an annotation `@Builds` to the method, as follows:
+    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+
+In this new grammar, it is now possible to write a more natural expression such as `3+(4-5)`.
+
+The Bullwinkle parser offers many more features, which we shall not discuss here. For example, it accepts a second way of defining a grammar by assembling rules and creating instances of objects programmatically; we refer the reader to the online documentation for more detals. A final remark regarding grammars is that they must belong to a special family called [LL(k)](http://en.wikipedia.org/wiki/LL_parser). Roughly, this means that they must not contain a production rules of the form `<S> := <S> something`. Trying to parse such a rule by recursive descent (the algorithm used by Bullwinkle) causes an infinite recursion (which will throw a `ParseException` when the maximum recursion depth is reached).
+
+## Using the parse tree
+
+From a grammar defined as above, we can create an instance of an object called a `BnfParser`. For example, suppose that the grammar for arithmetical expressions is contained in a text file called `arithmetic.bnf`. Obtaining a parser for that object can be done as follows:
 
 ``` java
-@Builds(rule="<foo>")
-public void myMethod(Stack<Object> stack) { ...
+InputStream is = ParserExample.class.getResourceAsStream("arithmetic.bnf");
+BnfParser parser = new BnfParser(is);
+ParseNode root = parser.parse("3 + (4 - 5)");
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ParserExample.java#L39)
+
+
+Once a grammar has been loaded into an instance of `BnfParser`, we are ready to read character strings through its `parse()` method. This is what is done the last instruction above: the string `3+(4-5)` is passed to `parse`, and the method returns an object of type `ParseNode`. This object corresponds to the root of a structure called a <!--\index{parse tree} \textbf{parse tree}-->**parse tree**<!--/i-->. The tree gives the structure of the parsed expression, and specifies how it can be derived from the start symbol using the rules defined by the grammar. The parse tree for the expression `3+(4-5)` looks like this:
+
+![The parse tree for the expression `3+(4-5)`.](tree.png)
+
+The leaves of this tree are literals; all the other nodes correspond to non-terminal symbols. Intuitively, a node represents the application of a rule, and the children of that node are the symbols in the specific case of the rule that was applied. For example, the root of the tree corresponds to the start symbol `<exp>`; this symbol is transformed into `<add>` by applying the first case of rule 1. The symbol `add`, in turn, is transformed into the expression `<num> + ( <exp> )` by applying the second case of rule 2 --and so on.
+
+As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parse tree, and to build the parts of the object piece by piece. This is done using an object called the  <!--\index{GrammarObjectBuilder@\texttt{GrammarObjectBuilder}} \texttt{GrammarObjectBuilder}-->`GrammarObjectBuilder`<!--/i-->.
+
+To illustrate the principle, consider this simple grammar to represent arithmetic expressions in "forward" Polish notation, such as this:
+
+    <exp> := <add> | <sbt> | <num>;
+    <add> := + <exp> <exp>;
+    <sbt> := - <exp> <exp>;
+    <num> := ^[0-9]+;
+
+Using such a grammar, the expression `3+(4-5)` is written as `+ 3 - 4 5`. We would like to be able to create a `FunctionTree` object from expressions following this syntax.
+
+The first step is to create a new empty class that extends `GrammarObjectBuilder`. The constructor of this class should call a method called `setGrammar()`, and pass a string containing the BNF grammar corresponding to the language.
+
+``` java
+public ArithmeticBuilder()
+{
+    super();
+    try
+    {
+        setGrammar("<exp> := <add> | <sbt> | <num>;\n"
+                + "<add> := + <exp> <exp>;\n"
+                + "<sbt> := - <exp> <exp>;\n"
+                + "<num> := ^[0-9]+;");
+    }
+    catch (InvalidGrammarException e)
+    {
+    }
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L15)
+
+
+The `GrammarObjectBuilder` class defines a method called `build()`, which takes as input a character string. It first parses that string, and then performs a *postfix* traversal of the resulting parse tree, maintaining  in its memory a stack of arbitrary objects along the way. A postfix traversal means that the nodes of the tree are visited one by one; furthermore, before a parent node is visited, all its children are visited first. Hence, in the tree shown above, the first node to be visited will be the leftmost number `3`, followed by its parent `<num>`, and so on.
+
+The `GrammarObjectBuilder` treats any terminal symbol as a character string. Therefore, when visiting a leaf of the parse tree, `GrammarObjectBuilder` puts on its stack a `String` object whose value is the contents of that specific literal. When visiting a parse node that corresponds to a non-terminal token, such as `<add>`, the builder looks for a method that handles this symbol. "Handling" a symbol generally means popping objects from the stack, creating one or more new objects, and pushing these objects back onto the stack. Therefore, to build a `FunctionTree` from an expression, our `ArithmeticBuilder` class must define methods that take care of each non-terminal symbol in the grammar we defined.
+
+Let us start with the simplest case, that of the `<num>` symbol. When a `<num>` node is visited in the parse tree, as per the postfix traversal we described earlier, we know that the top of the stack contains a string with the number that was parsed. The task of our method is to take this string, convert it into a Java `Number` object, and then create a BeepBeep `Constant` object from this number. Therefore, we can create a method called `handleNum` that goes as follows:
+
+``` java
+public void handleNum(Stack<Object> stack)
+{
+    String s_num = (String) stack.pop();
+    Number n_num = Float.parseFloat(s_num);
+    Constant c = new Constant(n_num);
+    stack.push(c);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L40)
+
+
+As you can see, this method receives as an argument the current contents of the object stack maintained by the `GrammarObjectBuilder` object.
+What remains to be done is to signal to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> `@Builds` to the method, which reads as follows:
+
+``` java
+@Builds(rule="<num>")
 ```
 
-The object builder calls this method, and passes it the current contents
-of the object stack. It is up to this method to pop and push objects
-from that stack, in order to recursively create the desired object at the
-end. For example, in the grammar above, the code to handle token `add`
-would look like:
+You should place this annotation just above the first line that declares the method signature.
+
+It is up to each method to pop and push objects from the stack, in order to recursively create the desired object at the end. For example, in the grammar above, the code to handle token `add` would look like:
 
 ``` java
 @Builds(rule="<add>")
-public void handleAdd(Stack<Object> stack) {
-  ArithExp e2 = (ArithExp) stack.pop();
-  ArithExp e1 = (ArithExp) stack.pop();
-  stack.pop(); // To remove the "+" symbol
-  stack.push(new Add(e1, e2));
+public void handleAdd(Stack<Object> stack)
+{
+    Function f2 = (Function) stack.pop();
+    Function f1 = (Function) stack.pop();
+    stack.pop();
+    stack.push(new FunctionTree(Numbers.addition, f1, f2));
 }
 ```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L50)
 
-Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `ArithExp` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add`; has three tokens, and so the method handling `add` pops three objects.
+
+Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `Function` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add` has three tokens, and so the method handling `<add>` pops three objects. In particular, the third line of the method pops and immediately discards an object from the stack, which corresponds to the "+" string that is present in the rule for `<add>`. Notice how, since we are operating on a stack, objects are popped in the reverse order that they appear in the corresponding rule in the grammar.
+
+For the sake of completion, let us write a method that handles the rule for the `<sbt>` non-terminal symbol:
+
+``` java
+@Builds(rule="<sbt>")
+public void handleSbt(Stack<Object> stack)
+{
+    Function f2 = (Function) stack.pop();
+    Function f1 = (Function) stack.pop();
+    stack.pop();
+    stack.push(new FunctionTree(Numbers.subtraction, f1, f2));
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L61)
+
 
 As one can see, it is possible to create object builders that read expressions in just a few lines of code. This can be even further simplified using the `pop` and `clean` parameters. Instead of popping objects manually, and pushing a new object back onto the stack, one can use the `pop` parameter to ask for the object builder to already pop the appropriate number of objects from the stack. The method for `add` would then become:
 

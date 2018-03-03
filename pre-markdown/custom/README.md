@@ -15,7 +15,7 @@ If your intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 
 As an example, let us create a function that, given a number, returns whether this number is prime. It is therefore a 1:1 function, so we will create a class that extends `UnaryFunction`.
 
 ```java
-public class IsPrime extends UnaryFunction&lt;Number,Boolean&gt;
+public class IsPrime extends UnaryFunction<Number,Boolean>
 {
 }
 ```
@@ -30,11 +30,9 @@ Method `getValue()` is where the output of the function is computed for the inpu
 
 ## Create your own processor {#custom-processor}
 
-What if none of the processors suits your needs? If you use Java, BeepBeep allows you to create your own, which you can then compose with existing processors. You can do so using **no more than 4 lines of boilerplate code**. (If you're willing to write about 10 more lines, you can also [integrate your processor into the ESQL language](/extend.html).)
+What if none of the processors suits your needs? If you use Java, BeepBeep allows you to create your own, which you can then compose with existing processors. You can do so using **no more than 4 lines of boilerplate code**. The simplest way to do so is to extend the `SingleProcessor` class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
 
-The simplest way to do so is to extend the SingleProcessor class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
-
-- Define how many input traces your processor needs, and how many output traces it produces. These two values are called the input and output arity the processor, respectively.
+- Define how many input pipes your processor needs, and how many output streams it produces. As we know, these two values are called the input and output <!--\index{processor!arity} \emph{arity}-->*arity*<!--/i--> of the processor, respectively.
 - Write the actual computation that should occur, i.e. what output event(s) to produce (if any), given an input event.
 
 The minimal working example for a custom processor is made of six lines of code:
@@ -48,8 +46,8 @@ public class MyProcessor extends SingleProcessor {
 	super(0, 0);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
-	return null;
+  public boolean compute(Object[] inputs, Queue<Object[]> outputs) {
+	return true;
   }
 }
 ```
@@ -71,7 +69,7 @@ public class StringLength extends SingleProcessor {
 	super(1, 1);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
 	int length = ((String) inputs[0]).length();
 	return Processor.wrapObject(length);
   }
@@ -104,7 +102,7 @@ public class EuclideanDistance extends SingleProcessor {
 	super(2, 1);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
 	Point p1 = (Point) inputs[0];
 	Point p2 = (Point) inputs[1];
 	float distance = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -126,7 +124,7 @@ public class SplitPoint extends SingleProcessor {
 	super(1, 2);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
 	Point p = (Point) inputs[0];
 	float[] output_event = new float[2];
 	float[0] = p.x;
@@ -151,9 +149,9 @@ public OutIfPositive() {
 	super(1, 1);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
 	Number n = (Number) inputs[0];
-	if (n.floatValue() &gt; 0)
+	if (n.floatValue() > 0)
 	  return Processor.wrapObject(inputs[0]);
 	else
 	  return null;
@@ -176,10 +174,10 @@ public class Stuttering extends SingleProcessor {
 	super(1, 1);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
 	Number n = (Number) inputs[0];
-	Queue&lt;Object[]&gt; queue = new LinkedList&lt;Object[]&gt;();
-	for (int i = 0; i &lt; n.intValue(); i++) {
+	Queue<Object[]> queue = new LinkedList<Object[]>();
+	for (int i = 0; i < n.intValue(); i++) {
 	  queue.add(inputs);
 	}
 	return queue;
@@ -210,7 +208,7 @@ public class MyMax extends SingleProcessor {
     super(1, 1);
   }
 
-  public Queue&lt;Object[]&gt; compute(Object[] inputs) {
+  public Queue<Object[]> compute(Object[] inputs) {
     Number current = (Number) inputs[0];
     Number output;
     if (last != null) {
