@@ -246,11 +246,29 @@ The array indices become 0 and 1, since only the two `FunctionTree` objects rema
 
 {@img doc-files/dsl/Rule-add-infix-clean.png}{A graphical representation of the stack manipulations for rule `<add>` in infix notation, using the `clean` option.}{.4}
 
-
-
 ## Building processor chains {#procchains}
 
-Hello.
+Our examples so far have concentrated on simple grammars that build `Function` objects in various ways. The process for building and chaining `Processor` objects is largely similar, but  
 
+As a simple example, we shall illustrate how a small, SQL-like language can be used to chain processors from BeepBeep's core.
+
+Let us start with the grammar. We will focus on a handful of basic processors, namely `Trim`, `CountDecimate` and `Filter`. For each of them, we define a simple syntax to use them. Our grammar could look as follows:
+
+```
+<proc>   := <trim> | <decim> | <filter> | <stream> ;
+<trim>   := TRIM <num> FROM ( <proc> );
+<decim>  := KEEP ONE EVERY <num> FROM ( <proc> );
+<filter> := FILTER ( <proc> ) WITH ( <proc> );
+<stream> := INPUT <num> ;
+<num>    := ^[0-9]+;
+```
+
+The start symbol of the grammar is `<proc>`, which itself can be one of four different cases. The `<stream>` construct is used to designate the input pipes of the resulting processor.
+
+{@img doc-files/dsl/Rule-trim.png}{A graphical representation of the stack manipulations for rule `<trim>`.}{.6}
+
+{@img doc-files/dsl/Rule-decim.png}{A graphical representation of the stack manipulations for rule `<decim>`.}{.6}
+
+{@img doc-files/dsl/Rule-filter.png}{A graphical representation of the stack manipulations for rule `<filter>`.}{.6}
 
 <!-- :wrap=soft: -->
