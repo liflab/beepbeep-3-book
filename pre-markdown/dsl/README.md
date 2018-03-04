@@ -77,7 +77,7 @@ Once a grammar has been loaded into an instance of `BnfParser`, we are ready to 
 
 The leaves of this tree are literals; all the other nodes correspond to non-terminal symbols. Intuitively, a node represents the application of a rule, and the children of that node are the symbols in the specific case of the rule that was applied. For example, the root of the tree corresponds to the start symbol `<exp>`; this symbol is transformed into `<add>` by applying the first case of rule 1. The symbol `add`, in turn, is transformed into the expression `<num> + ( <exp> )` by applying the second case of rule 2 --and so on.
 
-## Using the parse tree {#objectbuilder}
+## Building objects from the parse tree {#objectbuilder}
 
 As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parse tree, and to build the parts of the object piece by piece. This is done using an object called the  <!--\index{GrammarObjectBuilder@\texttt{GrammarObjectBuilder}} \texttt{GrammarObjectBuilder}-->`GrammarObjectBuilder`<!--/i-->.
 
@@ -102,24 +102,35 @@ Let us start with the simplest case, that of the `<num>` symbol. When a `<num>` 
 
 {@snipm dsl/ArithmeticBuilder.java}{\*}
 
-As you can see, this method receives as an argument the current contents of the object stack maintained by the `GrammarObjectBuilder` object.
+As you can see, this method receives as an argument the current contents of the object stack maintained by the `GrammarObjectBuilder` object. It is up to each method to pop and push objects from the stack, in order to recursively create the desired object at the end. This process can also be illustrated graphically, as in the following picture.
+
+{@img doc-files/dsl/Rule-num.png}{A graphical representation of the stack manipulations for rule `<num>`.}{.4}
+
+To the left-hand side of the schema, a box represents the top of the object stack when the method is called. Here, we expect the stack to contain a String object with a numerical value *n*. The right-hand side of the stack represent the content of the object stack after the method returns. Here, we can see that the String at top of the stack has been popped, and replaced by a `Constant` object with the value *n*. The stack may contain other objects below, but they are not relevant to the application of this method. For the sake of clarity, the grammar rule and case corresponding to this operation are often written next to the schema.
+
 What remains to be done is to signal to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> <!--\index{Builds@\texttt{\@Builds}} \texttt{pop}-->`@Builds`<!--/i--> to the method, which reads as follows:
 
 ``` java
 @Builds(rule="<num>")
 ```
 
-You should place this annotation just above the first line that declares the method signature.
+You should place this annotation just above the first line that declares the method signature. The operation of this method can also be illustrated graphically as in the following figure.
 
-It is up to each method to pop and push objects from the stack, in order to recursively create the desired object at the end. For example, in the grammar above, the code to handle token `add` would look like:
+Let us now have a look at the code to handle token `add`.
 
 {@snipm dsl/ArithmeticBuilder.java}{%}
 
-Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `Function` objects created from its two operands. As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add` has three tokens, and so the method handling `<add>` pops three objects. In particular, the third line of the method pops and immediately discards an object from the stack, which corresponds to the "+" string that is present in the rule for `<add>`. Notice how, since we are operating on a stack, objects are popped in the reverse order that they appear in the corresponding rule in the grammar.
+Since the builder traverses the tree in a postfix fashion, when a parse node for `add` is visited, the object stack should already contain the `Function` objects created from its two operands. This is illustrated by the following schema:
+
+{@img doc-files/dsl/Rule-add.png}{A graphical representation of the stack manipulations for rule `<add>`.}{.4}
+
+As a rule, each method should pop from the stack as many objects as there are tokens in the corresponding case in the grammar. For example, the rule for `add` has three tokens, and so the method handling `<add>` pops three objects. In particular, the third line of the method pops and immediately discards an object from the stack, which corresponds to the "+" string that is present in the rule for `<add>`. Notice how, since we are operating on a stack, objects are popped in the reverse order that they appear in the corresponding rule in the grammar.
 
 For the sake of completion, let us write a method that handles the rule for the `<sbt>` non-terminal symbol:
 
 {@snipm dsl/ArithmeticBuilder.java}{!}
+
+{@img doc-files/dsl/Rule-sbt.png}{A graphical representation of the stack manipulations for rule `<sbt>`.}{.4}
 
 We are now ready to use the object builder we just created. Parsing an expression and using the resulting `Function` object can be done in a few lines, as the code below illustrates.
 
@@ -201,31 +212,27 @@ public ArithExp handleAdd(Object ... parts)
 {
 	Function left, right;
 	int index ;
-	if (parts[0] instanceof String)
-	{
+	if (parts[0] instanceof String)	{
 		left = (Function) parts[1];
 		index = 4;
 	}
-	else
-	{
+	else {
 		left = (Function) parts[0];
 		index = 2;
 	}
 	if (parts[index] instanceof String)
-	{
 		right = (Function) parts[index + 1];
-	}
 	else
-	{
 		right = (Function) parts[index];
-	}
 	return new FunctionTree(Addition.instance, left, right);
 }
 ```
 
-Notice how we must first check if the first object in parts is a string (corresponding to an opening parenthesis); if so, the first operand is located at index 1, otherwise it is at index 0. This, in turn, shifts the index of the second operand, which may or may not be surrounded by parentheses.
+Notice how we must first check if the first object in `parts` is a string (corresponding to an opening parenthesis); if so, the first operand is located at index 1, otherwise it is at index 0. This, in turn, shifts the index of the second operand, which may or may not be surrounded by parentheses. The case where both operands are between parentheses could be illustrated as follows:
 
-However, one can see that each case of the rule has exactly two non-terminal tokens, and that both are `FunctionTrees`. As a further refinement to the object builder, the `clean` annotation can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
+{@img doc-files/dsl/Rule-add-infix.png}{A graphical representation of the stack manipulations for rule `<add>` in infix notation.}{.4}
+
+However, one can see that each case of the rule has exactly two non-terminal tokens, and that both are `FunctionTrees`. As a further refinement to the object builder, the <!--\index{clean@\texttt{clean} (annotation)} \texttt{clean}-->`clean`<!--/i--> annotation can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
 
 ``` java
 @Builds(rule="<add>", pop=true, clean=true)
@@ -235,5 +242,15 @@ public FunctionTree handleAdd(Object ... parts) {
 }
 ```
 
-The array indices become 0 and 1, since only the two `FunctionTree` objects remain as the arguments.
+The array indices become 0 and 1, since only the two `FunctionTree` objects remain as the arguments. This results in the picture below. Notice how the non-terminal symbols `<exp>` in the rule are underlined, to emphasize the fact that they are the only symbols to be represented on the object stack at the right; the interspersed terminal tokens between these symbols are not shown.
+
+{@img doc-files/dsl/Rule-add-infix-clean.png}{A graphical representation of the stack manipulations for rule `<add>` in infix notation, using the `clean` option.}{.4}
+
+
+
+## Building processor chains {#procchains}
+
+Hello.
+
+
 <!-- :wrap=soft: -->
