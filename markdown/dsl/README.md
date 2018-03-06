@@ -74,7 +74,7 @@ InputStream is = ParserExample.class.getResourceAsStream("arithmetic.bnf");
 BnfParser parser = new BnfParser(is);
 ParseNode root = parser.parse("3 + (4 - 5)");
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ParserExample.java#L39)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ParserExample.java#L40)
 
 
 Once a grammar has been loaded into an instance of `BnfParser`, we are ready to read character strings through its `parse()` method. This is what is done the last instruction above: the string `3+(4-5)` is passed to `parse`, and the method returns an object of type `ParseNode`. This object corresponds to the root of a structure called a <!--\index{parse tree} \textbf{parse tree}-->**parse tree**<!--/i-->. The tree gives the structure of the parsed expression, and specifies how it can be derived from the start symbol using the rules defined by the grammar. The parse tree for the expression `3+(4-5)` looks like this:
@@ -387,7 +387,7 @@ public Trim handleTrim(Object ... parts)
     return trim;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L38)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L39)
 
 
 According to the grammar rule for `<trim>`, the contents of the `parts` array should be a String of digits, and an instance of a `Processor` object. The first two instructions retrieve these two objects. The third instruction instantiates a new `Trim` processor, using the parsed integer for the number of elements to trim. The processor passed as an argument is connected to the newly created `trim` processor, and `trim` is returned to be put back onto the object stack.
@@ -414,7 +414,7 @@ public CountDecimate handleDecimate(Object ... parts)
     return dec;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L51)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L52)
 
 
 ![A graphical representation of the stack manipulations for rule `<decim>`.](Rule-decim.png)
@@ -434,16 +434,16 @@ public Filter handleFilter(Object ... parts)
     return filter;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L64)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L65)
 
 
 ![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
 
 Notice how P1 and P2 are popped from the stack; the output of P1 is connected to the data pipe of a new `Filter` processor, while the output of P2 is connected to its control pipe. Finally, the filter is placed on top of the stack. Remember that objects are popped in the reverse order in which they appear in a rule; however, as per the use of the `pop` annotation, these objects are already popped and given to the method in the correct order by the `GroupProcessorBuilder`. Moreover, because of the `clean` annotation, only the objects corresponding to non-terminal symbols in the grammar rule (underlined) are present in the `parts` array.
 
-The last case in the grammar is that of the `<stream>` rule. According to our grammar, this rule cannot contain another processor expression inside; rather, it is there to designate one of the input pipes at the very beginning of our processor chain. The task of a method handling this rule is therefore to connect the *n*-th 
+The last case in the grammar is that of the `<stream>` rule. According to our grammar, this rule cannot contain another processor expression inside; rather, it is there to designate one of the input pipes at the very beginning of our processor chain. The task of a method handling this rule is therefore to refer to the *n*-th input of the `GroupProcessor` that is being built. As this rule is a case of `<proc>`, it must put a `Processor` on top of the stack.
 
-![A graphical representation of the stack manipulations for rule `<stream>`.](Rule-stream.png)
+Internally, the `GroupProcessorBuilder` maintains a set of `Fork` objects for each of the inputs referred to in the query. A call to method `forkInput` fetches the fork corresponding to the input pipe at position *n*, adds one new branch to that fork, and connects a <!--\index{Passthrough@\texttt{Passthrough}} \texttt{Passthrough}-->`Passthrough`<!--/i--> processor at the end of it. This `Passthrough` is then returned. Therefore, the method for `<stream>` retrieves from the stack a string of digits, converts it into an integer *n*, and requests a passthrough connected to input pipe *n*. It then `add`s this passthrough to the `GroupProcessorBuilder`, puts it on top of the stack, and returns:
 
 ``` java
 @Builds(rule="<stream>")
@@ -452,17 +452,22 @@ public void handleStream(ArrayDeque<Object> stack)
     Integer n = Integer.parseInt((String) stack.pop());
     stack.pop();
     Passthrough p = forkInput(n);
+    add(p);
     stack.push(p);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L78)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L79)
 
 
+Graphically, this can be illustrated as follows:
 
-Equipped with this simple builder, we are now ready to parse expressions and use the resulting processors. This works as before, with the exception that the output of `build`, this time, is a `Processor` object. Here is an example:
+![A graphical representation of the stack manipulations for rule `<stream>`.](Rule-stream.png)
+
+As we can see on the right-hand side of the figure, a branch of the fork for input *n* is connected to a `Passthrough` processor and placed on top of the stack.
+
+Done! We have written so far 6 lines of text for the grammar, and less than 40 lines of Java code to implement all the handler methods. The end result is an interpreter that can read expressions in a simple language and produce stream processors from them. Equipped with this builder, we are now ready to parse expressions and use the resulting processors. This works as before, with the exception that the output of `build`, this time, is a `Processor` object. Here is an example:
 
 ``` java
-System.out.println("Second query");
 Processor proc = builder.build("KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))");
 QueueSource src = new QueueSource().setEvents(0, 1, 2, 3, 4, 5, 6, 8);
 Connector.connect(src, proc);
@@ -470,11 +475,114 @@ Pullable pul1 = proc.getPullableOutput();
 for (int i = 0; i < 5; i++)
     System.out.println(pul1.pull());
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L102)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L105)
+
+
+The process is similar to what we did earlier with functions. We use an instance of the builder to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; we then create a `QueueSource`, and connect it to the processor we obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If we were to apply the building rules defined earlier, step by step, we would discover that the `Processor` returned by `build` is actually this one:
+
+![The `GroupProcessor` returned by our builder on the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`.](Example-Query2.png)
+
+The innermost `INPUT 0` corresponds to the `Fork` and the `Passhthrough` to the left of the box. The `TRIM 3 FROM` part produces the following `Trim` processor, and the `KEEP ONE EVERY 2 FROM` part produces the `CountDecimate` processor that follows. Finally, the `GroupProcessorBuilder` takes this whole chain and encapsulates it into a `GroupProcessor` of input and output arity 1, connecting input 0 of the box to fork 0, and the output of the chain to output 0 of the box. Note that in this example, since we refer to input pipe 0 only once, the fork and the passthrough are somewhat redundant; further refinements to the `GroupProcessorBuilder` could discover this and connect the input of the group directly to the `Trim` processor *a posteriori*. However, they make the handling of connecting processors to inputs much easier.
+
+In our code example, we pull five events from it and print them to the console; the program displays, unsurprisingly:
+
+    3
+    5
+    8
+    1
+    3
+
+## Mixing types {#mix}
+
+Nothing prevents an object builder to create objects of various types. As an more example, let us add new rules to our previous builder, that will allow us to create `Function` objects and `ApplyFunction` processors.
+
+```
+<proc>      := <trim> | <decim> | <filter> | <apply> | <stream> ;
+<trim>      := TRIM <num> FROM ( <proc> );
+<decim>     := KEEP ONE EVERY <num> FROM ( <proc> );
+<filter>    := FILTER ( <proc> ) WITH ( <proc> );
+<stream>    := INPUT <num> ;
+<apply>     := APPLY <unaryfct> ON ( <proc> )
+               | APPLY <binaryfct> ON ( <proc> ) AND ( <proc> ) ;
+<fct>       := <unaryfct> | <binaryfct> | <cons> | <svar> ;
+<unaryfct>  := <abs> ;
+<binaryfct> := <add> | <sbt> ;
+<abs>       := ABS <fct> ;
+<add>       := + <fct> <fct> ;
+<sbt>       := - <fct> <fct> ;
+<svar>      := X | Y ;
+<cons>      := <num> ;
+<num>       := ^[0-9]+;
+```
+
+A new case has been added to rule `<proc>` to accommodate the `ApplyFunction` processor. The rule `<apply>` has two cases, depending on whether the function we give has unary input (requiring a single processor as input), or binary input (in which case the `ApplyFunction` processor must be connected to two inputs). Rules `<fct>` and the following define the syntax to define a function; we have reused the Polish notation from the very first example in the chapter to define functions `<add>`, `<sbt>` and `<abs>` (absolute value).
+
+
+Stream variables are handled like this:
+
+``` java
+@Builds(rule="<svar>")
+public void handleStreamVariable(ArrayDeque<Object> stack)
+{
+    String var_name = (String) stack.pop();
+    if (var_name.compareTo("X") == 0)
+        stack.push(StreamVariable.X);
+    if (var_name.compareTo("Y") == 0)
+        stack.push(StreamVariable.Y);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L147)
 
 
 
-![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
+The list is handled:
 
+``` java
+@Builds(rule="<proclist>")
+public void handleProcList(ArrayDeque<Object> stack)
+{
+    List<Processor> list = new ArrayList<Processor>();
+    stack.pop();
+    list.add((Processor) stack.pop());
+    stack.pop();
+    if (stack.peek() instanceof String)
+    {
+        stack.pop();
+        stack.pop();
+        list.add((Processor) stack.pop());
+        stack.pop();
+    }
+    stack.push(list);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L159)
+
+
+The `ApplyFunction` is handled like this:
+
+``` java
+@Builds(rule="<apply>", pop=true, clean=true)
+public Processor handleApply(Object ... parts)
+{
+    Function f = (Function) parts[0];
+    ApplyFunction af = new ApplyFunction(f);
+    List<Processor> list = (List<Processor>) parts[1];
+    if (list.size() == 1)
+    {
+        Connector.connect(list.get(0), af);
+    }
+    else if (list.size() == 2)
+    {
+        Connector.connect(list.get(0), 0, af, 0);
+        Connector.connect(list.get(1), 0, af, 1);
+    }
+    add(af);
+    return af;
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L93)
+
+
+![A graphical representation of the stack manipulations for rule `<filter>`.](Example-Query2.png)
 
 <!-- :wrap=soft: -->

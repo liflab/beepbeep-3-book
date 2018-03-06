@@ -44,3 +44,4 @@
   * [Building objects from the parse tree](dsl/README.md#objectbuilder)
   * [Simpler stack manipulations](dsl/README.md#stack)
   * [Building processor chains](dsl/README.md#procchains)
+  * [Mixing types](dsl/README.md#mix)
