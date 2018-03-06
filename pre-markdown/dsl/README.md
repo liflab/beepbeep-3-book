@@ -263,12 +263,39 @@ Let us start with the grammar. We will focus on a handful of basic processors, n
 <num>    := ^[0-9]+;
 ```
 
-The start symbol of the grammar is `<proc>`, which itself can be one of four different cases. The `<stream>` construct is used to designate the input pipes of the resulting processor.
+The start symbol of the grammar is `<proc>`, which itself can be one of four different cases. The `<stream>` construct is used to designate the input pipes of the resulting processor; as a processor chain can have multiple inputs, the number of the corresponding input must be mentioned in the construct.
+
+Let us now examine the code handling each rule one by one, starting with the rule for `<trim>`:
+
+{@snipm dsl/SimpleProcessorBuilder.java}{!}
+
+According to the grammar rule for `<trim>`, the contents of the `parts` array should be a String of digits, and an instance of a `Processor` object. The first two instructions retrieve these two objects. The third instruction instantiates a new `Trim` processor, using the parsed integer for the number of elements to trim. The processor passed as an argument is connected to the newly created `trim` processor, and `trim` is returned to be put back onto the object stack.
+
+The next-to-last instruction warrants an explanation. The goal of the `GroupProcessorBuilder` is to ultimately return a `GroupProcessor` whose contents are made of the processors instantiated and connected during the building process. However, in order for these objects to be added to the resulting `GroupProcessor`, the `GroupProcessorBuilder` needs to be notified that these objects are created. This is the purpose of the call to method `add`.
+
+This whole process can can be represented as follows:
 
 {@img doc-files/dsl/Rule-trim.png}{A graphical representation of the stack manipulations for rule `<trim>`.}{.6}
 
+This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this drawing, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; the reference to processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other.
+
+Once we understand this, the code for rule `<decim>` is straightforward, and almost identical to `<trim>`:
+
+{@snipm dsl/SimpleProcessorBuilder.java}{\*}
+
 {@img doc-files/dsl/Rule-decim.png}{A graphical representation of the stack manipulations for rule `<decim>`.}{.6}
 
+The the `<filter>` rule introduces a new element. A `Filter` has two input streams; therefore, one must pop *two* processors from the stack, and connect them in the proper way. This can be done as follows:
+
+{@snipm dsl/SimpleProcessorBuilder.java}{@}
+
 {@img doc-files/dsl/Rule-filter.png}{A graphical representation of the stack manipulations for rule `<filter>`.}{.6}
+
+Notice how P1 and P2 are popped from the stack; the output of P1 is connected to the data pipe of a new `Filter` processor, while the output of P2 is connected to its control pipe. Finally, the filter is placed on top of the stack. Remember that objects are popped in the reverse order in which they appear in a rule; however, as per the use of the `pop` annotation, these objects are already popped and given to the method in the correct order by the `GroupProcessorBuilder`.
+
+{@img doc-files/dsl/Rule-stream.png}{A graphical representation of the stack manipulations for rule `<stream>`.}{.6}
+
+
+
 
 <!-- :wrap=soft: -->

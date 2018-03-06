@@ -371,12 +371,79 @@ Let us start with the grammar. We will focus on a handful of basic processors, n
 <num>    := ^[0-9]+;
 ```
 
-The start symbol of the grammar is `<proc>`, which itself can be one of four different cases. The `<stream>` construct is used to designate the input pipes of the resulting processor.
+The start symbol of the grammar is `<proc>`, which itself can be one of four different cases. The `<stream>` construct is used to designate the input pipes of the resulting processor; as a processor chain can have multiple inputs, the number of the corresponding input must be mentioned in the construct.
+
+Let us now examine the code handling each rule one by one, starting with the rule for `<trim>`:
+
+``` java
+@Builds(rule="<trim>", pop=true, clean=true)
+public Trim handleTrim(Object ... parts)
+{
+    Integer n = Integer.parseInt((String) parts[0]);
+    Processor p = (Processor) parts[1];
+    Trim trim = new Trim(n);
+    Connector.connect(p, trim);
+    add(trim);
+    return trim;
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L38)
+
+
+According to the grammar rule for `<trim>`, the contents of the `parts` array should be a String of digits, and an instance of a `Processor` object. The first two instructions retrieve these two objects. The third instruction instantiates a new `Trim` processor, using the parsed integer for the number of elements to trim. The processor passed as an argument is connected to the newly created `trim` processor, and `trim` is returned to be put back onto the object stack.
+
+The next-to-last instruction warrants an explanation. The goal of the `GroupProcessorBuilder` is to ultimately return a `GroupProcessor` whose contents are made of the processors instantiated and connected during the building process. However, in order for these objects to be added to the resulting `GroupProcessor`, the `GroupProcessorBuilder` needs to be notified that these objects are created. This is the purpose of the call to method `add`.
+
+This whole process can can be represented as follows:
 
 ![A graphical representation of the stack manipulations for rule `<trim>`.](Rule-trim.png)
 
+This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this drawing, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; a reference processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other.
+
+Once we understand this, the code for rule `<decim>` is straightforward, and almost identical to `<trim>`:
+
+``` java
+@Builds(rule="<decim>", pop=true, clean=true)
+public CountDecimate handleDecimate(Object ... parts)
+{
+    Integer n = Integer.parseInt((String) parts[0]);
+    Processor p = (Processor) parts[1];
+    CountDecimate dec = new CountDecimate(n);
+    Connector.connect(p, dec);
+    add(dec);
+    return dec;
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L51)
+
+
 ![A graphical representation of the stack manipulations for rule `<decim>`.](Rule-decim.png)
 
+The the `<filter>` rule introduces a new element. A `Filter` has two input streams; therefore, one must pop *two* processors from the stack, and connect them in the proper way. This can be done as follows:
+
+``` java
+@Builds(rule="<filter>", pop=true, clean=true)
+public Filter handleFilter(Object ... parts)
+{
+    Processor p1 = (Processor) parts[0];
+    Processor p2 = (Processor) parts[1];
+    Filter filter = new Filter();
+    Connector.connect(p1, 0, filter, 0);
+    Connector.connect(p2, 0, filter, 1);
+    add(filter);
+    return filter;
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L64)
+
+
 ![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
+
+
+
+![A graphical representation of the stack manipulations for rule `<stream>`.](Rule-stream.png)
+
+
+
 
 <!-- :wrap=soft: -->
