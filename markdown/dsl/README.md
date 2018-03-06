@@ -531,7 +531,7 @@ public void handleStreamVariable(ArrayDeque<Object> stack)
         stack.push(StreamVariable.Y);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L147)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L156)
 
 
 
@@ -555,7 +555,7 @@ public void handleProcList(ArrayDeque<Object> stack)
     stack.push(list);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L159)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L168)
 
 
 The `ApplyFunction` is handled like this:
@@ -583,6 +583,26 @@ public Processor handleApply(Object ... parts)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L93)
 
 
-![A graphical representation of the stack manipulations for rule `<filter>`.](Example-Query2.png)
+Equipped with these new rules, we can write expressions that use the `ApplyFunction` processor and create functions. For example, from an expression like this:
+
+```
+APPLY + X Y ON (
+  FILTER (INPUT 0)
+  WITH (
+    APPLY LT X 0 ON (INPUT 0)
+))
+AND (
+  INPUT 1)
+```
+
+...the object builder will create the following `GroupProcessor`:
+
+![The `GroupProcessor` created by a complex query mixing functions and various other types of processors.](Example-QueryBig.png)
+
+The complete object builder for this grammar requires 15 rules, and roughly 130 lines of code for the interpreter.
+
+- - -
+
+In this chapter, we have seen why BeepBeep does not provide a single built-in query language to write processor chains. Rather, using a palette called `dsl`, it provides facilities that allow users to design and use their own domain-specific language. The `dsl` palette makes it possible to quickly write the *grammar* for a language, and provides a *parser* called Bullwinkle that can read and parse strings from any grammar at runtime. Moreover, thanks to a special object called a `GrammarObjectBuilder`, one can easily walk through a parse tree, and progressively construct an object such as a chain of processors by defining methods specific to each rule of the grammar. The end result is that, through a few lines of grammar and a few lines of building code, it is possible to have a working interpreter for a custom query language with very little effort.
 
 <!-- :wrap=soft: -->
