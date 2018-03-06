@@ -5,7 +5,12 @@ $output_directory = "markdown";
 $javadoc_root = "http://liflab.github.io/beepbeep-3/javadoc/";
 $source_location = "../beepbeep-3-examples/Source/src/";
 $github_source_location = "https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/";
+$incremental = false;
 
+if ($argv[1] === "--incremental")
+{
+	$incremental = true;
+}
 $it = new RecursiveDirectoryIterator($input_directory);
 foreach (new RecursiveIteratorIterator($it) as $file)
 {
@@ -19,9 +24,19 @@ foreach (new RecursiveIteratorIterator($it) as $file)
 		}
 		continue;
 	}
+	if (substr($file, strlen($file) - 3, 3) === ".md~")
+	{
+		// Ignore backup files
+		continue;
+	}
 	if (substr($file, strlen($file) - 3, 3) !== ".md")
 	{
 		copy($file, $out_filename);
+		continue;
+	}
+	if ($incremental && filemtime($file) < filemtime($out_filename))
+	{
+		// Skip this file
 		continue;
 	}
 	$original_contents = file_get_contents($file);

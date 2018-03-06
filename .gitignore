@@ -18,6 +18,7 @@ latex/**/*.log
 latex/**/*.out
 latex/**/*.bbl
 latex/**/*.bbl
+latex/**/*.blg
 latex/**/*.toc
 latex/**/*.idx
 latex/**/*.ilg

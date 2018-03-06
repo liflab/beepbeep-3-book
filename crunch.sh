@@ -1,7 +1,7 @@
 #! /bin/bash
-php code-processing.php
-java -jar gitbook-pandoc.jar -s markdown -d latex -p chapters
+php code-processing.php $1
+java -jar gitbook-pandoc.jar -s markdown -d latex -p chapters $1
 php replace-images.php
 pushd latex
-pdflatex book
+pdflatex -interaction=batchmode book
 popd

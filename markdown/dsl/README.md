@@ -398,7 +398,7 @@ This whole process can can be represented as follows:
 
 ![A graphical representation of the stack manipulations for rule `<trim>`.](Rule-trim.png)
 
-This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this drawing, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; a reference processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other.
+This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this drawing, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; the reference to processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other. To illustrate this, we draw P outside of the stack, but show it piped to the processor that is on the stack.
 
 Once we understand this, the code for rule `<decim>` is straightforward, and almost identical to `<trim>`:
 
@@ -439,11 +439,42 @@ public Filter handleFilter(Object ... parts)
 
 ![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
 
+Notice how P1 and P2 are popped from the stack; the output of P1 is connected to the data pipe of a new `Filter` processor, while the output of P2 is connected to its control pipe. Finally, the filter is placed on top of the stack. Remember that objects are popped in the reverse order in which they appear in a rule; however, as per the use of the `pop` annotation, these objects are already popped and given to the method in the correct order by the `GroupProcessorBuilder`. Moreover, because of the `clean` annotation, only the objects corresponding to non-terminal symbols in the grammar rule (underlined) are present in the `parts` array.
 
+The last case in the grammar is that of the `<stream>` rule. According to our grammar, this rule cannot contain another processor expression inside; rather, it is there to designate one of the input pipes at the very beginning of our processor chain. The task of a method handling this rule is therefore to connect the *n*-th 
 
 ![A graphical representation of the stack manipulations for rule `<stream>`.](Rule-stream.png)
 
+``` java
+@Builds(rule="<stream>")
+public void handleStream(ArrayDeque<Object> stack)
+{
+    Integer n = Integer.parseInt((String) stack.pop());
+    stack.pop();
+    Passthrough p = forkInput(n);
+    stack.push(p);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L78)
 
+
+
+Equipped with this simple builder, we are now ready to parse expressions and use the resulting processors. This works as before, with the exception that the output of `build`, this time, is a `Processor` object. Here is an example:
+
+``` java
+System.out.println("Second query");
+Processor proc = builder.build("KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))");
+QueueSource src = new QueueSource().setEvents(0, 1, 2, 3, 4, 5, 6, 8);
+Connector.connect(src, proc);
+Pullable pul1 = proc.getPullableOutput();
+for (int i = 0; i < 5; i++)
+    System.out.println(pul1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L102)
+
+
+
+![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
 
 
 <!-- :wrap=soft: -->
