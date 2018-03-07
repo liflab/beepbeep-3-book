@@ -6,7 +6,7 @@ BeepBeep was designed from the start to be easily extensible. As was discussed e
 This modular organization has three advantages. First, palettes are a flexible and generic way to extend the engine to various application domains, in ways unforeseen by its original designers. Second, they make the engine's core (and each palette individually) relatively small and self-contained, easing the development and debugging process. Finally, it is hoped that BeepBeep's palette architecture, combined with its simple extension mechanisms, will help third-party users contribute to the BeepBeep ecosystem by developing and distributing extensions suited to their own needs.
 
 
-## Creating custom functions {#custom-functions}
+## Creating custom functions
 
 In the case where none of the available functions (or a composition thereof) suits your needs, BeepBeep also offers the possibility to create your own `Function` objects, composed of arbitrary Java code.
 
@@ -28,7 +28,7 @@ Method `getValue()` is where the output of the function is computed for the inpu
 
 {@snips Examples/src/functions/IsPrime.java}{public Boolean getValue(Number x)}
 
-## Create your own processor {#custom-processor}
+## Create your own processor
 
 What if none of the processors suits your needs? If you use Java, BeepBeep allows you to create your own, which you can then compose with existing processors. You can do so using **no more than 4 lines of boilerplate code**. The simplest way to do so is to extend the `SingleProcessor` class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
 
