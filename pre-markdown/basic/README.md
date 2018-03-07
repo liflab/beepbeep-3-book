@@ -192,7 +192,7 @@ Let us instantiate a simple processor and push events to it. The following code 
 
 {@snipm basic/QueueSinkUsage.java}{/}
 
-<!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!--/i--> is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
+The <!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!--/i--> object is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
 
 {@img doc-files/basic/QueueSinkUsage.png}{Pushing events to a `QueueSink`.}{.6}
 

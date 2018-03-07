@@ -280,7 +280,7 @@ System.out.println("Events in the sink: " + queue);
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/QueueSinkUsage.java#L45)
 
 
-<!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!--/i--> is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
+The <!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!--/i--> object is a simple processor that merely accumulates into a queue all the events we push to it. The first line of the previous snippet creates a new instance of `QueueSink`. Graphically, this can be represented as follows:
 
 ![Pushing events to a `QueueSink`.](QueueSinkUsage.png)
 
