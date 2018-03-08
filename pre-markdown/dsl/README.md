@@ -248,11 +248,9 @@ The array indices become 0 and 1, since only the two `FunctionTree` objects rema
 
 ## Building processor chains {#procchains}
 
-Our examples so far have concentrated on simple grammars that build `Function` objects in various ways. The process for building and chaining `Processor` objects is largely similar, but  
+Our examples so far have concentrated on simple grammars that build `Function` objects in various ways. The process for building and chaining `Processor` objects is largely similar; however, since processors must be connected to each other in a specific way, we will need to pay attention to this detail when manipulating these objects on the stack.
 
-As a simple example, we shall illustrate how a small, SQL-like language can be used to chain processors from BeepBeep's core.
-
-Let us start with the grammar. We will focus on a handful of basic processors, namely `Trim`, `CountDecimate` and `Filter`. For each of them, we define a simple syntax to use them. Our grammar could look as follows:
+As a simple example, we shall illustrate how a small language can be used to chain processors from BeepBeep's core. Let us start with the grammar. We will focus on a handful of basic processors, namely `Trim`, `CountDecimate` and `Filter`. For each of them, we define a simple syntax to use them. Our grammar could look as follows:
 
 ```
 <proc>   := <trim> | <decim> | <filter> | <stream> ;
@@ -325,40 +323,47 @@ In our code example, we pull five events from it and print them to the console; 
 
 ## Mixing types {#mix}
 
-Nothing prevents an object builder to create objects of various types. As an more example, let us add new rules to our previous builder, that will allow us to create `Function` objects and `ApplyFunction` processors.
+Nothing prevents an object builder to create objects of various types. As more involved example, let us add new rules to our previous builder, that will allow us to create `Function` objects and `ApplyFunction` processors. The grammar could look like this:
 
 ```
 <proc>      := <trim> | <decim> | <filter> | <apply> | <stream> ;
 <trim>      := TRIM <num> FROM ( <proc> );
-<decim>     := KEEP ONE EVERY <num> FROM ( <proc> );
-<filter>    := FILTER ( <proc> ) WITH ( <proc> );
+<decim>     := KEEP ONE EVERY <num> FROM ( <proc> ) ;
+<filter>    := FILTER ( <proc> ) WITH ( <proc> ) ;
 <stream>    := INPUT <num> ;
-<apply>     := APPLY <unaryfct> ON ( <proc> )
-               | APPLY <binaryfct> ON ( <proc> ) AND ( <proc> ) ;
-<fct>       := <unaryfct> | <binaryfct> | <cons> | <svar> ;
-<unaryfct>  := <abs> ;
-<binaryfct> := <add> | <sbt> ;
+<apply>     := APPLY <fct> ON <proclist> ;
+<proclist>  := ( <proc> ) AND ( <proc> ) | ( <proc> ) ; 
+<fct>       := <add> | <sbt> | <lt> | <abs> | <cons> | <svar> ;
 <abs>       := ABS <fct> ;
 <add>       := + <fct> <fct> ;
 <sbt>       := - <fct> <fct> ;
+<lt>        := LT <fct> <fct> ;
 <svar>      := X | Y ;
 <cons>      := <num> ;
 <num>       := ^[0-9]+;
 ```
 
-A new case has been added to rule `<proc>` to accommodate the `ApplyFunction` processor. The rule `<apply>` has two cases, depending on whether the function we give has unary input (requiring a single processor as input), or binary input (in which case the `ApplyFunction` processor must be connected to two inputs). Rules `<fct>` and the following define the syntax to define a function; we have reused the Polish notation from the very first example in the chapter to define functions `<add>`, `<sbt>` and `<abs>` (absolute value).
+A new case has been added to rule `<proc>` to accommodate the `ApplyFunction` processor. The rule `<apply>` has two cases, depending on whether the function we give has unary input (requiring a single processor as input), or binary input (in which case the `ApplyFunction` processor must be connected to two inputs). Rules `<fct>` and the following define the syntax to define a function; we reuse the Polish notation from the very first example in the chapter to define functions `<add>`, `<sbt>` and `<abs>` (absolute value). To these functions, we add `<cons>` and `<svar>`, so that we can use <!--\index{Constant@\texttt{Constant}} \texttt{Constant}-->`Constant`<!--/i--> and <!--\index{StreamVariable@\texttt{StreamVariable}} \texttt{StreamVariable}-->`StreamVariable`<!--/i--> objects inside function trees.
 
+Stream variables are handled very easily by popping either the string "X" or "Y", and by putting the corresponding `StreamVariable` object back onto the stack. This can be done, graphically and in code, as follows:
 
-Stream variables are handled like this:
+{@img doc-files/dsl/Rule-svar.png}{A graphical representation of the stack manipulations for rule `<svar>`.}{.6}
 
 {@snipm dsl/ComplexProcessorBuilder.java}{s}
 
+Constants work in pretty much the same way. We pop a string from the stack, parse an integer from the string, and then create a `Constant` object from that integer.
 
-The list is handled:
+The case for `<apply>` requires more explanations. This rule first receives a `<fct>`, corresponding to a `Function` object, which will be encapsulated into an `ApplyFunction` processor. However, depending on whether the function has an input arity of 1 or 2, this processor must be connected to either one or two upstream processors --and hence, either one or two such objects must be popped from the stack. This is the purpose of the `<proclist>` non-terminal symbol. As you can see, the rule for `<proclist>` has two cases; the first case corresponds to a construct containing two `<proc>` expressions, and the second case corresponds to a construct with a single `<proc>` expression.
+
+The method handling `<proclist>` is written as follows:
 
 {@snipm dsl/ComplexProcessorBuilder.java}{l}
 
-The `ApplyFunction` is handled like this:
+The method first creates an empty `List` of `Processor` objects. It then pops three objects; the second is a `Processor` that is put into the list, and the other two are discarded. This is due to the fact that both cases of rule `<proclist>` end with the same three tokens: `( <proc> )`. The method then *peeks* (but does not pop) the next element on the stack. If this element is the string "AND", we are in the first case of the rule, and four more tokens are popped. This corresponds to the first half of the case, `( <proc> ) AND`. A second processor is extracted from this piece of code and added to the list. The method then pops back onto the stack the `List` object, which contains either one or two processors. Graphically, this can be represented as follows:
+
+{@img doc-files/dsl/Rule-proclist.png}{A graphical representation of the stack manipulations for the two cases of rule `<proclist>`.}{.6}
+
+The case for `ApplyFunction` now becomes easy. The method simply pops a `Function` object and a `List` object. Depending on the size of the list, it connects either one or two processors from that list to `ApplyFunction`, and puts it back on the stack.
 
 {@snipm dsl/ComplexProcessorBuilder.java}{/}
 
@@ -383,5 +388,7 @@ The complete object builder for this grammar requires 15 rules, and roughly 130 
 - - -
 
 In this chapter, we have seen why BeepBeep does not provide a single built-in query language to write processor chains. Rather, using a palette called `dsl`, it provides facilities that allow users to design and use their own domain-specific language. The `dsl` palette makes it possible to quickly write the *grammar* for a language, and provides a *parser* called Bullwinkle that can read and parse strings from any grammar at runtime. Moreover, thanks to a special object called a `GrammarObjectBuilder`, one can easily walk through a parse tree, and progressively construct an object such as a chain of processors by defining methods specific to each rule of the grammar. The end result is that, through a few lines of grammar and a few lines of building code, it is possible to have a working interpreter for a custom query language with very little effort.
+
+Remember that the languages we have shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language you can create yourself: as we have seen in the beginning of the chapter, this is actually the whole point.
 
 <!-- :wrap=soft: -->
