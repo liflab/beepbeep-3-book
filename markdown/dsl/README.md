@@ -529,14 +529,14 @@ public void handleStreamVariable(ArrayDeque<Object> stack)
         stack.push(StreamVariable.Y);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L156)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L167)
 
 
 Constants work in pretty much the same way. We pop a string from the stack, parse an integer from the string, and then create a `Constant` object from that integer.
 
 The case for `<apply>` requires more explanations. This rule first receives a `<fct>`, corresponding to a `Function` object, which will be encapsulated into an `ApplyFunction` processor. However, depending on whether the function has an input arity of 1 or 2, this processor must be connected to either one or two upstream processors --and hence, either one or two such objects must be popped from the stack. This is the purpose of the `<proclist>` non-terminal symbol. As you can see, the rule for `<proclist>` has two cases; the first case corresponds to a construct containing two `<proc>` expressions, and the second case corresponds to a construct with a single `<proc>` expression.
 
-The code handling `<proclist>` is written as follows:
+The method handling `<proclist>` is written as follows:
 
 ``` java
 @Builds(rule="<proclist>")
@@ -546,7 +546,7 @@ public void handleProcList(ArrayDeque<Object> stack)
     stack.pop();
     list.add((Processor) stack.pop());
     stack.pop();
-    if (stack.peek() instanceof String)
+    if (stack.peek() instanceof String && ((String) stack.peek()).compareTo("AND") == 0)
     {
         stack.pop();
         stack.pop();
@@ -556,16 +556,14 @@ public void handleProcList(ArrayDeque<Object> stack)
     stack.push(list);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L168)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L179)
 
 
+The method first creates an empty `List` of `Processor` objects. It then pops three objects; the second is a `Processor` that is put into the list, and the other two are discarded. This is due to the fact that both cases of rule `<proclist>` end with the same three tokens: `( <proc> )`. The method then *peeks* (but does not pop) the next element on the stack. If this element is the string "AND", we are in the first case of the rule, and four more tokens are popped. This corresponds to the first half of the case, `( <proc> ) AND`. A second processor is extracted from this piece of code and added to the list. The method then pops back onto the stack the `List` object, which contains either one or two processors. Graphically, this can be represented as follows:
 
+![A graphical representation of the stack manipulations for the two cases of rule `<proclist>`.](Rule-proclist.png)
 
-![A graphical representation of the stack manipulations for the two cases of rule `<proclist>`.](Rule-svar.png)
-
-
-
-The `ApplyFunction` is handled like this:
+The case for `ApplyFunction` now becomes easy. The method simply pops a `Function` object and a `List` object. Depending on the size of the list, it connects either one or two processors from that list to `ApplyFunction`, and puts it back on the stack.
 
 ``` java
 @Builds(rule="<apply>", pop=true, clean=true)
@@ -587,8 +585,18 @@ public Processor handleApply(Object ... parts)
     return af;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L93)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ComplexProcessorBuilder.java#L104)
 
+
+Graphically, this is represented in two different ways, depending on the size of the list:
+
+![A graphical representation of the stack manipulations for rule `<apply>`.](Rule-apply.png)
+
+The last case in our grammar is `<avg>`. This is meant to compute the <!--\index{running average} running average-->running average<!--/i--> of a stream. We have already seen in Chapter 3 how this can be done by a chain of processors. Therefore, the code handling this rule simply builds this whole chain:
+
+![A graphical representation of the stack manipulations for the rule `<avg>`.](Rule-avg.png)
+
+As we can see, the processor from the stack is connected to the very beginning of the chain, and the very end of the chain is put back onto the stack. This is to show that a grammar construct does not need to instantiate a single `Processor` object. A single grammar rule can result in the creation of multiple objects at once.
 
 Equipped with these new rules, we can write expressions that use the `ApplyFunction` processor and create functions. For example, from an expression like this:
 
@@ -599,7 +607,7 @@ APPLY + X Y ON (
     APPLY LT X 0 ON (INPUT 0)
 ))
 AND (
-  INPUT 1)
+  THE AVERAGE OF (INPUT 1))
 ```
 
 ...the object builder will create the following `GroupProcessor`:
@@ -612,6 +620,6 @@ The complete object builder for this grammar requires 15 rules, and roughly 130 
 
 In this chapter, we have seen why BeepBeep does not provide a single built-in query language to write processor chains. Rather, using a palette called `dsl`, it provides facilities that allow users to design and use their own domain-specific language. The `dsl` palette makes it possible to quickly write the *grammar* for a language, and provides a *parser* called Bullwinkle that can read and parse strings from any grammar at runtime. Moreover, thanks to a special object called a `GrammarObjectBuilder`, one can easily walk through a parse tree, and progressively construct an object such as a chain of processors by defining methods specific to each rule of the grammar. The end result is that, through a few lines of grammar and a few lines of building code, it is possible to have a working interpreter for a custom query language with very little effort.
 
-Remember that the languages we have shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language you can create yourself: as we have seen in the beginning of the chapter, this is actually the whole point.
+Remember that the languages we have shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language you can create yourself: as we have seen in the beginning of the chapter, this is actually the whole point. The syntax for the languages you create does not have to look even remotely like our examples. Although this might sound a little tacky, the limit here truly is your imagination!
 
 <!-- :wrap=soft: -->

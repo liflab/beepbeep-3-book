@@ -367,6 +367,16 @@ The case for `ApplyFunction` now becomes easy. The method simply pops a `Functio
 
 {@snipm dsl/ComplexProcessorBuilder.java}{/}
 
+Graphically, this is represented in two different ways, depending on the size of the list:
+
+{@img doc-files/dsl/Rule-apply.png}{A graphical representation of the stack manipulations for rule `<apply>`.}{.6}
+
+The last case in our grammar is `<avg>`. This is meant to compute the <!--\index{running average} running average-->running average<!--/i--> of a stream. We have already seen in Chapter 3 how this can be done by a chain of processors. Therefore, the code handling this rule simply builds this whole chain:
+
+{@img doc-files/dsl/Rule-avg.png}{A graphical representation of the stack manipulations for the rule `<avg>`.}{.6}
+
+As we can see, the processor from the stack is connected to the very beginning of the chain, and the very end of the chain is put back onto the stack. This is to show that a grammar construct does not need to instantiate a single `Processor` object. A single grammar rule can result in the creation of multiple objects at once.
+
 Equipped with these new rules, we can write expressions that use the `ApplyFunction` processor and create functions. For example, from an expression like this:
 
 ```
@@ -376,7 +386,7 @@ APPLY + X Y ON (
     APPLY LT X 0 ON (INPUT 0)
 ))
 AND (
-  INPUT 1)
+  THE AVERAGE OF (INPUT 1))
 ```
 
 ...the object builder will create the following `GroupProcessor`:
@@ -389,6 +399,6 @@ The complete object builder for this grammar requires 15 rules, and roughly 130 
 
 In this chapter, we have seen why BeepBeep does not provide a single built-in query language to write processor chains. Rather, using a palette called `dsl`, it provides facilities that allow users to design and use their own domain-specific language. The `dsl` palette makes it possible to quickly write the *grammar* for a language, and provides a *parser* called Bullwinkle that can read and parse strings from any grammar at runtime. Moreover, thanks to a special object called a `GrammarObjectBuilder`, one can easily walk through a parse tree, and progressively construct an object such as a chain of processors by defining methods specific to each rule of the grammar. The end result is that, through a few lines of grammar and a few lines of building code, it is possible to have a working interpreter for a custom query language with very little effort.
 
-Remember that the languages we have shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language you can create yourself: as we have seen in the beginning of the chapter, this is actually the whole point.
+Remember that the languages we have shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language you can create yourself: as we have seen in the beginning of the chapter, this is actually the whole point. The syntax for the languages you create does not have to look even remotely like our examples. Although this might sound a little tacky, the limit here truly is your imagination!
 
 <!-- :wrap=soft: -->
