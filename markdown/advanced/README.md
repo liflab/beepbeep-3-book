@@ -3,6 +3,159 @@ Advanced features
 
 The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors that come in BeepBeep's core or some of BeepBeep's standard palettes, and that you are likely to use in one of your processor chains.
 
+## Lists, sets and bags
+
+Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we have said in the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists and sets.
+
+### The `Bags` utility class
+
+A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
+
+[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags!GetSize} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object with a few elements inside, one could use `GetSize` like any other function:
+
+``` java
+Object[] outs = new Object[1];
+Bags.getSize.evaluate(new Object[]{list}, outs);
+// outs[0] contains the size of list
+```
+
+[`Bags.contains`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/contains.html) refers to a function <!--\index{Bags!Contains} \texttt{Contains}-->`Contains`<!--/i--> that takes as input a Java `Collection` and an object *o*, and returns a Boolean value indicating whether the collection contains *o*. Its usage can be illustrated in the following code example:
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.addEvent(UtilityMethods.createList(1f, 3f, 5f));
+src1.addEvent(UtilityMethods.createList(4f, 2f));
+src1.addEvent(UtilityMethods.createList(4f, 4f, 8f));
+src1.addEvent(UtilityMethods.createList(6f, 4f));
+QueueSource src2 = new QueueSource();
+src2.setEvents(1);
+ApplyFunction contains = new ApplyFunction(Bags.contains);
+Connector.connect(src1, 0, contains, 0);
+Cumulate counter = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+Connector.connect(src2, counter);
+Connector.connect(counter, 0, contains, 1);
+Pullable p = contains.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/BagsContains.java#L42)
+
+
+We first create a `QueueSource` as usual; note that this time, each event in the source is itself a *list* (method `createList` is a small utility method that creates a `List` object out of its arguments). We then pipe this source as the first argument of an `ApplyFunction` processor that evaluates `Bags.contains`; its second argument comes from a stream of numbers that increments by one. The end result is a stream where the *n*-th output event is the value `true` if and only if the *n*-th input list in `src1` contains the value *n*. This can be illustrated like this:
+
+![A first event stream with a more complex data structure.](BagsContains.png)
+
+This drawing introduces the "polka dot" pattern. The base color to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is not known or may vary, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
+
+As expected, the output of the program is:
+
+```
+true
+true
+false
+true
+```
+
+The `Bags` class also provides a function called [`ApplyToAll`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/ApplyToAll.html). This function is intantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags!ApplyToAll} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
+
+``` java
+List<Object> list = UtilityMethods.createList(-3, 6, -1, -2);
+Object[] out = new Object[1];
+Function f = new Bags.ApplyToAll(Numbers.absoluteValue);
+f.evaluate(new Object[]{list}, out);
+System.out.println(out[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/BagsFunctions.java#L35)
+
+
+The output of this code snippet is indeed a new list with the absolute value of the elements of the input list:
+
+```
+[3.0, 6.0, 1.0, 2.0]
+```
+
+The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements form a collection. Like `ApplyToAll`, <!--\index{Bags!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
+
+``` java
+Function filter = new Bags.FilterElements(Numbers.isEven);
+filter.evaluate(new Object[]{list}, out);
+System.out.println(out[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/BagsFunctions.java#L42)
+
+
+will produce this output:
+
+```
+[6, -2]
+```
+
+It is also possible to take the input of multiple streams, and to create a collection out of each front of events. This can be done with the help of function <!--\index{Bags!ToList} \texttt{ToList}-->`ToList`<!--/i-->. Consider the following code example:
+
+``` java
+QueueSource src1 = new QueueSource().setEvents(3, 1, 4, 1, 6);
+QueueSource src2 = new QueueSource().setEvents(2, 7, 1, 8);
+QueueSource src3 = new QueueSource().setEvents(1, 1, 2, 3, 5);
+ApplyFunction to_list = new ApplyFunction(
+        new Bags.ToList(Number.class, Number.class, Number.class));
+Connector.connect(src1, 0, to_list, 0);
+Connector.connect(src2, 0, to_list, 1);
+Connector.connect(src3, 0, to_list, 2);
+Pullable p = to_list.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/ToListExample.java#L47)
+
+
+We first create three sources of numbers, and pipe them into an `ApplyFunction` processor that is given the `ToList` function. When instantiated, this function must be given the type (that is, the `Class` object) of each of its inputs. Here, the function is instructed to receive three arguments, and is told that all three are instances of `Number`.
+
+Graphically, this can be illustrated as follows (note the symbol used to represent `ToList`):
+
+![Creating lists from the input of multiple streams.](ToListExample.png)
+
+When run, this program will take each front of events from the sources, and create a list object of size three with those three events. The output of this program is therefore:
+
+```
+[3, 2, 1]
+[1, 7, 1]
+[4, 1, 2]
+[1, 8, 3]
+```
+
+The functions <!--\index{Bags!ToSet} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags!ToArray} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but create respectively a `Set` object and an array instead of a list.
+
+Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collect its last output.
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.addEvent(UtilityMethods.createList(1f, 3f, 5f));
+src1.addEvent(UtilityMethods.createList(4f, 2f));
+src1.addEvent(UtilityMethods.createList(4f, 4f, 8f));
+src1.addEvent(UtilityMethods.createList(6f, 4f));
+Bags.RunOn run = new Bags.RunOn(
+        new Cumulate(new CumulativeFunction<Number>(Numbers.addition)));
+Connector.connect(src1, run);
+Pullable p = run.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/RunOnExample.java#L50)
+
+
+```
+9.0
+6.0
+16.0
+10.0
+```
+
 ## Reading from a text file
 
 So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somehwere else --and probably very often from <!--\index{file!reading from} files-->files<!--/i-->.
@@ -183,7 +336,19 @@ which indeed corresponds to the sum of A and B in each line. However, this proce
 
 We leave as an exercise to the reader the task of writing this processor chain in code.
 
-### Creating tuples
+### Other tuple functions
+
+The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
+
+- The function `ScalarIntoToTuple` takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
+
+- The function `MergeTuples` merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
+
+- The function `BlowTuple` breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
+
+- The function `ExpandAsColumns` transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
+
+
 
 
 
@@ -255,14 +420,20 @@ $ cat somefile.txt > java -jar read-stdin.jar
 
 This will have for effect of reading and pushing the entire contents of `somefile.txt` into the processor chain.
 
-## Sets and bags {#sets}
+## Basic networking
 
-## Lists {#lists}
+
 
 ## Context {#context}
 
 Each processor instance is also associated with a **context**. A context is a persistent and modifiable map that associates names to arbitrary objects. When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`jdc:ca.uqac.lif.cep.Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
 
-## Exercises {#ex-advanced}
+## Exercises
+
+1. Create a chain of processors that receives a stream of collections of integers, and outputs `true` for a collection if and only if it contains a number that corresponds to its size. For example, the set {1,3,6} is of size 3, and it contains the number 3, so the answer would be `true`. Do it...
+  a. Using a `FunctionTree`
+  b. Without using a `FunctionTree`
+
+2. Create a chain of processors that receives three streams of numbers as its input. Its output should be a stream of *sets* of numbers. The output set at position *i* should contain the *i*-th element of each input stream, only if this element is positive. That is, if the first event of each stream is respectively -1, 3, 4, the first output set should be {3,4}.
 
 <!-- :wrap=soft: -->
