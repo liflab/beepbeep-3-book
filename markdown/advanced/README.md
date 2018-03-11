@@ -3,11 +3,9 @@ Advanced features
 
 The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors that come in BeepBeep's core or some of BeepBeep's standard palettes, and that you are likely to use in one of your processor chains.
 
-## Lists, sets and bags
+## Lists, sets and maps
 
-Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we have said in the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists and sets.
-
-### The `Bags` utility class
+Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we have said in the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists, sets and maps.
 
 A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
 
@@ -129,7 +127,9 @@ When run, this program will take each front of events from the sources, and crea
 
 The functions <!--\index{Bags!ToSet} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags!ToArray} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but create respectively a `Set` object and an array instead of a list.
 
-Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collect its last output.
+Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
+
+Consider the following code example:
 
 ``` java
 QueueSource src1 = new QueueSource();
@@ -146,8 +146,10 @@ for (int i = 0; i < 4; i++)
     System.out.println(p.pull());
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/RunOnExample.java#L50)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/RunOnExample.java#L49)
 
+
+A `RunOn` processor is created, and is given a `Cumulate` processor that is instructed to compute the cumulative sum of a stream of events. When receiving a collection, `RunOn` pushes each element into a fresh copy `Cumulate`; the last event is collected and returned. The end result is a program that computes the sum of elements in each set:
 
 ```
 9.0
@@ -156,11 +158,198 @@ for (int i = 0; i < 4; i++)
 10.0
 ```
 
-## Reading from a text file
+The following picture shows how to depict the `RunOn` processor graphically. Like the other processors we have seen earlier (such as `Window` and `Slice`), `RunOn` can take any `Processor` object as an argument. However, if we want to pass a chain of processors, we must take care to encapsulate that chain inside a `GroupProcessor`.
 
-So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somehwere else --and probably very often from <!--\index{file!reading from} files-->files<!--/i-->.
+![Applying a processor on collections of events with `RunOn`.](RunOnExample.png)
 
-Consider for example a text file containing single numbers, each on a separate line:
+### Set-specific objects
+
+The `util` package also provides a few functions and processors specific to some particular types of collections. The [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) class has a member field `Sets.isSubsetOrEqual` which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor [`PutInto`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutInto.html) which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
+
+The following program shows the basic usage of <!--\index{Sets!PutInto@\texttt{PutInto}} \texttt{PutInto}-->`PutInto`<!--/i-->.
+
+``` java
+QueueSource src = new QueueSource().setEvents("A", "B", "C", "D");
+Sets.PutInto put = new Sets.PutInto();
+Connector.connect(src, put);
+Pullable p = put.getPullableOutput();
+Set<Object> set1, set2;
+p.pull();
+set1 = (Set<Object>) p.pull();
+System.out.println("Set 1: " + set1);
+p.pull();
+set2 = (Set<Object>) p.pull();
+System.out.println("Set 2: " + set2);
+System.out.println("Set 1: " + set2);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/PutIntoExample.java#L32)
+
+
+It produces the following output:
+
+```
+Set 1: [A, B]
+Set 2: [A, B, C, D]
+Set 1: [A, B, C, D]
+```
+
+Note how after the second call to `pull`, the variable `set1` is a set that contains the first two events, "A" and "B". Two calls to `pull` later, variable `set2` contains, as expected, the first four events. The last call to `println` is more surprising. It reveals that `set1` now also contains the first four events! This is because the variables `set1` and `set2` actually are two references to the same object. In other words, processor `PutInto` keeps returning the same `Set`, each time with a new element added to it. We say that `PutInto` is a <!--\index{mutator processor} \textbf{mutator}-->**mutator**<!--/i--> processor: it modifies the state of the objects it returns.
+
+If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutIntoNew.html). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
+
+### List-specific objects
+
+Functions and processors that work on arbitrary collections obviously also work on lists. BeepBeep provides a few more for collections that are *ordered*, such as lists and arrays. For example, [`NthElement`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/NthElement.html) is a function that returns the <!--\index{NthElement@\texttt{NthElement}} element-->element<!--/i--> at the *n*-th position in an ordered collection.
+
+The [`Lists`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists.html) class defines two processors that work on lists in a special way. The first is called [`Pack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Pack.html) and has two input pipes. The first, called the *data* pipe, is a stream of arbitrary events. The second, called the *control* pipe, is a stream of Boolean values. You may remember that the `Filter` processor seen in the previous chapter had two similarly-named input pipes.
+
+Processor <!--\index{Lists!Pack@\texttt{Pack}} \texttt{Pack}-->`Pack`<!--/i--> accumulates events received from the input pipe, as long as the corresponding event in the control pipe is the Boolean value `false`. When the value in the control pipe is `true`, `Pack` outputs the list of events accumulated so far, instantiates a new empty list, and puts the incoming event into it. Consider the following example:
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.setEvents(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5);
+QueueSource src2 = new QueueSource();
+src2.setEvents(false, true, false, false, false, true, false, true);
+Lists.Pack pack = new Lists.Pack();
+Connector.connect(src1, 0, pack, 0);
+Connector.connect(src2, 0, pack, 1);
+Pullable p = pack.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/PackExample.java#L48)
+
+
+![Packing events into lists using the `Pack` processor.](PackExample.png)
+
+We create a data and a control stream, connect them to a `Pack` processor and pull events from its output. The program prints:
+
+```
+[3]
+[1, 4, 1, 5]
+[9, 2]
+[6, 5]
+```
+
+One can see how the control stream acts as a "trigger" that tells the `Pack` processor when to release a list of events.
+
+The [`Unpack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Unpack.html) processor is the exact opposite of `Pack`. It receives a stream of lists, and outputs the event of each list one by one:
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.addEvent(UtilityMethods.createList(1f, 3f, 5f));
+src1.addEvent(UtilityMethods.createList(4f, 2f));
+src1.addEvent(UtilityMethods.createList(4f, 4f, 8f));
+src1.addEvent(UtilityMethods.createList(6f, 4f));
+Lists.Unpack unpack = new Lists.Unpack();
+Connector.connect(src1, 0, unpack, 0);
+Pullable p = unpack.getPullableOutput();
+for (int i = 0; i < 6; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/UnpackExample.java#L51)
+
+
+![Unpacking events from a stream of lists using the `Unpack` processor.](UnpackExample.png)
+
+Of course, putting an <!--\index{Lists!Unpack@\texttt{Unpack}} \texttt{Unpack}-->`Unpack`<!--/i--> processor next to a `Pack` processor will recreate the original stream. This means that the following procsesor chain is equivalent to a `Passthrough` processor on the stream of numbers 3, 1, 4, ...
+
+![Chaining a `Pack` and an `Unpack` processor.](PackUnpack.png)
+
+Note that the end result of this program does not depend on the Boolean stream at the bottom. This control stream merely changes the way events are grouped into lists, but does not change the relative ordering of each event. Since the lists are unpacked immediately, the output from `Unpack` will always be the same.
+
+One final remark must be made about `Unpack` when it is used in <!--\index{push mode} push mode-->push mode<!--/i-->. Consider the following simple chain:
+
+![Using the `Unpack` processor in push mode.](UnpackPush.png)
+
+Suppose that `p` is `Unpack`'s `Pushable` object; what do you think the following program will print?
+
+``` java
+List<Object> list = UtilityMethods.createList(1, 2, 3, 4);
+System.out.println("Before first push");
+p.push(list);
+list = UtilityMethods.createList(5, 6, 7);
+System.out.println("\nBefore second push");
+p.push(list);
+System.out.println("\nAfter second push");
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/UnpackPush.java#L54)
+
+
+Let us see what happens on the first call to `push`. The `Unpack` processor is given a list of numbers. Its task is to output these numbers one by one; since we are in push mode, these numbers will hence be pushed to its output pipe and down to the `Print` processor. But how many such numbers will be pushed? Only the first one?
+
+The answer is **all at once**. That is, on the single call to `push`, the `Unpack` processor will push all four events one after the other. The output of the program is therefore:
+
+```
+Before first push
+1,2,3,4,
+Before second push
+5,6,7,
+After second push
+```
+
+Notice how the first call to `push` on `Unpack` results in four calls to `push` on the downstream `Print` processor. We had already seen that the number of calls to `pull` may not be uniform across a processor chain; we now know that the same is true for calls to `push`. As a matter of fact, the `Pack` and `Unpack` processors are called **non-uniform**: for a single output event, the number of output events they produce is not always the same. In contrast, <!--\index{Processor!uniform} uniform-->uniform<!--/i--> processors produce the same number of output events for each input event.
+
+We have already seen other non-uniform processors before: the `Filter`, `CountDecimate` and `Trim` processors sometimes produce zero output event from an input event. Here, we see a non-uniform processor in the opposite way: it sometimes produces more than one output event from a single input event.
+
+### Map-specific objects
+
+There is one last Java collection we haven't talked about: <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i-->. As you know, a map is a data structure that associates arbitrary *keys* to arbitrary *values*. A map can be queried for the value corresponding to a key using a method called `get()`. BeepBeep provides a [`Maps`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Maps.html) class that defines a few functions and processors specific to the manipulation of such <!--\index{Maps@\texttt{Maps}} maps-->maps<!--/i-->. The first one is [`Get`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Get.html), which, as you may guess, fetches a <!--\index{Maps!Get@\texttt{Get}} value-->value<!--/i--> from a map given the name of a key. A simple usage would be the following:
+
+``` java
+Map map = ...
+Function get = new Maps.Get("foo");
+Object[] out = new Object[1];
+get.evaluate(new Object[]{map}, out);
+// out[0] contains the value of key foo
+```
+
+The `Maps` class also defines a processor <!--\index{Maps!PutInto@\texttt{PutInto}} maps-->`PutInto`<!--/i--> that works in the same way as the one we have seen in `Sets` and `Lists`. It receives two input streams: the first one is made of the "keys", and the second one is made of the "values". When receiving an event front, it creates a key-value pair from the two events and uses it to update the map, which it then returns. For example, the following program:
+
+``` java
+QueueSource keys = new QueueSource().setEvents("foo", "bar", "foo", "baz");
+QueueSource values = new QueueSource().setEvents(1, "abc", "def", 6);
+Maps.PutInto put = new Maps.PutInto();
+Connector.connect(keys, 0, put, 0);
+Connector.connect(values, 0, put, 1);
+Pullable p = put.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    System.out.println(p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/MapPutInto.java#L42)
+
+
+...will produce the following output:
+
+```
+{foo=1}
+{bar=abc, foo=1}
+{bar=abc, foo=def}
+{bar=abc, foo=def, baz=6}
+```
+
+Note how the map is *updated*: if a key already exists in the map, its corresponding value is replaced by the new one. Also note how types can be mixed in the map: the value for key "foo" is first a number, and is replaced later by string. A variant of `PutInto` is called <!--\index{Maps!PutIntoArray@\texttt{PutIntoArray}} maps-->`PutIntoArray`<!--/i-->, which takes a single input stream, whose events are *arrays*. The first element of the array contains the key, and the second contains the value.
+
+One last function of interest is called [`Values`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Values.html). This function takes a map as input, and returns the collection made of all the <!--\index{Maps!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
+
+## Pumps and tanks
+
+
+
+
+## Basic input/output
+
+So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somehwere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
+
+### Reading from a file
+
+Consider for example a text <!--\index{file!reading from} files-->file<!--/i--> containing single numbers, each on a separate line:
 
     3
     1
@@ -217,142 +406,7 @@ The processor chain in this program can be represented as follows:
 
 This diagram introduces two new elements. First, the `ReadLines` processor is a box with a white sheet as its pictogram. As expected, the processor has one output pipe, which is painted in purple --the color that represents streams of `String` objects. Second, the processor seems to have an input pipe, but of a different shape than the ones we have seen earlier. This symbol does *not* represent a pipe, as can be confirmed by the fact that the input arity of `ReadLines` is zero. The funnel-shaped symbol rather represents a Java `InputStream` object. As we know, an `InputStream` can refer to an arbitrary source of bytes: a file, a network connection, and so on. Therefore, this symbol is intended to indicate that the line reader takes its source of bytes from some outside source --more precisely, from something that is not a BeepBeep processor. BeepBeep's square pipes cannot be connected into funnels, and vice-versa. The light-green color of the funnel indicates that the input stream provides raw bytes to the reader. The leftmost diskette symbol indicates that this particular input stream is connected to a file source.
 
-## Manipulating tuples
-
-Input files are seldom made of a single value per line of text. A more frequent file format is called **comma-separated values** (<!--\index{CSV@CSV (file format)}CSV-->CSV<!--/i-->). In such a format, each line contains the value of multiple **attributes**, separated by a comma. The following gives an example of such a file:
-
-    # This is a simple file in CSV format
-    
-    A,B,C
-    3,2,1
-    1,7,1
-    4,1,2
-    1,8,3
-    6,3,5
-
-Blank lines and lines that begin with the hash symbol (`#`) are typically ignored (although the latter is not standard). The first non-ignored line in the file gives the *name* of each attribute. In the example above, the file defines three attributes named "A", "B" and "C". All the remaining lines of the file defines what are called <!--\index{tuple} \textbf{tuples}-->**tuples**<!--/i-->; a tuple is a data object that associates each attribute to a value. For example, the fourth line of the file defines a tuple that associates attribute A to value 3, attribute B to value 2, and attribute C to value 1. In other words, a CSV file is similar to a **table** in a relational database.
-
-### Reading tuples
-
-The following program reads a CSV file called `file1.csv`, and extracts tuples from this file one by one:
-
-``` java
-InputStream is = CsvReaderExample.class.getResourceAsStream("file1.csv");
-ReadLines reader = new ReadLines(is);
-TupleFeeder tuples = new TupleFeeder();
-Connector.connect(reader, tuples);
-Pullable p = tuples.getPullableOutput();
-Tuple tup = null;
-while (p.hasNext())
-{
-    tup = (Tuple) p.next();
-    System.out.println(tup);
-}
-```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/tuples/CsvReaderExample.java#L50)
-
-
-The first two lines are now familiar: they consist of opening an `InputStream` on a file, and passing this stream to a `ReadLines` processor to read it line by line. The next instruction creates a new processor called a <!--\index{TupleFeeder@\texttt{TupleFeeder}} \texttt{TupleFeeder}-->`TupleFeeder`<!--/i-->. This processor receives lines of text, and returns on its output pipe `Tuple` objects. The rest of the program simply pulls and prints these tuples. The output of this program is:
-
-```
-((A,3),(B,2),(C,1))
-((A,1),(B,7),(C,1))
-((A,4),(B,1),(C,2))
-((A,1),(B,8),(C,3))
-((A,6),(B,3),(C,5))
-```
-
-As you can see from the format of the output, a tuple can also be seen as a set of attribute-value pairs. `Tuple` objects implement Java's <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i--> interface; therefore, their contents can be queried just like any other associative map:
-
-``` java
-Object o = tup.get("A");
-System.out.println(o + "," + o.getClass().getSimpleName());
-```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/tuples/CsvReaderExample.java#L63)
-
-
-If `tup` refers to the last `Tuple` pulled from `tuples`, the previous lines of code will print:
-
-```
-6,String
-```
-
-Note that **the values in tuples produced by `TupleFeeder` are always strings**. That is, `TupleFeeder` does not try to be smart and guess if a string is actually a number.
-
-Graphically, this program can be represented as follows:
-
-![Converting strings into tuples.](CsvReaderExample.png)
-
-This drawing introduces the symbol for the `TupleFeeder`, whose pictogram on the box represents a tuple. It also shows the color we use to represent tuple feeds (brown/orange).
-
-### Querying tuples
-
-The previous example has shown us how to read tuples, but not how to manipulate them. The `tuples` palette defines a few handy `Function` objects that allow us, among other things, to fetch the value of an attribute and also to merge tuples. From the same input file as above, let us create an output stream made of the sum of attributes A and B in each line. The following piece of code performs exactly that:
-
-``` java
-InputStream is = SumAttributes.class.getResourceAsStream("file1.csv");
-ReadLines reader = new ReadLines(is);
-TupleFeeder tuples = new TupleFeeder();
-Connector.connect(reader, tuples);
-Fork fork = new Fork(2);
-Connector.connect(tuples, fork);
-ApplyFunction get_a = new ApplyFunction(new FetchAttribute("A"));
-Connector.connect(fork, 0, get_a, 0);
-ApplyFunction get_b = new ApplyFunction(new FetchAttribute("B"));
-Connector.connect(fork, 1, get_b, 0);
-ApplyFunction cast_a = new ApplyFunction(Numbers.numberCast);
-Connector.connect(get_a, cast_a);
-ApplyFunction cast_b = new ApplyFunction(Numbers.numberCast);
-Connector.connect(get_b, cast_b);
-ApplyFunction sum = new ApplyFunction(Numbers.addition);
-Connector.connect(cast_a, 0, sum, 0);
-Connector.connect(cast_b, 0, sum, 1);
-Pullable p = sum.getPullableOutput();
-while (p.hasNext())
-{
-    System.out.println(p.next());
-}
-```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/tuples/SumAttributes.java#L57)
-
-
-This program is probably better explained through its graphical representation, which goes as follows:
-
-![Adding two attributes in each tuple.](SumAttributes.png)
-
-From a `ReadLines` processor, a `TupleFeeder` is instantiated. The stream of tuples is then forked along two branches. In the first branch, the value of attribute "A" for each tuple is extracted. This is done by using an `ApplyFunction` processor, and giving to this processor an instance of a new function called <!--\index{FetchAttribute@\texttt{FetchAttribute}} \texttt{FetchAttribute}-->`FetchAttribute`<!--/i-->. When instantiated, function `FetchAttribute` is given the name of the attribute to fetch in the tuple. This value (a String) is converted into a number and sent into an `ApplyFunction` processor that computes a sum. The same thing is done along the bottom branch for attribute "B". From the same input file as above, the output of this program is:
-
-```
-5.0
-8.0
-5.0
-9.0
-9.0
-```
-
-which indeed corresponds to the sum of A and B in each line. However, this processor chain is needlessly verbose. The successive application of all three functions can be collapsed into a single function tree, yielding this much simpler graph:
-
-![Adding two attributes in each tuple (alternate version).](SumAttributesTree.png)
-
-We leave as an exercise to the reader the task of writing this processor chain in code.
-
-### Other tuple functions
-
-The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
-
-- The function `ScalarIntoToTuple` takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
-
-- The function `MergeTuples` merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
-
-- The function `BlowTuple` breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
-
-- The function `ExpandAsColumns` transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
-
-
-
-
-
-## Reading from the standard input
+### Reading from the standard input
 
 As we have seen earlier, we can read lines from a source of text by passing an `InputStream` to a `ReadLines` processor. However, it is possible to read from arbitrary streams of bytes, and in particular from the special system stream called the <!--\index{standard input} \textbf{standard input}-->**standard input**<!--/i-->. The standard input is an implicit stream that every running program has; external processes can connect to this stream and send bytes that the program can then read.
 
@@ -420,11 +474,14 @@ $ cat somefile.txt > java -jar read-stdin.jar
 
 This will have for effect of reading and pushing the entire contents of `somefile.txt` into the processor chain.
 
-## Basic networking
+### Separating the input into tokens
 
 
 
-## Context {#context}
+### Reading from an HTTP request
+
+
+## Processor context
 
 Each processor instance is also associated with a **context**. A context is a persistent and modifiable map that associates names to arbitrary objects. When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`jdc:ca.uqac.lif.cep.Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
 
@@ -435,5 +492,13 @@ Each processor instance is also associated with a **context**. A context is a pe
   b. Without using a `FunctionTree`
 
 2. Create a chain of processors that receives three streams of numbers as its input. Its output should be a stream of *sets* of numbers. The output set at position *i* should contain the *i*-th element of each input stream, only if this element is positive. That is, if the first event of each stream is respectively -1, 3, 4, the first output set should be {3,4}.
+
+3. Create a chain of processors that receives a stream of collections of numbers, and returns...
+  a. the average of each collection
+  b. the largest number of each collection
+
+4. The `Strings` utility class in BeepBeep defines a `Function` object called `SplitString`. Use it to create a processor chain that receives a stream of arbitrary strings, and returns a stream made of each individual word, except those that start with the letter "a". For example, on the input event "this is an abridged text", the chain would produce the output events "this", "is", "text". (Hint: a simple solution involves the use of  `Unpack`.)
+
+5. Consider a stream of letters of the alphabet. Create a processor chain that always returns the number of occurrences of the letter that has been seen most often so far. For example, on the input stream a,b,a,c,c,b,a, the processor would return 1,1,2,2,2,2,3. (Hint: a possible solution involves `Slice`, `Cumulate`, `Maps.Values` and `Numbers.max`, among others.)
 
 <!-- :wrap=soft: -->
