@@ -330,7 +330,7 @@ This will have for effect of reading and pushing the entire contents of `somefil
 
 ### Separating the input into tokens
 
-
+More to come.
 
 ### Reading from an HTTP request
 
@@ -338,7 +338,19 @@ Using <!--\index{HTTP} HTTP-->HTTP<!--/i-->.
 
 ## Processor context
 
-Each processor instance is also associated with a **context**. A context is a persistent and modifiable map that associates names to arbitrary objects. When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context} object.
+Each processor instance is also associated with a <!--\index{Processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
+
+{@snipm basic/ContextExample.java}{/}
+
+An `ApplyFunction` processor is created, and an association between the key "foo" and the number 10 is added to the processor's context object. This context can be referred to in a `FunctionTree` by using a `ContextVariable`. Here such a variable is created and is instructed to fetch the value associated to key "foo" in the current processor's context. Therefore, the output of the program is:
+
+```
+10,13,
+```
+
+Note how the context can be modified by further calls to `setContext`.
+
+When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
 
 ## Exercises
 
