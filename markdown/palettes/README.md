@@ -206,20 +206,8 @@ These two functions can be passed to an `ApplyFunction` processor, and be used a
 Let us add a constructor and a `toString` method to our `CompoundObject` class:
 
 ``` java
-public CompoundObject(int a, String b, CompoundObject c)
-{
-    super();
-    this.a = a;
-    this.b = b;
-    this.c = c;
-}
-@Override
-public String toString()
-{
-    return "a = " + a + ", b = " + b + ", c = (" + c + ")";
-}
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/CompoundObject.java#L36)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/CompoundObject.java#L0)
 
 
 Consider now the following code example, which is a slightly modified version of our first program:
@@ -228,14 +216,19 @@ Consider now the following code example, which is a slightly modified version of
 ApplyFunction serialize = new ApplyFunction(new JsonSerializeString());
 HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http:
 HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
-ApplyFunction deserialize = new ApplyFunction(
-        new JsonDeserializeString<CompoundObject>(CompoundObject.class));
+ApplyFunction deserialize = new ApplyFunction(new JsonDeserializeString<CompoundObject>(CompoundObject.class));
 Print print = new Print();
 Connector.connect(serialize, up_gateway);
 Connector.connect(dn_gateway, deserialize);
 Connector.connect(deserialize, print);
 up_gateway.start();
 dn_gateway.start();
+Pushable p = serialize.getPushableInput();
+p.push(new CompoundObject(0, "foo", null));
+Thread.sleep(1000);
+p.push(new CompoundObject(0, "foo", new CompoundObject(6, "z", null)));
+up_gateway.stop();
+dn_gateway.stop();
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L47)
 
@@ -249,12 +242,8 @@ Note the pictogram used to illustrate the serialization processor: the picture r
 We can now push `CompoundObject`s through the serializer, as is shown in the following instructions:
 
 ``` java
-Pushable p = serialize.getPushableInput();
-p.push(new CompoundObject(0, "foo", null));
-Thread.sleep(1000);
-p.push(new CompoundObject(0, "foo", new CompoundObject(6, "z", null)));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L118)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L0)
 
 
 The expected output of the program should be:

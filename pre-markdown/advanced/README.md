@@ -224,7 +224,16 @@ Fortunately, BeepBeep has a processor that can do the equivalent of our manual p
 
 {@snipm basic/WithPump.java}{/}
 
-A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1000 milliseconds (as was specified in its constructor). As you can understand, a pump implements the  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread.
+A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1000 milliseconds (as was specified in its constructor). As you can understand, a pump implements the  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread. Graphically, this program can be represented as follows:
+
+{@img doc-files/basic/WithPump.png}{A chain of processors using a `Pump`.}{.6}
+
+Notice that this chain of processors, contrary to the examples we have seen so far, is closed on both ends. The only way to move events around is by the internal action of the pump.
+
+There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; a call to `pull` propagates until it reaches the tank, which outputs the accumulated events one by one.
+
+{@img doc-files/basic/WithTank.png}{A chain of processors using a `Tank`.}{.6}
+
 
 ## Basic input/output
 

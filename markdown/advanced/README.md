@@ -340,7 +340,54 @@ One last function of interest is called [`Values`](http://liflab.github.io/beepb
 
 ## Pumps and tanks
 
+All the processor chains we have given as examples operate either in <!--\index{pull mode} pull mode-->pull mode<!--/i--> or in <!--\index{push mode} push mode-->push mode<!--/i-->. In pull mode, a chain must be closed upstream by having the chain start by processors of input arity 0. To opposite applies for push mode: the chain must be closed downstream by ending each branch by a processor of output arity 0. Because of this, we cannot mix pull and push in the same chain.
 
+There exist situations, however, where it would be desirable to use both modes. Consider this simple program:
+
+``` java
+QueueSource source = new QueueSource().setEvents(1, 2, 3, 4);
+Print print = new Print();
+Pullable pl = source.getPullableOutput();
+Pushable ps = print.getPushableInput();
+while (true)
+{
+    ps.push(pl.pull());
+    Thread.sleep(1000);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithoutPump.java#L35)
+
+
+Here, we pull events from a `QueueSource`, which we then push into the `Print` processor to display them on the console. Since the only way for a processor to push events downstream is to be pushed events from upstream, `source` cannot be asked to push events to `print`. For the reverse reason, `print` cannot be asked to pull events from `source`. The only way to make these two objects interact is by the hand-written `while` loop, which acts as a "bridge" between an upstream chain that works in pull mode, and a downstream chain that works in push mode.
+
+While the loop works well in this example, the fact that the link between `print` and `source` is done outside of BeepBeep's objects has a few negative implications:
+
+- The upstream and downstream parts are two separate groups of processors that are completely unaware of each other. Since they are not a continuous chain of processors, they cannot be encapsulated in a `GroupProcessor` and passed to other processors. This also breaks the traceability chain, meaning that is becomes impossible to trace an output event back to one or more input events.
+- The connection between `source` and `print` is not done through `Connector`'s `connect` method; this bypasses a few sanity checks, such as the verification that input and output types are compatible.
+- There is no easy way to start/stop this process on demand, or to ask this chain to process one event at a time. The control flow of the program must stay in the `while` loop as long as events need to be processed.
+
+Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the [`Pump`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Pump.html). Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, our previous program can be replaced by this one:
+
+``` java
+QueueSource source = new QueueSource().setEvents(1, 2, 3, 4);
+Pump pump = new Pump(1000);
+Print print = new Print();
+Connector.connect(source, pump, print);
+Thread th = new Thread(pump);
+th.start();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithPump.java#L38)
+
+
+A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1000 milliseconds (as was specified in its constructor). As you can understand, a pump implements the  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread. Graphically, this program can be represented as follows:
+
+![A chain of processors using a `Pump`.](WithPump.png)
+
+Notice that this chain of processors, contrary to the examples we have seen so far, is closed on both ends. The only way to move events around is by the internal action of the pump.
+
+There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; a call to `pull` propagates until it reaches the tank, which outputs the accumulated events one by one.
+
+![A chain of processors using a `Tank`.](WithTank.png)
 
 
 ## Basic input/output
@@ -486,20 +533,7 @@ Using <!--\index{HTTP} HTTP-->HTTP<!--/i-->.
 
 Each processor instance is also associated with a <!--\index{Processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
 
-``` java
-ApplyFunction af = new ApplyFunction(new FunctionTree(
-        Numbers.addition,
-        StreamVariable.X,
-        new ContextVariable("foo")));
-Connector.connect(af, new Print());
-af.setContext("foo", 10);
-Pushable p = af.getPushableInput();
-p.push(3);
-af.setContext("foo", 6);
-p.push(4);
-```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ContextExample.java#L37)
-
+<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/basic/ContextExample.java</code></pre>
 
 An `ApplyFunction` processor is created, and an association between the key "foo" and the number 10 is added to the processor's context object. This context can be referred to in a `FunctionTree` by using a `ContextVariable`. Here such a variable is created and is instructed to fetch the value associated to key "foo" in the current processor's context. Therefore, the output of the program is:
 
@@ -509,7 +543,7 @@ An `ApplyFunction` processor is created, and an association between the key "foo
 
 Note how the context can be modified by further calls to `setContext`.
 
-When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described in this section, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
+When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
 
 ## Exercises
 
