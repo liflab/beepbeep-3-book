@@ -206,8 +206,25 @@ One last function of interest is called {@link jdc:ca.uqac.lif.cep.util.Maps.Val
 
 ## Pumps and tanks
 
+All the processor chains we have given as examples operate either in <!--\index{pull mode} pull mode-->pull mode<!--/i--> or in <!--\index{push mode} push mode-->push mode<!--/i-->. In pull mode, a chain must be closed upstream by having the chain start by processors of input arity 0. To opposite applies for push mode: the chain must be closed downstream by ending each branch by a processor of output arity 0. Because of this, we cannot mix pull and push in the same chain.
 
+There exist situations, however, where it would be desirable to use both modes. Consider this simple program:
 
+{@snipm basic/WithoutPump.java}{/}
+
+Here, we pull events from a `QueueSource`, which we then push into the `Print` processor to display them on the console. Since the only way for a processor to push events downstream is to be pushed events from upstream, `source` cannot be asked to push events to `print`. For the reverse reason, `print` cannot be asked to pull events from `source`. The only way to make these two objects interact is by the hand-written `while` loop, which acts as a "bridge" between an upstream chain that works in pull mode, and a downstream chain that works in push mode.
+
+While the loop works well in this example, the fact that the link between `print` and `source` is done outside of BeepBeep's objects has a few negative implications:
+
+- The upstream and downstream parts are two separate groups of processors that are completely unaware of each other. Since they are not a continuous chain of processors, they cannot be encapsulated in a `GroupProcessor` and passed to other processors. This also breaks the traceability chain, meaning that is becomes impossible to trace an output event back to one or more input events.
+- The connection between `source` and `print` is not done through `Connector`'s `connect` method; this bypasses a few sanity checks, such as the verification that input and output types are compatible.
+- There is no easy way to start/stop this process on demand, or to ask this chain to process one event at a time. The control flow of the program must stay in the `while` loop as long as events need to be processed.
+
+Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the {@link jdc:ca.uqac.lif.cep.tmf.Pump Pump}. Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, our previous program can be replaced by this one:
+
+{@snipm basic/WithPump.java}{/}
+
+A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1000 milliseconds (as was specified in its constructor). As you can understand, a pump implements the  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread.
 
 ## Basic input/output
 
