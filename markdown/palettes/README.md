@@ -3,7 +3,7 @@ The standard palettes
 
 A large part of BeepBeep's functionalities is dispersed across a number of *palettes*. These palettes are additional libraries (i.e. JAR files) that define new processors or functions for use along with BeepBeep's core elements. Each palette is optional, and has to be included in your project only if you need its contents.
 
-There exist palettes for many things: reading special file types, producing plots, accessing a network, and so on. In this chapter, we explore a few "standard" palette that are more frequently used than others.
+There exist palettes for many things: reading special file types, producing plots, accessing a network, and so on. In this chapter, we explore a few "standard" palettes that are more frequently used than others.
 
 ## Tuples
 
@@ -136,6 +136,10 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 - The function `ExpandAsColumns` transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
+## Plots
+
+More to come soon.
+
 ## Networking
 
 We have already seen in the previous chapter the `HttpGet` processor that allows you to fetch a character string remotely through an <!--\index{HTTP} HTTP-->HTTP<!--/i--> GET request. The `http` palette provides additional processors that make it possible to push and pull events across a network using HTTP. By splitting a processor chain on two machines and having both ends use HTTP to send and receive events, we are achieving what amounts to a rudimentary form of <!--\index{distributed computing} \textbf{distributed computing}-->**distributed computing**<!--/i-->.
@@ -177,51 +181,107 @@ It just happens that in this simple program, the HTTP requests are sent to `loca
 
 ### Serialization
 
-We first setup a {@link FunctionProcessor} that will execute
-the function {@link JsonSerializeString} on each input event. This function
-transforms an incoming object into a character string in the JSON format,
-through a process called <em>serialization</em>. Under the hood, the Azrael
-library takes care of this task.
+Sending character strings over a network is an arguably simple task. Very often, the events that are exchanged between processors are more complex: what if we want to transmit a set, a list, or some other complex object that has member fields and all? The HTTP gateways always expect character strings, both for sending and for receiving.
 
-This function processor is connected to a {@link HttpUpstreamGateway}.
-The gateway is a processor that transmits its received events to another
-machine, through HTTP requests and responses. Since the chain operates in
-<em>push</em> mode, the gateway will be pushed character strings from
-upstream, and will in turn push them to the outside world by sending an HTTP
-request at a specific address. In this case, the URL
-for Machine B is on the same host, on port 12144. The "/push" prefix is the
-"page" on Machine B the server will respond to.
+A first solution would be to create a custom `Function` object that takes care of converting the object we want to send into a character string, and another one to do the process in reverse, and transform a string back into an object with identical contents. This process is called <!--\index{serialization} \textbf{serialization}-->**serialization**<!--/i-->. However, doing so manually means that for every different type of object, we need to create a different pair of functions to convert them to and from strings. Moreover, this process can soon become complicated. Take the following class:
 
-We now move on to Machine B, which is responsible for receiving character
-strings and converting them back into objects. This is the mirror process of
-what was just done. So, the first step is to create an
-{@link HttpDownstreamGateway}. The gateway is instructed to listen to incoming
-requests on port 12144, to respond to requests made at the page "/push", and
-send through an HTTP `POST` request.
+``` java
+public class CompoundObject
+{
+	int a;
+	String b;
+	CompoundObject c;
+}
+```
 
-Just so that we can see something, we plug a {@link Print} processor at
-the end; it will print to the standard output whatever object it receives
-from upstream.
+This class has for member fields an integer, a string and yet another instance of `CompoundObject`. Converting such an object into a character string requires adding delimiters to separate the int and String fields, and yet more delimiters to represent the contents of the inner `CompoundObject` --and so on recursively.
 
-We are now ready to pipe everything together. The interesting bit is
-what is <em>not</em> there: notice that we do not connect
-`up_gateway` and `dn_gateway`. Indeed, these two
-processors do not communicate using a BeepBeep pipe like the others;
-rather, `up_gateway` sends its events to `dn_gateway`
-through HTTP requests (i.e., outside of BeepBeep). This is what would
-make it possible to put the two halves of this processor chain
-(serialize and up_gateway on one side, dn_gateway, deserialize and
-print on the other) on two different machines.
+Luckily, there exist what are called *serialization libraries* that can automate part of the serialization process. BeepBeep has a palette called `serialization` whose purpose is to provide a few functions to serialize generic objects; under the hood, it uses the <!--\index{Azrael (library)} Azrael-->Azrael<!--/i--> serialization library. The palette defines two main `Function` objects:
 
-<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/network/httppush/PushLocal.java</code></pre>
+- The <!--\index{JsonSerializeString@\texttt{JsonSerializeString}} \texttt{JsonSerializeString}-->`JsonSerializeString`<!--/i--> function converts an object into a character string in the <!--\index{JSON} \textbf{JSON}-->**JSON**<!--/i--> format.
+- The <!--\index{JsonDeserializeString@\texttt{JsonDeserializeString}} \texttt{JsonDeserializeString}-->`JsonDeserializeString`<!--/i--> function works in reverse: it takes a JSON string and recreates an object from its contents.
+
+These two functions can be passed to an `ApplyFunction` processor, and be used as a pre-processing step before and after passing strings to the HTTP gateways.
+
+Let us add a constructor and a `toString` method to our `CompoundObject` class:
+
+``` java
+public CompoundObject(int a, String b, CompoundObject c)
+{
+    super();
+    this.a = a;
+    this.b = b;
+    this.c = c;
+}
+@Override
+public String toString()
+{
+    return "a = " + a + ", b = " + b + ", c = (" + c + ")";
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/CompoundObject.java#L36)
+
+
+Consider now the following code example, which is a slightly modified version of our first program:
+
+``` java
+ApplyFunction serialize = new ApplyFunction(new JsonSerializeString());
+HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http:
+HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
+ApplyFunction deserialize = new ApplyFunction(
+        new JsonDeserializeString<CompoundObject>(CompoundObject.class));
+Print print = new Print();
+Connector.connect(serialize, up_gateway);
+Connector.connect(dn_gateway, deserialize);
+Connector.connect(deserialize, print);
+up_gateway.start();
+dn_gateway.start();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L47)
+
+
+The main difference is that a processor applying `JsonSerializeString` has been inserted before the upstream gateway, and another processor applying `JsonDeserializeString` has been inserted after the downstream gateway; the rest is identical. The serialization/deserialization functions must be passed the class of the objects to be manipulated. Here, we decide to use instances of `CompoundObject`s, as defined earlier. Graphically, our processor chain becomes:
+
+![Serializing objects before using HTTP gateways.](PushLocal.png)
+
+Note the pictogram used to illustrate the serialization processor: the picture represents an event that is "packed" into a box with a barcode, representing its serialized form. The deserialization processor conversely represents an event that is "unpacked" from a box with a barcode. Although these processors are actually plain `ApplyFunction` processors, we represent them with these special pictograms to improve the legibility of the drawings.
+
+We can now push `CompoundObject`s through the serializer, as is shown in the following instructions:
+
+``` java
+Pushable p = serialize.getPushableInput();
+p.push(new CompoundObject(0, "foo", null));
+Thread.sleep(1000);
+p.push(new CompoundObject(0, "foo", new CompoundObject(6, "z", null)));
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L118)
+
+
+The expected output of the program should be:
+
+```
+a=0, b=foo, c=(null)
+a=0, b=foo, c=(a=6, b=z, c=(null))
+```
+
+Not very surprising, but think about all the magic that happened in the background:
+
+- The object was converted into a JSON string.
+- The string was sent over the network through an HTTP request...
+- converted back into a `CompoundObject` identical to the original...
+- and pushed downstream to be handled by the rest of the processors as usual.
+
+All this process requires only about 10 lines of code.
 
 ### All together now: distributed twin primes
 
-Compute <!--\index{twin primes} twin primes-->twin primes<!--/i--> by distributing the computation across two machines over a network. Twin primes are pairs of numbers *p* and *p*+2 such that both are prime. For example, (3,5), (11,13) and (17,19) are three such pairs. The [twin prime conjecture](https://en.wikipedia.org/wiki/Twin_prime) asserts that there exists an infinity of such pairs.
+As we mentioned earlier, the use of HTTP gateways can make for a simple way to distribute computation over multiple computers. As a matter of fact, any chain of processors can be "cut" into parts, with the loose ends attached to upstream and downstream gateways.
+
+As a slightly more involved example, let us compute <!--\index{twin primes} twin primes-->twin primes<!--/i--> by splitting the process across two machines over a network. Twin primes are pairs of numbers *p* and *p*+2 such that both are prime. For example, (3,5), (11,13) and (17,19) are three such pairs. The [twin prime conjecture](https://en.wikipedia.org/wiki/Twin_prime) asserts that there exists an infinity of such pairs.
 
 Our setup will be composed of two machines, called A and B. Machine A will be programmed to check if each odd number 3, 5, 7, etc. is prime. If so, it will send the number *n* to Machine B, which will then check if *n*+2 is prime. If this is the case, Machine B will print to the console the values of *n* and *n*+2. The interest of this setup is that checking if a number is prime is an operation that becomes very long for large integers (especially with the algorithm we use here). By having the verification for *n* and *n*+2 on two separate machines, the whole processor chain can actually run two primality checks at the same time.
 
-Let us start with the code for Machine A.
+Since we want to make computations over very large numbers, we shall use Java's <!--\index{BigInteger@\texttt{BigInteger}} \texttt{BigInteger}-->`BigInteger`<!--/i--> class instead of the usual `int`s or `long`s. Furthermore, we assume the existence of a function object called `IsPrime`, whose purpose is to check whether a big integer is a prime number. (The code for `IsPrime` can be viewed in BeepBeep's code example repository.) Let us start with the program for Machine A.
 
 ``` java
 String push_url = "http:
@@ -271,6 +331,6 @@ A few things you might want to try:
 
 1. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
 
-2. Modify the twin primes example: instead of Machine A pushing numbers of Machine B, make it so that Machine B pulls numbers from Machine A.
+2. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
 
 <!-- :wrap=soft: -->

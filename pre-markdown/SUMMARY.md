@@ -38,6 +38,7 @@
   * [Exercises](advanced/README.md#exercises)
 * [The standard palettes](palettes/README.md)
   * [Tuples](palettes/README.md#tuples)
+  * [Plots](palettes/README.md#plots)
   * [Networking](palettes/README.md#networking)
   * [Finite-state machines](palettes/README.md#finite-state-machines)
 * [Extending BeepBeep](custom/README.md)
