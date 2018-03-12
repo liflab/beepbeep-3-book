@@ -1,7 +1,7 @@
 Advanced features
 =================
 
-The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors that come in BeepBeep's core or some of BeepBeep's standard palettes, and that you are likely to use in one of your processor chains.
+The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors that come in BeepBeep's core that you are likely to use in one of your processor chains.
 
 ## Lists, sets and maps
 
@@ -317,6 +317,7 @@ This will have for effect of reading and pushing the entire contents of `somefil
 
 ### Reading from an HTTP request
 
+Using <!--\index{HTTP} HTTP-->HTTP<!--/i-->.
 
 ## Processor context
 

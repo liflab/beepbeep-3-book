@@ -1,6 +1,10 @@
 The standard palettes
 =====================
 
+A large part of BeepBeep's functionalities is dispersed across a number of *palettes*. These palettes are additional libraries (i.e. JAR files) that define new processors or functions for use along with BeepBeep's core elements. Each palette is optional, and has to be included in your project only if you need its contents.
+
+There exist palettes for many things: reading special file types, producing plots, accessing a network, and so on. In this chapter, we explore a few "standard" palette that are more frequently used than others.
+
 ## Tuples
 
 Input files are seldom made of a single value per line of text. A more frequent file format is called **comma-separated values** (<!--\index{CSV@CSV (file format)}CSV-->CSV<!--/i-->). In such a format, each line contains the value of multiple **attributes**, separated by a comma. The following gives an example of such a file:
@@ -134,28 +138,84 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 ## Networking
 
+We have already seen in the previous chapter the `HttpGet` processor that allows you to fetch a character string remotely through an <!--\index{HTTP} HTTP-->HTTP<!--/i--> GET request. The `http` palette provides additional processors that make it possible to push and pull events across a network using HTTP. By splitting a processor chain on two machines and having both ends use HTTP to send and receive events, we are achieving what amounts to a rudimentary form of <!--\index{distributed computing} \textbf{distributed computing}-->**distributed computing**<!--/i-->.
+
+In line with BeepBeep's general design principles, these functionalities are accessible through just a few lines of code. More precisely, send and receive operations are taken care of by two "gateway" processors, respectively called the `HttpUpstreamGateway` and the `HttpDownstreamGateway`.
+
+The [`HttpUpstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/http/HttpUpstreamGateway.html) is a sink processor that works in push mode only. It receives character strings, and is instructed to send the over the network through an HTTP request to a specific address. Thus, when instantiating the gateway, we must tell it the URL at which the request will be sent.
+
+The [`HttpDownstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/http/HttpDownstreamGateway.html) works in reverse. It continually listens for incoming HTTP requests on a specific TCP port; when a request matches the URL that was specified to its constructor, its contents are pushed to its output pipe in the form of a character string.
+
+The following program shows a simple use of these two gateways.
+
 ``` java
-ApplyFunction serialize = new ApplyFunction(new JsonSerializeString());
 HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http:
 HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
-ApplyFunction deserialize = new ApplyFunction(new JsonDeserializeString<CompoundObject>(CompoundObject.class));
 Print print = new Print();
-Connector.connect(serialize, up_gateway);
-Connector.connect(dn_gateway, deserialize);
-Connector.connect(deserialize, print);
+Connector.connect(dn_gateway, print);
 up_gateway.start();
 dn_gateway.start();
-Pushable p = serialize.getPushableInput();
-p.push(new CompoundObject(0, "foo", null));
+Pushable p = up_gateway.getPushableInput();
+p.push("foo");
 Thread.sleep(1000);
-p.push(new CompoundObject(0, "foo", new CompoundObject(6, "z", null)));
+p.push("bar");
 up_gateway.stop();
 dn_gateway.stop();
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocal.java#L47)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSimple.java#L43)
 
 
-### An example: distributed twin primes
+We first create an upstream gateway, and tell it to send requests at a specific URL on our local machine (`localhost`) on TCP port 12144 (we chose this number arbitrarily; any unused port number would work). Additionally, we specify a "page" the gateway should push to; in this case, its name is `push`, but this could be any character string. We do the same thing with a downstream gateway, which is instructed to listen to port 12144, watch for URLs with the string `/push` (this is the same page name we gave to the upstream gateway), and to answer only to HTTP requests that use method POST. This gateway is connected to a `Print` processor to show what it receives on the console.
+
+Both upstream and downstream gateways must be started in order to work; method `start` takes care of initializing the objects required for the network connection. Ideally, the gateways should also be stopped at the end of the program. Other than that, they work like any normal source and sink. You can see that we push strings to `up_gateway`; after the call to push, the standard output should display the contents of that string.
+
+So far, this looks like we have merely pushed events and printed them at the console. What happened is actually a bit more complex than this: note how the upstream and the downstream gateways have never been linked using a call to `connect`. Rather, they used an HTTP request to pass the strings around. Therefore, this program is structured as if there were two "machines" running in parallel; Machine A pushes strings through HTTP requests, and Machine B receives and prints them. This could be illustrated as follows:
+
+![Using gateways to send events through HTTP.](PushLocalSimple.png)
+
+It just happens that in this simple program, the HTTP requests are sent to `localhost`; therefore, they never leave your computer. However, the whole process would be identical if the character strings were sent over an actual network: we would simply replace `localhost` by the IP address of some other computer.
+
+### Serialization
+
+We first setup a {@link FunctionProcessor} that will execute
+the function {@link JsonSerializeString} on each input event. This function
+transforms an incoming object into a character string in the JSON format,
+through a process called <em>serialization</em>. Under the hood, the Azrael
+library takes care of this task.
+
+This function processor is connected to a {@link HttpUpstreamGateway}.
+The gateway is a processor that transmits its received events to another
+machine, through HTTP requests and responses. Since the chain operates in
+<em>push</em> mode, the gateway will be pushed character strings from
+upstream, and will in turn push them to the outside world by sending an HTTP
+request at a specific address. In this case, the URL
+for Machine B is on the same host, on port 12144. The "/push" prefix is the
+"page" on Machine B the server will respond to.
+
+We now move on to Machine B, which is responsible for receiving character
+strings and converting them back into objects. This is the mirror process of
+what was just done. So, the first step is to create an
+{@link HttpDownstreamGateway}. The gateway is instructed to listen to incoming
+requests on port 12144, to respond to requests made at the page "/push", and
+send through an HTTP `POST` request.
+
+Just so that we can see something, we plug a {@link Print} processor at
+the end; it will print to the standard output whatever object it receives
+from upstream.
+
+We are now ready to pipe everything together. The interesting bit is
+what is <em>not</em> there: notice that we do not connect
+`up_gateway` and `dn_gateway`. Indeed, these two
+processors do not communicate using a BeepBeep pipe like the others;
+rather, `up_gateway` sends its events to `dn_gateway`
+through HTTP requests (i.e., outside of BeepBeep). This is what would
+make it possible to put the two halves of this processor chain
+(serialize and up_gateway on one side, dn_gateway, deserialize and
+print on the other) on two different machines.
+
+<pre><code>Source code not found: ../beepbeep-3-examples/Source/src/network/httppush/PushLocal.java</code></pre>
+
+### All together now: distributed twin primes
 
 Compute <!--\index{twin primes} twin primes-->twin primes<!--/i--> by distributing the computation across two machines over a network. Twin primes are pairs of numbers *p* and *p*+2 such that both are prime. For example, (3,5), (11,13) and (17,19) are three such pairs. The [twin prime conjecture](https://en.wikipedia.org/wiki/Twin_prime) asserts that there exists an infinity of such pairs.
 
@@ -209,6 +269,8 @@ A few things you might want to try:
 
 ## Exercises
 
-1. Modify the twin primes example: instead of Machine A pushing numbers of Machine B, make it so that Machine B pulls numbers from Machine A.
+1. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
+
+2. Modify the twin primes example: instead of Machine A pushing numbers of Machine B, make it so that Machine B pulls numbers from Machine A.
 
 <!-- :wrap=soft: -->
