@@ -224,16 +224,33 @@ Fortunately, BeepBeep has a processor that can do the equivalent of our manual p
 
 {@snipm basic/WithPump.java}{/}
 
-A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1000 milliseconds (as was specified in its constructor). As you can understand, a pump implements the  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread. Graphically, this program can be represented as follows:
+A pump is created and connected between `source` and  `print`. This object is then placed inside a Java <!--\index{Thread@\texttt{Thread}} \texttt{Thread}-->`Thread`<!--/i-->, and this thread is then started. This has for effect of starting the pump itself, which will push/pull one event every 1,000 milliseconds (as was specified in its constructor). As you can understand, a pump implements Java's  <!--\index{Runnable@\texttt{Runnable} (interface)} \texttt{Runnable}-->`Runnable`<!--/i--> interface so that it can be put inside a thread. Graphically, this program can be represented as follows:
 
 {@img doc-files/basic/WithPump.png}{A chain of processors using a `Pump`.}{.6}
 
-Notice that this chain of processors, contrary to the examples we have seen so far, is closed on both ends. The only way to move events around is by the internal action of the pump.
+Notice that this chain of processors, contrary to the examples we have seen so far, is closed on both ends. The only way to move events around is by the internal action of the pump. This can also be done manually by calling method `turn`, which activates for a single pull/push.
 
-There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; a call to `pull` propagates until it reaches the tank, which outputs the accumulated events one by one.
+There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; these calls propagate until they reach the tank, which outputs the accumulated events one by one.
+
+Consider the following program:
+
+{@snipm basic/WithTank.java}{/}
+
+A function processor that casts strings into numbers is connected to a tank, which itself is connected to a processor that computes a cumulative sum. This can be illustrated like this:
 
 {@img doc-files/basic/WithTank.png}{A chain of processors using a `Tank`.}{.6}
 
+A telling sign that `Tank` is the true dual of `Pump`: note that the chain, this time, is open at both ends. This means we can push events from one end, and pull events from the other independently.
+
+{@snipm basic/WithTank.java}{!}
+
+However, we cannot pull more events from the tank than were pushed to it beforehand. On the last call to `pull` in our example, the tank is empty; this will throw an exception, as if the processor were connected to nothing. Therefore, the program outputs:
+
+```
+1.0
+3.0
+Exception in thread "main" java.util.NoSuchElementException
+```
 
 ## Basic input/output
 
@@ -292,7 +309,7 @@ In Java, the standard input can be manipulated like any `InputStream`, using the
 
 {@snipm io/ReadStdin.java}{/}
 
-Since `ReadStringStream` works only in pull mode, and `Print` works only in `Push` mode, a `Pump` must be placed in between to repeatedly pull bytes from the input and push them to the output. This can be represented graphically as follows:
+Since <!--\index{ReadStreamString@\texttt{ReadStreamString}} it-->`ReadStringStream`<!--/i--> works only in pull mode, and `Print` works only in `Push` mode, a `Pump` must be placed in between to repeatedly pull bytes from the input and push them to the output. This can be represented graphically as follows:
 
 {@img doc-files/io/ReadStdin.png}{Reading characters from the standard input.}{.6}
 
@@ -304,9 +321,9 @@ You can compile this program as a runnable JAR file (e.g. `read-stdin.jar`) and 
 $ java -jar read-stdin.jar 
 ```
 
-Nothing happens; however, if you type a few characters and press `Enter`, you should see the program reprint exactly what you typed (followed by a comma, as the `Print`} processor is instructed to insert one between each event).
+Nothing happens; however, if you type a few characters and press `Enter`, you should see the program reprint exactly what you typed (followed by a comma, as the `Print` processor is instructed to insert one between each event).
 
-Let's try something slightly more interesting. If you are at a Unix-like command prompt, you can create a [named pipe](https://en.wikipedia.org/wiki/Named_pipe). Let us create one with the name `mypipe`:
+Let's try something slightly more interesting. If you are at a Unix-like command prompt, you can create a [named pipe](https://en.wikipedia.org/wiki/Named_pipe). Let us create one with the <!--\index{named pipe} name-->name<!--/i--> `mypipe`:
 
 ```
 $ mkfifo mypipe
@@ -325,9 +342,7 @@ $ echo "foo" > mypipe
 
 you should see the string `foo` being immediately printed at the other command prompt. This happens because `read-stdin.jar` continuously polls its standard input for new characters, and pushes them down the processor chain whenever it receives some.
 
-
 As you can see, the use of stream readers in BeepBeep, combined with system pipes on the command line, makes it possible for BeepBeep to interact with other programs from the command line, in exactly the same way Unix programs can be connected into each other.
-
 
 This can be used to read a file. Instead of redirecting a named pipe to the program, one can use the `cat` command with an actual filename:
 
@@ -339,11 +354,66 @@ This will have for effect of reading and pushing the entire contents of `somefil
 
 ### Separating the input into tokens
 
-More to come.
+In general, reading from an external source is done in "chunks" of bytes that do not necessarily correspond to the boundaries of data elements. For example, suppose that `somefile.txt` contains a list of words separated by commas:
+
+    the,quick,brown,fox,jumps,over,...
+
+A `StreamReader` processor connected to this file will output events in the form of character strings; however, to this processor, the commas that are present in the file have no special meaning. Therefore, the output of the `StreamReader` is likely to be made of pieces of text like this:
+
+    the,qui
+    ck,brown,fo
+    x,jumps,o
+    ver,...
+
+As you can see, words can be cut across two successive chunks, and a single chunk may contain more than one word. Extra work must be done in order to reconstruct words out of these events: this involves glueing together some events, and cutting the strings to re-align them with the comma delimiters. In other words, we need to re-create "tokens" out of the sequence of strings, through a process that we call <!--\index{tokenization} \textbf{tokenization}-->**tokenization**<!--/i-->.
+
+BeepBeep's {@link jdc:ca.uqac.lif.cep.util.FindPattern FindPattern} can be used for this purpose. The <!--\index{FindPattern@\texttt{FindPattern}} \texttt{FindPattern}-->`FindPattern`<!--/i--> processor receives pieces of text as its input, and produces for its output the portions of the text that match a specific <!--\index{regular expression} \emph{regular expression}-->*regular expression*<!--/i--> as individual events. (A regular expression --"regex" for short-- is a way of specifying a pattern of characters that is commonly used in programming.)
+
+The following program shows a simple use of `FindPattern`:
+
+{@snipm io/ReadTokens.java}{/}
+
+Upstream, the `FindPattern` processor is connected to a `Pump`, itself connected to a `ReadStringStream` that polls the standard input. Downstream, `FindPattern` is connected to a `Print` processor that will show its output on the console. The pattern to look for, in this case, is represented by the regex "`(.*?),`". This expression matches any number of characters (`.*?`), followed by a comma. The parentheses do not match actual characters, but rather represent what is called a *capture group*; when a piece of text matches the whole regex, the `FindPattern` processor only outputs the part inside the capture group. Here, this means that the trailing comma will be taken out of each output event.
+
+Let us compile this program as a runnable file called `read-tokens.jar`, and run it by redirecting the named pipe `mypipe` as in the previous example:
+
+    $ cat mypipe > java -jar read-tokens.jar
+
+From a second command line window, you can now push strings to the program by `echo`ing them to `mypipe`:
+
+```
+$ echo "abc,def," > mypipe
+```
+
+The program will output
+
+```
+abc
+def
+```
+
+Note here how each of "abc" and "def" have been printed on *two* separate lines. This is because the processor broke the input string into two events, since there are two commas that indicate the presence of two tokens. This also means that `feeder` waits until the
+comma before outputting an event; hence writing:
+```
+$ echo "gh" > mypipe
+```
+will result in no output. The processor buffers the character string until it sees the desired pattern. Typing:
+```
+$ echo "i,jkl," > mypipe
+```
+will produce
+```
+ghi
+jkl
+```
 
 ### Reading from an HTTP request
 
-Using <!--\index{HTTP} HTTP-->HTTP<!--/i-->.
+Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The {@link jdc:ca.uqac.lif.cep.io.HttpGet HttpGet} processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls an URL every 10 seconds and prints the response to the console.
+
+{@snipm io/ReadHttp.java}{/}
+
+The interest of this technique lies in the fact that the resource at the end of the URL does not need to be a static file. If the server that replies to the request returns content that changes over time, a repeated polling can be used as a dynamic source of events.
 
 ## Processor context
 
@@ -376,5 +446,7 @@ When a processor is duplicated, its context is duplicated as well. If a processo
 4. The `Strings` utility class in BeepBeep defines a `Function` object called `SplitString`. Use it to create a processor chain that receives a stream of arbitrary strings, and returns a stream made of each individual word, except those that start with the letter "a". For example, on the input event "this is an abridged text", the chain would produce the output events "this", "is", "text". (Hint: a simple solution involves the use of  `Unpack`.)
 
 5. Consider a stream of letters of the alphabet. Create a processor chain that always returns the number of occurrences of the letter that has been seen most often so far. For example, on the input stream a,b,a,c,c,b,a, the processor would return 1,1,2,2,2,2,3. (Hint: a possible solution involves `Slice`, `Cumulate`, `Maps.Values` and `Numbers.max`, among others.)
+
+6. Create a processor chain that reads an HTML file as input, and counts how many times each HTML tag appears in the document. (Hint: use a `FindPattern` and a `Slice`, among others.)
 
 <!-- :wrap=soft: -->

@@ -7,7 +7,7 @@ BeepBeep is organized along a modular architecture. The main part of BeepBeep is
 
 A <!--\index{function} \textbf{function}-->**function**<!--/i--> is something that accepts *arguments* and produces a return *value*. In BeepBeep, functions are "first-class citizens"; this means that every function that is to be applied on an event is itself an object, which inherits from a generic class called [`Function`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Function.html). For example, the negation of a Boolean value is a function object called [`Negation`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans/Negation.html); the sum of two numbers is also a function object called [`Addition`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/Addition.html).
 
-Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans (class)} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers (class)} numbers-->numbers<!--/i--> and <!--\index{Sets (class)} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
+Function objects can be instantiated and manipulated directly. The BeepBeep classes [`Booleans`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Booleans.html), [`Numbers`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers.html) and [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) define multiple function objects to manipulate <!--\index{Booleans@\texttt{Booleans}} Boolean-->Boolean<!--/i--> values, <!--\index{Numbers@\texttt{Numbers}} numbers-->numbers<!--/i--> and <!--\index{Sets}@\texttt{Sets} sets-->sets<!--/i-->. These functions can be accessed through static member fields of these respective classes. Consider for example the following code snippet:
 
 ``` java
 Function negation = Booleans.not;
@@ -315,7 +315,7 @@ Cumulative processors and function processors can be put toghether into a common
 
 ![The running average of a stream of numbers.](Average.png)
 
-We first create a source of arbitrary numbers. We pipe the output of this processor to a cumulative processor. Then, we create a source of 1s and sum it; this is done with the same process as above, but on a stream that output the value 1 all the time. This effectively creates a counter outputting 1, 2, 3, etc. We finally divide one stream by the other.
+We first create a source of arbitrary numbers. We pipe the output of this processor to a cumulative processor. Then, we create a source of 1s and sum it; this is done with the same process as above, but on a stream that outputs the value 1 all the time. This effectively creates a counter outputting 1, 2, 3, etc. We finally divide one stream by the other.
 
 Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{running average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
 
@@ -446,7 +446,7 @@ From this point on, the top and the bottom pipe of the addition processor are al
 
 For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, [`Window`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Window.html).
 
-The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 5. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of five events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
+The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 3. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of three events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
 
 The second step is to encase this `Cumulate` processor within a `Window` processor, and to specify a window width (3 in our present case). A simple example of a window processor is the following piece of code:
 
@@ -493,7 +493,7 @@ Computing an average over a sliding window is a staple of event stream processin
 
 A numerical stream is passed into an `ApplyFunction` processor; the function evaluates whether a number is even, using a built-in function called [`IsEven`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/IsEven.html). This function takes a number as input, and returns a Boolean value. This stream of *Booleans* is then piped into a `Window` processor, which will handle windows of Booleans. On each window, a `Cumulate` processor computes the disjunction (logical "or") of all events in the window. On a given window of three successive events, the output is `true` if and only if there is at least one even number. The end result of this whole chain is a stream of Booleans; it returns `false` whenever three input events in a row are odd, and `true` otherwise.
 
-As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows if unique among existing stream processors.
+As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows is unique among existing stream processors.
 
 This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> in the drawing has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
 
@@ -537,7 +537,7 @@ for (int i = 0; i < 6; i++)
 
 After creating a source of numbers, we create a new empty `GroupProcessor`. The constructor takes two arguments, corresponding to the input and output <!--\index{processor!arity} arity-->arity<!--/i--> of the group. Here, our group processor will have one input pipe, and one output pipe. The block of instructions enclosed inside the pair of braces put contents inside the group. The first six lines work as usual: we create a fork, a trim and a function processor, and connect them all together. The remaining three lines are specific to the creation of a group. The seventh line calls method [`addProcessors()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#addProcessors(ca.uqac.lif.cep.Processor...)); this puts the created processors inside the group object.
 
-However, merely putting processors inside a group is not sufficient. The `GroupProcessor` has no way to know what are the inputs and outputs of the chain. This is done with calls to [`asociateInput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateInput(int, ca.uqac.lif.cep.Processor, int)) and [`asociateOutput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateOutput(int, ca.uqac.lif.cep.Processor, int)). The eight line tells the group processor that its input pipe number 0 should be connect to input pipe number 0 of `fork`. The ninth line tells the group processor that its output pipe number 0 should be connect to output pipe number 0 of `add`.
+However, merely putting processors inside a group is not sufficient. The `GroupProcessor` has no way to know what are the inputs and outputs of the chain. This is done with calls to [`asociateInput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateInput(int, ca.uqac.lif.cep.Processor, int)) and [`asociateOutput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateOutput(int, ca.uqac.lif.cep.Processor, int)). The eigth line tells the group processor that its input pipe number 0 should be connect to input pipe number 0 of `fork`. The ninth line tells the group processor that its output pipe number 0 should be connect to output pipe number 0 of `add`.
 
 It is now possible to use `group` as if it were a single processor box. The remaining lines connect `source` to `group`, and fetch a `Pullable` object from `group`'s output pipe. Graphically, this is illustrated as follows:
 
@@ -677,7 +677,24 @@ The solution is to combine the `Filter` with another processor we have seen earl
 
 ![Filtering events.](FilterConditionSimple.png)
 
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/FilterConditionSimple.java)
+``` java
+QueueSource source_values = new QueueSource();
+source_values.setEvents(6, 5, 3, 8, 9, 2, 1, 7, 4);
+Fork fork = new Fork(2);
+connect(source_values, fork);
+Filter filter = new Filter();
+connect(fork, LEFT, filter, LEFT);
+ApplyFunction condition = new ApplyFunction(Numbers.isEven);
+connect(fork, RIGHT, condition, INPUT);
+connect(condition, OUTPUT, filter, RIGHT);
+Pullable p = filter.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+    int x = (Integer) p.pull();
+    System.out.printf("Output event #%d is %d\n", i, x);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/FilterConditionSimple.java#L45)
 
 
 As we can see, the bottom part of the chain passes the input stream through an `ApplyFunction` processor, which evaluates the function [`IsEven`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/IsEven.html). This function turns the stream of numbers into a stream of Booleans, which is then connected to the filter's control pipe. The end result of this chain is to produce an output stream where all odd numbers from the input stream have been removed. Obviously, if a more complex condition needs to be evaluated, you can use a `FunctionTree` instead of a single function. As a matter of fact, you are not limited to a single `ApplyFunction` processor, and can create whatever chain of processors you wish, as long as it produces a Boolean stream!
@@ -736,7 +753,7 @@ The `Slice` processor is represented by a box with a piece of cheese (yes, chees
 
 Let us now see what happens when we start pulling events on `slicer`. On the first call to `pull`, `slicer` pulls on the source and receives the number 1. It evaluates the slicing function, which (obviously) returns 1. It then looks in its memory for an instance of the slice processor associated to the value 1. There is none, so `slicer` creates a new copy of the slice processor, and pushes the value 1 into it. It then collects the output from that slice processor, which is (again) the value 1.
 
-The last step is to mreturn something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
+The last step is to return something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
 
     {1=1.0}
 

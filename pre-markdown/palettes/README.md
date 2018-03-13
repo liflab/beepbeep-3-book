@@ -94,7 +94,77 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 ## Plots
 
-More to come soon.
+One interesting purpose of processing event streams is to produce visualizations of their content --that is, to derive <!--\index{plots} plots-->plots<!--/i--> from data extracted from events. BeepBeep's `plots` palette provides a few processors to easily generate dynamic plots.
+
+Under the hood, the palette makes use of the [MTNP](https://github.com/liflab/mtnp) library (MTNP stands for "Manipulate Tables N'Plots"), which itself relies on either [GnuPlot](https://gnuplot.info) or [GRAL](http://trac.erichseifert.de/gral/) to generate the <!--\index{MTNP} plots-->plots<!--/i-->. The technique can be summarized as follows:
+
+1. Event streams are used to update the contents of a structure called a **table**
+2. The contents of this table can be processed by applying a series of **transformations**
+3. The resulting table is given as the source for a **plot** object
+4. The plot is asked to produce a picture from the contents of the table
+
+Let us start with the table. This data structure is represented by the <!--\index{Table@\texttt{Table}} \texttt{Table}-->`Table`<!--/i--> class of the MTNP library. A table is simply a collection of *entries*, with each entry containing a fixed number of key-value pairs. An entry therefore corresponds to a "line" of a table, and each key corresponds to one of its "columns". 
+
+A table can be created from the contents of event streams with the use of BeepBeep's <!--\index{UpdateTable@\texttt{UpdateTable}} \texttt{UpdateTable}-->`UpdateTable`<!--/i--> processor. This processor exists in two flavors: <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> takes multiple input streams, one for the value of each column; <!--\index{UpdateTableArray@\texttt{UpdateTableArray}} \texttt{UpdateTableArray}-->`UpdateTableArray`<!--/i--> takes a single stream, which must be made of arrays of values or `TableEntry` objects. Both processors perform the same action: they update an underlying `Table` object, adding one new entry to the table for each event front they receive.
+
+The following code sample illustrates the operation of `UpdateTableStream`:
+
+{@snipm plots/UpdateTableStreamExample.java}{/}
+
+Two sources of numbers are created and are piped into an `UpdateTableStream` processor. This processor is instantiated by giving two strings to its constructor. These strings correspond to the names of the columns in the table, and also determine the input arity of the processor. The first input pipe will receive values for column "x", while the second input pipe will receive values for column "y". A pump and a print processor are connected to the output of the table updater.
+
+After a single activation of the pump, the program should print:
+
+```
+x,y
+---
+1,2
+```
+
+Values 1 and 2 have been extracted from `src1` and `src2`, respectively. From this event front, the `UpdateTableStream` processor creates one table entry with x=1 and y=2, adds it to its table and outputs the table. This is relayed to the `Print` processor which displays its content. The output of the program shows that upon each new event front, one new entry in the table is added; therefore, after activating the pump four times, the last output is:
+
+```
+x,y
+---
+1,2
+2,3
+3,5
+4,7
+```
+
+The next part of the process is to draw plots from the content of a table. This is the job of the <!--\index{DrawPlot@\texttt{DrawPlot}} \texttt{DrawPlot}-->`DrawPlot`<!--/i--> processor. This processor is instantiated by being given an empty `Plot` object from the MTNP library. When it receives a `Table` from its input pipe, it passes it to the plot, and calls the plot's `render` method to create an image out of it. Therefore, the output events of `DrawPlot` are *pictures* --or more precisely, arrays of bytes corresponding to a bitmap in some image format (PNG by default).
+
+As a more elaborate example, take a look at the following program.
+
+{@snipm plots/CumulativeScatterplot.java}{/}
+
+A stream of (x,y) pairs is first created, with x an incrementing integer, and y a randomly selected number. This is done through a special-purpose processor that is called `RandomTwoD`. It actually is a `GroupProcessor` that internally forks an input of stream of numbers. The first fork is left as is and becomes the first output stream. The second fork is sent through a `RandomMutator` (which converts any input into a random integer) and becomes the second output stream. The resulting x-stream and y-streams are then pushed into an `UpdateTableStream` processor. This creates a processor with two input streams, one for the "x" values, and the other for the "y" values. Each pair of values from the x and y streams is used to append a new line to the (initially empty) table. We connect the two outputs of the random processor to these two inputs. 
+
+The next step is to create a plot out of the table's content. The `DrawPlot` processor receives a Table and passes it to a `Plot` object from the MTNP library. In our case, we want to create a <!--\index{plots!scatterplot@scatterplot} scatterplot-->scatterplot<!--/i--> from the table's contents; therefore, we pass an empty `Scatterplot` object. As we said, each event that comes out of the `DrawPlot` processor is an array of bytes corresponding to a bitmap image. To display that image, we use yet another special processor called <!--\index{BitmapJFrame@\texttt{BitmapJFrame}} \texttt{BitmapJFrame}-->`BitmapJFrame`<!--/i-->. This processor is a sink that manages a `JFrame` window; when it receives an input event (i.e. an array of bytes), it turns that array into an image and displays it inside the window.
+
+Graphically, this chain of processors can be illustrated as follows:
+
+{@img doc-files/plots/CumulativeScatterplot.png}{Producing a scatterplot from a source of random values.}{.6}
+
+This drawing introduces a few new boxes. The one at the far right is the `BitmapJFrame`; its input pipe is colored in light green, which represents byte arrays. The box at its left is the `DrawPlot` processor. This processor is depicted with an icon indicating the type of plot that must be produced (here, a two-dimensional scatterplot). Yet to the left of this box is the `TableUpdateStream` processor. Next to each of its input pipes, a label indicates the name of the column that will be populated by values from that stream. The output pipe of this processor is colored in dark blue, which represents `Table` objects.
+
+Running this program will pop a window containing a plot, whose contents are updated once every second (due to the action of an intermediate `Pump` object). The window should look like this one:
+
+{@img doc-files/plots/window-plot.png}{The window produced by the `BitmapJFrame` processor.}{.6}
+
+Each new table entry increments the value of *x* by one; the value of *y* is chosen at random. The end result is a dynamic plot created from event streams; the whole chain, from source to the actual bitmaps being displayed, amounts to only 12 lines of code. Obviously, sending the images into a bland JFrame is only done for the sake of giving an example. In a real-world situation, you will be more likely to divert the stream of byte arrays somewhere else, such as a file, or as a component of the user interface of some other software.
+
+Besides scatterplots, any other plot type supported by the MTNP library can be passed to `DrawPlot`'s constructor. This includes histograms, pie charts, heatmaps, and so on. The only important point is that each plot type expects to receive tables structured in a particular way; for example, a heatmap requires a table with three columns, corresponding to the *x*-coordinate, *y*-coordinate, and "temperature" value, in this order. It is up to the upstream processor chain to produce a `Table` object with the appropriate structure.
+
+Plots can also be customized by applying modifications to the `Plot` object passed to `DrawPlot`. For example, to set a custom title, one simply has to pass an instance of `Scatterplot` whose title has been changed using its `setTitle` method:
+
+``` java
+Scatterplot plot = new Scatterplot();
+plot.setTitle("Some title");
+DrawPlot dp = new DrawPlot(plot);
+```
+
+Since the `plots` palette is a simple wrapper around MTNP objects, the reader is referred to this library's online documentation for complete details about plots, tables, and table transformations.
 
 ## Networking
 
@@ -210,8 +280,13 @@ A few things you might want to try:
 
 ## Exercises
 
-1. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
+1. Create a processor chain that takes as input a stream of numbers. Create a scatterplot that shows two lines:
+  - A first line of (x,y) points where x is a counter that increments by 1 on each new point, and y is the value of the input stream at position x
+  - A second line of (x,y) points which is the "smoothed" version of the original. You can achieve smoothing by taking the average of the values at position x-1, x and x+1.
+As an extra, try to make your processor chain so that the amount of smoothing can be parameterized by a number *n*, indicating how many events behind and ahead of the current one are included in the average.
 
-2. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
+2. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
+
+3. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
 
 <!-- :wrap=soft: -->

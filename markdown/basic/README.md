@@ -317,7 +317,7 @@ The `for` loop pushes the integers 0 to 7 into the input pipe of `doubler`; the 
 
     0,2,4,6,8,10,12,14,
 
-Notice the one-second interval between each number. This shows that, in pull mode, nothing happens until an upstream call to `push` triggers the chain of computation.
+Notice the one-second interval between each number. This shows that, in push mode, nothing happens until an upstream call to `push` triggers the chain of computation.
 
 ## Pushing on binary processors
 
@@ -384,7 +384,7 @@ p1.push(2);
 p0.push(3);
 ```
 
-The next question that generally comes to one's mind is this: what happens if we keep pushing events on only one of the pullables, and nothing on the other? Since no computation can be made, won't this fill the first Pullable's queue forever? The simple answer to this question is: yes. If we keep pushing events on only one pullable (or more likely, if one of the upstream sources pushes events much faster than the other), we may end up filling one of the event queues and run out of memory.
+The next question that generally comes to one's mind is this: what happens if we keep pushing events on only one of the pushables, and nothing on the other? Since no computation can be made, won't this fill the first Pushable's queue forever? The simple answer to this question is: yes. If we keep pushing events on only one pushable (or more likely, if one of the upstream sources pushes events much faster than the other), we may end up filling one of the event queues and run out of memory.
 
 Although people are very quick to imagine such a catastrophe scenario, they are much slower at identifying a *realistic* use case where this could actually happen. Notice also that this is not a limitation on BeepBeep's side: if your goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, you *have* to store those excess numbers somewhere, and that storage *has* to increase linearly with time. There is no escaping it, whether you use BeepBeep or not!
 
