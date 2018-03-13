@@ -3,30 +3,234 @@ Extending BeepBeep
 
 BeepBeep was designed from the start to be easily extensible. As was discussed earlier, it consists of only a small core of built-in processors and functions. The rest of its functionalities are implemented through custom processors and grammar extensions, grouped in packages called *palettes*.
 
-This modular organization has three advantages. First, palettes are a flexible and generic way to extend the engine to various application domains, in ways unforeseen by its original designers. Second, they make the engine's core (and each palette individually) relatively small and self-contained, easing the development and debugging process. Finally, it is hoped that BeepBeep's palette architecture, combined with its simple extension mechanisms, will help third-party users contribute to the BeepBeep ecosystem by developing and distributing extensions suited to their own needs.
-
+However, it may very well be possible that none of the processors or functions in existing palettes are appropriate for a particular problem. Fortunately, BeepBeep provides easy means of creating your own objects, by simply extending some of the classes provided by the core library. In this chapter, we shall see through multiple examples how custom functions and processors can be created, often in just a few lines of code.
 
 ## Creating custom functions
 
-In the case where none of the available functions (or a composition thereof) suits your needs, BeepBeep also offers the possibility to create your own `Function` objects, composed of arbitrary Java code.
+Let us start with the simple case of functions. A custom function is any object that inherits from the base class {@link ca:uqac.lif.cep.functions.Function Function}. There are two main ways to create new function classes:
 
-If your intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), the easiest way is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/UnaryFunction.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/BinaryFunction.html). These classes take care of most of the housekeeping associated to functions, and require you to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, you can write whatever Java code you want.
+- By extending `FunctionTree` and composing existing `Function` objects
+- By extending `Function` or one of its more specific descendents, such as `UnaryFunction` or `BinaryFunction`. In such a case, the function can made of arbitrary Java code.
 
-As an example, let us create a function that, given a number, returns whether this number is prime. It is therefore a 1:1 function, so we will create a class that extends `UnaryFunction`.
+### As a function tree
 
-```java
-public class IsPrime extends UnaryFunction<Number,Boolean>
+A first way of creating a function is to create a new class that extends [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions.html). The constructor to this class has to call `FunctionTree`'s constructor, and to build the appropriate function tree right there. Recall the function tree we created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
+
+``` java
+FunctionTree tree = new FunctionTree(Numbers.multiplication,
+				new FunctionTree(Numbers.addition, 
+						StreamVariable.X, StreamVariable.Y),
+				StreamVariable.Z);
+```
+
+However, if we want to reuse this function in various programs, we need to copy-paste this instruction multiple times --with all the problems associated with copy-pasting. A better practice would be to create a `CustomFunctionTree` that encapsulates the creation of the function inside its constructor. This can be done by creating a new class that extends `FunctionTree`, like this:
+
+``` java
+public class CustomFunctionTree extends FunctionTree
+{
+    public CustomFunctionTree()
+    {
+        super(Numbers.multiplication,
+                new FunctionTree(Numbers.addition,
+                        StreamVariable.X, StreamVariable.Y),
+                StreamVariable.Z);
+    }
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomFunctionTree.java#L7)
+
+
+Note how the first `new FunctionTree` in the original code has been replaced by a call to `super`, the constructor of the parent `FunctionTree` class. From then on, `CustomFunctionTree` can be used anywhere like the original function tree, for example like this:
+
+``` java
+Function f = new CustomFunctionTree();
+ApplyFunction af = new ApplyFunction(f);
+...
+```
+
+An interesting advantage is that, should you with to change the actual function that is computed, you only need to make the modification at a single location.
+
+### As a new object
+
+The previous technique only works for custom functions that can actually be expressed in terms of existing functions. When this is not possible, we must resort to creating a new, full-fledged `Function` object from scratch, composed of arbitrary Java code. It turns out that this is not very hard.
+
+The most generic way of doing so is to directly extend the abstract class `Function`, and to implement all the required methods. There are six of them:
+
+- Method `evaluate` is responsible for doing the actual computation; it receives an array of input arguments, and writes to an array of output arguments.
+- Method `getInputArity` and `getOutputArity` declare the function's input and output arity, respectively. They must return a single integer number.
+- Method `getInputTypesFor` is used to specify the type of the function's input arguments. Method `getOutputTypeFor` does the same thing for the function's output values.
+- Method `duplicate` must return a new instance (a "clone") of the function.
+
+As a simple example, let us write a new `Function` that multiplies a number by two. We start by creating an empty class that extends `Function`:
+
+``` java
+public class CustomDouble extends Function
 {
 }
 ```
 
-As you can see, you must also declare the input and output type for the function; here, the function accepts a `Number` and returns a `Boolean`. These types must also be reflected in the function's constructor, where you must call the superclass constructor and pass it a `Class` instance of each input and output argument.
+A few methods are easy to implement. The case of `getInputArity` and `getOutputArity` can be solved quickly: our function is expected to receive one argument, and to produce one output value; hence both methods should return 1. The `duplicate` method is also straightfoward: we simply need to return a new instance of `CustomDouble`. This yields the following code:
 
-<pre><code>Source code not found</code></pre>
+``` java
+@Override
+public int getInputArity()
+{
+    return 1;
+}
+@Override
+public int getOutputArity()
+{
+    return 1;
+}
+@Override
+public Function duplicate()
+{
+    return new CustomDouble();
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L16)
 
-Method `getValue()` is where the output of the function is computed for the input. For the sake of our example, the actual way to check if x is prime does not matter; we'll simply enumerate all numbers up to sqrt(x) until we find one that divides x, and otherwise return true.
 
-{@snips Examples/src/functions/IsPrime.java}{public Boolean getValue(Number x)}
+The next method to implement is `evaluate`, which receives an `inputs` array and an `outputs` array. Since our function declares an input arity of 1, `inputs` should contain a single element; moreover, this element should be an instance of `Number`. Similarly, we expect `outputs` to be an array of size 1. The method produces its return value by writing to the `outputs` array. The code for `evaluate` could therefore look like this:
+
+``` java
+public void evaluate(Object[] inputs, Object[] outputs)
+{
+    Number n = (Number) inputs[0];
+    outputs[0] = n.floatValue() * 2;
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L10)
+
+
+Method `getInputTypesFor` allows other objects to ask the function about the type of its arguments. It receives as arguments a set *s* of classes and an index *i*; its task is to add to *s* the `Class` object corresponding to the expected type of the *i*-th argument of the function (as usual, indices start at 0). This results in the following code:
+
+``` java
+public void getInputTypesFor(Set<Class<?>> s, int i)
+{
+    if (i == 0)
+        s.add(Number.class);
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L37)
+
+
+Note that we check if *i* is 0; if so, we add the class `Number` to *s*, otherwise we add nothing. This is because `CustomDouble` has only one argument; it does not make sense to declare a type for indices higher than 0.
+
+The principle for `getOutputTypeFor` is similar; the slight difference is that the method must *return* a `Class` object:
+
+``` java
+public Class<?> getOutputTypeFor(int i)
+{
+    if (i == 0)
+        return Number.class;
+    return null;
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L44)
+
+
+We again check for the index, and only return a type for *i*=0.
+
+Done! We now have a complete new `Function` object that can be used like any other. For example:
+
+``` java
+Function f = new CustomDouble();
+ApplyFunction af = new ApplyFunction(f);
+```
+
+As you might expect, a `Function` may have more than one input or output argument, and these arguments do not need to be of the same type. To illustrate this, let us create a new function `CutString` that takes two arguments: a string *s* and a number *n*. Its purpose is to cut *s* after *n* characters and return the result. A possible implementation would be:
+
+``` java
+public class CutString extends Function
+{
+    public void evaluate(Object[] inputs, Object[] outputs) {
+        outputs[0] = ((String) inputs[0]).substring(0, (Integer) inputs[1]);
+    }
+
+    public int getInputArity() {
+        return 2;
+    }
+
+    public int getOutputArity() {
+        return 1;
+    }
+
+    public Function duplicate() {
+        return new CutString();
+    }
+
+    public void getInputTypesFor(Set<Class<?>> s, int i) {
+        if (i == 0)
+            s.add(String.class);
+        if (i == 1)
+            s.add(Number.class);
+    }
+
+    public Class<?> getOutputTypeFor(int i) {
+        if (i == 0)
+            return String.class;
+        return null;
+    }
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CutString.java#L7)
+
+
+### Unary and binary functions
+
+Extending `Function` directly results in lots of "boilerplate" code. If your intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/UnaryFunction.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/BinaryFunction.html). These classes take care of most of the housekeeping associated to functions, and require you to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, you can write whatever Java code you want.
+
+As an example, let us rewrite our `CustomDouble` function; it is a 1:1 function, so we will create a class that extends `UnaryFunction`. It turns out this new object now only requires five lines of code:
+
+``` java
+public class UnaryDouble extends UnaryFunction<Number,Number>
+{
+    public UnaryDouble()
+    {
+        super(Number.class, Number.class);
+    }
+
+    @Override
+    public Number getValue(Number x)
+    {
+        return x.floatValue() * 2;
+    }
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/UnaryDouble.java#L5)
+
+
+As you can see, you must also declare the input and output type for the function; here, the function accepts a `Number` and returns a `Number`. These types must also be reflected in the function's constructor, where you must call the superclass constructor and pass it a `Class` instance of each input and output argument.
+
+Method `getValue()` is where the output of the function is computed for the input. Since the function is unary and declares its single input argument as a number, the method has a single `Number` argument. Similarly, since the function declares its output to also be a number, the return type of this method is `Number`.
+
+Function `CutString` could also be simplified by defining it as a descendent of `BinaryFunction`:
+
+``` java
+public class BinaryCutString extends BinaryFunction<String,Number,String>
+{
+    public BinaryCutString()
+    {
+        super(String.class, Number.class, String.class);
+    }
+
+    public String getValue(String s, Number n)
+    {
+        return s.substring(0, n.intValue());
+    }
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/BinaryCutString.java#L5)
+
+
+This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, method `getValue` works according to similar principles as `UnaryFunction`.
 
 ## Create your own processor
 

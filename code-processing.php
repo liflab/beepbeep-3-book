@@ -175,8 +175,8 @@ function resolve_snips($s)
     }
     $snip_content = file_get_contents($filename);
     list($structured_content, $line_nb) = extract_structured($snip_content, $match[2]);
-    $contents = "<pre><code>".fix_indentation($structured_content)."</code></pre>\n";
-    $contents .= "<a class=\"code-ref\" href=\"".$github_source_location.$match[1]."#L".($line_nb + 1)."\"><span>[Code on GitHub]</span></a>\n";
+    $contents = "``` java\n".fix_indentation($structured_content)."\n```\n";
+    $contents .= "[⚓](".$github_source_location.$match[1]."#L".($line_nb + 1).")\n";
     $s = str_replace($match[0], $contents, $s);
   }
   return $s;
