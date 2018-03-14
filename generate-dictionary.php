@@ -4,10 +4,10 @@
 $source_folders = array("../beepbeep-3/Core/src");
 
 // The folder in which to create the output markdown files
-$output_folder = "markdown/dictionary";
+$output_folder = "pre-markdown/dictionary";
 
 // The absolute path to the folder corresponding to {@docRoot}
-$docroot_folder = "/dictionary";
+$docroot_folder = "dictionary";
 
 // The name of the table of contents in that folder
 $toc = "README.md";
@@ -50,10 +50,11 @@ foreach ($all_paths as $path)
 }
 $names = array_keys($entry_names);
 sort($names);
-$dict_toc = "# List of objects\n\n";
+$dict_toc = "# A dictionary of BeepBeep objects\n\n";
 foreach ($names as $name)
 {
-  $dict_toc .= "* [$name](".str_replace("\\", "/", $entry_names[$name]).")\n";
+  //$dict_toc .= "* [$name](".str_replace("\\", "/", $entry_names[$name]).")\n";
+  $dict_toc .= $entry_names[$name]."\n\n";
 }
 file_put_contents($output_folder."/".$toc, $dict_toc);
 
@@ -107,8 +108,8 @@ function format_entry($filename, $javadoc, &$entry_names)
   {
     mkdir($output_folder."/".$out_folder, 0777, true);
   }
-  file_put_contents($output_folder."/".$markdown_filename, $out_text);
-  $entry_names[$class_name] = $markdown_filename;
+  //file_put_contents($output_folder."/".$markdown_filename, $out_text);
+  $entry_names[$class_name] = $out_text;
 }
 
 /**
