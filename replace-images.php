@@ -27,6 +27,8 @@ function replace_images($s, $out_dir, $out_filename)
   {
     $filename = $source_location.$match[1];
     $svg_filename = str_replace(".png", ".svg", $filename);
+    if (strpos($svg_filename, "dictionary") !== false)
+      continue; // Don't care about these files
     if (!file_exists($svg_filename))
       continue;
     $basename = get_basename($filename);

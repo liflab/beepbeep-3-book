@@ -1,13 +1,17 @@
 <?php
 
+$beepbeep_folder = "../beepbeep-3/Core/src";
+
 // An array of folder names in which to look for source code
-$source_folders = array("../beepbeep-3/Core/src");
+$source_folders = array($beepbeep_folder);
 
 // The folder in which to create the output markdown files
 $output_folder = "pre-markdown/dictionary";
 
 // The absolute path to the folder corresponding to {@docRoot}
-$docroot_folder = "dictionary";
+//$docroot_folder = "dictionary";
+
+$inkscape_command = "inkscape";
 
 // The name of the table of contents in that folder
 $toc = "README.md";
@@ -35,6 +39,7 @@ $entry_names = array();
 foreach ($all_paths as $path)
 {
   // Copy doc files if any
+  $path = str_replace("\\", "/", $path);
   if (file_exists($path."/doc-files"))
   {
     xcopy($path."/doc-files", $output_folder."/doc-files");
@@ -48,6 +53,8 @@ foreach ($all_paths as $path)
     generate_doc($path."/".$filename, $entry_names);
   }
 }
+// Copy auxiliary files
+xcopy($beepbeep_folder."/doc-files", $output_folder."/doc-files");
 $names = array_keys($entry_names);
 sort($names);
 $dict_toc = "# A dictionary of BeepBeep objects\n\n";
@@ -102,7 +109,9 @@ function format_entry($filename, $javadoc, &$entry_names)
   $javadoc = preg_replace("/\\{@link ([^\\s]*)\\}/m", "`$1`", $javadoc);
   // Replace {@docRoot} with actual path
   $javadoc = str_replace("{@docRoot}", $docroot_folder, $javadoc);
-  $out_text = "## $class_name\n\n";
+  // Replace images
+  $javadoc = resolve_images($javadoc);
+  $out_text = "#### $class_name\n\n";
   $out_text .= $javadoc;
   if (!file_exists($output_folder."/".$out_folder))
   {
@@ -110,6 +119,24 @@ function format_entry($filename, $javadoc, &$entry_names)
   }
   //file_put_contents($output_folder."/".$markdown_filename, $out_text);
   $entry_names[$class_name] = $out_text;
+}
+
+function resolve_images($s)
+{
+  global $beepbeep_folder, $inkscape_command, $output_folder;
+  preg_match_all("/\\[.*?\\]\\((.*?)\\)/", $s, $matches);
+  foreach ($matches[1] as $match)
+  {
+    $png_filename = $beepbeep_folder.$match;
+    $svg_filename = str_replace(".png", ".svg", $png_filename);
+    $out_pdf_filename = $output_folder.str_replace(".png", ".pdf", $match);
+    if (file_exists($svg_filename))
+    {
+      $command = $inkscape_command." -z --file=$svg_filename --export-pdf=$out_pdf_filename\n";
+      exec($command);
+    }
+  }
+  return $s;
 }
 
 /**
