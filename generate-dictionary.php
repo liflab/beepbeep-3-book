@@ -71,7 +71,10 @@ function generate_doc($filename, &$entry_names)
   $file_contents = file_get_contents($filename);
   $javadoc = extract_class_javadoc($file_contents);
   if (include_in_doc($filename, $javadoc))
+  {
+    echo "FILENAME $filename\n";
     format_entry($filename, $javadoc, $entry_names);
+  }
 }
 
 function get_markdown_path($filename)

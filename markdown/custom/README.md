@@ -272,7 +272,7 @@ public class CounterGroup extends GroupProcessor
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/CounterGroup.java#L45)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/CounterGroup.java#L37)
 
 
 From then on, it is possible to write `new CounterGroup()` to get a fresh instance of this processor.

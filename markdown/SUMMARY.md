@@ -50,3 +50,4 @@
   * [Simpler stack manipulations](dsl/README.md#simpler-stack-manipulations)
   * [Building processor chains](dsl/README.md#building-processor-chains)
   * [Mixing types](dsl/README.md#mixing-types)
+* [A dictionary of BeepBeep objects](dictionary/README.md)
