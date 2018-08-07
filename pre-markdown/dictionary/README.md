@@ -1,148 +1,86 @@
-# A dictionary of BeepBeep objects
+# Glossary
 
-#### Bags
+This book has introduced many concepts revolving around the concept of event streams. In particular, the BeepBeep library provides a little "zoo" of dozens of `Processor` and `Function` objects. In this appendix, you will find a non-exhaustive list of the various objects and notions that have been discussed. Processors and objects with a standardized graphical representation are also accompanied by the corresponding picture.
 
-A container object for functions and processors applying to generic
-collections, i.e. "bags" of objects.
+For more technical information about each of these objects, the reader is referred to the online API documentation, which is provides in-depth and up-to-date information.
 
+#### Arity
 
- 
+For a `Processor` object, refers to the number of pipes it has. The *input arity* is the number of input streams accepted by the processor, and the *output arity* is the number of output streams it produces.
 
-#### BinaryFunction
+For a `Function` object, refers to the number of arguments it accepts or the number of values it produces.
 
-Function of two inputs and one output.
+#### `Bags`
 
-         The type of the first input
+A container class for functions and processors applying to generic collections, i.e. "bags" of objects.
 
-         The type of the second input
+#### `BinaryFunction`
 
-         The type of the output
+A `Function` object having exactly two input arguments, and producing exactly one output value.
 
+#### `BlackHole`
 
- 
+A special type of `Sink` that discards everything it receives. It is represented graphically as follows:
 
-#### BlackHole
+![CountDecimate](/doc-files/tmf/BlackHole.png)
 
-A special type of `Sink` that discards everything it receives.
+#### `Booleans`
 
+A container class for `Function` objects related to Boolean values. For example, the static reference `Boolean.and` refers to the `Function` computing the logical conjunction of two Booleans.
 
- 
+#### `Call`
 
-#### Booleans
+A `Processor` object calling an external command upon receiving an event, and returning the output of that command as its output stream.
 
-A container object for Boolean functions.
+#### Closed (chain)
 
-
- 
-
-#### Call
-
-Processor calling an external command upon receiving an event, and returning
-the output of that command as its output stream.
+A property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
 
 
- 
+#### `Connector`
 
-#### Connector
+A utility class that provides a number of convenient methods for connecting the outputs of processors to the inputs of other processors. Methods provided by the `Connector` class are called `connect()` and have various signatures. When called with exactly two `Processor` arguments, `connect` assigns each output pipe of the first processor to the input pipe at the same position on the second processor.
 
-Provides a number of convenient methods for connecting the outputs of
-processors to the inputs of other processors.
+#### `Constant`
 
-Methods provided by the `Connector` class are called `connect()` and have
-various signatures. Their return value typically consists of the
-<em>last</em> processor of the chain given as an argument. This means that
-nested calls to `connect()` are possible to form a complex chain of
-processors in one pass, e.g. ``` java Processor p = Connector.connect( new
-QueueSource(2, 1), Connector.connect(new QueueSource(1, 1), new Addition(),
-0, 0), 0, 1); ```
+A `Function` object that takes no input argument, and returns a single output value. Constants are used in `FunctionTree`s to refer to fixed values. A `Constant` instance can be created out of any Java object, and returns this object as its value.
 
-In the previous example, the inner call to <code>connect()</code> links
-output 0 of a <code>QueueSource</code> to input 0 of an `Addition` processor;
-this partially-connected `Addition` is the return value of this method. It is
-then used in the outer call, where another `QueueSource` is linked to its
-input 1. This fully-connected `Addition` is what is put into variable `p`.
+#### `Context`
 
-If you use lots of calls to `Connector.connect`, you may consider writing:
-``` java static import Connector.connect; ``` in the beginning of your file,
-so you can simply write `connect` instead of `Connector.connect` every time.
+An associative (key-value) map used by `Processor` objects to store persistent data. Each processor has its own `Context` object. When a processor is cloned, the context of the original is copied into the clone. In addition, all operations on a `Context` object are synchronized.
 
+#### `ContextVariable`
 
- 
+A `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `Evaluate` processor, it queries that processor's `Context` object to get the current value associated to the key.
 
-#### Constant
+#### `CountDecimate`
 
-Representation of a unary constant.
+`Processor` that returns every *n*-th input event (starting with the first). The value *n* is called the **decimation interval**. However, a mode can be specified in order to output the *n*-th input event if it is the last event of the trace and it has not been output already. It is represented graphically as:
 
+![CountDecimate](/doc-files/tmf/CountDecimate.png)
 
- 
+#### `Cumulate`
 
-#### Context
-
-Associative map used by processors to store persistent data. In addition, all
-operations on a `Context` object are synchronized.
-
-
- 
-
-#### ContextVariable
-
-Placeholder for the value of a context element. A `ContextVariable` can be
-given as an argument to a `FunctionTree`.
-
-
- 
-
-#### CountDecimate
-
-Returns one input event and discards the next *n*-1. The value *n* is called
-the **decimation interval**. However, a mode can be specified in order to
-output the *n*-th input event if it is the last event of the trace and it has
-not been output already.
-
-It is represented graphically as:
-
-![QueueSink](/doc-files/tmf/CountDecimate.png)
-
-
- 
-
-#### Cumulate
-
-Creates a cumulative processor out of a cumulative function. This is simply a
-`ApplyFunction` whose function is of a specific type (a
-`CumulativeFunction`).
-
-It is represented graphically as:
+`Processor` that creates a cumulative processor out of a cumulative function. This is simply an instance of `ApplyFunction` whose function is of a specific type (a
+`CumulativeFunction`). It is represented graphically as:
 
 ![Cumulate](/doc-files/functions/Cumulate.png)
 
+#### `CumulativeFunction`
 
- 
+A special type of `Function` with memory.
 
-#### CumulativeFunction
+#### `Demultiplex`
 
-A function with memory.
+`Processor` object that converts a sequence of *n* consecutive events into an event that is a vector of size *n*, with the element at position "0" in the vector corresponding to the first event of the window. This effectively works as a time demultiplexer.
 
+#### `Equals`
 
- 
+A `Function` that checks for the equality between two objects. It is represented graphically as follows:
 
-#### Demultiplex
+![Equals](/doc-files/functions/Equals.png)
 
-Converts a sequence of <i>n</i> consecutive events into an event that is a
-vector of size <i>n</i>. This effectively works as a time demultiplexer.
-
-
-
- 
-
-#### Equals
-
-A function that checks for the equality of various data types.
-
-
- 
-
-#### Filter
+#### `Filter`
 
 Discards events from an input trace based on a selection criterion. The
 processor takes as input two events simultaneously; it outputs the first if
@@ -159,36 +97,27 @@ Graphically, this processor is represented as:
 
 Extracts chunks of an input stream based on a regular expression.
 
+#### `Fork`
 
- 
-
-#### Fork
-
-Duplicates an input trace into two or more output traces.
-
-It is represented graphically as:
+A `Processor` that duplicates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
 
 ![Fork](/doc-files/tmf/Fork.png)
 
+#### `Freeze`
 
- 
+A `Processor` that repeatedly outputs the first event it has received. `Freeze` works a bit like `PullConstant`; however, while <code>Constant</code> is given the event to output, <code>Freeze</code> waits for a first event, outputs it, and then outputs that event whenever some new input comes in.
 
-#### Freeze
+#### Front
 
-Repeatedly outputs the first event it has received. <code>Freeze</code> works
-a bit like `PullConstant`; however, while <code>Constant</code> is
-given the event to output, <code>Freeze</code> waits for a first event,
-outputs it, and then outputs that event whenever some new input comes in.
+Given *n* streams, the front at position *k* is the tuple made of the event at the *k*-th position in every stream. BeepBeep `Processor`s that have an input *arity* greater than 1 handle events one front at a time; this is called *synchronous processing*.
 
+#### `Function`
 
- 
+A computation unit that receives one or more *arguments*, and produces one or more output *values*. Along with `Processor`, this is one of BeepBeep's fundamental classes. Contrary to processors, functions are *stateless* (or history-independent): the same inputs must always produce the same outputs.
 
-#### Function
+Functions are represented graphically as rounded rectangles, with a pictogram describing the computation they perform, such as this:
 
-Represents a stateless <i>m</i>-to-<i>n</i> function.
-
-
- 
+![Function](/doc-files/functions/Function.png)
 
 #### FunctionTree
 
@@ -257,107 +186,45 @@ Returns the first <i>n</i> input events and discards the following ones.
 
  
 
-#### Print
+#### `Print`
 
-Sends its input to a PrintStream (such as the standard output). This
-processor takes whatever event it receives (i.e. any Java <tt>Object</tt>),
-calls its {@link Object#toString() toString()} method, and pushes the
+A `Processor` that sends its input events to a Java `PrintStream` (such as the standard output). This processor takes whatever event it receives (i.e. any Java `Object`), calls its {@link Object#toString() toString()} method, and pushes the
 resulting output to a print stream. Graphically, it is represented as:
 
-![Processor](/doc-files/cli/Print.png)
+![Print](/doc-files/cli/Print.png)
 
-The behaviour of this processor can be configured in a few ways. Methods
-{@link #setPrefix(String) setPrefix()} and {@link #setPrefix(String)
-setSuffix()} can specify the character string to be displayed before and
-after each event, and method {@link #setSeparator(String) setSeparator()}
-defines the symbol that is inserted between each event. Further customization
-of the output can be achieved by passing to a fancier type of print stream,
-such as an ANSI-aware printer.
+#### Pull mode
 
+One of the two operating modes of a chain of processors. In pull mode, a user or an application obtains references to the `Pullable` objects of the downstream processors of the chain, and calls their `pull()` method to ask for new output events. When using a chain of processors in pull mode, the chain must be closed at its inputs. The opposite mode is called *push mode*.
 
- 
+#### Push mode
 
-#### Processor
+One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
 
-Receives zero or more input events, and produces zero or more output events.
-The processor is the fundamental class where all computation occurs. All of
-BeepBeep's processors (including yours) are descendants of this class.
+#### `Processor`
 
-A processor is depicted graphically as a "box", with "pipes" representing its
+A processing unit that receives zero or more input streams, and produces zero or more output streams. The `Processor` is the fundamental class where all stream computation occurs. All of BeepBeep's processors are descendants of this class. A processor is depicted graphically as a "box", with "pipes" representing its
 input and output streams.
 
 ![Processor](/doc-files/Processor-generic.png)
 
-This class itself is abstract; nevertheless, it provides important methods
-for handling input/output event queues, connecting processors together, etc.
-However, if you write your own processor, you will most likely want to
-inherit from its child, `SingleProcessor`, which does some more work
-for you.
+This class itself is abstract; nevertheless, it provides important methods for handling input/output event queues, connecting processors together, etc. However, if you write your own processor, you will most likely want to inherit from its child, `SingleProcessor`, which does some more work for you.
 
 The `Processor` class does not assume anything about the type of events
 being input or output. All its input and output queues are therefore declared
 as containing instances of `Object`, Java's most generic type.
 
-
- 
-
-#### Pullable
+#### `Pullable`
 
 Queries events on one of a processor's outputs. For a processor with an
 output arity <i>n</i>, there exists *n* distinct pullables, namely one for
 each output trace. Every pullable works roughly like a classical `Iterator`:
 it is possible to check whether new output events are available, and get one
-new output event.
+new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors.
 
-However, contrarily to iterators, `Pullable`s have two versions of each
-method: a *soft* and a *hard* version.
+#### `Pump`
 
-- **Soft** methods make a single attempt at producing an output event. Since
-processors are connected in a chain, this generally means pulling events from
-the input in order to produce the output. However, if pulling the input
-produces no event, no output event can be produced. In such a case,
-`#hasNextSoft()` will return a special value (<code>MAYBE</code>), and
-`#pullSoft()` will return <code>null</code>. Soft methods can be seen a
-doing "one turn of the crank" on the whole chain of processors --whether or
-not this outputs something. - **Hard** methods are actually calls to soft
-methods until an output event is produced: the "crank" is turned as long as
-necessary to produce something. This means that one call to, e.g.
-`#pull()` may consume more than one event from a processor's input.
-Therefore, calls to `#hasNext()` never return <code>MAYBE</code> (only
-<code>YES</code> or <code>NO</code>), and `#pull()` returns
-<code>null</code> only if no event will ever be output in the future (this
-occurs, for example, when pulling events from a file, and the end of the file
-has been reached).
-
-The lifecycle of a `Pullable` object is as follows:
-
-- One obtains a reference to one of a processor's pullables. This can be done
-explicitly, e.g. by calling `Processor#getPullableOutput(int)`, or
-implicitly, for example through every call to
-`Connector#connect(Processor...)`. - At various moments, one calls
-`#hasNextSoft()` (or `#hasNext()` to check if events are
-available - One calls `#pullSoft()` (or `#pull()` to produce the
-next available output event.
-
-The Pullable interface extends the `Iterator` and `Iterable` interfaces. This
-means that an instance of Pullable can also be iterated over like this: ```
-Pullable p = ...; for (Object o : p) { // Do something } ``` Note however
-that if <code>p</code> refers to a processor producing an infinite number of
-events, this loop will never terminate by itself.
-
-For the same processor, mixing calls to soft and hard methods is discouraged.
-As a matter of fact, the Pullable's behaviour in such a situation is left
-undefined.
-
-
- 
-
-#### Pump
-
-Processor that repeatedly pulls its input, and pushes the resulting events to
-its output. The Pump is a way to bridge an upstream part of a processor chain
-that works in <em>pull</em> mode, to a downstream part that operates in
-<em>push</em> mode.
+Processor that repeatedly pulls its input, and pushes the resulting events to its output. The `Pump` is a way to bridge an upstream part of a processor chain that works in *pull* mode, to a downstream part that operates in *push* mode.
 
 Graphically, this processor is represented as:
 
@@ -369,44 +236,24 @@ a new thread, which will endlessly call <tt>pull()</tt> on whatever input is
 connected to the pump, and then call <tt>push()</tt> on whatever input is
 connected to it.
 
-The opposite of the Pump is the {@link ca.uqac.lif.cep.tmf.Tank Tank}.
+The opposite of the `Pump` is the `Tank`.
 
+#### `Pushable`
 
- 
+An object that gives events to some of a processor's input. Interface `Pushable` is the opposite of `Pullable`: rather than querying events form a processor's output (i.e. "pulling"), it gives events to a processor's input. This has for effect of triggering the processor's computation and "pushing" results (if any) to the processor's output. If a processor is of input arity *n*, there exist *n* distinct
+`Pullable`s: one for each input pipe.
 
-#### Pushable
+#### `QueueSink`
 
-Gives events to some of a processor's input. Interface `Pushable` is
-the opposite of `Pullable`: rather than querying events form a
-processor's output (i.e. "pulling"), it gives events to a processor's input.
-This has for effect of triggering the processor's computation and "pushing"
-results (if any) to the processor's output.
-
-If a processor is of input arity *n*, there exist *n* distinct
-`Pullable`s: one for each input trace.
-
-
- 
-
-#### QueueSink
-
-Sink that accumulates events into queues. It is represented graphically as:
+A `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
 
 ![QueueSink](/doc-files/tmf/QueueSink.png)
 
+#### `QueueSource`
 
- 
+A `Source` whose input is a queue of objects. One gives the `QueueSource` a list of events, and that source sends these events as its input one by one. When reaching the end of the list, the source returns to the beginning and keeps feeding events from the list endlessly. The `QueueSource` is represented graphically as:
 
-#### QueueSource
-
-Source whose input is a queue of objects. One gives the
-<code>QueueSource</code> a list of events, and that source sends these events
-as its input one by one. When reaching the end of the list, the source
-returns to the beginning and keeps feeding events from the list endlessly.
-This behaviour can be changed with `#loop(boolean)`.
-
-
- 
+![QueueSource](/doc-files/tmf/QueueSource.png)
 
 #### ReadLines
 
@@ -422,7 +269,7 @@ Extracts character strings from a Java `InputStream`.
 
  
 
-#### SingleProcessor
+#### `SingleProcessor`
 
 Performs a computation on input events to produce output events.
 
@@ -440,28 +287,20 @@ have been received from all input traces. This is the task of abstract method
 {@link #compute(Object[], Queue)}, which descendants of this class must
 implement.
 
+#### `StreamVariable`
 
- 
-
-#### StreamVariable
-
-Symbol standing for the <i>i</i>-th trace given as input. A `StreamVariable`
+A `Function` standing for the <i>i</i>-th trace given as input. A `StreamVariable`
 can be given as an argument to a `FunctionTree`.
 
+#### `Tank`
 
- 
-
-#### Tank
-
-Accumulates pushed events into a queue until they are pulled. The Tank is a
-way to bridge an upstream part of a processor chain that works in
-<em>push</em> mode, to a downstream part that operates in <em>pull</em> mode.
+A `Processor` that accumulates pushed events into a queue until they are pulled. The Tank is a way to bridge an upstream part of a processor chain that works in *push* mode, to a downstream part that operates in *pull* mode.
 
 Graphically, this processor is represented as:
 
 ![Tank](/doc-files/tmf/Tank.png)
 
-The opposite of the tank is the {@link ca.uqac.lif.tmf.Pump Pump}.
+The opposite of the tank is the `Pump`.
 
 
  
@@ -493,17 +332,13 @@ graphically as:
 ![TurnInto](/doc-files/functions/TurnInto.png)
 
 
- 
+#### `UnaryFunction`
 
-#### UnaryFunction
+A `Function` object that has an input and output *arity* of exactly 1.
 
-Function of one input and one output.
+#### Uniform (processor)
 
-         The type of the input
-
-         The type of the output
-
- 
+A `Processor` that produces the same number of output fronts for every input front it receives. Occasionally, the number of output fronts produced is explicitly mentioned: a *k*-uniform processor produces exactly *k* output fronts for every input front.
 
 #### Window
 
@@ -512,7 +347,7 @@ graphically as:
 
 ![Window](/doc-files/tmf/Window.png)
 
--The processor takes as arguments another processor &phi; and a window width
+The processor takes as arguments another processor &phi; and a window width
 *n* - It returns the result of &phi; after processing events 0 to
 <i>n</i>-1... - Then the result of (a new instance of &phi;) that processes
 events 1 to <i>n</i>-1... - ...and so on
@@ -520,3 +355,4 @@ events 1 to <i>n</i>-1... - ...and so on
 
  
 
+<!-- :wrap=soft: -->

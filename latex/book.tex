@@ -34,6 +34,10 @@
 \includepdf[width=7.5in,height=9in]{Cover.pdf}
 \newpage
 
+\cleardoublepage
+\includepdf[width=7.5in,height=9in]{Cover-inside.pdf}
+\newpage
+
 %% 2nd cover
 \thispagestyle{empty}
 \pagestyle{empty}
@@ -56,6 +60,10 @@ Book version: L1.0---March 15, 2018}
 \mainmatter
 \thispagestyle{fancy}
 \pagestyle{fancy}
+
+
+\input{foreword}
+
 \subimport*{chapters/}{body}
 
 \printindex

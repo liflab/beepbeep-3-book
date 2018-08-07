@@ -37,16 +37,16 @@
 %% Classe de base
 %% ------------------------
 \ifx\pdfoutput\undefined
-\LoadClass[10pt,letterpaper,openright,dvips]{book}
+\LoadClass[9pt,letterpaper,openright,dvips]{book}
 \else
-\LoadClass[10pt,letterpaper,openright,pdftex]{book}
+\LoadClass[9pt,letterpaper,openright,pdftex]{book}
 \fi
 
 %% ------------------------
 %% Extensions
 %% ------------------------
 \RequirePackage[utf8]{inputenc}
-\RequirePackage[paperwidth=7.5in,paperheight=9in]{geometry}
+\RequirePackage[paperwidth=7in,paperheight=8.5in]{geometry}
 \RequirePackage[T1]{fontenc}
 \RequirePackage{graphicx}
 \RequirePackage{ifthen}

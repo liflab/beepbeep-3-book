@@ -18,7 +18,7 @@ function format_latex($s)
 {
   $s = preg_replace("/\\\\begin\\{figure\\}.*?(\\\\includegraphics.*?)\\\\caption.*?\\\\end\\{figure\\}/ms", "{\\centering\n\\1\n}", $s);
   $s = preg_replace("/(\\\\paragraph.*?)\\n\\n/ms", "\\1 ", $s);
-  $s = preg_replace("/(\\\\chapter.*?)\\n\n/ms", "\\1\n\n\\begin{multicols}{2}\n\n", $s);
+  $s = preg_replace("/\\\\chapter\\{(.*?)\\}\\n\n/ms", "\\chapter{\\1}\n\n\\begin{multicols}{2}\n\n", $s);
   $s .= "\n\n\\end{multicols}";
   return $s;
 }
