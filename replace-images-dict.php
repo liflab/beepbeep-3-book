@@ -1,7 +1,7 @@
 <?php
 
 $input_directory = "latex/"; // trailing slash!
-$source_location = "../beepbeep-3/Core/src/";
+$source_location = "../core/Core/src/";
 $it = new RecursiveDirectoryIterator($input_directory."chapters/dictionary");
 foreach (new RecursiveIteratorIterator($it) as $file)
 {

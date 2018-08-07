@@ -1,6 +1,6 @@
 <?php
 
-$beepbeep_folder = "../beepbeep-3/Core/src";
+$beepbeep_folder = "../core/Core/src";
 
 // An array of folder names in which to look for source code
 $source_folders = array($beepbeep_folder);

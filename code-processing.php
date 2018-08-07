@@ -3,7 +3,7 @@
 $input_directory = "pre-markdown";
 $output_directory = "markdown";
 $javadoc_root = "http://liflab.github.io/beepbeep-3/javadoc/";
-$source_location = "../beepbeep-3-examples/Source/src/";
+$source_location = "../examples/Source/src/";
 $github_source_location = "https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/";
 $incremental = false;
 

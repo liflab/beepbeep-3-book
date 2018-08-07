@@ -2,7 +2,7 @@
 
 $input_directory = "pre-markdown";
 $output_directory = "latex/chapters";
-$source_location = "../beepbeep-3-examples/Source/src/";
+$source_location = "../examples/Source/src/";
 $inkscape_command = "inkscape";
 
 $it = new RecursiveDirectoryIterator($input_directory);

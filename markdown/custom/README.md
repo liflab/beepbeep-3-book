@@ -83,7 +83,7 @@ public int getOutputArity()
     return 1;
 }
 @Override
-public Function duplicate()
+public Function duplicate(boolean with_state)
 {
     return new CustomDouble();
 }
@@ -159,7 +159,7 @@ public class CutString extends Function
         return 1;
     }
 
-    public Function duplicate() {
+    public Function duplicate(boolean with_state) {
         return new CutString();
     }
 
@@ -326,7 +326,7 @@ public class StringLength extends SingleProcessor
     }
 
     @Override
-    public Processor duplicate()
+    public Processor duplicate(boolean with_state)
     {
         return new StringLength();
     }
@@ -472,7 +472,7 @@ public class MyMax extends SingleProcessor
     }
 
     @Override
-    public Processor duplicate() {
+    public Processor duplicate(boolean with_state) {
         return new MyMax();
     }
 }
