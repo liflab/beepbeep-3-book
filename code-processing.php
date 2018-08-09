@@ -1,16 +1,40 @@
 <?php
+/**
+ * Processes each Markdown file in the `pre-markdown` folder (recursively
+ * into subfolders). Each file will result in a file of the same name in the
+ * `markdown` folder where:
+ *
+ * - Code references are replaced by the actual snippets from the
+ *   example repository
+ * - Image references are replaced by the proper Markdown code for inserting
+ *   an image
+ */
 
+// The directory where the sources files are
 $input_directory = "pre-markdown";
-$output_directory = "markdown";
-$javadoc_root = "http://liflab.github.io/beepbeep-3/javadoc/";
-$source_location = "../examples/Source/src/";
-$github_source_location = "https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/";
-$incremental = false;
 
+// The directory where the destination files are to be written
+$output_directory = "markdown";
+
+// The root of BeepBeep's Javadoc. 
+$javadoc_root = "http://liflab.github.io/beepbeep-3/javadoc/";
+
+// The location of the local copy of BeepBeep's example repository. This
+// path is relative the the location of the script.
+$source_location = "../examples/Source/src/";
+
+// The online URL to the root of BeepBeep's examples on GitHub
+$github_source_location = "https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/";
+
+// Whether files are handled incrementally. If set to true, files that have not
+// been modified since the last call to the script will be skipped.
+$incremental = false;
 if ($argv[1] === "--incremental")
 {
 	$incremental = true;
 }
+
+// Iterate recursively over files in the source folder
 $it = new RecursiveDirectoryIterator($input_directory);
 foreach (new RecursiveIteratorIterator($it) as $file)
 {
@@ -54,6 +78,9 @@ function insert_code_snippets($s)
   return $s;
 }
 
+/**
+ * Replaces image references by Markdown code for the image
+ */
 function resolve_images($s, $out_folder)
 {
 	global $source_location;
