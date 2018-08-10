@@ -22,7 +22,7 @@ A `Function` object having exactly two input arguments, and producing exactly on
 
 A special type of `Sink` that discards everything it receives. It is represented graphically as follows:
 
-![CountDecimate](/doc-files/tmf/BlackHole.png)
+{@img images/tmf/BlackHole.png}{BlackHole}{.6}
 
 #### `Booleans`
 
@@ -57,14 +57,14 @@ A `Function` object that acts as a placeholder for the value associated to a key
 
 `Processor` that returns every *n*-th input event (starting with the first). The value *n* is called the **decimation interval**. However, a mode can be specified in order to output the *n*-th input event if it is the last event of the trace and it has not been output already. It is represented graphically as:
 
-![CountDecimate](/doc-files/tmf/CountDecimate.png)
+{@img images/tmf/CountDecimate.png}{CountDecimate}{.6}
 
 #### `Cumulate`
 
 `Processor` that creates a cumulative processor out of a cumulative function. This is simply an instance of `ApplyFunction` whose function is of a specific type (a
 `CumulativeFunction`). It is represented graphically as:
 
-![Cumulate](/doc-files/functions/Cumulate.png)
+{@img images/functions/Cumulate.png}{Cumulate}{.6}
 
 #### `CumulativeFunction`
 
@@ -78,7 +78,7 @@ A special type of `Function` with memory.
 
 A `Function` that checks for the equality between two objects. It is represented graphically as follows:
 
-![Equals](/doc-files/functions/Equals.png)
+{@img images/functions/Equals.png}{Equals}{.6}
 
 #### `Filter`
 
@@ -88,7 +88,7 @@ the second is true.
 
 Graphically, this processor is represented as:
 
-![Filter](/doc-files/tmf/Filter.png)
+{@img images/tmf/Filter.png}{Filter}{.6}
 
 
  
@@ -101,7 +101,7 @@ Extracts chunks of an input stream based on a regular expression.
 
 A `Processor` that duplicates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
 
-![Fork](/doc-files/tmf/Fork.png)
+{@img images/tmf/Fork.png}{Fork}{.6}
 
 #### `Freeze`
 
@@ -117,7 +117,7 @@ A computation unit that receives one or more *arguments*, and produces one or mo
 
 Functions are represented graphically as rounded rectangles, with a pictogram describing the computation they perform, such as this:
 
-![Function](/doc-files/functions/Function.png)
+{@img images/functions/Function.png}{Function}{.6}
 
 #### FunctionTree
 
@@ -174,7 +174,7 @@ processor chains from an expression.
 
 Graphically, this processor is represented as:
 
-![Passthrough](/doc-files/tmf/Passthrough.png)
+{@img images/tmf/Passthrough.png}{Passthrough}{.6}
 
 
  
@@ -191,7 +191,7 @@ Returns the first <i>n</i> input events and discards the following ones.
 A `Processor` that sends its input events to a Java `PrintStream` (such as the standard output). This processor takes whatever event it receives (i.e. any Java `Object`), calls its {@link Object#toString() toString()} method, and pushes the
 resulting output to a print stream. Graphically, it is represented as:
 
-![Print](/doc-files/cli/Print.png)
+{@img images/cli/Print.png}{Print}{.6}
 
 #### Pull mode
 
@@ -206,7 +206,7 @@ One of the two operating modes of a chain of processors. In push mode, a user or
 A processing unit that receives zero or more input streams, and produces zero or more output streams. The `Processor` is the fundamental class where all stream computation occurs. All of BeepBeep's processors are descendants of this class. A processor is depicted graphically as a "box", with "pipes" representing its
 input and output streams.
 
-![Processor](/doc-files/Processor-generic.png)
+{@img images/Processor-generic.png}{Processor}{.6}
 
 This class itself is abstract; nevertheless, it provides important methods for handling input/output event queues, connecting processors together, etc. However, if you write your own processor, you will most likely want to inherit from its child, `SingleProcessor`, which does some more work for you.
 
@@ -228,7 +228,7 @@ Processor that repeatedly pulls its input, and pushes the resulting events to it
 
 Graphically, this processor is represented as:
 
-![Pump](/doc-files/tmf/Pump.png)
+{@img images/tmf/Pump.png}{Pump}{.6}
 
 The repeated pulling of events from its input is started by calling this
 processor's `#start()` method. In the background, this will instantiate
@@ -247,13 +247,13 @@ An object that gives events to some of a processor's input. Interface `Pushable`
 
 A `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
 
-![QueueSink](/doc-files/tmf/QueueSink.png)
+{@img images/tmf/QueueSink.png}{QueueSink}{.6}
 
 #### `QueueSource`
 
 A `Source` whose input is a queue of objects. One gives the `QueueSource` a list of events, and that source sends these events as its input one by one. When reaching the end of the list, the source returns to the beginning and keeps feeding events from the list endlessly. The `QueueSource` is represented graphically as:
 
-![QueueSource](/doc-files/tmf/QueueSource.png)
+{@img images/tmf/QueueSource.png}{QueueSource}{.6}
 
 #### ReadLines
 
@@ -298,7 +298,7 @@ A `Processor` that accumulates pushed events into a queue until they are pulled.
 
 Graphically, this processor is represented as:
 
-![Tank](/doc-files/tmf/Tank.png)
+{@img images/tmf/Tank.png}{Tank}{.6}
 
 The opposite of the tank is the `Pump`.
 
@@ -329,7 +329,7 @@ Discards the first *n* events of the input, and outputs the remaining ones.
 Processor that turns any event into a predefined object. It is represented
 graphically as:
 
-![TurnInto](/doc-files/functions/TurnInto.png)
+{@img images/functions/TurnInto.png}{TurnInto}{.6}
 
 
 #### `UnaryFunction`
@@ -345,7 +345,7 @@ A `Processor` that produces the same number of output fronts for every input fro
 Simulates the application of a "sliding window" to a trace. It is represented
 graphically as:
 
-![Window](/doc-files/tmf/Window.png)
+{@img images/tmf/Window.png}{Window}{.6}
 
 The processor takes as arguments another processor &phi; and a window width
 *n* - It returns the result of &phi; after processing events 0 to

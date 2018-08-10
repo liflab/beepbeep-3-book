@@ -3,13 +3,11 @@ markdown/dictionary/
 # Don't version the auto-generated LaTeX sources...
 latex/chapters/
 latex/all.temp.*
-latex/*.md
-latex/body.tex
-latex/README.tex
-latex/Readme.tex
-latex/pandoc.inc.tex
-\#*.md\#
-
+latex/**/*.md
+latex/**/body.tex
+latex/**/README.tex
+latex/**/Readme.tex
+latex/**/pandoc.inc.tex
 
 # Don't version temporary files
 latex/book.pdf
@@ -29,3 +27,4 @@ latex/**/*.ind
 *.tmp
 *.bak
 .DS_Store
+*\#

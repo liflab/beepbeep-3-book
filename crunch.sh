@@ -8,13 +8,13 @@
 # --------------------------------------------------------------------
 
 # Process pre-markdown and write to markdown
-php code-processing.php $1
+php pre-processing.php $1
 
 # Convert Markdown into LaTeX
 java -jar gitbook-pandoc.jar -s markdown -d latex -p chapters $1
 
 # Convert SVG images into both PNG (for GitBook) and PDF (for LaTeX)
-php replace-images.php
+php convert-images.php
 
 # Compile LaTeX
 pushd latex
