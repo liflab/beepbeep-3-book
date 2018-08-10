@@ -347,12 +347,7 @@ graphically as:
 
 {@img images/tmf/Window.png}{Window}{.6}
 
-The processor takes as arguments another processor &phi; and a window width
-*n* - It returns the result of &phi; after processing events 0 to
-<i>n</i>-1... - Then the result of (a new instance of &phi;) that processes
-events 1 to <i>n</i>-1... - ...and so on
+The processor takes as arguments another processor P and a window width *n*. It returns the result of P after processing events 0 to *n*-1... - Then the result of (a new instance of P) that processes events 1 to *n*, and so on.
 
-
- 
 
 <!-- :wrap=soft: -->

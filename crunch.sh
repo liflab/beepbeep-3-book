@@ -16,6 +16,9 @@ java -jar gitbook-pandoc.jar -s markdown -d latex -p chapters $1
 # Convert SVG images into both PNG (for GitBook) and PDF (for LaTeX)
 php convert-images.php
 
+# Perform a few hacks on LaTeX output before compiling
+php post-processing-latex.php
+
 # Compile LaTeX
 pushd latex
 pdflatex -interaction=batchmode book
