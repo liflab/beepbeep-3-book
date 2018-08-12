@@ -74,6 +74,14 @@ A special type of `Function` with memory.
 
 `Processor` object that converts a sequence of *n* consecutive events into an event that is a vector of size *n*, with the element at position "0" in the vector corresponding to the first event of the window. This effectively works as a time demultiplexer.
 
+#### `Deserialize`
+
+A `Processor` that takes structured character strings as its inputs, and turns each of them into Java objects with the corresponding content. It is represented graphically as follows:
+
+{@img images/other/Deserialize.png}{Deserialize}{.6}
+
+*Deserialization* can be used to restore the state of objects previously saved on a persistent medium, or to receive non-primitive data types over a communication medium such as a network. The opposite operation is called *serialization*.
+
 #### `Equals`
 
 A `Function` that checks for the equality between two objects. It is represented graphically as follows:
@@ -119,12 +127,23 @@ Functions are represented graphically as rounded rectangles, with a pictogram de
 
 {@img images/functions/Function.png}{Function}{.6}
 
-#### FunctionTree
+A function with an input arity of *m* and an output arity of *n* is often referred to as an *m*:*n* function.
 
-A tree of n-ary functions composed together.
+#### `FunctionTree`
 
+A `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The drawing below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
 
- 
+{@img images/functions/FunctionTree.png}{FunctionTree}{.6}
+
+#### `GroupProcessor`
+
+A `Processor` that encapsulates a chain of processors as if it were a single object. It is represented as follows:
+
+{@img images/tmf/GroupProcessor.png}{GroupProcessor}{.6}
+
+To create a `GroupProcessor`, one must first instantiate and connect the processors to be encapsulated. Each processor must then be added to the group through a method called `add`. Finally, the endpoints of the chain must be associated to the inputs and outputs of the group. From then on, the processor can be moved around, connected and duplicated as if it were a single processor.
+
+In a graphical representation of a `GroupProcessor`, the processor chain inside the group can be drawn for illustrative purposes.
 
 #### HttpGet
 
@@ -260,14 +279,26 @@ A `Source` whose input is a queue of objects. One gives the `QueueSource` a list
 Source that reads text lines from a Java `InputStream`.
 
 
- 
+
 
 #### ReadStringStream
 
 Extracts character strings from a Java `InputStream`.
 
+#### `Serialize`
 
- 
+A `Processor` that takes arbitrary objects as its inputs, and turns each of them into a structured character string depicting their content. It is represented graphically as follows:
+
+{@img images/other/Serialize.png}{Serialize}{.6}
+
+*Serialization* can be used to store the state of objects on a persistent medium, or to transmit non-primitive data types over a communication medium such as a network. The opposite operation is called *deserialization*.
+
+
+#### `StreamReader`
+
+A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
+
+{@img images/io/StreamReader.png}{StreamReader}{.6}
 
 #### `SingleProcessor`
 

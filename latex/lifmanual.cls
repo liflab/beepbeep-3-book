@@ -23,7 +23,7 @@
 %% Déclarations
 %% ------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{lifmanual}[2018/02/02 LIF manual, V1.3 par Sylvain Hallé]
+\ProvidesClass{lifmanual}[2018/02/02 LIF manual, V1.4 par Sylvain Hallé]
 
 %% ------------------------
 %% Passing options to book class
@@ -50,7 +50,7 @@
 \RequirePackage[T1]{fontenc}
 \RequirePackage{graphicx}
 \RequirePackage{ifthen}
-\let\footruleskip\undefined\RequirePackage{fancyhdr}
+\let\footruleskip\undefined\RequirePackage{fancyhdr}       
 \RequirePackage[explicit]{titlesec}
 \RequirePackage{textcase}
 \RequirePackage{setspace}
@@ -60,7 +60,7 @@
 \RequirePackage{xcolor}
 \RequirePackage{pdfpages}
 \RequirePackage{hyphenat}
-\RequirePackage{makeidx}
+\RequirePackage{imakeidx}
 \RequirePackage{enumitem}
 \RequirePackage{multicol}
 
@@ -109,7 +109,7 @@
 \fancyfoot[RO]{\sffamily\bfseries\small \rightmark\quad|\quad\parbox{20pt}{\raggedleft\thepage}}
 \pagestyle{fancy}
 %% On redéfinit le style plain pour ne pas avoir de numéros de page
-%% �  la première page des chapitres
+%% à  la première page des chapitres
 \fancypagestyle{plain}{%
 \fancyhf{} % clear all header and footer fields
 \renewcommand{\headrulewidth}{0pt}
@@ -123,14 +123,21 @@
 % {\centering\sffamily\bfseries\selectfont}%
 % {\MakeTextUppercase{Chapitre \thechapter}}% Titre du chapitre
 % {0cm}% Séparation d'avec le corps du chapitre
-% {\vskip 24pt\MakeTextUppercase{#1}}% Code �  exécuter avant le titre
-% {}% Code �  exécuter après le titre
+% {\vskip 24pt\MakeTextUppercase{#1}}% Code à  exécuter avant le titre
+% {}% Code à  exécuter après le titre
 % Taken from http://forum.mathematex.net/latex-f6/modification-du-style-de-chapitre-t7022.html
 
 %% On redéfinit chaptermark pour que \leftmark n'affiche pas "CHAPITRE X"
 %% (utilisé dans la définition du pied de page plus loin)
 \def\chaptermark#1{\markboth{#1}{}}
 \def\sectionmark#1{\markright{#1}}
+
+%% Les chapitres sans numéro apparaissent dans la table des matières aussi
+\let\stdchapter\chapter
+\renewcommand*\chapter{%
+  \@ifstar{\starchapter}{\@dblarg\nostarchapter}}
+\newcommand*\starchapter[1]{\addcontentsline{toc}{chapter}{#1}\stdchapter*{#1}}
+\def\nostarchapter[#1]#2{\stdchapter[{#1}]{#2}}
 
 \makeatletter
 \def\thickhrulefill{\leavevmode \leaders \hrule height 1ex \hfill \kern \z@}
@@ -191,16 +198,16 @@
 {\sffamily\bfseries\Large\selectfont}%
 {\color{Highlight}\MakeTextUppercase{\thesection}}% Titre du chapitre
 {0.5cm}% Séparation d'avec le corps du chapitre
-{\color{Highlight}#1}% Code �  exécuter avant le titre
-{}% Code �  exécuter après le titre
+{\color{Highlight}#1}% Code à  exécuter avant le titre
+{}% Code à  exécuter après le titre
 
 \titleformat{\subsection}%
 [hang]%
 {\sffamily\itshape\selectfont}%
 {\MakeTextUppercase{\thesubsection}}% Titre du chapitre
 {0.5cm}% Séparation d'avec le corps du chapitre
-{\MakeTextUppercase{#1}}% Code �  exécuter avant le titre
-{}% Code �  exécuter après le titre
+{\MakeTextUppercase{#1}}% Code à  exécuter avant le titre
+{}% Code à  exécuter après le titre
 
 % Alter some LaTeX defaults for better treatment of figures:
 % See p.105 of "TeX Unbound" for suggested values.

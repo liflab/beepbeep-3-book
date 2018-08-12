@@ -1,5 +1,6 @@
 # Summary
 
+* [Foreword](foreword/README.md)
 * [Introduction](README.md)
   * [Computations over streams](README.md#computations-over-streams)
   * [What is BeepBeep?](README.md#what-is-beepbeep)
@@ -34,6 +35,7 @@
   * [Lists, sets and maps](advanced/README.md#lists-sets-and-maps)
   * [Pumps and tanks](advanced/README.md#pumps-and-tanks)
   * [Basic input/output](advanced/README.md#basic-input-output)
+  * [Soft vs. hard pulling](advanced/README.md#soft-vs-hard-pulling)
   * [Processor context](advanced/README.md#processor-context)
   * [Exercises](advanced/README.md#exercises)
 * [The standard palettes](palettes/README.md)
@@ -50,4 +52,5 @@
   * [Simpler stack manipulations](dsl/README.md#simpler-stack-manipulations)
   * [Building processor chains](dsl/README.md#building-processor-chains)
   * [Mixing types](dsl/README.md#mixing-types)
-* [A dictionary of BeepBeep objects](dictionary/README.md)
+* [Glossary](dictionary/README.md)
+* [Drawing guide](drawing/README.md)

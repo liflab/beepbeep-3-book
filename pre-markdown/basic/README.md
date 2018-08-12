@@ -47,7 +47,17 @@ Since the queue source loops through its array of events, after reaching the las
     The event is: 2
 
 Note that `source` springs into action only upon a call to `pull()` on its `Pullable` object. That is, it computes and returns a new output event only upon request. In other words, we can see it as some kind of gearbox that does something only when we turn the crank: each turn of the "crank" triggers the production of a new output event.
-    
+
+As a final note, the Pullable interface extends the Java `Iterator` and `Iterable` interfaces. This means that an instance of Pullable can also be iterated over like this:
+
+``` java
+Pullable p = ...;
+for (Object o : p)
+{
+  // Do something
+} 
+```
+
 This simple example shows the basic concepts around the use of a processor:
 
 - An instance of a processor is first created

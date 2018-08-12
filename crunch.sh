@@ -19,7 +19,10 @@ php convert-images.php
 # Perform a few hacks on LaTeX output before compiling
 php post-processing-latex.php
 
-# Compile LaTeX
+# Compile LaTeX. The script itself will exit with the same return code
+# as the call to LaTeX (used to discover if compilation failed).
 pushd latex
 pdflatex -interaction=batchmode book
+ret_code=$?
 popd
+exit $ret_code

@@ -5,7 +5,7 @@
 \usepackage{import}
 
 % Generate an index
-\makeindex
+\makeindex%[intoc]
 
 % ---------------------------------------
 % The gitbook-pandoc script will generate a file
@@ -51,7 +51,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 \noindent
 \rule{0in}{8pt}
 \noindent
-Book version: L1.0---March 15, 2018}
+Book version: L1.1---August 10, 2018}
 
 
 \tableofcontents
@@ -61,12 +61,22 @@ Book version: L1.0---March 15, 2018}
 \thispagestyle{fancy}
 \pagestyle{fancy}
 
-
-\input{foreword}
-
 \subimport*{chapters/}{body}
 
+\appendix
+\renewcommand{\chaptername}{Appendix}
+\subimport*{chapters/}{drawing/README}
+\subimport*{chapters/}{dictionary/README}
+
+%\addcontentsline{toc}{chapter}{Index}
 \printindex
+
+%% Back of the book
+\cleardoublepage
+\thispagestyle{empty}
+\phantom{W}
+\newpage
+\includepdf[width=7.5in,height=9in]{Cover-outside.pdf}
 
 \end{document}
 %% :wrap=soft:
