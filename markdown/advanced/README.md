@@ -760,11 +760,41 @@ For the same processor, mixing calls to soft and hard methods is discouraged. As
 
 ## The state of a processor
 
-We have said a couple of times that the main distinction between functions and processors is the fact that the latter is *stateful*. That is, given the same inputs, a function always returns the same output; in contrast, the output produced by a processor for an event may depend on what other events have been seen before. As a consequence, a `Processor` object must have some memory of the past --hence the term "stateful". 
+We have said a couple of times that the main distinction between functions and processors is the fact that the latter are *stateful*. That is, given the same inputs, a function always returns the same output; in contrast, the output produced by a processor for an event may depend on what other events have been seen before. As a consequence, a `Processor` object must have some memory of the past --hence the term "stateful". 
 
 Consider for example a `CountDecimate` processor instructed to keep one event every *k*. In order to correctly perform its task, this processor must keep a record of the number of events that have been discarded since the last time an output event was produced. This value is incremented by one, modulo *k*, every time a new input event is received; when the value reaches 0, a new output event is produced. Hence, the *state* of a `CountDecimate` processor corresponds to the current value of its counter. Typically, given the same input event *and the same state*, a processor is expected to always behave in the same way, i.e. produce the same output, if any.  Depending on the processor type, the state may be a single numerical value, or something more complex. For example, in a `Window` processor, the current state consists of the input events that have been accumulated in partial windows.
 
-In addition to this usage-specific data, BeepBeep processors also have some more memory elements that are carried by every processor instance. We discuss them in the following.
+Each `Processor` subclass is expected to have a well-defined initial state, in which all instances are expected to start (unless the class' constructor accepts arguments that may modulate that initial state). In addition, processors can be reset to their initial state using a method called <!--\index{Processor!reset} \texttt{reset()}-->`reset`<!--/i-->.
+
+Let us take as an example a `Window` processor that computes the cumulative sum of a sliding window of three events, as in the following program:
+
+``` java
+Window w = new Window(new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition)), 3);
+Connector.connect(w, new Print());
+Pushable p = w.getPushableInput();
+p.push(3).push(1).push(4).push(1).push(6);
+w.reset();
+p.push(2).push(7).push(1).push(8).push(3);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ResetWindow.java#L38)
+
+
+As expected, the first two calls to `push` do not send anything to the `Print` processor, since three input events are required for `Window` to output something. The remaining three calls to `push` produce the first three numbers printed on the console:
+
+```
+8,6,11,
+```
+
+Then, the window processor `w` is reset to its initial state, and new events are pushed to it. Notice how, again, the first two calls to `push` after the reset has been made still don't print anything. Processor `w` has been put back into its initial state, meaning in this case that its window is cleared of all its events, and its associated `Cumulate` processor is also reset to a count of zero. This is why the next three calls to `push` print on the console:
+
+```
+10,16,12,
+```
+
+In the case of a `GroupProcessor`, a call to `reset` has for effect of calling `reset` on all the processors it contains, as well as emptying all the input and output queues of these processors.
+
+In addition to objects and member fields specific to the implementation of each  `Processor` descendent, BeepBeep processors also have some more memory elements that are carried by every processor instance. We discuss them in the following.
 
 
 ### Numerical identifier
@@ -882,9 +912,13 @@ An `ApplyFunction` processor is created, and an association between the key "foo
 
 Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
 
-### Duplicating processors
+## Duplicating processors
 
-In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{Processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`. The following example shows how to proceed:
+In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{Processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`.  There are two types of duplication: *stateless* and *stateful*.
+
+### Stateless duplication
+
+The following example shows how to perform what is called *stateless* duplication:
 
 ``` java
 Cumulate sum1 = new Cumulate(
@@ -925,7 +959,7 @@ sum2: 9
 sum2: 10
 ```
 
-This output reveals two things. First, `sum2` is a new `Cumulate` processor that adds numbers; this is indeed a copy of `sum1`. Second, `sum2` accumulates numbers into a sum of its own: it does not keep on adding to the numbers that were accumulated by `sum1` at the moment it was duplicated. Indeed, the default behaviour of `duplicate` is to create a new processor copy, and to place it into its *initial state* --that is, the state in which the processor would be if we called its constructor directly.
+This output reveals two things. First, `sum2` is a new `Cumulate` processor that adds numbers; this is indeed a copy of `sum1`. Second, `sum2` accumulates numbers into a sum of its own: it does not keep on adding to the numbers that were accumulated by `sum1` at the moment it was duplicated. Indeed, the default behaviour of `duplicate` is to create a new processor copy, and to place it into its *initial state* --that is, the state in which the processor would be if we called its constructor directly. This is why it is called *stateless* duplication: the current state of the original processor is not preserved.
 
 However, when a processor is duplicated, its *context* is duplicated as well. To illustrate this, let us create a processor that applies a simple function:
 
@@ -958,6 +992,8 @@ f2: 11
 
 This shows that the value of "foo" (10) has been transferred over from `f1` to its duplicate `f2`. From then on, `f1` and `f2` have separate context objects; changing the value of "foo" in `f1`'s context has no effect on `f2`, and vice versa. Keep in mind that duplication is like any other processor instantiation, and that the duplicated processor always has a distinct numerical ID, regardless of everything else.
 
+### Stateful dupliction
+
 It is also possible to duplicate a processor *and* its state at the same time. To this end, method `duplicate` accepts an optional Boolean argument; if set to `true`, this will instruct to create a copy of the process, and to place that processor in the same state as the original (instead of its initial state). Let us examine the difference by revisiting our original example on duplication, and adding the parameter `true` to the call to `duplicate`:
 
 ``` java
@@ -976,6 +1012,8 @@ sum2: 10
 sum2: 17
 sum2: 18
 ```
+
+### Duplication on `GroupProcessor`s
 
 Duplication has uses for single processor instances, but proves even more handy when manipulating a `GroupProcessor`. In this case, the `duplicate` method takes care of creating a copy of the group; moreover, it duplicates every processor contained in that group, and re-pipes these copies to match exactly the way they are piped in the original. This is in line with the intent that a `GroupProcessor` makes a set of processors connected together behave as if they were a single box. When users call `duplicate` on an instance of a `Processor` object, they do not have to care whether they are duplicating a single processor, or a complex chain of processors encapsulated into a group.
 
@@ -1000,7 +1038,29 @@ System.out.println(p_gp1.pull());
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateGroup.java#L39)
 
 
-We first create a `GroupProcessor` that encapsulates a `Stutter` processor conntected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2).
+We first create a `GroupProcessor` that encapsulates a `Stutter` processor conntected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2). We then connect this group to an upstream source of numbers, and proceed to pull one event out of this chain. Without surprise, the output that is printed at the console is `3`.
+
+The next part of the program will duplicate `gp1` into `gp2`, connect it to a new upstream source of numbers, and pull one event from `gp2`:
+
+``` java
+QueueSource source2 = new QueueSource().setEvents(2, 7, 1, 8);
+GroupProcessor gp2 = gp1.duplicate(true);
+Connector.connect(source2, gp2);
+Pullable p_gp2 = gp2.getPullableOutput();
+System.out.println(p_gp2.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateGroup.java#L58)
+
+
+The second line that is printed at the console is `6`. To understand how we got this number, we must have a look at what occurred under the hood. The first call to `pull` on `gp1` triggered a call to `pull` on the group's `sum` processor, which in turn triggered a call to `pull` on `stutter`, and finally a call to `pull` on `source1`. In return, the processor `stutter` received the event `3`, and placed *two* events in its output queue (the number `3` twice). Processor `sum` took the first of these two events, processed it and returned the value `3`, which in turn was returned by `gp1`.
+
+Therefore, after the first call on `pull`, processor `stutter` inside `gp1` has one event waiting in its output queue (the second copy of the number `3`). The program then creates a duplicate of `gp1`, and the use of parameter `true` instructs BeepBeep to create a *stateful* duplicate. Therefore, `gp2` not only has processors connected in the same way as in `gp1`, but each processor inside has input and output queues that replicate the contents of the original. This means that the copy of `stutter` inside `gp2` also has the number `3` waiting in its output queue.
+
+Once we understand this, the rest of the program is not surprising. Upon the call to `pull` on `gp2`, `sum` will fetch the second copy of number `3` from `stutter`; it will then add this value to its current total, which is 3 (don't forget that `sum` is also a stateful copy of its corresponding processor in `gp1`). This explains the return value of 6.
+
+Copying the contents of input and output queues inside `GroupProcessor`s is essential for such processors to behave like black boxes. In our example, we could create a single `Processor` object `p` that computes the cumulative sum of the double of each input event; this object would behave exactly like `gp1`. However, in our example program, a duplicate of `gp1` that would not preserve queue contents would return a different value than `p` on the second event (3 instead of 6) --meaning that this duplicate is not in the same internal state.
+
+The discussion in this section is a bit technical, and BeepBeep is designed precisely so that you don't need to bother about these intricate details. However, it may sometimes be useful to get a deeper understanding of what is happening at a lower level of abstraction.
 
 ## Exercises
 
