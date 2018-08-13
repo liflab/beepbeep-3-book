@@ -153,22 +153,22 @@ returned as events in the form of strings.
 
  
 
-#### IdentityFunction
+#### `IdentityFunction`
 
-Function that returns its input for its output.
+Function that returns its input for its output. It is represented as follows:
 
+{@img images/functions/IdentityFunction.png}{IdentityFunction}{.6}
 
- 
+The actual colour of the oval depends on the type of events that the function relays.
 
-#### IfThenElse
+#### `IfThenElse`
 
 Function that acts as an if-then-else. If its first input is true, it returns
-its second input; otherwise it returns its third input.
+its second input; otherwise it returns its third input. It is represented as follows:
 
+{@img images/functions/IfThenElse.png}{IfThenElse}{.6}
 
- 
-
-#### Insert
+#### `Insert`
 
 Inserts an event a certain number of times before letting the input events
 through. This processor can be used to shift events of an input trace
@@ -182,16 +182,17 @@ forward, padding the beginning of the trace with some dummy element.
 Function that returns the n-th element of an ordered collection (array or
 list).
 
+#### `Pack`
 
- 
+A `Processor` that accumulates events from a first input pipe, and sends them in a burst into a list based on the Boolean value received on its second input pipe. A value of `true` triggers the output of a list, while a value of `false` accumulates the event into the existing list. This processor is represented graphically as follows:
 
-#### Passthrough
+{@img images/util/Pack.png}{Pack}{.6}
 
-Returns its input as its output. Although it seems useless, `Passthrough` is
-used internally by the ESQL interpreter as a placeholder when building
-processor chains from an expression.
+The oppositve of `Pack` in `Unpack`.
 
-Graphically, this processor is represented as:
+#### `Passthrough`
+
+A `Processor` object that lets every input event through as its output. This processor can be used as a placeholder when a piece of code needs to be passed a `Processor` object, but that in some cases, no processing on the events is necessary. Graphically, this processor is represented as:
 
 {@img images/tmf/Passthrough.png}{Passthrough}{.6}
 
@@ -212,14 +213,6 @@ resulting output to a print stream. Graphically, it is represented as:
 
 {@img images/cli/Print.png}{Print}{.6}
 
-#### Pull mode
-
-One of the two operating modes of a chain of processors. In pull mode, a user or an application obtains references to the `Pullable` objects of the downstream processors of the chain, and calls their `pull()` method to ask for new output events. When using a chain of processors in pull mode, the chain must be closed at its inputs. The opposite mode is called *push mode*.
-
-#### Push mode
-
-One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
-
 #### `Processor`
 
 A processing unit that receives zero or more input streams, and produces zero or more output streams. The `Processor` is the fundamental class where all stream computation occurs. All of BeepBeep's processors are descendants of this class. A processor is depicted graphically as a "box", with "pipes" representing its
@@ -239,7 +232,13 @@ Queries events on one of a processor's outputs. For a processor with an
 output arity <i>n</i>, there exists *n* distinct pullables, namely one for
 each output trace. Every pullable works roughly like a classical `Iterator`:
 it is possible to check whether new output events are available, and get one
-new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors.
+new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors. Graphically, a `Pullable` is represented by a pipe connected to a processor, with an outward pointing triangle:
+
+{@img images/Pullable.png}{Pullable}{.6}
+
+#### Pull mode
+
+One of the two operating modes of a chain of processors. In pull mode, a user or an application obtains references to the `Pullable` objects of the downstream processors of the chain, and calls their `pull()` method to ask for new output events. When using a chain of processors in pull mode, the chain must be closed at its inputs. The opposite mode is called *push mode*.
 
 #### `Pump`
 
@@ -260,7 +259,13 @@ The opposite of the `Pump` is the `Tank`.
 #### `Pushable`
 
 An object that gives events to some of a processor's input. Interface `Pushable` is the opposite of `Pullable`: rather than querying events form a processor's output (i.e. "pulling"), it gives events to a processor's input. This has for effect of triggering the processor's computation and "pushing" results (if any) to the processor's output. If a processor is of input arity *n*, there exist *n* distinct
-`Pullable`s: one for each input pipe.
+`Pullable`s: one for each input pipe. Graphically, a `Pushable` is represented by a pipe connected to a processor, with an inward pointing triangle:
+
+{@img images/Pushable.png}{Pushable}{.6}
+
+#### Push mode
+
+One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
 
 #### `QueueSink`
 
@@ -274,12 +279,11 @@ A `Source` whose input is a queue of objects. One gives the `QueueSource` a list
 
 {@img images/tmf/QueueSource.png}{QueueSource}{.6}
 
-#### ReadLines
+#### `ReadLines`
 
-Source that reads text lines from a Java `InputStream`.
+Source that reads text lines from a Java `InputStream`. It is represented graphically as:
 
-
-
+{@img images/io/ReadLines.png}{ReadLines}{.6}
 
 #### ReadStringStream
 
@@ -293,7 +297,6 @@ A `Processor` that takes arbitrary objects as its inputs, and turns each of them
 
 *Serialization* can be used to store the state of objects on a persistent medium, or to transmit non-primitive data types over a communication medium such as a network. The opposite operation is called *deserialization*.
 
-
 #### `StreamReader`
 
 A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
@@ -302,26 +305,29 @@ A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represen
 
 #### `SingleProcessor`
 
-Performs a computation on input events to produce output events.
+A `Processor` that performs a computation on input events to produce output events. This is the direct descendant of `Processor`, and probably the one you'll want to inherit from when creating your own processors. While `Processor` takes care of input and output queues, `SingleProcessor` also implements `Pullable`s and `Pushable`s. These take care of collecting input events, waiting until one new event is received from all input traces before triggering the computation, pulling and buffering events from all outputs when either of the `Pullable`s is being called, etc.
 
-This is the direct descendant of `Processor`, and probably the one
-you'll want to inherit from when creating your own processors. While
-`Processor` takes care of input and output queues,
-`SingleProcessor` also implements `Pullable`s and
-`Pushable`s. These take care of collecting input events, waiting until
-one new event is received from all input traces before triggering the
-computation, pulling and buffering events from all outputs when either of the
-`Pullable`s is being called, etc.
+The only thing that is left undefined is what to do when new input events have been received from all input traces. This is the task of abstract method `compute()`, which descendants of this class must implement.
 
-The only thing that is left undefined is what to do when new input events
-have been received from all input traces. This is the task of abstract method
-{@link #compute(Object[], Queue)}, which descendants of this class must
-implement.
+#### `Sink`
+
+A `Processor` with an output *arity* of zero. It is used to close processor chains in *push mode*.
+
+#### `Slice`
+
+TODO
+
+#### `Source`
+
+A `Processor` with an input *arity* of zero. It is used to close processor chains in *pull mode*.
 
 #### `StreamVariable`
 
-A `Function` standing for the <i>i</i>-th trace given as input. A `StreamVariable`
-can be given as an argument to a `FunctionTree`.
+A `Function` standing for the *i*-th stream given as input to a processor. A `StreamVariable` can be given as an argument to a `FunctionTree`. It is represented as follows:
+
+{@img images/functions/StreamVariable.png}{StreamVariable}{.6}
+
+The number inside the diamond represents the stream number. By convention, stream numbers start at 1 in drawings.
 
 #### `Tank`
 
@@ -333,35 +339,35 @@ Graphically, this processor is represented as:
 
 The opposite of the tank is the `Pump`.
 
+#### `TimeDecimate`
 
- 
+A `Processor` which, after returning an input event, discards all others for the next *n* seconds. This processor therefore acts as a rate limiter. It is represented as:
 
-#### TimeDecimate
+{@img images/tmf/TimeDecimate.png}{TimeDecimate}{.6}
 
-After returning an input event, discards all others for the next *n* seconds.
-This processor therefore acts as a rate limiter.
+Note that this processor uses `System.currentTimeMillis()` as its clock. Moreover, a mode can be specified in order to output the last input event of the trace if it has not been output already.
 
-Note that this processor uses <code>System.currentTimeMillis()</code> as its
-clock. Moreover, a mode can be specified in order to output the last input
-event of the trace if it has not been output already.
+#### `Trim`
 
+A `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
 
- 
+{@img images/tmf/Trim.png}{Trim}{.6}
 
-#### Trim
+#### `Tuple`
 
-Discards the first *n* events of the input, and outputs the remaining ones.
+A special type of event defined by BeepBeep's *Tuple* palette, which consists of an associative map between keys and values. Contrary to tuples in relational databases, where values must be scalar (i.e. strings or numbers), the tuples in BeepBeep can have arbitrary Java objects as values (including other tuples).
 
+#### `TupleFeeder`
 
- 
+A `Processor` that converts lines of text into `Tuple`s. It is represented as:
 
-#### TurnInto
+{@img images/other/TupleFeeder.png}{TupleFeeder}{.6}
 
-Processor that turns any event into a predefined object. It is represented
-graphically as:
+#### `TurnInto`
+
+A `Processor` that turns any input event into a predefined object. It is represented graphically as:
 
 {@img images/functions/TurnInto.png}{TurnInto}{.6}
-
 
 #### `UnaryFunction`
 
@@ -371,10 +377,17 @@ A `Function` object that has an input and output *arity* of exactly 1.
 
 A `Processor` that produces the same number of output fronts for every input front it receives. Occasionally, the number of output fronts produced is explicitly mentioned: a *k*-uniform processor produces exactly *k* output fronts for every input front.
 
-#### Window
+#### `Unpack`
 
-Simulates the application of a "sliding window" to a trace. It is represented
-graphically as:
+A `Processor` that unpacks a list of objects by outputting its contents as separate events. This processor is represented graphically as follows: 
+
+{@img images/util/Unpack.png}{Unpack}{.6}
+
+The opposite of `Unpack` is `Pack`.
+
+#### `Window`
+
+Simulates the application of a "sliding window" to a trace. It is represented graphically as:
 
 {@img images/tmf/Window.png}{Window}{.6}
 

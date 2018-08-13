@@ -36,7 +36,7 @@
   * [Pumps and tanks](advanced/README.md#pumps-and-tanks)
   * [Basic input/output](advanced/README.md#basic-input-output)
   * [Soft vs. hard pulling](advanced/README.md#soft-vs-hard-pulling)
-  * [Processor context](advanced/README.md#processor-context)
+  * [The state of a processor](advanced/README.md#the-state-of-a-processor)
   * [Exercises](advanced/README.md#exercises)
 * [The standard palettes](palettes/README.md)
   * [Tuples](palettes/README.md#tuples)

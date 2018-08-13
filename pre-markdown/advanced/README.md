@@ -492,23 +492,146 @@ Calling `hasNextSoft` one more time on `p` produces again the value `MAYBE`, as 
 
 As you can see, using hard and soft pulling ultimately produces the same stream of output events in the main program. The difference lies in how these events are queried. Intuitively, soft pulling can be seen as doing exactly "one turn of the crank" on the whole chain of processors: every processor in the chain asks exactly once for an input event from upstream, which may or may not lead to the production of an output event. In contrast, hard pulling can be seen as doing soft pulling as long as needed to obtain an output event. Another way of seeing this is to say that soft pulling always returns, but maybe note with a new event; hard pulling, on its side, blocks until an output event is available.
 
-For the same processor, mixing calls to soft and hard methods is discouraged. As a matter of fact, the Pullable's behaviour in such a situation is left undefined.
+For the same processor, mixing calls to soft and hard methods is discouraged. As a matter of fact, the `Pullable`'s behaviour in such a situation is left undefined.
 
-## Processor context
+## The state of a processor
 
-Each processor instance is also associated with a <!--\index{Processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
+We have said a couple of times that the main distinction between functions and processors is the fact that the latter is *stateful*. That is, given the same inputs, a function always returns the same output; in contrast, the output produced by a processor for an event may depend on what other events have been seen before. As a consequence, a `Processor` object must have some memory of the past --hence the term "stateful". 
+
+Consider for example a `CountDecimate` processor instructed to keep one event every *k*. In order to correctly perform its task, this processor must keep a record of the number of events that have been discarded since the last time an output event was produced. This value is incremented by one, modulo *k*, every time a new input event is received; when the value reaches 0, a new output event is produced. Hence, the *state* of a `CountDecimate` processor corresponds to the current value of its counter. Typically, given the same input event *and the same state*, a processor is expected to always behave in the same way, i.e. produce the same output, if any.  Depending on the processor type, the state may be a single numerical value, or something more complex. For example, in a `Window` processor, the current state consists of the input events that have been accumulated in partial windows.
+
+In addition to this usage-specific data, BeepBeep processors also have some more memory elements that are carried by every processor instance. We discuss them in the following.
+
+
+### Numerical identifier
+
+Each `Processor` object has a unique numerical identifier, called the <!--\index{Processor!ID} \emph{processor ID}-->*processor ID*<!--/i-->. In the current implementation of BeepBeep, identifiers start at zero when a program is launched, and are incremented by one every time the constructor of class `Processor` is called (in other words, every time a new processor of any kind is created). The assignment of an ID to each processor is synchronized, meaning that race conditions are avoided in the case where processors are instantiated from multiple threads in parallel.
+
+The ID pf a processor has no special meaning, and you will seldom have to use this value when writing processor chains in your daily work. Processor IDs are used by the BeepBeep library itself, mostly for two purposes:
+
+- correctly copying `GroupProcessors` when the `duplicate` method is called (see below);
+- tracking the relationship between input and output events throughout a chain of processors (a very embryonic feature called *provenance*, which will be further developed in future versions of the software).
+
+Nevertheless, IDs can be queried using a public method called `getId()`. The following code shows an example of this:
+
+{@snipm basic/ProcessorId.java}{/}
+
+The program simply create two processors and prints their respective ID:
+
+```
+ID of source: 0
+ID of decim: 1
+```
+
+We insist on the fact that *every* instance has a distinct ID. Consider the following class, which creates a `GroupProcessor` containing a single `Passthrough`:
+
+{@snipm basic/ProcessorIdGroup.java}{!}
+
+Let us create an instance of this group, and look at the IDs of the processors:
+
+{@snipm basic/ProcessorIdGroup.java}{/}
+
+The output of this program is:
+
+```
+ID of g1: 0
+ID inside g1: 1
+```
+
+As you can see, the `GroupProcessor` in itself has its own ID (0), and the instance of `Passthrough` it contains has a distinct ID. Let us continue the program and create a second instance of `MyGroup`:
+
+{@snipm basic/ProcessorIdGroup.java}{\*}
+
+The next two printed lines are:
+
+```
+ID of g1: 2
+ID inside g1: 3
+```
+
+As you can see, the uniqueness of processor IDs is *global* across the entire run of a program. Even for multiple copies of the same `GroupProcessor`, every processor it contains is given an ID different from that of any other processor. However, you *cannot* assume that the same processor instance gets the same ID every time the program is run: this may depend on the interlacing of threads, or any other source of non-determinism (such as enumerations over unordered collections, user input, etc.).
+
+
+### Context
+
+In addition, each processor instance is also associated with a <!--\index{Processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
 
 {@snipm basic/ContextExample.java}{/}
 
-An `ApplyFunction` processor is created, and an association between the key "foo" and the number 10 is added to the processor's context object. This context can be referred to in a `FunctionTree` by using a `ContextVariable`. Here such a variable is created and is instructed to fetch the value associated to key "foo" in the current processor's context. Therefore, the output of the program is:
+An `ApplyFunction` processor is created, and an association between the key "foo" and the number 10 is added to the processor's context object. This context can be referred to in a `FunctionTree` by using a `ContextVariable`. Here, such a variable is created and is instructed to fetch the value associated to key "foo" in the current processor's context. Therefore, the output of the program is:
 
 ```
 10,13,
 ```
 
-Note how the context can be modified by further calls to `setContext`.
+Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
 
-When a processor is duplicated, its context is duplicated as well. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
+### Duplicating processors
+
+In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{Processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`. The following example shows how to proceed:
+
+{@snipm basic/DuplicateNoState.java}{/}
+
+In this example, a `Cumulate` processor is connected to a `Print` sink, and a few events are pushed to it. The first part of the program prints, as expected:
+
+```
+sum1: 3
+sum1: 4
+sum1: 8
+```
+
+Let us now use method `duplicate()` to create a new copy of `sum1`, and push events to it as well:
+
+{@snipm basic/DuplicateNoState.java}{\*}
+
+The next three lines the program prints are:
+
+```
+sum2: 2
+sum2: 9
+sum2: 10
+```
+
+This output reveals two things. First, `sum2` is a new `Cumulate` processor that adds numbers; this is indeed a copy of `sum1`. Second, `sum2` accumulates numbers into a sum of its own: it does not keep on adding to the numbers that were accumulated by `sum1` at the moment it was duplicated. Indeed, the default behaviour of `duplicate` is to create a new processor copy, and to place it into its *initial state* --that is, the state in which the processor would be if we called its constructor directly.
+
+However, when a processor is duplicated, its *context* is duplicated as well. To illustrate this, let us create a processor that applies a simple function:
+
+{@snipm basic/DuplicateContext.java}{/}
+
+The function adds the value of a processor's context variable called "foo" to each input event. In the beginning, this variable is set to the value 10 by a call to `setContext` on `f1`. Processor `f1` is then duplicated, and a few more events are pushed on its copy `f2`. The output of the program is:
+
+```
+f1: 13
+f1: 11
+f2: 12
+f2: 17
+f2: 11
+```
+
+This shows that the value of "foo" (10) has been transferred over from `f1` to its duplicate `f2`. From then on, `f1` and `f2` have separate context objects; changing the value of "foo" in `f1`'s context has no effect on `f2`, and vice versa. Keep in mind that duplication is like any other processor instantiation, and that the duplicated processor always has a distinct numerical ID, regardless of everything else.
+
+It is also possible to duplicate a processor *and* its state at the same time. To this end, method `duplicate` accepts an optional Boolean argument; if set to `true`, this will instruct to create a copy of the process, and to place that processor in the same state as the original (instead of its initial state). Let us examine the difference by revisiting our original example on duplication, and adding the parameter `true` to the call to `duplicate`:
+
+{@snipm basic/DuplicateState.java}{\*}
+
+The output of the program becomes the following; notice how `sum2`'s count does not start at 0, but rather at `sum1`'s count at the moment it was duplicated.
+
+```
+sum1: 3
+sum1: 4
+sum1: 8
+sum2: 10
+sum2: 17
+sum2: 18
+```
+
+Duplication has uses for single processor instances, but proves even more handy when manipulating a `GroupProcessor`. In this case, the `duplicate` method takes care of creating a copy of the group; moreover, it duplicates every processor contained in that group, and re-pipes these copies to match exactly the way they are piped in the original. This is in line with the intent that a `GroupProcessor` makes a set of processors connected together behave as if they were a single box. When users call `duplicate` on an instance of a `Processor` object, they do not have to care whether they are duplicating a single processor, or a complex chain of processors encapsulated into a group.
+
+To make things more concrete, let us examine this code example:
+
+{@snipm basic/DuplicateGroup.java}{/}
+
+We first create a `GroupProcessor` that encapsulates a `Stutter` processor conntected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2).
 
 ## Exercises
 
@@ -527,5 +650,7 @@ When a processor is duplicated, its context is duplicated as well. If a processo
 5. Consider a stream of letters of the alphabet. Create a processor chain that always returns the number of occurrences of the letter that has been seen most often so far. For example, on the input stream a,b,a,c,c,b,a, the processor would return 1,1,2,2,2,2,3. (Hint: a possible solution involves `Slice`, `Cumulate`, `Maps.Values` and `Numbers.max`, among others.)
 
 6. Create a processor chain that reads an HTML file as input, and counts how many times each HTML tag appears in the document. (Hint: use a `FindPattern` and a `Slice`, among others.)
+
+7. In the section about processor states, one of the examples apply the `duplicate()` method on a `Cumulate` processor. Try the same process on other elementary processors, such as `Trim` or `CountDecimate`. Can you guess what is their initial state?
 
 <!-- :wrap=soft: -->
