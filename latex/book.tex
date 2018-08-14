@@ -26,8 +26,13 @@
   pdfauthor = {Sylvain Hallé}
 }
 \usepackage{multicol}
+
+% Define the "pencil" character to place below code snippets
 \usepackage{newunicodechar}
 \DeclareUnicodeCharacter{2693}{\ding{46}}
+
+% Command for showing palette icon in glossary
+\newcommand{\bbpalette}[1]{\hspace{-1em}\includegraphics[height=2.5mm]{chapters/dictionary/Palette-#1}\phantom{W}}
 
 \begin{document}
 \frontmatter
@@ -64,11 +69,14 @@ Book version: L1.1---August 10, 2018}
 \subimport*{chapters/}{body}
 
 \appendix
+% Change "chapter" for "appendix" in footer for these chapters
 \renewcommand{\chaptername}{Appendix}
 \subimport*{chapters/}{drawing/README}
 \subimport*{chapters/}{dictionary/README}
 
-%\addcontentsline{toc}{chapter}{Index}
+%% Change footer for index
+\fancyfoot[LE]{\sffamily\bfseries\small \parbox{20pt}{\thepage}\quad|\quad\leftmark}
+\fancyfoot[RO]{\sffamily\bfseries\small{\raggedleft\thepage}}
 \printindex
 
 %% Back of the book
