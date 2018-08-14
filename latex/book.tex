@@ -27,6 +27,11 @@
 }
 \usepackage{multicol}
 
+% Allow hyphenation in tt font
+% found from https://tex.stackexchange.com/a/44362/165194
+\DeclareFontFamily{\encodingdefault}{\ttdefault}{\hyphenchar\font=`\-}
+%\hyphenation{Pro-ces-sor}
+
 % Define the "pencil" character to place below code snippets
 \usepackage{newunicodechar}
 \DeclareUnicodeCharacter{2693}{\ding{46}}

@@ -13,13 +13,12 @@ $source_location = "../examples/Source/src/";
 $code_examples = 0;
 $code_lines = 0;
 list($code_examples, $code_lines) = stats_code();
-$num_figures = 10;
-$num_exercises = 20;
+list($num_figures, $num_exercises) = stats_exercises_and_figures();
 
 echo <<<EOD
-- $code_examples different code examples, for a total of $code_lines lines of Java
-- $num_figures colour illustrations
-- $num_exercises across all chapters
+- **$code_examples** different code examples, for a total of $code_lines lines of Java
+- **$num_figures** colour illustrations
+- **$num_exercises** exercises across all chapters
 
 EOD;
 
@@ -81,4 +80,35 @@ function stats_code()
 	}
 	return array(count($file_list), $num_lines);
 }
+
+function stats_exercises_and_figures()
+{
+	global $input_directory;
+	$file_list = array();
+	$it = new RecursiveDirectoryIterator($input_directory);
+	$num_ex = 0;
+	$num_fig = 0;
+	foreach (new RecursiveIteratorIterator($it) as $file)
+	{
+		if (substr($file, strlen($file) - 3, 3) !== ".md")
+		{
+			continue;
+		}
+		// Count pictures, except in glossary
+		$in_dict = (strpos($file, "dictionary") !== false);
+		$original_contents = file_get_contents($file);
+		$in_ex = false;
+		foreach (explode("\n", $original_contents) as $line)
+		{
+			if (!$in_dict && preg_match("/^\\{@img/", $line))
+				$num_fig++;
+			if ($in_ex && preg_match("/^\\d+\\. /", $line))
+				$num_ex++;
+			if (!$in_ex && preg_match("/^## Exercises/", $line))
+				$in_ex = true;
+		}
+	}
+	return array($num_fig, $num_ex);
+}
+
 ?>
