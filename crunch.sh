@@ -20,9 +20,6 @@ php convert-images.php
 cp pre-markdown/dictionary/Palette*.png markdown/dictionary/
 cp pre-markdown/dictionary/Palette*.pdf latex/chapters/dictionary/
 
-# Fill statistics
-php fill-stats.php
-
 # Perform a few hacks on LaTeX output before compiling
 php post-processing-latex.php
 
