@@ -6,6 +6,17 @@ For entries that refer to Java objects (such as processors and functions, a note
 
 For more technical information about each of these objects, the reader is referred to the online API documentation, which is provides in-depth and up-to-date information.
 
+#### `AbsoluteValue`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!AbsoluteValue@\texttt{AbsoluteValue}} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It computes the absolute value of a number. It is represented as:
+
+{@img images/util/AbsoluteValue.png}{AbsoluteValue}{.6}
+
+#### `Addition`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Addition@\texttt{Addition}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It adds two numbers. It is represented as:
+
+{@img images/util/Addition.png}{Addition}{.6}
 
 #### `And`
 
@@ -71,6 +82,12 @@ See also `PutInto`.
 
 <!--\index{closed (chain)} A-->A<!--/i--> property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
 
+#### `Concat`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!Concat@\texttt{Concat}} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as arguments, and returns the concatenation of both strings as its output value. It is represented as:
+
+{@img images/util/Concat.png}{Concat}{.6}
+
 #### `Connector`
 
 @palette Core@ <!--\index{Connector@\texttt{Connector}} A-->A<!--/i--> utility class that provides a number of convenient methods for connecting the outputs of processors to the inputs of other processors. Methods provided by the `Connector` class are called `connect()` and have various signatures. When called with exactly two `Processor` arguments, `connect` assigns each output pipe of the first processor to the input pipe at the same position on the second processor.
@@ -81,11 +98,17 @@ See also `PutInto`.
 
 {@img images/functions/Constant.png}{Constant}{.6}
 
-#### `Contains`
+#### `Contains` (`Bags`)
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}} A-->A<!--/i--> 2:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and an object *o*, and returns the Boolean value `true` as its output if and only if *o* is an element of *c*. It is represented graphically as:
 
 {@img images/util/Contains.png}{Contains}{.6}
+
+#### `Contains` (`Strings`)
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!Contains@\texttt{Contains}} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as input, and returns the Boolean value `true` if the first contains the second. It is represented as:
+
+{@img images/util/StringContains.png}{StringContains}{.6}
 
 #### `Context`
 
@@ -93,7 +116,11 @@ See also `PutInto`.
 
 #### `ContextVariable`
 
-@palette Core@ <!--\index{ContextVariable@\texttt{ContextVariable}} A-->A<!--/i--> `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `Evaluate` processor, it queries that processor's `Context` object to get the current value associated to the key.
+@palette Core@ <!--\index{ContextVariable@\texttt{ContextVariable}} A-->A<!--/i--> `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `ApplyFunction` processor, it queries that processor's `Context` object to get the current value associated to the key. It is represented graphically as:
+
+{@img images/functions/ContextVariable.png}{ContextVariable}{.6}
+
+By convention, context variables are prefixed with a dollar sign in drawings, to differentiate them from constants.
 
 #### `CountDecimate`
 
@@ -124,6 +151,18 @@ See also `PutInto`.
 
 *Deserialization* can be used to restore the state of objects previously saved on a persistent medium, or to receive non-primitive data types over a communication medium such as a network. The opposite operation is called *serialization*.
 
+#### `Division`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Division@\texttt{Division}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the quotient of two numbers. It is represented as:
+
+{@img images/util/Division.png}{Division}{.6}
+
+#### `EndsWith`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!EndsWith@\texttt{EndsWith}} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. TODO
+
+{@img images/util/EndsWith.png}{EndsWith}{.6}
+
 #### `Equals`
 
 @palette Core@ <!--\index{Equals@\texttt{Equals}} A-->A<!--/i--> `Function` that checks for the equality between two objects. It is represented graphically as follows:
@@ -151,6 +190,12 @@ See also `PutInto`.
 #### FindPattern
 
 <!--\index{FindPattern@\texttt{FindPattern}} A-->A<!--/i--> `Processor` that extracts chunks of an input stream based on a regular expression.
+
+#### `FindRegex`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!FindRegex@\texttt{FindRegex}} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It receives a string *s* as its argument, and returns an *array* of strings, corresponding to all the matches of a given regular expression *exp* on *s*. It is represented as:
+
+{@img images/util/FindRegex.png}{FindRegex}{.6}
 
 #### `Fork`
 
@@ -235,25 +280,83 @@ The actual colour of the oval depends on the type of events that the function re
 through. This processor can be used to shift events of an input trace
 forward, padding the beginning of the trace with some dummy element.
 
+#### `IsEven`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsEven@\texttt{IsEven}} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It returns the Boolean value `true` if and only if its argument is an even number. It is represented as:
+
+{@img images/util/IsEven.png}{IsEven}{.6}
+
+#### `IsGreaterOrEqual`, `IsGreaterThan`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsGreaterThan@\texttt{IsGreaterThan}} Two-->Two<!--/i--> `BinaryFunction`s provided by the `Numbers` utility class. They return the Boolean value `true` if their first argument is greater than (or equal to) the second argument. They are represented as:
+
+{@img images/util/IsGreaterThan.png}{IsGreaterThan}{.6}
+
+#### `IsLessOrEqual`, `IsLessThan`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsGreaterThan@\texttt{IsGreaterThan}} Two-->Two<!--/i--> `BinaryFunction`s provided by the `Numbers` utility class. They return the Boolean value `true` if their first argument is less than (or equal to) the second argument. They are represented as:
+
+{@img images/util/IsLessThan.png}{IsLessThan}{.6}
+
+#### `IsSubsetOrEqual`
+
+@palette Core@ <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}} A-->A<!--/i--> `BinaryFunction` that receives two sets as arguments, and returns `true` if the first is a subset of the second. It is represented as:
+
+{@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.6}
+
 #### `Lists`
 
 @palette Core@ A container class for functions and processors applying to ordered collections (`List`s) and arrays. Among the processors and functions provided by `Lists` are: `Explode`, `Pack`, `TimePack`, and `Unpack`.
 
 #### `Maps`
 
-@palette Core@ A container class for functions and processors applying to Java `Maps`, i.e. associative key-value arrays. Among the processors and functions provided by `Maps` are: `ArrayPutInto`, `Get`, `PutInto`, and `Values`.
+@palette Core@ A container class for functions and processors applying to Java `Map`s, i.e. associative key-value arrays. Among the processors and functions provided by `Maps` are: `ArrayPutInto`, `Get`, `PutInto`, and `Values`.
+
+#### `Matches`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!Matches@\texttt{Matches}} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as its arguments, and returns the Boolean value `true` if the first matches the regular expression defined in the second. It is represented as:
+
+{@img images/util/Matches.png}{Matches}{.6}
+
+#### `Maximum`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Maximum@\texttt{Maximum}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It returns the maximum of its two arguments. It is represented as:
+
+{@img images/util/Maximum.png}{Maximum}{.6}
+
+#### `Minimum`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Minimum@\texttt{Minimum}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It returns the minimum of its two arguments. It is represented as:
+
+{@img images/util/Minimum.png}{Minimum}{.6}
+
+#### `Multiplication`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Multiplication@\texttt{Multiplication}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the product of two numbers. It is represented as:
+
+{@img images/util/Multiplication.png}{Multiplication}{.6}
 
 #### `Not`
 
 @palette Core@ <!--\index{Booleans@\texttt{Booleans}!Not@\texttt{Not}} An-->An<!--/i--> `UnaryFunction` provided by the `Booleans` utility class. It computes the logical negation of its Boolean argument, and is represented graphically as:
 
 {@img images/util/Not.png}{Not}{.6}
- 
 
-#### NthElement
+#### `NumberCast`
 
-@palette Core@ Function that returns the n-th element of an ordered collection (array or
-list).
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It attempts to convert an arbitrary Java `Object` into a number. It is represented as:
+
+{@img images/util/NumberCast.png}{NumberCast}{.6}
+
+#### `Numbers`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}} A-->A<!--/i--> container class for functions applying to Java `Number`s. Among the functions provided by `Numbers` are: `AbsoluteValue`, `Addition`, `Division`, `IsEven`, `IsGreaterOrEqual`, `IsGreaterThan`, `IsLessOrEqual`, `IsLessThan`, `Maximum`, `Minimum`, `Multiplication`, `NumberCast`, `Power`, `Signum`, `SquareRoot`, and `Subtraction`.
+
+#### `NthElement`
+
+@palette Core@ An `UnaryFunction` that returns the *n*-th element of an ordered collection (array or list). It is represented graphically as:
+
+{@img images/util/NthElement.png}{NthElement}{.6}
 
 #### `Or`
 
@@ -275,7 +378,11 @@ The oppositve of `Pack` in `Unpack`. See also `TimePack`.
 
 {@img images/tmf/Passthrough.png}{Passthrough}{.6}
 
+#### `Power`
 
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Power@\texttt{Power}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the first argument, elevated to the power of the second. It is represented as:
+
+{@img images/util/Power.png}{Power}{.6}
  
 
 #### Prefix
@@ -351,13 +458,29 @@ The opposite of the `Pump` is the `Tank`.
 
 One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
 
-#### `PutInto`
+#### `PutInto` (`Maps`)
 
-@palette Core@ A `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
+@palette Core@ <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
 
 {@img images/util/PutInto.png}{PutInto}{.6}
 
 See also `ArrayPutInto`.
+
+#### `PutInto` (`Sets`)
+
+@palette Core@ <!--\index{Sets@\texttt{Sets}!PutInto@\texttt{PutInto}} A-->A<!--/i--> `Processor` provided by the `Sets` utility class. Updates a set by putting the elements it receives into it. Upon each input event, it repeatedly outputs a reference to the same internal `Set` object, updated accordingly. The processor is represented graphically as:
+
+{@img images/util/SetPutInto.png}{SetPutInto}{.6}
+
+See also `PutIntoNew`.
+
+#### `PutIntoNew` (`Sets`)
+
+@palette Core@ <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}} A-->A<!--/i--> `Processor` provided by the `Sets` utility class. Updates a set by putting the elements it receives into it. Upon each input event, it creates a new instance of `Set` and adds to it all the events received so far; it then outputs a reference to this new set. The processor is represented graphically as:
+
+{@img images/util/SetPutIntoNew.png}{SetPutIntoNew}{.6}
+
+See also `PutInto` (`Sets`).
 
 #### `QueueSink`
 
@@ -397,11 +520,15 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 *Serialization* can be used to store the state of objects on a persistent medium, or to transmit non-primitive data types over a communication medium such as a network. The opposite operation is called *deserialization*.
 
-#### `StreamReader`
+#### `Sets`
 
-@palette Core@ A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
+@palette Core@ <!--\index{Sets@\texttt{Sets}} A-->A<!--/i--> container class for functions and processors applying to Java `Set`s and their descendents. Among the processors and functions provided by `Sets` are: `IsSubsetOrEqual`, `PutInto`, `PutIntoNew`, and `SetUpdateProcessor`.
 
-{@img images/io/StreamReader.png}{StreamReader}{.6}
+#### `Signum`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Signum@\texttt{Signum}} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It returns -1 if the argument is negative, +1 if it is positive, and 0 if the argument is the number 0. It is represented as:
+
+{@img images/util/Signum.png}{Signum}{.6}
 
 #### `SingleProcessor`
 
@@ -421,6 +548,32 @@ The only thing that is left undefined is what to do when new input events have b
 
 @palette Core@ A `Processor` with an input *arity* of zero. It is used to close processor chains in *pull mode*.
 
+#### `SplitString`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}} A-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It receives as string as its input, and returns an *array* of strings, split according to a given character separator. It is represented as:
+
+{@img images/util/SplitString.png}{SplitString}{.6}
+
+The comma in the figure is to be replaced by the actual character used to separate the input string.
+
+#### `SquareRoot`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!SquareRoot@\texttt{SquareRoot}} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It computes the square root of its argument. It is represented as:
+
+{@img images/util/SquareRoot.png}{SquareRoot}{.6}
+
+#### `StartsWith`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!StartsWith@\texttt{StartsWith}} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as its arguments, and returns the Boolean value `true` if the first string starts with the second. It is represented as:
+
+{@img images/util/StartsWith.png}{StartsWith}{.6}
+
+#### `StreamReader`
+
+@palette Core@ A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
+
+{@img images/io/StreamReader.png}{StreamReader}{.6}
+
 #### `StreamVariable`
 
 @palette Core@ A `Function` standing for the *i*-th stream given as input to a processor. A `StreamVariable` can be given as an argument to a `FunctionTree`. It is represented as follows:
@@ -428,6 +581,16 @@ The only thing that is left undefined is what to do when new input events have b
 {@img images/functions/StreamVariable.png}{StreamVariable}{.6}
 
 The number inside the diamond represents the stream number. By convention, stream numbers start at 1 in drawings.
+
+#### `Strings`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}} A-->A<!--/i--> container class for functions and processors applying to Java `String`s. Among the processors and functions provided by `Sets` are: `Concat`, `Contains`, `EndsWith`, `FindRegex`, `Matches`, `SplitString`, `StartsWith` and `ToString`.
+
+#### `Subtraction`
+
+@palette Core@ <!--\index{Numbers@\texttt{Numbers}!Subtraction@\texttt{Subtraction}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the difference of two numbers. It is represented as:
+
+{@img images/util/Subtraction.png}{Subtraction}{.6}
 
 #### `Tank`
 
@@ -460,6 +623,12 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 @palette Core@ Three *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
 
 {@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.6}
+
+#### `ToString`
+
+@palette Core@ <!--\index{Strings@\texttt{Strings}!ToString@\texttt{ToString}} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It attempts to convert an arbitrary Java `Object` into a `String`; this is done by calling the object's `toString` method. It is represented as:
+
+{@img images/util/ToString.png}{ToString}{.6}
 
 #### `Trim`
 

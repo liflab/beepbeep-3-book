@@ -38,6 +38,7 @@
   * [Soft vs. hard pulling](advanced/README.md#soft-vs-hard-pulling)
   * [The state of a processor](advanced/README.md#the-state-of-a-processor)
   * [Duplicating processors](advanced/README.md#duplicating-processors)
+  * [Using multiple threads](advanced/README.md#using-multiple-threads)
   * [Exercises](advanced/README.md#exercises)
 * [The standard palettes](palettes/README.md)
   * [Tuples](palettes/README.md#tuples)
