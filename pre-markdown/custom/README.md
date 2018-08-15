@@ -137,7 +137,7 @@ From then on, it is possible to write `new CounterGroup()` to get a fresh instan
 
 Using a group works only if your custom processor can be expressed by piping other existing processors. If this is not the case, you have to resort to extending one of BeepBeep's `Processor` descendents.
 
-The simplest way to do so is to extend the `SingleProcessor` class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
+The simplest way to do so is to extend the <!--\index{SingleProcessor@\texttt{SingleProcessor}} \texttt{SingleProcessor}-->`SingleProcessor`<!--/i--> class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
 
 - Define how many input pipes your processor needs, and how many output streams it produces. As we know, these two values are called the input and output <!--\index{processor!arity} \emph{arity}-->*arity*<!--/i--> of the processor, respectively.
 - Write the actual computation that should occur, i.e. what output event(s) to produce (if any), given an input event.
@@ -165,7 +165,7 @@ This results in a processor that accepts no inputs, and produces no output. To m
 
 As a first example, let us write a processor that receives character strings as its input events, and that computes the length of each string. The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
 
-The actual functionality of our processor will be written in the body of method <!--\index{SingleProcessor!compute@\texttt{compute()}} \texttt{compute()}-->`computer()`<!--/i-->. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1).  Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
+The actual functionality of our processor will be written in the body of method <!--\index{SingleProcessor@\texttt{SingleProcessor}!compute@\texttt{compute()}} \texttt{compute()}-->`compute()`<!--/i-->. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1).  Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
 
 {@snips customprocessors/StringLength.java}{public class}
 

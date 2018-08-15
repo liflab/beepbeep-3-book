@@ -6,79 +6,119 @@ For entries that refer to Java objects (such as processors and functions, a note
 
 For more technical information about each of these objects, the reader is referred to the online API documentation, which is provides in-depth and up-to-date information.
 
+
+#### `And`
+
+@palette Core@ <!--\index{Booleans@\texttt{Booleans}!And@\texttt{And}} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical conjunction of its two Boolean arguments, and is represented graphically as:
+
+{@img images/util/And.png}{And}{.6}
+
+#### `AnyElement`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!AnyElement@\texttt{AnyElement}} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c*, and returns as its output an arbitrary element of *c*. It is represented graphically as:
+
+{@img images/util/AnyElement.png}{AnyElement}{.6}
+
+#### `ApplyFunction`
+
+@palette Core@ <!--\index{ApplyFunction@\texttt{ApplyFunction}} A-->A<!--/i--> `Processor` that applies a specific function *f* to every event *front* it receives, and returns the output of that function. The input and output *arity* of this processor are equal to the input and output arity of the underlying function. It is represented graphically as:
+
+{@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
+
+#### `ApplyToAll`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and returns as its output the collection that is the result of applying a predefined 1:1 `Function` *f* to each element of *c*. It is represented graphically as:
+
+{@img images/util/ApplyToAll.png}{ApplyToAll}{.6}
+
 #### Arity
 
-For a `Processor` object, refers to the number of pipes it has. The *input arity* is the number of input streams accepted by the processor, and the *output arity* is the number of output streams it produces.
+<!--\index{arity} For-->For<!--/i--> a `Processor` object, refers to the number of pipes it has. The *input arity* is the number of input streams accepted by the processor, and the *output arity* is the number of output streams it produces.
 
 For a `Function` object, refers to the number of arguments it accepts or the number of values it produces.
 
+#### `ArrayPutInto`
+
+@palette Core@ <!--\index{Maps@\texttt{Maps}!ArrayPutInto@\texttt{ArrayPutInto}} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes a single input stream, whose events are *arrays* of size 2, and repeatedly outputs a reference to the same internal `Map` object. The first element of the array contains the key, and the second contains the value that will be put into the array. Upon each input array, the processor outputs the map, updated accordingly. The processor is represented graphically as:
+
+{@img images/util/ArrayPutInto.png}{ArrayPutInto}{.6}
+
+See also `PutInto`.
+
 #### `Bags`
 
-@palette Core@ A container class for functions and processors applying to generic collections, i.e. "bags" of objects.
+@palette Core@ <!--\index{Bags@\texttt{Bags}} A-->A<!--/i--> container class for functions and processors applying to generic collections, i.e. "bags" of objects. Among the processors and functions provided by `Bags` are: `AnyElement`, `ApplyToAll`, `Contains`, `Explode`, `FilterElements`, `GetSize`, `Product`, `RunOn`, `ToArray`, `ToCollection`, `ToList`, and `ToSet`.
 
 #### `BinaryFunction`
 
-@palette Core@ A `Function` object having exactly two input arguments, and producing exactly one output value.
+@palette Core@ <!--\index{BinaryFunction@\texttt{BinaryFunction}} A-->A<!--/i--> `Function` object having exactly two input arguments, and producing exactly one output value.
 
 #### `BlackHole`
 
-@palette Core@ A special type of `Sink` that discards everything it receives. It is represented graphically as follows:
+@palette Core@ <!--\index{BlackHole@\texttt{BlackHole}} A-->A<!--/i--> special type of `Sink` that discards everything it receives. It is represented graphically as follows:
 
 {@img images/tmf/BlackHole.png}{BlackHole}{.6}
 
 #### `Booleans`
 
-@palette Core@ A container class for `Function` objects related to Boolean values. For example, the static reference `Boolean.and` refers to the `Function` computing the logical conjunction of two Booleans.
+@palette Core@ <!--\index{Booleans@\texttt{Booleans}} A-->A<!--/i--> container class for `Function` objects related to Boolean values. For example, the static reference `Boolean.and` refers to the `Function` computing the logical conjunction of two Booleans. Among the functions provided by `Booleans` are: `And`, `Implies`, `Not` and `Or`.
 
 #### `Call`
 
-@palette Core@ A `Processor` object calling an external command upon receiving an event, and returning the output of that command as its output stream.
+@palette Core@ <!--\index{Call@\texttt{Call}} A-->A<!--/i--> `Processor` object calling an external command upon receiving an event, and returning the output of that command as its output stream.
 
 #### Closed (chain)
 
-A property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
-
+<!--\index{closed (chain)} A-->A<!--/i--> property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
 
 #### `Connector`
 
-@palette Core@ A utility class that provides a number of convenient methods for connecting the outputs of processors to the inputs of other processors. Methods provided by the `Connector` class are called `connect()` and have various signatures. When called with exactly two `Processor` arguments, `connect` assigns each output pipe of the first processor to the input pipe at the same position on the second processor.
+@palette Core@ <!--\index{Connector@\texttt{Connector}} A-->A<!--/i--> utility class that provides a number of convenient methods for connecting the outputs of processors to the inputs of other processors. Methods provided by the `Connector` class are called `connect()` and have various signatures. When called with exactly two `Processor` arguments, `connect` assigns each output pipe of the first processor to the input pipe at the same position on the second processor.
 
 #### `Constant`
 
-@palette Core@ A `Function` object that takes no input argument, and returns a single output value. Constants are used in `FunctionTree`s to refer to fixed values. A `Constant` instance can be created out of any Java object, and returns this object as its value.
+@palette Core@ <!--\index{Constant@\texttt{Constant}} A-->A<!--/i--> `Function` object that takes no input argument, and returns a single output value. Constants are used in `FunctionTree`s to refer to fixed values. A `Constant` instance can be created out of any Java object, and returns this object as its value. When depicted in a `FunctionTree`, they are generally represented as values inside a rounded rectangle, as follows:
+
+{@img images/functions/Constant.png}{Constant}{.6}
+
+#### `Contains`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}} A-->A<!--/i--> 2:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and an object *o*, and returns the Boolean value `true` as its output if and only if *o* is an element of *c*. It is represented graphically as:
+
+{@img images/util/Contains.png}{Contains}{.6}
 
 #### `Context`
 
-@palette Core@ An associative (key-value) map used by `Processor` objects to store persistent data. Each processor has its own `Context` object. When a processor is cloned, the context of the original is copied into the clone. In addition, all operations on a `Context` object are synchronized.
+@palette Core@ <!--\index{processor!context} An-->An<!--/i--> associative (key-value) map used by `Processor` objects to store persistent data. Each processor has its own `Context` object. When a processor is cloned, the context of the original is copied into the clone. In addition, all operations on a `Context` object are synchronized.
 
 #### `ContextVariable`
 
-@palette Core@ A `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `Evaluate` processor, it queries that processor's `Context` object to get the current value associated to the key.
+@palette Core@ <!--\index{ContextVariable@\texttt{ContextVariable}} A-->A<!--/i--> `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `Evaluate` processor, it queries that processor's `Context` object to get the current value associated to the key.
 
 #### `CountDecimate`
 
-@palette Core@ `Processor` that returns every *n*-th input event (starting with the first). The value *n* is called the **decimation interval**. However, a mode can be specified in order to output the *n*-th input event if it is the last event of the trace and it has not been output already. It is represented graphically as:
+@palette Core@ <!--\index{CountDecimate@\texttt{CountDecimate}} A-->A<!--/i--> `Processor` that returns every *n*-th input event (starting with the first). The value *n* is called the **decimation interval**. However, a mode can be specified in order to output the *n*-th input event if it is the last event of the trace and it has not been output already. It is represented graphically as:
 
 {@img images/tmf/CountDecimate.png}{CountDecimate}{.6}
 
 #### `Cumulate`
 
-@palette Core@ `Processor` that creates a cumulative processor out of a cumulative function. This is simply an instance of `ApplyFunction` whose function is of a specific type (a
+@palette Core@ <!--\index{Cumulate@\texttt{Cumulate}} A-->A<!--/i--> `Processor` that creates a cumulative processor out of a cumulative function. This is simply an instance of `ApplyFunction` whose function is of a specific type (a
 `CumulativeFunction`). It is represented graphically as:
 
 {@img images/functions/Cumulate.png}{Cumulate}{.6}
 
 #### `CumulativeFunction`
 
-@palette Core@ A special type of `Function` with memory.
+@palette Core@ <!--\index{CumulativeFunction@\texttt{CumulativeFunction}} A-->A<!--/i--> special type of `Function` with memory.
 
 #### `Demultiplex`
 
-`Processor` object that converts a sequence of *n* consecutive events into an event that is a vector of size *n*, with the element at position "0" in the vector corresponding to the first event of the window. This effectively works as a time demultiplexer.
+<!--\index{Demultiplex@\texttt{Demultiplex}} A-->A<!--/i--> `Processor` object that converts a sequence of *n* consecutive events into an event that is a vector of size *n*, with the element at position "0" in the vector corresponding to the first event of the window. This effectively works as a time demultiplexer.
 
 #### `Deserialize`
 
-@palette Serialization@ A `Processor` that takes structured character strings as its inputs, and turns each of them into Java objects with the corresponding content. It is represented graphically as follows:
+@palette Serialization@ <!--\index{Deserialize@\texttt{Deserialize}} A-->A<!--/i--> `Processor` that takes structured character strings as its inputs, and turns each of them into Java objects with the corresponding content. It is represented graphically as follows:
 
 {@img images/other/Deserialize.png}{Deserialize}{.6}
 
@@ -86,37 +126,49 @@ A property of a chain of processors, when either all its downstream processors a
 
 #### `Equals`
 
-@palette Core@ A `Function` that checks for the equality between two objects. It is represented graphically as follows:
+@palette Core@ <!--\index{Equals@\texttt{Equals}} A-->A<!--/i--> `Function` that checks for the equality between two objects. It is represented graphically as follows:
 
 {@img images/functions/Equals.png}{Equals}{.6}
 
+#### `Explode`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}} A-->A<!--/i--> 1:*m* `Function`provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the oppsite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
+
+{@img images/util/Explode.png}{Explode}{.6}
+
 #### `Filter`
 
-@palette Core@ Discards events from an input trace based on a selection criterion. The processor takes as input two events simultaneously; it outputs the first if the second is true. Graphically, this processor is represented as:
+@palette Core@ <!--\index{Filter@\texttt{Filter}} A-->A<!--/i--> `Processor` that discards events from an input trace based on a selection criterion. The processor takes as input two events simultaneously; it outputs the first if the second is true. Graphically, this processor is represented as:
 
 {@img images/tmf/Filter.png}{Filter}{.6}
 
+#### `FilterElements`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function is parameterized by a 1:1 `Function` *f* that must return a Boolean. The `FilterElements` function takes as input a Java `Collection` *c* and returns as its output the collection consisting of only the elements of *c* for which *f*(*c*) returns `true`. It is represented graphically as:
+
+{@img images/util/FilterElements.png}{FilterElements}{.6}
+
 #### FindPattern
 
-Extracts chunks of an input stream based on a regular expression.
+<!--\index{FindPattern@\texttt{FindPattern}} A-->A<!--/i--> `Processor` that extracts chunks of an input stream based on a regular expression.
 
 #### `Fork`
 
-@palette Core@ A `Processor` that dupl	icates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
+@palette Core@ <!--\index{Fork@\texttt{Fork}} A-->A<!--/i--> `Processor` that dupl	icates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
 
 {@img images/tmf/Fork.png}{Fork}{.6}
 
 #### `Freeze`
 
-@palette Core@ A `Processor` that repeatedly outputs the first event it has received. `Freeze` works a bit like `PullConstant`; however, while <code>Constant</code> is given the event to output, <code>Freeze</code> waits for a first event, outputs it, and then outputs that event whenever some new input comes in.
+@palette Core@ <!--\index{Freeze@\texttt{Freeze}} A-->A<!--/i--> `Processor` that repeatedly outputs the first event it has received. `Freeze` works a bit like `PullConstant`; however, while <code>Constant</code> is given the event to output, <code>Freeze</code> waits for a first event, outputs it, and then outputs that event whenever some new input comes in.
 
 #### Front
 
-Given *n* streams, the front at position *k* is the tuple made of the event at the *k*-th position in every stream. BeepBeep `Processor`s that have an input *arity* greater than 1 handle events one front at a time; this is called *synchronous processing*.
+Given *n* streams, the <!--\index{front} front-->front<!--/i--> at position *k* is the tuple made of the event at the *k*-th position in every stream. BeepBeep `Processor`s that have an input *arity* greater than 1 handle events one front at a time; this is called *synchronous processing*.
 
 #### `Function`
 
-@palette Core@ A computation unit that receives one or more *arguments*, and produces one or more output *values*. Along with `Processor`, this is one of BeepBeep's fundamental classes. Contrary to processors, functions are *stateless* (or history-independent): the same inputs must always produce the same outputs.
+@palette Core@ <!--\index{Function@\texttt{Function}} A-->A<!--/i--> computation unit that receives one or more *arguments*, and produces one or more output *values*. Along with `Processor`, this is one of BeepBeep's fundamental classes. Contrary to processors, functions are *stateless* (or history-independent): the same inputs must always produce the same outputs.
 
 Functions are represented graphically as rounded rectangles, with a pictogram describing the computation they perform, such as this:
 
@@ -126,13 +178,25 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 #### `FunctionTree`
 
-@palette Core@ A `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The drawing below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
+@palette Core@ <!--\index{FunctionTree@\texttt{FunctionTree}} A-->A<!--/i--> `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The drawing below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
 
 {@img images/functions/FunctionTree.png}{FunctionTree}{.6}
 
+#### `Get`
+
+@palette Core@ <!--\index{Maps@\texttt{Maps}!Get@\texttt{Get}} A-->A<!--/i--> `UnaryFunction` provided by the `Maps` utility class; it is parameterized by a key *k*. Given a `Map` *m* as its input, it retrieves the value associated to *k* in *m*. It is represented graphically as:
+
+{@img images/util/Get.png}{Get}{.6}
+
+#### `GetSize`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and returns as its output the number of elements in that collection. It is represented graphically as:
+
+{@img images/util/GetSize.png}{GetSize}{.6}
+
 #### `GroupProcessor`
 
-@palette Core@ A `Processor` that encapsulates a chain of processors as if it were a single object. It is represented as follows:
+@palette Core@ <!--\index{GroupProcessor@\texttt{GroupProcessor}} A-->A<!--/i--> `Processor` that encapsulates a chain of processors as if it were a single object. It is represented as follows:
 
 {@img images/tmf/GroupProcessor.png}{GroupProcessor}{.6}
 
@@ -142,12 +206,12 @@ In a graphical representation of a `GroupProcessor`, the processor chain inside 
 
 #### HttpGet
 
-@palette Core@ Reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings.
+@palette Core@ <!--\index{HttpGet@\texttt{HttpGet}} A-->A<!--/i--> `Processor` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings.
 
 
 #### `IdentityFunction`
 
-@palette Core@ Function that returns its input for its output. It is represented as follows:
+@palette Core@ <!--\index{IdentityFunction@\texttt{IdentityFunction}} A-->A<!--/i--> `Function` that returns its input for its output. It is represented as follows:
 
 {@img images/functions/IdentityFunction.png}{IdentityFunction}{.6}
 
@@ -155,10 +219,15 @@ The actual colour of the oval depends on the type of events that the function re
 
 #### `IfThenElse`
 
-@palette Core@ Function that acts as an if-then-else. If its first input is true, it returns
-its second input; otherwise it returns its third input. It is represented as follows:
+@palette Core@ <!--\index{IfThenElse@\texttt{IfThenElse}} A-->A<!--/i--> `Function` that acts as an if-then-else. If its first input is true, it returns its second input; otherwise it returns its third input. It is represented as follows:
 
 {@img images/functions/IfThenElse.png}{IfThenElse}{.6}
+
+#### `Implies`
+
+@palette Core@ <!--\index{Booleans@\texttt{Booleans}!Implies@\texttt{Implies}} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical implication of its two Boolean arguments, and is represented graphically as:
+
+{@img images/util/Implies.png}{Implies}{.6}
 
 #### `Insert`
 
@@ -166,7 +235,19 @@ its second input; otherwise it returns its third input. It is represented as fol
 through. This processor can be used to shift events of an input trace
 forward, padding the beginning of the trace with some dummy element.
 
+#### `Lists`
 
+@palette Core@ A container class for functions and processors applying to ordered collections (`List`s) and arrays. Among the processors and functions provided by `Lists` are: `Explode`, `Pack`, `TimePack`, and `Unpack`.
+
+#### `Maps`
+
+@palette Core@ A container class for functions and processors applying to Java `Maps`, i.e. associative key-value arrays. Among the processors and functions provided by `Maps` are: `ArrayPutInto`, `Get`, `PutInto`, and `Values`.
+
+#### `Not`
+
+@palette Core@ <!--\index{Booleans@\texttt{Booleans}!Not@\texttt{Not}} An-->An<!--/i--> `UnaryFunction` provided by the `Booleans` utility class. It computes the logical negation of its Boolean argument, and is represented graphically as:
+
+{@img images/util/Not.png}{Not}{.6}
  
 
 #### NthElement
@@ -174,13 +255,19 @@ forward, padding the beginning of the trace with some dummy element.
 @palette Core@ Function that returns the n-th element of an ordered collection (array or
 list).
 
+#### `Or`
+
+@palette Core@ <!--\index{Booleans@\texttt{Booleans}!Or@\texttt{Or}} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical disjunction of its two Boolean arguments, and is represented graphically as:
+
+{@img images/util/Or.png}{Or}{.6}
+
 #### `Pack`
 
-@palette Core@ A `Processor` that accumulates events from a first input pipe, and sends them in a burst into a list based on the Boolean value received on its second input pipe. A value of `true` triggers the output of a list, while a value of `false` accumulates the event into the existing list. This processor is represented graphically as follows:
+@palette Core@ <!--\index{Lists@\texttt{Lists}!Pack@\texttt{Pack}} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It accumulates events from a first input pipe, and sends them in a burst into a list based on the Boolean value received on its second input pipe. A value of `true` triggers the output of a list, while a value of `false` accumulates the event into the existing list. This processor is represented graphically as follows:
 
 {@img images/util/Pack.png}{Pack}{.6}
 
-The oppositve of `Pack` in `Unpack`.
+The oppositve of `Pack` in `Unpack`. See also `TimePack`.
 
 #### `Passthrough`
 
@@ -217,6 +304,12 @@ This class itself is abstract; nevertheless, it provides important methods for h
 The `Processor` class does not assume anything about the type of events
 being input or output. All its input and output queues are therefore declared
 as containing instances of `Object`, Java's most generic type.
+
+#### `Product`
+
+@palette Core@ A 2:1 `Function` provided by the `Bags` utility class. This function takes as input two Java `Collection`, *c1* and *c2*, and returns as its output a set of arrays of size 2, corresponding to the Cartesian product of *c1* and *c2*. It is represented graphically as:
+
+{@img images/util/Product.png}{Product}{.6}
 
 #### `Pullable`
 
@@ -258,6 +351,14 @@ The opposite of the `Pump` is the `Tank`.
 
 One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
 
+#### `PutInto`
+
+@palette Core@ A `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
+
+{@img images/util/PutInto.png}{PutInto}{.6}
+
+See also `ArrayPutInto`.
+
 #### `QueueSink`
 
 @palette Core@ A `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
@@ -279,6 +380,14 @@ One of the two operating modes of a chain of processors. In push mode, a user or
 #### ReadStringStream
 
 Extracts character strings from a Java `InputStream`.
+
+#### `RunOn`
+
+@palette Core@ <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} A-->A<!--/i--> `Processor` provided by the `Bags` utility class. This processor is parameterized by another processor *P*. It receives as input a stream of collections. On each individual collection *c*, it resets *P*, feeds each element of *c* on *P*, and retrieves the last event output by *P* on that stream; this is the event is the event output by `RunOn` on *c*. It is represented graphically as:
+
+{@img images/util/RunOn.png}{RunOn}{.6}
+
+If the collection *c* is unordered and *P* is sensitive to event ordering, the output of `RunOn` on this collection may not always be the same.
 
 #### `Serialize`
 
@@ -338,6 +447,20 @@ The opposite of the tank is the `Pump`.
 
 Note that this processor uses `System.currentTimeMillis()` as its clock. Moreover, a mode can be specified in order to output the last input event of the trace if it has not been output already.
 
+#### `TimePack`
+
+@palette Core@ <!--\index{Lists@\texttt{Lists}!TimePack@\texttt{TimePack}} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It accumulates events from a first input pipe, and sends them in a burst into a list at predefined time intervals. This processor is represented graphically as follows:
+
+{@img images/util/TimePack.png}{TimePack}{.6}
+
+The oppositve of `TimePack` in `Unpack`. See also `Pack`.
+
+#### `ToArray`, `ToList`, `ToSet`
+
+@palette Core@ Three *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
+
+{@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.6}
+
 #### `Trim`
 
 @palette Core@ A `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
@@ -370,15 +493,21 @@ A `Processor` that produces the same number of output fronts for every input fro
 
 #### `Unpack`
 
-@palette Core@ A `Processor` that unpacks a list of objects by outputting its contents as separate events. This processor is represented graphically as follows: 
+@palette Core@ <!--\index{Lists@\texttt{Lists}!Unpack@\texttt{Unpack}} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It unpacks a list of objects by outputting its contents as separate events. This processor is represented graphically as follows: 
 
 {@img images/util/Unpack.png}{Unpack}{.6}
 
 The opposite of `Unpack` is `Pack`.
 
+#### `Values`
+
+@palette Core@ <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}} A-->A<!--/i--> `UnaryFunction` provided by the `Maps` utility class. Given a `Map` *m* as its input, it returns a `Set` made of all the values present in *m*. It is represented graphically as:
+
+{@img images/util/Values.png}{Values}{.6}
+
 #### `Window`
 
-@palette Core@ Simulates the application of a "sliding window" to a trace. It is represented graphically as:
+@palette Core@ Simulates the application of a "sliding <!--\index{Window@\texttt{Window}} window-->window<!--/i-->" to a trace. It is represented graphically as:
 
 {@img images/tmf/Window.png}{Window}{.6}
 

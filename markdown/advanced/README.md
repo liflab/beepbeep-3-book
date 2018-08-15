@@ -9,7 +9,7 @@ Up to this point, all the examples we have seen use event streams that are one o
 
 A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
 
-[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags!GetSize} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object with a few elements inside, one could use `GetSize` like any other function:
+[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object with a few elements inside, one could use `GetSize` like any other function:
 
 ``` java
 Object[] outs = new Object[1];
@@ -17,7 +17,7 @@ Bags.getSize.evaluate(new Object[]{list}, outs);
 // outs[0] contains the size of list
 ```
 
-[`Bags.contains`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/contains.html) refers to a function <!--\index{Bags!Contains} \texttt{Contains}-->`Contains`<!--/i--> that takes as input a Java `Collection` and an object *o*, and returns a Boolean value indicating whether the collection contains *o*. Its usage can be illustrated in the following code example:
+[`Bags.contains`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/contains.html) refers to a function <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}} \texttt{Contains}-->`Contains`<!--/i--> that takes as input a Java `Collection` and an object *o*, and returns a Boolean value indicating whether the collection contains *o*. Its usage can be illustrated in the following code example:
 
 ``` java
 QueueSource src1 = new QueueSource();
@@ -56,7 +56,7 @@ false
 true
 ```
 
-The `Bags` class also provides a function called [`ApplyToAll`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/ApplyToAll.html). This function is intantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags!ApplyToAll} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
+The `Bags` class also provides a function called [`ApplyToAll`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/ApplyToAll.html). This function is intantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
 
 ``` java
 List<Object> list = UtilityMethods.createList(-3, 6, -1, -2);
@@ -74,7 +74,7 @@ The output of this code snippet is indeed a new list with the absolute value of 
 [3.0, 6.0, 1.0, 2.0]
 ```
 
-The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements form a collection. Like `ApplyToAll`, <!--\index{Bags!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
+The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements form a collection. Like `ApplyToAll`, <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
 
 ``` java
 Function filter = new Bags.FilterElements(Numbers.isEven);
@@ -90,7 +90,7 @@ will produce this output:
 [6, -2]
 ```
 
-It is also possible to take the input of multiple streams, and to create a collection out of each front of events. This can be done with the help of function <!--\index{Bags!ToList} \texttt{ToList}-->`ToList`<!--/i-->. Consider the following code example:
+It is also possible to take the input of multiple streams, and to create a collection out of each front of events. This can be done with the help of function <!--\index{Bags@\texttt{Bags}!ToList@\texttt{ToList}} \texttt{ToList}-->`ToList`<!--/i-->. Consider the following code example:
 
 ``` java
 QueueSource src1 = new QueueSource().setEvents(3, 1, 4, 1, 6);
@@ -125,9 +125,9 @@ When run, this program will take each front of events from the sources, and crea
 [1, 8, 3]
 ```
 
-The functions <!--\index{Bags!ToSet} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags!ToArray} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but create respectively a `Set` object and an array instead of a list.
+The functions <!--\index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but create respectively a `Set` object and an array instead of a list.
 
-Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
+Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} A-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
 
 Consider the following code example:
 
@@ -164,9 +164,9 @@ The following picture shows how to depict the `RunOn` processor graphically. Lik
 
 ### Set-specific objects
 
-The `util` package also provides a few functions and processors specific to some particular types of collections. The [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) class has a member field `Sets.isSubsetOrEqual` which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor [`PutInto`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutInto.html) which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
+The `util` package also provides a few functions and processors specific to some particular types of collections. The [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) class has a member field <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}} \texttt{Sets.isSubsetOrEqual}-->`Sets.isSubsetOrEqual`<!--/i--> which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor [`PutInto`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutInto.html) which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
 
-The following program shows the basic usage of <!--\index{Sets!PutInto@\texttt{PutInto}} \texttt{PutInto}-->`PutInto`<!--/i-->.
+The following program shows the basic usage of <!--\index{Sets@\texttt{Sets}!PutInto@\texttt{PutInto}} \texttt{PutInto}-->`PutInto`<!--/i-->.
 
 ``` java
 QueueSource src = new QueueSource().setEvents("A", "B", "C", "D");
@@ -195,7 +195,7 @@ Set 1: [A, B, C, D]
 
 Note how after the second call to `pull`, the variable `set1` is a set that contains the first two events, "A" and "B". Two calls to `pull` later, variable `set2` contains, as expected, the first four events. The last call to `println` is more surprising. It reveals that `set1` now also contains the first four events! This is because the variables `set1` and `set2` actually are two references to the same object. In other words, processor `PutInto` keeps returning the same `Set`, each time with a new element added to it. We say that `PutInto` is a <!--\index{mutator processor} \textbf{mutator}-->**mutator**<!--/i--> processor: it modifies the state of the objects it returns.
 
-If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutIntoNew.html). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
+If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutIntoNew.html). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
 
 ### List-specific objects
 
@@ -203,7 +203,7 @@ Functions and processors that work on arbitrary collections obviously also work 
 
 The [`Lists`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists.html) class defines two processors that work on lists in a special way. The first is called [`Pack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Pack.html) and has two input pipes. The first, called the *data* pipe, is a stream of arbitrary events. The second, called the *control* pipe, is a stream of Boolean values. You may remember that the `Filter` processor seen in the previous chapter had two similarly-named input pipes.
 
-Processor <!--\index{Lists!Pack@\texttt{Pack}} \texttt{Pack}-->`Pack`<!--/i--> accumulates events received from the input pipe, as long as the corresponding event in the control pipe is the Boolean value `false`. When the value in the control pipe is `true`, `Pack` outputs the list of events accumulated so far, instantiates a new empty list, and puts the incoming event into it. Consider the following example:
+Processor <!--\index{Lists@\texttt{Lists}!Pack@\texttt{Pack}} \texttt{Pack}-->`Pack`<!--/i--> accumulates events received from the input pipe, as long as the corresponding event in the control pipe is the Boolean value `false`. When the value in the control pipe is `true`, `Pack` outputs the list of events accumulated so far, instantiates a new empty list, and puts the incoming event into it. Consider the following example:
 
 ``` java
 QueueSource src1 = new QueueSource();
@@ -256,7 +256,7 @@ for (int i = 0; i < 6; i++)
 
 ![Unpacking events from a stream of lists using the `Unpack` processor.](UnpackExample.png)
 
-Of course, putting an <!--\index{Lists!Unpack@\texttt{Unpack}} \texttt{Unpack}-->`Unpack`<!--/i--> processor next to a `Pack` processor will recreate the original stream. This means that the following procsesor chain is equivalent to a `Passthrough` processor on the stream of numbers 3, 1, 4, ...
+Of course, putting an <!--\index{Lists@\texttt{Lists}!Unpack@\texttt{Unpack}} \texttt{Unpack}-->`Unpack`<!--/i--> processor next to a `Pack` processor will recreate the original stream. This means that the following procsesor chain is equivalent to a `Passthrough` processor on the stream of numbers 3, 1, 4, ...
 
 ![Chaining a `Pack` and an `Unpack` processor.](PackUnpack.png)
 
@@ -292,13 +292,13 @@ Before second push
 After second push
 ```
 
-Notice how the first call to `push` on `Unpack` results in four calls to `push` on the downstream `Print` processor. We had already seen that the number of calls to `pull` may not be uniform across a processor chain; we now know that the same is true for calls to `push`. As a matter of fact, the `Pack` and `Unpack` processors are called **non-uniform**: for a single output event, the number of output events they produce is not always the same. In contrast, <!--\index{Processor!uniform} uniform-->uniform<!--/i--> processors produce the same number of output events for each input event.
+Notice how the first call to `push` on `Unpack` results in four calls to `push` on the downstream `Print` processor. We had already seen that the number of calls to `pull` may not be uniform across a processor chain; we now know that the same is true for calls to `push`. As a matter of fact, the `Pack` and `Unpack` processors are called **non-uniform**: for a single output event, the number of output events they produce is not always the same. In contrast, <!--\index{processor!uniform} uniform-->uniform<!--/i--> processors produce the same number of output events for each input event.
 
 We have already seen other non-uniform processors before: the `Filter`, `CountDecimate` and `Trim` processors sometimes produce zero output event from an input event. Here, we see a non-uniform processor in the opposite way: it sometimes produces more than one output event from a single input event.
 
 ### Map-specific objects
 
-There is one last Java collection we haven't talked about: <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i-->. As you know, a map is a data structure that associates arbitrary *keys* to arbitrary *values*. A map can be queried for the value corresponding to a key using a method called `get()`. BeepBeep provides a [`Maps`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Maps.html) class that defines a few functions and processors specific to the manipulation of such <!--\index{Maps@\texttt{Maps}} maps-->maps<!--/i-->. The first one is [`Get`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Get.html), which, as you may guess, fetches a <!--\index{Maps!Get@\texttt{Get}} value-->value<!--/i--> from a map given the name of a key. A simple usage would be the following:
+There is one last Java collection we haven't talked about: <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i-->. As you know, a map is a data structure that associates arbitrary *keys* to arbitrary *values*. A map can be queried for the value corresponding to a key using a method called `get()`. BeepBeep provides a [`Maps`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Maps.html) class that defines a few functions and processors specific to the manipulation of such <!--\index{Maps@\texttt{Maps}} maps-->maps<!--/i-->. The first one is [`Get`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Get.html), which, as you may guess, fetches a <!--\index{Maps@\texttt{Maps}!Get@\texttt{Get}} value-->value<!--/i--> from a map given the name of a key. A simple usage would be the following:
 
 ``` java
 Map map = ...
@@ -308,7 +308,7 @@ get.evaluate(new Object[]{map}, out);
 // out[0] contains the value of key foo
 ```
 
-The `Maps` class also defines a processor <!--\index{Maps!PutInto@\texttt{PutInto}} maps-->`PutInto`<!--/i--> that works in the same way as the one we have seen in `Sets` and `Lists`. It receives two input streams: the first one is made of the "keys", and the second one is made of the "values". When receiving an event front, it creates a key-value pair from the two events and uses it to update the map, which it then returns. For example, the following program:
+The `Maps` class also defines a processor <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}} maps-->`PutInto`<!--/i--> that works in the same way as the one we have seen in `Sets` and `Lists`. It receives two input streams: the first one is made of the "keys", and the second one is made of the "values". When receiving an event front, it creates a key-value pair from the two events and uses it to update the map, which it then returns. For example, the following program:
 
 ``` java
 QueueSource keys = new QueueSource().setEvents("foo", "bar", "foo", "baz");
@@ -334,9 +334,9 @@ for (int i = 0; i < 4; i++)
 {bar=abc, foo=def, baz=6}
 ```
 
-Note how the map is *updated*: if a key already exists in the map, its corresponding value is replaced by the new one. Also note how types can be mixed in the map: the value for key "foo" is first a number, and is replaced later by string. A variant of `PutInto` is called <!--\index{Maps!PutIntoArray@\texttt{PutIntoArray}} maps-->`PutIntoArray`<!--/i-->, which takes a single input stream, whose events are *arrays*. The first element of the array contains the key, and the second contains the value.
+Note how the map is *updated*: if a key already exists in the map, its corresponding value is replaced by the new one. Also note how types can be mixed in the map: the value for key "foo" is first a number, and is replaced later by string. A variant of `PutInto` is called <!--\index{Maps@\texttt{Maps}!PutIntoArray@\texttt{PutIntoArray}} maps-->`PutIntoArray`<!--/i-->, which takes a single input stream, whose events are *arrays*. The first element of the array contains the key, and the second contains the value.
 
-One last function of interest is called [`Values`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Values.html). This function takes a map as input, and returns the collection made of all the <!--\index{Maps!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
+One last function of interest is called [`Values`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Values.html). This function takes a map as input, and returns the collection made of all the <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
 
 ## Pumps and tanks
 
@@ -458,11 +458,11 @@ p.pull();
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/io/LineReaderExample.java#L52)
 
 
-A few important observations must be made form this code sample. The first is that since we are reading from a file, eventually the `ReadLines` processor will reach the end of the file, and no further output event will be produced when pulled. Therefore, we must repeatedly ask the `Pullable` object whether there is a new output event available. This can be done using method <!--\index{Pullable!hasNext@\texttt{hasNext}} \texttt{hasNext}-->`hasNext()`<!--/i-->. This method returns `true` when a new event can be pulled, and `false` when the corresponding processor has no more events to produce. Therefore, in our code sample, we loop until `hasNext` returns `false`.
+A few important observations must be made form this code sample. The first is that since we are reading from a file, eventually the `ReadLines` processor will reach the end of the file, and no further output event will be produced when pulled. Therefore, we must repeatedly ask the `Pullable` object whether there is a new output event available. This can be done using method <!--\index{Pullable@\texttt{Pullable}!hasNext@\texttt{hasNext}} \texttt{hasNext}-->`hasNext()`<!--/i-->. This method returns `true` when a new event can be pulled, and `false` when the corresponding processor has no more events to produce. Therefore, in our code sample, we loop until `hasNext` returns `false`.
 
-Note also that instead of using method `pull`, we use method <!--\index{Pullable!next@\texttt{next}} \texttt{next}-->`next()`<!--/i--> to get a new event. Methods `pull` and `next` are in fact *synonyms*: they do exactly the same thing. However, the pair of methods `hasNext`/`next` makes a `Pullable` look like a plain old Java <!--\index{Iterator@\texttt{Iterator}} \texttt{Iterator}-->`Iterator`<!--/i-->. As a matter of fact, this is precisely the case: although we did not mention it earlier, a `Pullable` does implement Java's `Iterator` interface, meaning that a `Pullable` can be used in a program wherever an `Iterator` is expected. This makes it very handy to use BeepBeep objects inside an existing program, without even being aware that they actually refer to processor chains.
+Note also that instead of using method `pull`, we use method <!--\index{Pullable@\texttt{Pullable}!next@\texttt{next}} \texttt{next}-->`next()`<!--/i--> to get a new event. Methods `pull` and `next` are in fact *synonyms*: they do exactly the same thing. However, the pair of methods `hasNext`/`next` makes a `Pullable` look like a plain old Java <!--\index{Iterator@\texttt{Iterator}} \texttt{Iterator}-->`Iterator`<!--/i-->. As a matter of fact, this is precisely the case: although we did not mention it earlier, a `Pullable` does implement Java's `Iterator` interface, meaning that a `Pullable` can be used in a program wherever an `Iterator` is expected. This makes it very handy to use BeepBeep objects inside an existing program, without even being aware that they actually refer to processor chains.
 
-The last remark is that the output events of `ReadLines` are *strings*. This means that if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/NumberCast.html), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In our code example, we pipe the output of `reader` into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
+The last remark is that the output events of `ReadLines` are *strings*. This means that if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/NumberCast.html), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In our code example, we pipe the output of `reader` into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
 
 The expected output of the program is:
 
@@ -474,8 +474,7 @@ The expected output of the program is:
     9,Integer
     2.2,Float
     Exception in thread "main" java.util.NoSuchElementException
-	    at ca.uqac.lif.cep.UniformProcessor$UnaryPullable.pull(UniformProcessor.java:269)
-	    at io.LineReaderExample.main(LineReaderExample.java:43)
+	    at ...
 
 Note how the first lines of the file have been cast as an `Integer` number; the last number could not be parsed as an integer, therefore it has been cast as a `Float`.
 
@@ -667,7 +666,7 @@ In this simple example, a source of eight numbers is connected to a `CountDecima
 
 ### Hard pulling
 
-**Hard** <!--\index{Pullable!hard pulling} pulling-->pulling<!--/i--> is the pull mode we have used so far. Let us call `hasNext` and `pull` a few times on this chain, as follows:
+**Hard** <!--\index{pull mode!hard pulling} pulling-->pulling<!--/i--> is the pull mode we have used so far. Let us call `hasNext` and `pull` a few times on this chain, as follows:
 
 ``` java
 for (int i = 0; i < 5; i++)
@@ -714,7 +713,7 @@ The rest of the program proceeds in the same way. Note that, after outputting th
 
 ### Soft pulling
 
-**Soft** <!--\index{Pullable!soft pulling} pulling-->pulling<!--/i--> behaves a little differently. To illustrate this, we shall use the same processor chain as above, but replace calls to `hasNext` and `pull` by calls to two new methods: `hasNextSoft` and `pullSoft`.
+**Soft** <!--\index{pull mode!soft pulling} pulling-->pulling<!--/i--> behaves a little differently. To illustrate this, we shall use the same processor chain as above, but replace calls to `hasNext` and `pull` by calls to two new methods: `hasNextSoft` and `pullSoft`.
 
 ``` java
 for (int i = 0; i < 5; i++)
@@ -730,7 +729,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullSoft.java#L47)
 
 
-We can observe that `hasNextSoft`, contrary to `hasNext`, does not return a Boolean, but rather a special value of type <!--\index{Pullable!NextStatus} \texttt{NextStatus}-->`NextStatus`<!--/i-->. This type is actually an enumeration of three symbolic constants: `YES`, `NO` and `MAYBE`. A call to `hasNextSoft` that returns `YES` or `NO` has the same meaning as a call to `hasNext` returning `true` or `false`, respectively. When `YES` is the answer, a new event is available and ready to be pulled. When `NO` is the answer, no new event will ever come out of this `Pullable` object.
+We can observe that `hasNextSoft`, contrary to `hasNext`, does not return a Boolean, but rather a special value of type <!--\index{Pullable@\texttt{Pullable}!NextStatus} \texttt{NextStatus}-->`NextStatus`<!--/i-->. This type is actually an enumeration of three symbolic constants: `YES`, `NO` and `MAYBE`. A call to `hasNextSoft` that returns `YES` or `NO` has the same meaning as a call to `hasNext` returning `true` or `false`, respectively. When `YES` is the answer, a new event is available and ready to be pulled. When `NO` is the answer, no new event will ever come out of this `Pullable` object.
 
 However, `hasNextSoft` can also return `MAYBE`, which indicates that the underlying processor does not have a new event to output, but *may* have one on a subsequent call to `hasNextSoft`. Let us look at the output of our modified program:
 
@@ -764,7 +763,7 @@ We have said a couple of times that the main distinction between functions and p
 
 Consider for example a `CountDecimate` processor instructed to keep one event every *k*. In order to correctly perform its task, this processor must keep a record of the number of events that have been discarded since the last time an output event was produced. This value is incremented by one, modulo *k*, every time a new input event is received; when the value reaches 0, a new output event is produced. Hence, the *state* of a `CountDecimate` processor corresponds to the current value of its counter. Typically, given the same input event *and the same state*, a processor is expected to always behave in the same way, i.e. produce the same output, if any.  Depending on the processor type, the state may be a single numerical value, or something more complex. For example, in a `Window` processor, the current state consists of the input events that have been accumulated in partial windows.
 
-Each `Processor` subclass is expected to have a well-defined initial state, in which all instances are expected to start (unless the class' constructor accepts arguments that may modulate that initial state). In addition, processors can be reset to their initial state using a method called <!--\index{Processor!reset} \texttt{reset()}-->`reset`<!--/i-->.
+Each `Processor` subclass is expected to have a well-defined initial state, in which all instances are expected to start (unless the class' constructor accepts arguments that may modulate that initial state). In addition, processors can be reset to their initial state using a method called <!--\index{Processor@\texttt{Processor}!reset@\texttt{reset}} \texttt{reset()}-->`reset`<!--/i-->.
 
 Let us take as an example a `Window` processor that computes the cumulative sum of a sliding window of three events, as in the following program:
 
@@ -799,14 +798,14 @@ In addition to objects and member fields specific to the implementation of each 
 
 ### Numerical identifier
 
-Each `Processor` object has a unique numerical identifier, called the <!--\index{Processor!ID} \emph{processor ID}-->*processor ID*<!--/i-->. In the current implementation of BeepBeep, identifiers start at zero when a program is launched, and are incremented by one every time the constructor of class `Processor` is called (in other words, every time a new processor of any kind is created). The assignment of an ID to each processor is synchronized, meaning that race conditions are avoided in the case where processors are instantiated from multiple threads in parallel.
+Each `Processor` object has a unique numerical identifier, called the <!--\index{processor!ID} \emph{processor ID}-->*processor ID*<!--/i-->. In the current implementation of BeepBeep, identifiers start at zero when a program is launched, and are incremented by one every time the constructor of class `Processor` is called (in other words, every time a new processor of any kind is created). The assignment of an ID to each processor is synchronized, meaning that race conditions are avoided in the case where processors are instantiated from multiple threads in parallel.
 
 The ID pf a processor has no special meaning, and you will seldom have to use this value when writing processor chains in your daily work. Processor IDs are used by the BeepBeep library itself, mostly for two purposes:
 
 - correctly copying `GroupProcessors` when the `duplicate` method is called (see below);
 - tracking the relationship between input and output events throughout a chain of processors (a very embryonic feature called *provenance*, which will be further developed in future versions of the software).
 
-Nevertheless, IDs can be queried using a public method called `getId()`. The following code shows an example of this:
+Nevertheless, IDs can be queried using a public method called <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId()}-->`getId()`<!--/i-->. The following code shows an example of this:
 
 ``` java
 QueueSource source = new QueueSource().loop(false);
@@ -887,7 +886,7 @@ As you can see, the uniqueness of processor IDs is *global* across the entire ru
 
 ### Context
 
-In addition, each processor instance is also associated with a <!--\index{Processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
+In addition, each processor instance is also associated with a <!--\index{processor!context} \textbf{context}-->**context**<!--/i-->. A context is a persistent and modifiable map that associates names to arbitrary objects. A processor's context can be manually modified using method `setContext`, as in the following example:
 
 ``` java
 ApplyFunction af = new ApplyFunction(new FunctionTree(
@@ -914,7 +913,7 @@ Note how the context can be modified by further calls to `setContext`. If a proc
 
 ## Duplicating processors
 
-In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{Processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`.  There are two types of duplication: *stateless* and *stateful*.
+In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`.  There are two types of duplication: *stateless* and *stateful*.
 
 ### Stateless duplication
 
@@ -939,7 +938,7 @@ sum1: 4
 sum1: 8
 ```
 
-Let us now use method `duplicate()` to create a new copy of `sum1`, and push events to it as well:
+Let us now use method <!--\index{Processor@\texttt{Processor}!duplicate@\texttt{duplicate}} \texttt{duplicate()}-->`duplicate()`<!--/i--> to create a new copy of `sum1`, and push events to it as well:
 
 ``` java
 Cumulate sum2 = (Cumulate) sum1.duplicate();
