@@ -23,7 +23,7 @@
 %% Déclarations
 %% ------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{lifmanual}[2018/02/02 LIF manual, V1.4 par Sylvain Hallé]
+\ProvidesClass{lifmanual}[2018/08/15 LIF manual, V1.5 par Sylvain Hallé]
 
 %% ------------------------
 %% Passing options to book class
@@ -50,7 +50,7 @@
 \RequirePackage[T1]{fontenc}
 \RequirePackage{graphicx}
 \RequirePackage{ifthen}
-\let\footruleskip\undefined\RequirePackage{fancyhdr}       
+\let\footruleskip\undefined\RequirePackage{fancyhdr}
 \RequirePackage[explicit]{titlesec}
 \RequirePackage{textcase}
 \RequirePackage{setspace}
@@ -63,6 +63,7 @@
 \RequirePackage{imakeidx}
 \RequirePackage{enumitem}
 \RequirePackage{multicol}
+\RequirePackage[font=sl]{caption}
 
 \definecolor{Highlight}{RGB}{173,73,106}
 \renewcommand{\baselinestretch}{1.1}
