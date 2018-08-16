@@ -8,14 +8,18 @@
 // Convert foreword into an unnumbered chapter
 $s = file_get_contents("latex/chapters/foreword/README.tex");
 $s = str_replace("\\chapter", "\\chapter*", $s);
+$s = str_replace("\\section", "\\section*", $s);
+$s = str_replace("LaTeX", "\\LaTeX{}", $s);
 $s = str_replace("Sylvain Hallé", "\n\\vskip 20pt\n{\\raggedleft\nSylvain Hallé", $s);
 $s = str_replace("/2018", "/2018\\\\\n}\n", $s);
 // Change footer to "Foreword"
+$s = "\\setcounter{tocdepth}{0}\n".$s;
 $s = "\\pagestyle{foreword}\n\\thispagestyle{foreword}\n".$s;
 file_put_contents("latex/chapters/foreword/README.tex", $s);
 
 // Re-change footer to normal in next chapter
 $s = file_get_contents("latex/chapters/README.tex");
+$s = "\\setcounter{tocdepth}{1}\n".$s;
 $s = "\\pagestyle{normal}\n\\thispagestyle{normal}\n".$s;
 file_put_contents("latex/chapters/README.tex", $s);
 
