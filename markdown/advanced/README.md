@@ -629,7 +629,7 @@ jkl
 Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The [`HttpGet`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/HttpGet.html) processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls an URL every 10 seconds and prints the response to the console.
 
 ``` java
-HttpGet get = new HttpGet("http:
+HttpGet get = new HttpGet("http://example.com/some-url");
 Pump pump = new Pump(10000);
 Thread pump_thread = new Thread(pump);
 Connector.connect(get, pump);

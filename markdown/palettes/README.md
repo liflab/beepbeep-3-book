@@ -255,7 +255,7 @@ The [`HttpDownstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac
 The following program shows a simple use of these two gateways.
 
 ``` java
-HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http:
+HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http://localhost:12144/push");
 HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
 Print print = new Print();
 Connector.connect(dn_gateway, print);
@@ -328,7 +328,7 @@ Consider now the following code example, which is a slightly modified version of
 
 ``` java
 ApplyFunction serialize = new ApplyFunction(new JsonSerializeString());
-HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http:
+HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http://localhost:12144/push");
 HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
 ApplyFunction deserialize = new ApplyFunction(
         new JsonDeserializeString<CompoundObject>(CompoundObject.class));
@@ -386,7 +386,7 @@ Our setup will be composed of two machines, called A and B. Machine A will be pr
 Since we want to make computations over very large numbers, we shall use Java's <!--\index{BigInteger@\texttt{BigInteger}} \texttt{BigInteger}-->`BigInteger`<!--/i--> class instead of the usual `int`s or `long`s. Furthermore, we assume the existence of a function object called `IsPrime`, whose purpose is to check whether a big integer is a prime number. (The code for `IsPrime` can be viewed in BeepBeep's code example repository.) Let us start with the program for Machine A.
 
 ``` java
-String push_url = "http:
+String push_url = "http://localhost:12312/bigprime";
 QueueSource source = new QueueSource().addEvent(new BigInteger("2"));
 Pump pump = new Pump(500);
 Connector.connect(source, pump);
