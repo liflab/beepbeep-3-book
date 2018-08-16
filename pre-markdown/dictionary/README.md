@@ -542,7 +542,9 @@ The only thing that is left undefined is what to do when new input events have b
 
 #### `Slice`
 
-@palette Core@  TODO
+@palette Core@  A `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
+
+{@img images/tmf/Slice.png}{Slice}{.6}
 
 #### `Source`
 
