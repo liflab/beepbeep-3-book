@@ -7,6 +7,9 @@
 # Usage: crunch.sh [--incremental]
 # --------------------------------------------------------------------
 
+# Sync pre-markdown and latex folders
+rsync -a --include='*/' --exclude='*' pre-markdown/ latex/chapters/
+
 # Process pre-markdown and write to markdown
 php pre-processing.php $1
 

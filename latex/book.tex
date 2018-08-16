@@ -68,8 +68,8 @@ Book version: L1.1---August 10, 2018}
 \newpage
 
 \mainmatter
-\thispagestyle{fancy}
-\pagestyle{fancy}
+\thispagestyle{normal}
+\pagestyle{normal}
 
 \subimport*{chapters/}{body}
 
@@ -80,8 +80,7 @@ Book version: L1.1---August 10, 2018}
 \subimport*{chapters/}{dictionary/README}
 
 %% Change footer for index
-\fancyfoot[LE]{\sffamily\bfseries\small \parbox{20pt}{\thepage}\quad|\quad\leftmark}
-\fancyfoot[RO]{\sffamily\bfseries\small{\raggedleft\thepage}}
+\pagestyle{index}
 \printindex
 
 %% Back of the book

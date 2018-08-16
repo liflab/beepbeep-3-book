@@ -60,4 +60,15 @@ Aouatef, Armand, Belkacem, Corentin, Dominic, Eva, Jérôme, Kim, Kun, Luis, Mas
 - Ginette Tremblay, for carefully rewiewing the manuscript and correcting my English slang.
 - The staff at Presses de l'Université du Québec, for being open to this unusual book project and accept to publish it in their *open access* collection.
 
+I hope that you will find this book both instructive and enjoyable to read!
+
+<!-- Leave the two spaces at the end of the following lines. They tell Pandoc
+     to break lines-->
+  
+  
+Sylvain Hallé  
+Jonquière, Canada  
+8/16/2018
+
+
 <!-- :wrap=soft: -->
