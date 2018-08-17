@@ -45,6 +45,8 @@
   * [Plots](palettes/README.md#plots)
   * [Networking](palettes/README.md#networking)
   * [Finite-state machines](palettes/README.md#finite-state-machines)
+* [A few use cases](use-cases/README.md)
+  * [Voyager telemetry](use-cases/README.md#voyager-telemetry)
 * [Extending BeepBeep](custom/README.md)
   * [Creating custom functions](custom/README.md#creating-custom-functions)
   * [Creating custom processors](custom/README.md#creating-custom-processors)

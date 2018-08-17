@@ -310,6 +310,12 @@ forward, padding the beginning of the trace with some dummy element.
 
 {@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.6}
 
+#### `KeepLast`
+
+@palette Core@ <!--\index{KeepLast@\texttt{KeepLast}} A-->A<!--/i--> `Processor` that returns only the very last event of its input stream, and discards all the previous ones. It is represented graphically as:
+
+{@img images/tmf/KeepLast.png}{KeepLast}{.6}
+
 #### `Lists`
 
 @palette Core@ A container class for functions and processors applying to ordered collections (`List`s) and arrays. Among the processors and functions provided by `Lists` are: `Explode`, `Pack`, `TimePack`, and `Unpack`.
