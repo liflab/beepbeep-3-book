@@ -78,6 +78,12 @@ See also `PutInto`.
 
 @palette Core@ <!--\index{Call@\texttt{Call}} A-->A<!--/i--> `Processor` object calling an external command upon receiving an event, and returning the output of that command as its output stream.
 
+{@img images/io/Call.png}{Call}{.6}
+
+#### `CallbackSink`
+
+@palette Core@ <!--\index{CallbackSink@\texttt{CallbackSink}} A-->A<!--/i--> `Sink` that calls a method when a new front of events is pushed to it. Users can override that method to do some processing on these events.
+
 #### Closed (chain)
 
 <!--\index{closed (chain)} A-->A<!--/i--> property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
@@ -251,7 +257,9 @@ In a graphical representation of a `GroupProcessor`, the processor chain inside 
 
 #### HttpGet
 
-@palette Core@ <!--\index{HttpGet@\texttt{HttpGet}} A-->A<!--/i--> `Processor` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings.
+@palette Core@ <!--\index{HttpGet@\texttt{HttpGet}} A-->A<!--/i--> `Source` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings. It is represented as:
+
+{@img images/io/HttpGet.png}{HttpGet}{.6}
 
 
 #### `IdentityFunction`
@@ -484,25 +492,37 @@ See also `PutInto` (`Sets`).
 
 #### `QueueSink`
 
-@palette Core@ A `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
+@palette Core@ <!--\index{QueueSink@\texttt{QueueSink}} A-->A<!--/i--> `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
 
 {@img images/tmf/QueueSink.png}{QueueSink}{.6}
 
 #### `QueueSource`
 
-@palette Core@ A `Source` whose input is a queue of objects. One gives the `QueueSource` a list of events, and that source sends these events as its input one by one. When reaching the end of the list, the source returns to the beginning and keeps feeding events from the list endlessly. The `QueueSource` is represented graphically as:
+@palette Core@ <!--\index{QueueSource@\texttt{QueueSource}} A-->A<!--/i--> `Source` whose input is a queue of objects. One gives the `QueueSource` a list of events, and that source sends these events as its input one by one. When reaching the end of the list, the source returns to the beginning and keeps feeding events from the list endlessly. The `QueueSource` is represented graphically as:
 
 {@img images/tmf/QueueSource.png}{QueueSource}{.6}
 
+#### `RaiseArity`
+
+@palette Core@ <!--\index{RaiseArity@\texttt{RaiseArity}} A-->A<!--/i--> `Function` that raises the arity of another function. Given an *m*:*n* function *f*, an instance of *r* `RaiseArity` makes *f* behave like an *m'*:*n* function, with *m'* > *m*. The extra arguments given to *r* are simply ignored. It is represented as:
+
+{@img images/functions/RaiseArity.png}{RaiseArity}{.6}
+
+#### `ReadInputStream`
+
+@palette Core@ <!--\index{ReadInputStream@\texttt{ReadInputStream}} A-->A<!--/i--> `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
+
+{@img images/io/StreamReader.png}{StreamReader}{.6}
+
 #### `ReadLines`
 
-@palette Core@ Source that reads text lines from a Java `InputStream`. It is represented graphically as:
+@palette Core@ <!--\index{ReadLines@\texttt{ReadLines}} A-->A<!--/i--> Source that reads entire text lines from a Java `InputStream`. It is represented graphically as:
 
 {@img images/io/ReadLines.png}{ReadLines}{.6}
 
-#### ReadStringStream
+#### `ReadStringStream`
 
-Extracts character strings from a Java `InputStream`.
+@palette Core@ <!--\index{ReadStringStream@\texttt{ReadStringStream}} A-->A<!--/i--> variant of `ReadInputStream` that converts the byte chunks into character strings.
 
 #### `RunOn`
 
@@ -514,7 +534,7 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 #### `Serialize`
 
-@palette Serialization@ A `Processor` that takes arbitrary objects as its inputs, and turns each of them into a structured character string depicting their content. It is represented graphically as follows:
+@palette Serialization@ <!--\index{Serialize@\texttt{Serialize}} A-->A<!--/i--> `Processor` that takes arbitrary objects as its inputs, and turns each of them into a structured character string depicting their content. It is represented graphically as follows:
 
 {@img images/other/Serialize.png}{Serialize}{.6}
 
@@ -532,9 +552,7 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 #### `SingleProcessor`
 
-@palette Core@ A `Processor` that performs a computation on input events to produce output events. This is the direct descendant of `Processor`, and probably the one you'll want to inherit from when creating your own processors. While `Processor` takes care of input and output queues, `SingleProcessor` also implements `Pullable`s and `Pushable`s. These take care of collecting input events, waiting until one new event is received from all input traces before triggering the computation, pulling and buffering events from all outputs when either of the `Pullable`s is being called, etc.
-
-The only thing that is left undefined is what to do when new input events have been received from all input traces. This is the task of abstract method `compute()`, which descendants of this class must implement.
+@palette Core@ <!--\index{SingleProcessor@\texttt{SingleProcessor}} A-->A<!--/i--> `Processor` that performs a computation on input events to produce output events. This is the direct descendant of `Processor`, and probably the one you'll want to inherit from when creating your own processors. While `Processor` takes care of input and output queues, `SingleProcessor` also implements `Pullable`s and `Pushable`s. These take care of collecting input events, waiting until one new event is received from all input traces before triggering the computation, pulling and buffering events from all outputs when either of the `Pullable`s is being called, etc. The only thing that is left undefined is what to do when new input events have been received from all input traces. This is the task of abstract method `compute()`, which descendants of this class must implement.
 
 #### `Sink`
 
@@ -542,13 +560,13 @@ The only thing that is left undefined is what to do when new input events have b
 
 #### `Slice`
 
-@palette Core@  A `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
+@palette Core@  <!--\index{Slice@\texttt{Slice}} A-->A<!--/i--> `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
 
 {@img images/tmf/Slice.png}{Slice}{.6}
 
 #### `Source`
 
-@palette Core@ A `Processor` with an input *arity* of zero. It is used to close processor chains in *pull mode*.
+@palette Core@ <!--\index{Source@\texttt{Source}} A-->A<!--/i--> `Processor` with an input *arity* of zero. It is used to close processor chains in *pull mode*.
 
 #### `SplitString`
 
@@ -570,15 +588,9 @@ The comma in the figure is to be replaced by the actual character used to separa
 
 {@img images/util/StartsWith.png}{StartsWith}{.6}
 
-#### `StreamReader`
-
-@palette Core@ A `Source` that reads chunks of bytes from a Java `InputStream`.  It is represented graphically as follows:
-
-{@img images/io/StreamReader.png}{StreamReader}{.6}
-
 #### `StreamVariable`
 
-@palette Core@ A `Function` standing for the *i*-th stream given as input to a processor. A `StreamVariable` can be given as an argument to a `FunctionTree`. It is represented as follows:
+@palette Core@ <!--\index{StreamVariable@\texttt{StreamVariable}} A-->A<!--/i--> `Function` standing for the *i*-th stream given as input to a processor. A `StreamVariable` can be given as an argument to a `FunctionTree`. It is represented as follows:
 
 {@img images/functions/StreamVariable.png}{StreamVariable}{.6}
 
@@ -596,7 +608,7 @@ The number inside the diamond represents the stream number. By convention, strea
 
 #### `Tank`
 
-@palette Core@ A `Processor` that accumulates pushed events into a queue until they are pulled. The Tank is a way to bridge an upstream part of a processor chain that works in *push* mode, to a downstream part that operates in *pull* mode.
+@palette Core@ <!--\index{Tank@\texttt{Tank}} A-->A<!--/i--> `Processor` that accumulates pushed events into a queue until they are pulled. The Tank is a way to bridge an upstream part of a processor chain that works in *push* mode, to a downstream part that operates in *pull* mode.
 
 Graphically, this processor is represented as:
 
@@ -606,7 +618,7 @@ The opposite of the tank is the `Pump`.
 
 #### `TimeDecimate`
 
-@palette Core@ A `Processor` which, after returning an input event, discards all others for the next *n* seconds. This processor therefore acts as a rate limiter. It is represented as:
+@palette Core@ <!--\index{TimeDecimate@\texttt{TimeDecimate}} A-->A<!--/i--> `Processor` which, after returning an input event, discards all others for the next *n* seconds. This processor therefore acts as a rate limiter. It is represented as:
 
 {@img images/tmf/TimeDecimate.png}{TimeDecimate}{.6}
 
@@ -622,7 +634,7 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 
 #### `ToArray`, `ToList`, `ToSet`
 
-@palette Core@ Three *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
+@palette Core@ <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \index{Bags@\texttt{Bags}!ToList@\texttt{ToList}} \index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} Three-->Three<!--/i--> *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
 
 {@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.6}
 
@@ -634,29 +646,29 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 
 #### `Trim`
 
-@palette Core@ A `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
+@palette Core@ <!--\index{Trim@\texttt{Trim}} A-->A<!--/i--> `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
 
 {@img images/tmf/Trim.png}{Trim}{.6}
 
 #### `Tuple`
 
-@palette Tuples@ A special type of event defined by BeepBeep's *Tuple* palette, which consists of an associative map between keys and values. Contrary to tuples in relational databases, where values must be scalar (i.e. strings or numbers), the tuples in BeepBeep can have arbitrary Java objects as values (including other tuples).
+@palette Tuples@ <!--\index{Tuple@\texttt{Tuple}} A-->A<!--/i--> special type of event defined by BeepBeep's *Tuple* palette, which consists of an associative map between keys and values. Contrary to tuples in relational databases, where values must be scalar (i.e. strings or numbers), the tuples in BeepBeep can have arbitrary Java objects as values (including other tuples).
 
 #### `TupleFeeder`
 
-@palette Tuples@ A `Processor` that converts lines of text into `Tuple`s. It is represented as:
+@palette Tuples@ <!--\index{TupleFeeder@\texttt{TupleFeeder}} A-->A<!--/i--> `Processor` that converts lines of text into `Tuple`s. It is represented as:
 
 {@img images/other/TupleFeeder.png}{TupleFeeder}{.6}
 
 #### `TurnInto`
 
-@palette Core@ A `Processor` that turns any input event into a predefined object. It is represented graphically as:
+@palette Core@ <!--\index{TurnInto@\texttt{TurnInto}} A-->A<!--/i--> `Processor` that turns any input event into a predefined object. It is represented graphically as:
 
 {@img images/functions/TurnInto.png}{TurnInto}{.6}
 
 #### `UnaryFunction`
 
-@palette Core@ A `Function` object that has an input and output *arity* of exactly 1.
+@palette Core@ <!--\index{UnaryFunction@\texttt{UnaryFunction}} A-->A<!--/i--> `Function` object that has an input and output *arity* of exactly 1.
 
 #### Uniform (processor)
 
@@ -684,5 +696,10 @@ The opposite of `Unpack` is `Pack`.
 
 The processor takes as arguments another processor P and a window width *n*. It returns the result of P after processing events 0 to *n*-1... - Then the result of (a new instance of P) that processes events 1 to *n*, and so on.
 
+#### `WriteOutputStream`
+
+@palette Core@ <!--\index{WriteOutputStream@\texttt{WriteOutputStream}} A-->A<!--/i--> `Sink` that writes chunks of bytes to a Java `OutputStream`.  It is represented graphically as follows:
+
+{@img images/io/WriteOutputStream.png}{WriteOutputStream}{.6}
 
 <!-- :wrap=soft: -->

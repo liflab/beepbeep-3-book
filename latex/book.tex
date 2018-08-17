@@ -64,8 +64,11 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 Book version: L1.1---August 10, 2018}
 
 
+%\thispagestyle{toc}
+\pagestyle{toc}
 \tableofcontents
 \newpage
+\subimport*{chapters/}{foreword/README}
 
 \mainmatter
 \thispagestyle{normal}
@@ -76,7 +79,9 @@ Book version: L1.1---August 10, 2018}
 \appendix
 % Change "chapter" for "appendix" in footer for these chapters
 \renewcommand{\chaptername}{Appendix}
-\setcounter{tocdepth}{0} % No sections in TOC
+% No sections in TOC for appendices. Can't simply set tocdepth; this has no effect
+% Solution found at: https://tex.stackexchange.com/a/160866/165194
+\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \subimport*{chapters/}{drawing/README}
 \subimport*{chapters/}{dictionary/README}
 

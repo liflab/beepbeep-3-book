@@ -32,9 +32,10 @@ $s = preg_replace("/\\@palette (.*?)@/ms", "\\bbpalette{\\1}", $s);
 $s = preg_replace("/\\\\begin\\{figure\\}.*?(\\\\includegraphics[^\\}]*)\\}.*?\\\\caption.*?\\\\end\\{figure\\}/ms", "\\begin{center}\n\\1}\n\\end{center}", $s);
 file_put_contents("latex/chapters/dictionary/README.tex", $s);
 
-// Remove dictionary and drawing guide from body.tex, as these two files are
+// Remove foreword, dictionary and drawing guide from body.tex, as these files are
 // manually included by book.tex
 $s = file_get_contents("latex/chapters/body.tex");
+$s = preg_replace("/^\\\\subimport.*foreword.*$/m", "", $s);
 $s = preg_replace("/^\\\\subimport.*dictionary.*$/m", "", $s);
 $s = preg_replace("/^\\\\subimport.*drawing.*$/m", "", $s);
 file_put_contents("latex/chapters/body.tex", $s);

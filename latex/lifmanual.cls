@@ -23,7 +23,7 @@
 %% Déclarations
 %% ------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{lifmanual}[2018/08/16 LIF manual, V1.5.1 par Sylvain Hallé]
+\ProvidesClass{lifmanual}[2018/08/16 LIF manual, V1.5.2 par Sylvain Hallé]
 
 %% ------------------------
 %% Passing options to book class
@@ -111,6 +111,12 @@
   \fancyfoot{}
   \fancyfoot[LE]{\sffamily\bfseries\small \parbox{20pt}{\thepage}\quad|\quad\chaptername{} \thechapter{}: \leftmark}
   \fancyfoot[RO]{\sffamily\bfseries\small \rightmark\quad|\quad\parbox{20pt}{\raggedleft\thepage}}
+}
+
+\fancypagestyle{toc}{
+  \fancyfoot{}
+  \fancyfoot[LE]{\sffamily\bfseries\small \parbox{20pt}{\thepage}\quad|\quad Contents}
+  \fancyfoot[RO]{\sffamily\bfseries\small{\raggedleft\thepage}}
 }
 
 \fancypagestyle{foreword}{
@@ -230,6 +236,16 @@
 {0.5cm}% Séparation d'avec le corps du chapitre
 {\MakeTextUppercase{#1}}% Code à  exécuter avant le titre
 {}% Code à  exécuter après le titre
+
+% We patch the verbatim environment so that is uses a smaller font
+% found at: https://tex.stackexchange.com/a/161713/165194
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\@verbatim}
+  {\verbatim@font}
+  {\verbatim@font\small}
+  {}{}
+\makeatother
 
 % Alter some LaTeX defaults for better treatment of figures:
 % See p.105 of "TeX Unbound" for suggested values.
