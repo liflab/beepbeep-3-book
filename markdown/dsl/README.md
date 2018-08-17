@@ -385,7 +385,7 @@ public Trim handleTrim(Object ... parts)
     return trim;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L56)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L39)
 
 
 According to the grammar rule for `<trim>`, the contents of the `parts` array should be a String of digits, and an instance of a `Processor` object. The first two instructions retrieve these two objects. The third instruction instantiates a new `Trim` processor, using the parsed integer for the number of elements to trim. The processor passed as an argument is connected to the newly created `trim` processor, and `trim` is returned to be put back onto the object stack.
@@ -412,7 +412,7 @@ public CountDecimate handleDecimate(Object ... parts)
     return dec;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L69)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L52)
 
 
 ![A graphical representation of the stack manipulations for rule `<decim>`.](Rule-decim.png)
@@ -432,7 +432,7 @@ public Filter handleFilter(Object ... parts)
     return filter;
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L82)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L65)
 
 
 ![A graphical representation of the stack manipulations for rule `<filter>`.](Rule-filter.png)
@@ -454,7 +454,7 @@ public void handleStream(ArrayDeque<Object> stack)
     stack.push(p);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L96)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L79)
 
 
 Graphically, this can be illustrated as follows:
@@ -473,7 +473,7 @@ Pullable pul1 = proc.getPullableOutput();
 for (int i = 0; i < 5; i++)
     System.out.println(pul1.pull());
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L122)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L105)
 
 
 The process is similar to what we did earlier with functions. We use an instance of the builder to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; we then create a `QueueSource`, and connect it to the processor we obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If we were to apply the building rules defined earlier, step by step, we would discover that the `Processor` returned by `build` is actually this one:

@@ -145,10 +145,6 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 @palette Core@ <!--\index{CumulativeFunction@\texttt{CumulativeFunction}} A-->A<!--/i--> special type of `Function` with memory.
 
-#### `Demultiplex`
-
-<!--\index{Demultiplex@\texttt{Demultiplex}} A-->A<!--/i--> `Processor` object that converts a sequence of *n* consecutive events into an event that is a vector of size *n*, with the element at position "0" in the vector corresponding to the first event of the window. This effectively works as a time demultiplexer.
-
 #### `Deserialize`
 
 @palette Serialization@ <!--\index{Deserialize@\texttt{Deserialize}} A-->A<!--/i--> `Processor` that takes structured character strings as its inputs, and turns each of them into Java objects with the corresponding content. It is represented graphically as follows:
@@ -193,9 +189,11 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/util/FilterElements.png}{FilterElements}{.6}
 
-#### FindPattern
+#### `FindPattern`
 
-<!--\index{FindPattern@\texttt{FindPattern}} A-->A<!--/i--> `Processor` that extracts chunks of an input stream based on a regular expression.
+<!--\index{FindPattern@\texttt{FindPattern}} A-->A<!--/i--> `Processor` that extracts chunks of an input stream based on a regular expression. It is represented graphically as:
+
+{@img images/tmf/FindPattern.png}{FindPattern}{.6}
 
 #### `FindRegex`
 
@@ -338,6 +336,12 @@ forward, padding the beginning of the trace with some dummy element.
 
 {@img images/util/Minimum.png}{Minimum}{.6}
 
+#### `Multiplex`
+
+@palette Core@ <!--\index{Multiplex@\texttt{Multiplex}} A-->A<!--/i--> `Processor` that merges the contents of multiple streams into a single stream. It is an *m*:1 processor that outputs an event as soon as one is available on one of its input pipes. It is represented graphically as:
+
+{@img images/tmf/Multiplex.png}{Multiplex}{.6}
+
 #### `Multiplication`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Multiplication@\texttt{Multiplication}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the product of two numbers. It is represented as:
@@ -391,14 +395,12 @@ The oppositve of `Pack` in `Unpack`. See also `TimePack`.
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Power@\texttt{Power}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the first argument, elevated to the power of the second. It is represented as:
 
 {@img images/util/Power.png}{Power}{.6}
- 
 
 #### Prefix
 
-Returns the first <i>n</i> input events and discards the following ones.
+@palette Core@ <!--\index{Prefix@\texttt{Prefix}} A-->A<!--/i--> `Processor` that returns the first <i>n</i> input events and discards the following ones. It is represented graphically as:
 
-
- 
+{@img images/tmf/Prefix.png}{Prefix}{.6}
 
 #### `Print`
 
@@ -558,6 +560,10 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 @palette Core@ A `Processor` with an output *arity* of zero. It is used to close processor chains in *push mode*.
 
+#### `SinkLast`
+
+@palette Core@ <!--\index{SinkLast@\texttt{SinkLast}} A-->A<!--/i--> variant of `QueueSink` with a queue of size 1. A `SinkLast` remembers only the last event sent to it.
+
 #### `Slice`
 
 @palette Core@  <!--\index{Slice@\texttt{Slice}} A-->A<!--/i--> `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
@@ -567,6 +573,12 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 #### `Source`
 
 @palette Core@ <!--\index{Source@\texttt{Source}} A-->A<!--/i--> `Processor` with an input *arity* of zero. It is used to close processor chains in *pull mode*.
+
+#### `Splice`
+
+@palette Core@  <!--\index{Splice@\texttt{Splice}} A-->A<!--/i--> `Source` that joins multiple sources as a single one. The splice processor is given multiple sources. It pulls events from the first one until it does not yield any new event. It then starts pulling events from the second one, and so on. It is illustrated as:
+
+{@img images/tmf/Splice.png}{Splice}{.6}
 
 #### `SplitString`
 
@@ -615,6 +627,10 @@ Graphically, this processor is represented as:
 {@img images/tmf/Tank.png}{Tank}{.6}
 
 The opposite of the tank is the `Pump`.
+
+#### `TankLast`
+
+@palette Core@ <!--\index{TankLast@\texttt{TankLast}} A-->A<!--/i--> variant of `Tank` which, when pulled, creates an output event based on the last event received.
 
 #### `TimeDecimate`
 
@@ -690,11 +706,16 @@ The opposite of `Unpack` is `Pack`.
 
 #### `Window`
 
-@palette Core@ Simulates the application of a "sliding <!--\index{Window@\texttt{Window}} window-->window<!--/i-->" to a trace. It is represented graphically as:
+@palette Core@ <!--\index{Window@\texttt{Window}} A-->A<!--/i--> `Processor` that applies another processor on a "sliding window" of events. It takes as arguments another processor *P* and a window width *n*. It returns the result of P after processing events 0 to *n*-1... - Then the result of (a new instance of P) that processes events 1 to *n*, and so on. It is represented graphically as:
 
 {@img images/tmf/Window.png}{Window}{.6}
 
-The processor takes as arguments another processor P and a window width *n*. It returns the result of P after processing events 0 to *n*-1... - Then the result of (a new instance of P) that processes events 1 to *n*, and so on.
+#### `WindowFunction`
+
+@palette Core@ <!--\index{WindowFunction@\texttt{WindowFunction}} A-->A<!--/i--> `Processor` that applies a function on a "sliding window" of events. It takes a sliding window of *n* successive input events, passes them to the *n*-ary function *f* and outputs the result. It is represented graphically as:
+
+{@img images/tmf/WindowFunction.png}{WindowFunction}{.6}
+
 
 #### `WriteOutputStream`
 
