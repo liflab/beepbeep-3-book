@@ -652,7 +652,15 @@ So far, we have used `Pullable` objects like ordinary Java iterators. Method `ha
 
 What happens when a processor may have more events to produce, but just not yet? In such a case, the correct answer to `hasNext` is neither `true` (there is no event available right now) nor `false` (the stream is not necessarily over). This is why BeepBeep `Pullable`s provide two ways for querying and pulling events: the "hard" and the "soft" methods. To illustrate the difference between the two, consider the following code:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/PullHard.java</code></pre>
+``` java
+QueueSource source = new QueueSource().loop(false);
+source.setEvents(0, 1, 2, 3);
+CountDecimate decim = new CountDecimate(2);
+Connector.connect(source, decim);
+Pullable p = decim.getPullableOutput();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullHard.java#L40)
+
 
 In this simple example, a source of eight numbers is connected to a `CountDecimate` processor that will keep every third event. The source is configured *not* to loop to the first event of its list once the first ten have been output.
 
@@ -660,7 +668,19 @@ In this simple example, a source of eight numbers is connected to a `CountDecima
 
 **Hard** <!--\index{pull mode!hard pulling} pulling-->pulling<!--/i--> is the pull mode we have used so far. Let us call `hasNext` and `pull` a few times on this chain, as follows:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/PullHard.java</code></pre>
+``` java
+for (int i = 0; i < 5; i++)
+{
+  boolean b = p.hasNext();
+  System.out.println(b);
+  if (b == true)
+  {
+    System.out.println(p.pull());
+  }
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullHard.java#L47)
+
 
 The program prints, as expected:
 
@@ -695,7 +715,19 @@ The rest of the program proceeds in the same way. Note that, after outputting th
 
 **Soft** <!--\index{pull mode!soft pulling} pulling-->pulling<!--/i--> behaves a little differently. To illustrate this, we shall use the same processor chain as above, but replace calls to `hasNext` and `pull` by calls to two new methods: `hasNextSoft` and `pullSoft`.
 
-<pre><code>Source code not found: ../examples/Source/src/basic/PullSoft.java</code></pre>
+``` java
+for (int i = 0; i < 5; i++)
+{
+  Pullable.NextStatus s = p.hasNextSoft();
+  System.out.println(s);
+  if (s == Pullable.NextStatus.YES)
+  {
+    System.out.println(p.pullSoft());
+  }
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullSoft.java#L47)
+
 
 We can observe that `hasNextSoft`, contrary to `hasNext`, does not return a Boolean, but rather a special value of type <!--\index{Pullable@\texttt{Pullable}!NextStatus} \texttt{NextStatus}-->`NextStatus`<!--/i-->. This type is actually an enumeration of three symbolic constants: `YES`, `NO` and `MAYBE`. A call to `hasNextSoft` that returns `YES` or `NO` has the same meaning as a call to `hasNext` returning `true` or `false`, respectively. When `YES` is the answer, a new event is available and ready to be pulled. When `NO` is the answer, no new event will ever come out of this `Pullable` object.
 
@@ -735,7 +767,17 @@ Each `Processor` subclass is expected to have a well-defined initial state, in w
 
 Let us take as an example a `Window` processor that computes the cumulative sum of a sliding window of three events, as in the following program:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/ResetWindow.java</code></pre>
+``` java
+Window w = new Window(new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition)), 3);
+Connector.connect(w, new Print());
+Pushable p = w.getPushableInput();
+p.push(3).push(1).push(4).push(1).push(6);
+w.reset();
+p.push(2).push(7).push(1).push(8).push(3);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ResetWindow.java#L38)
+
 
 As expected, the first two calls to `push` do not send anything to the `Print` processor, since three input events are required for `Window` to output something. The remaining three calls to `push` produce the first three numbers printed on the console:
 
@@ -765,7 +807,15 @@ The ID pf a processor has no special meaning, and you will seldom have to use th
 
 Nevertheless, IDs can be queried using a public method called <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId()}-->`getId()`<!--/i-->. The following code shows an example of this:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/ProcessorId.java</code></pre>
+``` java
+QueueSource source = new QueueSource().loop(false);
+source.setEvents(0, 1, 2, 3);
+CountDecimate decim = new CountDecimate(2);
+System.out.println("ID of source: " + source.getId());
+System.out.println("ID of decim: " + decim.getId());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ProcessorId.java#L33)
+
 
 The program simply create two processors and prints their respective ID:
 
@@ -776,11 +826,36 @@ ID of decim: 1
 
 We insist on the fact that *every* instance has a distinct ID. Consider the following class, which creates a `GroupProcessor` containing a single `Passthrough`:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/ProcessorIdGroup.java</code></pre>
+``` java
+public static class MyGroup extends GroupProcessor
+{
+  protected Passthrough pt;
+  public MyGroup()
+  {
+    super(1, 1);
+    pt = new Passthrough();
+    addProcessor(pt);
+    associateInput(0, pt, 0);
+    associateOutput(0, pt, 0);
+  }
+  public Passthrough getInstance()
+  {
+    return pt;
+  }
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ProcessorIdGroup.java#L47)
+
 
 Let us create an instance of this group, and look at the IDs of the processors:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/ProcessorIdGroup.java</code></pre>
+``` java
+MyGroup g1 = new MyGroup();
+System.out.println("ID of g1: " + g1.getId());
+System.out.println("ID inside g1: " + g1.getInstance().getId());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ProcessorIdGroup.java#L34)
+
 
 The output of this program is:
 
@@ -791,7 +866,13 @@ ID inside g1: 1
 
 As you can see, the `GroupProcessor` in itself has its own ID (0), and the instance of `Passthrough` it contains has a distinct ID. Let us continue the program and create a second instance of `MyGroup`:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/ProcessorIdGroup.java</code></pre>
+``` java
+MyGroup g2 = new MyGroup();
+System.out.println("ID of g2: " + g2.getId());
+System.out.println("ID inside g2: " + g2.getInstance().getId());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ProcessorIdGroup.java#L39)
+
 
 The next two printed lines are:
 
@@ -838,7 +919,16 @@ In some occasions, it may be useful to create a copy of an existing processor in
 
 The following example shows how to perform what is called *stateless* duplication:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateNoState.java</code></pre>
+``` java
+Cumulate sum1 = new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition));
+Connector.connect(sum1, new Print()
+    .setPrefix("sum1: ").setSeparator("\n"));
+Pushable p_sum1 = sum1.getPushableInput();
+p_sum1.push(3).push(1).push(4);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateNoState.java#L37)
+
 
 In this example, a `Cumulate` processor is connected to a `Print` sink, and a few events are pushed to it. The first part of the program prints, as expected:
 
@@ -850,7 +940,15 @@ sum1: 8
 
 Let us now use method <!--\index{Processor@\texttt{Processor}!duplicate@\texttt{duplicate}} \texttt{duplicate()}-->`duplicate()`<!--/i--> to create a new copy of `sum1`, and push events to it as well:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateNoState.java</code></pre>
+``` java
+Cumulate sum2 = (Cumulate) sum1.duplicate();
+Connector.connect(sum2, new Print()
+    .setPrefix("sum2: ").setSeparator("\n"));
+Pushable p_sum2 = sum2.getPushableInput();
+p_sum2.push(2).push(7).push(1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateNoState.java#L48)
+
 
 The next three lines the program prints are:
 
@@ -864,7 +962,22 @@ This output reveals two things. First, `sum2` is a new `Cumulate` processor that
 
 However, when a processor is duplicated, its *context* is duplicated as well. To illustrate this, let us create a processor that applies a simple function:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateContext.java</code></pre>
+``` java
+ApplyFunction f1 = new ApplyFunction(new FunctionTree(
+    Numbers.addition, StreamVariable.X, new ContextVariable("foo")));
+Connector.connect(f1, new Print()
+    .setPrefix("f1: ").setSeparator("\n"));
+Pushable p_f1 = f1.getPushableInput();
+f1.setContext("foo", 10);
+p_f1.push(3).push(1);
+ApplyFunction f2 = (ApplyFunction) f1.duplicate();
+Connector.connect(f2, new Print()
+    .setPrefix("f2: ").setSeparator("\n"));
+Pushable p_f2 = f2.getPushableInput();
+p_f2.push(2).push(7).push(1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateContext.java#L40)
+
 
 The function adds the value of a processor's context variable called "foo" to each input event. In the beginning, this variable is set to the value 10 by a call to `setContext` on `f1`. Processor `f1` is then duplicated, and a few more events are pushed on its copy `f2`. The output of the program is:
 
@@ -882,7 +995,11 @@ This shows that the value of "foo" (10) has been transferred over from `f1` to i
 
 It is also possible to duplicate a processor *and* its state at the same time. To this end, method `duplicate` accepts an optional Boolean argument; if set to `true`, this will instruct to create a copy of the process, and to place that processor in the same state as the original (instead of its initial state). Let us examine the difference by revisiting our original example on duplication, and adding the parameter `true` to the call to `duplicate`:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateState.java</code></pre>
+``` java
+Cumulate sum2 = (Cumulate) sum1.duplicate(true);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateState.java#L47)
+
 
 The output of the program becomes the following; notice how `sum2`'s count does not start at 0, but rather at `sum1`'s count at the moment it was duplicated.
 
@@ -901,13 +1018,38 @@ Duplication has uses for single processor instances, but proves even more handy 
 
 To make things more concrete, let us examine this code example:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateGroup.java</code></pre>
+``` java
+QueueSource source1 = new QueueSource().setEvents(3, 1, 4, 1, 5);
+GroupProcessor gp1 = new GroupProcessor(1, 1);
+{
+  Stutter st = new Stutter(2);
+  Cumulate sum = new Cumulate(
+      new CumulativeFunction<Number>(Numbers.addition));
+  Connector.connect(st, sum);
+  gp1.addProcessors(st, sum);
+  gp1.associateInput(0, st, 0);
+  gp1.associateOutput(0, sum, 0);
+}
+Connector.connect(source1, gp1);
+Pullable p_gp1 = gp1.getPullableOutput();
+System.out.println(p_gp1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateGroup.java#L39)
+
 
 We first create a `GroupProcessor` that encapsulates a `Stutter` processor conntected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2). We then connect this group to an upstream source of numbers, and proceed to pull one event out of this chain. Without surprise, the output that is printed at the console is `3`.
 
 The next part of the program will duplicate `gp1` into `gp2`, connect it to a new upstream source of numbers, and pull one event from `gp2`:
 
-<pre><code>Source code not found: ../examples/Source/src/basic/DuplicateGroup.java</code></pre>
+``` java
+QueueSource source2 = new QueueSource().setEvents(2, 7, 1, 8);
+GroupProcessor gp2 = gp1.duplicate(true);
+Connector.connect(source2, gp2);
+Pullable p_gp2 = gp2.getPullableOutput();
+System.out.println(p_gp2.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/DuplicateGroup.java#L58)
+
 
 The second line that is printed at the console is `6`. To understand how we got this number, we must have a look at what occurred under the hood. The first call to `pull` on `gp1` triggered a call to `pull` on the group's `sum` processor, which in turn triggered a call to `pull` on `stutter`, and finally a call to `pull` on `source1`. In return, the processor `stutter` received the event `3`, and placed *two* events in its output queue (the number `3` twice). Processor `sum` took the first of these two events, processed it and returned the value `3`, which in turn was returned by `gp1`.
 
