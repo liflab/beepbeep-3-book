@@ -1,83 +1,39 @@
 A few use cases
 ===============
 
+The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been crafted especially for this book.
+
+Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed below:
+
+- S. Hallé. (2017). From Complex Event Processing to Simple Event Processing. arXiv technical report. DOI: XXX
+- S. Hallé, S. Gaboury, B. Bouchard. (2016). Activity Recognition through Complex Event Processing: First Findings.
+- S. Hallé. (2016). When RV Meets CEP. Proceedings of the Xth Runtime Verification Conference. DOI: 
 
 ## Stock ticker
 
 A recurring scenario used in CEP to illustrate the performance of various tools is taken from the stock market. One considers a stream of stock quotes, where each event contains attributes such as a stock symbol, the price of the stock at various moments (such as its minimum price and closing price), as well as a timestamp. A typical stream of events of this nature is shown in the following figure. This figure shows that events are structured as tuples, with a fixed set of attributes, each of which taking a scalar value. We shall see that many use cases have events structured as tuples, and that many event stream engines and query languages take for granted that events have a tuple structure.
 
-### Examples of queries
-
 This simple example can be used to illustrate various queries that typically arise in an event stream processing scenario. A first, simple type of query one can compute over such a trace is called a snapshot query, such as the
 following:
 
-Quer*y*<sub>1</sub>. Get the closing price of msft for the
-first five trading days.
+Query 1. Get the closing price of MSFT for the first five trading days.
 
-The result of that query is itself a trace of tuples, much
-in the same way the relational SELECT statement on a
-table returns another table. A refinement of the snapshot
-query is the landmark query, which returns only events
-that satisfy some criterion, such as:
+The result of that query is itself a trace of tuples, much in the same way the relational SELECT statement on a table returns another table. A refinement of the snapshot query is the landmark query, which returns only events that satisfy some criterion, such as:
 
-Quer*y*<sub>2</sub>. Select all the days after the hundredth
-trading day, on which the closing price of msft
-has been greater than $50.
+Query 2. Select all the days after the hundredth trading day, on which the closing price of msft has been greater than $50.
 
-This simple query highlights the fact that, in online
-processing, outputting a tuple may require waiting until more
-of the input trace is made available —and that waiting
-time is not necessarily bounded. In the worst case, MSFT
-may be the last stock symbol for which the price is known
-on a given day, and all events of that day must somehow
-be retained before knowing if they must be output in the
-result or discarded.
+This simple query highlights the fact that, in online processing, outputting a tuple may require waiting until more of the input trace is made available —and that waiting time is not necessarily bounded. In the worst case, MSFT may be the last stock symbol for which the price is known on a given day, and all events of that day must somehow be retained before knowing if they must be output in the result or discarded. 
+In window queries, a computation is repeatedly made on a set of successive events. The size of that set is called the width of the window; the width is specified as a number of events or as a time interval. A sliding query is a particular case of window query where, after each computation, the window moves forward into the trace and a new set of successive events is considered. Often, as is the case in this example, the computation applied to the contents of the window is an aggregate function, such as a sum or an average. Systems such as LinQ [13] propose other types of window queries, such as the hopping query (also called a tumble window by [14]), where the window moves forward by exactly its width, such that no two windows ever overlap. For example:
 
-In window queries, a computation is repeatedly made on
-a set of successive events. The size of that set is called the
-width of the window; the width is specified as a number of
-events or as a time interval. A sliding query is a particular
-case of window query where, after each computation, the
-window moves forward into the trace and a new set of
-successive events is considered. Often, as is the case in
-this example, the computation applied to the contents of
-the window is an aggregate function, such as a sum or an
-average. Systems such as LinQ [13] propose other types of
-window queries, such as the hopping query (also called a
-tumble window by [14]), where the window moves forward
-by exactly its width, such that no two windows ever overlap.
-For example:
+Query 3. On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
 
-Query 3. On every fifth trading day starting
-today, calculate the average closing price of msft
-for the five most recent trading days.
+Other windows include the latch, which maintains an internal state between window calculations. This is useful for calculations that are cumulative from the beginning of the stream.
 
-Other windows include the latch, which maintains an
-internal state between window calculations. This is useful
-for calculations that are cumulative from the beginning of
-the stream.
+A join query involves the comparison of multiple events together. In the stock ticker example, a possible join query could be:
 
-A join query involves the comparison of multiple events
-together. In the stock ticker example, a possible join query
-could be:
+Query 4. For the five most recent trading days starting today, select all stocks that closed higher than msft on a given day.
 
-Query 4. For the five most recent trading days
-starting today, select all stocks that closed higher
-than msft on a given day.
-
-When computing the result of such a query, a tuple is
-added to the output result depending on its relationship
-with respect to the price of msft for the same day. In most
-CEP systems, this is done by an operation similar to the
-JOIN operator in relational databases: the input stream is
-joined with itself, producing pairs of tuples (t<sub>1</sub>, t<sub>2</sub>) where
-t<sub>1</sub> belongs to the first "copy" of the stream, and t<sub>2</sub>belongs
-to the second. The join condition, in our example, is that
-the timestamps of t<sub>1</sub> and t<sub>2</sub> must be equal. Since traces
-are potentially infinite, join operations require bounds of
-some kind to be usable in practice; for example, the join
-operation may only be done on events of the last minute,
-or on a window of n successive events.
+When computing the result of such a query, a tuple is added to the output result depending on its relationship with respect to the price of msft for the same day. In most CEP systems, this is done by an operation similar to the JOIN operator in relational databases: the input stream is joined with itself, producing pairs of tuples (t<sub>1</sub>, t<sub>2</sub>) where t<sub>1</sub> belongs to the first "copy" of the stream, and t<sub>2</sub>belongs to the second. The join condition, in our example, is that the timestamps of t<sub>1</sub> and t<sub>2</sub> must be equal. Since traces are potentially infinite, join operations require bounds of some kind to be usable in practice; for example, the join operation may only be done on events of the last minute, or on a window of n successive events.
 
 ### Implementing the queries
 
@@ -171,7 +127,7 @@ Rather than simply checking that the sequencing of events for each item is follo
 
 ![Processor graph for the "Auction Bidding" query](auction/T2P1-modif.png)
 
-The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a Moore machine will be created, as shown in the top part of the graph.
+The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i--> will be created, as shown in the top part of the graph.
 
 Each transition in this Moore machine contains two parts: the top part is a function to evaluate on the input event, to decide whether the transition should fire. The bottom part contains instructions on how to modify the Context object of the processor. For example, the top left transition fires if the first element of the event is the string "Create Auction". If so, the transition is taken, and the processor’s context is updated with the associations Last Price 7→ 0, Days 7→ 0. The values of Min. Price and Max. Days are set with the content of the third and fourth element of the tuple, respectively. The remaining transitions take care of updating the minimum price and the number of days elapsed according to the events received.
 
@@ -210,8 +166,22 @@ Since the data is split into multiple CSV files, we shall first create one insta
 We then perform a drastic reduction of the data stream. The input files have hourly readings, which is a degree of precision that is not necessary for our purpose. We keep only one reading per week, by applying a `CountDecimate` that keeps one event ever*y*<sub>1</sub>68 (there are 168 hours in a week). Moreover, the file corresponding to year 1977 has no meaningful data before week 31 or so (the launch date); we ignore the firs*t*<sub>3</sub>1 events of the resulting stream by using a `Trim`. Finally, as a last pre-processing step, we convert plain text events into arrays by splitting each string on spaces. This is done by applying the <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}} \texttt{SplitString}-->`SplitString`<!--/i--> function. The Java code of this first pre-processing step looks like this:
 
 ``` java
+int start_year = 1977, end_year = 1992;
+ReadLines[] readers = new ReadLines[end_year - start_year + 1];
+for (int y = start_year; y <= end_year; y++)
+{
+    readers[y - start_year] = new ReadLines(
+            PlotSpeed.class.getResourceAsStream("data/vy2_" + y + ".asc"));
+}
+Splice spl = new Splice(readers);
+CountDecimate cd = new CountDecimate(24 * 7);
+Connector.connect(spl, cd);
+Trim ignore_beginning = new Trim(31);
+Connector.connect(cd, ignore_beginning);
+ApplyFunction to_array = new ApplyFunction(new Strings.SplitString("\\s+"));
+Connector.connect(ignore_beginning, to_array);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L0)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L71)
 
 
 ### Processing

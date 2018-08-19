@@ -2,7 +2,7 @@
 
 This book has introduced many concepts revolving around the concept of event streams. In particular, the BeepBeep library provides a little "zoo" of dozens of `Processor` and `Function` objects. In this appendix, you will find a non-exhaustive list of the various objects and notions that have been discussed. Processors and objects with a standardized graphical representation are also accompanied by the corresponding picture.
 
-For entries that refer to Java objects (such as processors and functions, a note beside the entry indicates whether these objects are part of BeepBeep's core, or can be found in one of its auxiliary palettes.
+For entries that refer to Java objects (such as processors and functions), a note beside the entry indicates whether these objects are part of BeepBeep's core, or can be found in one of its auxiliary palettes.
 
 For more technical information about each of these objects, the reader is referred to the online API documentation, which is provides in-depth and up-to-date information.
 
@@ -225,6 +225,12 @@ Functions are represented graphically as rounded rectangles, with a pictogram de
 
 A function with an input arity of *m* and an output arity of *n* is often referred to as an *m*:*n* function.
 
+#### `FunctionTransition`
+
+@palette FSM@ <!--\index{FunctionTransition@\texttt{FunctionTransition}} A-->A<!--/i--> `Transition` of a `MooreMachine` whose firing conditions is determined by evaluating a function *f* on the incoming event front. It is represented as:
+
+{@img images/fsm/FunctionTransition.png}{FunctionTransition}{.6}
+
 #### `FunctionTree`
 
 @palette Core@ <!--\index{FunctionTree@\texttt{FunctionTree}} A-->A<!--/i--> `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The drawing below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
@@ -341,6 +347,12 @@ forward, padding the beginning of the trace with some dummy element.
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Minimum@\texttt{Minimum}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It returns the minimum of its two arguments. It is represented as:
 
 {@img images/util/Minimum.png}{Minimum}{.6}
+
+#### `MooreMachine`
+
+@palette FSM@ <!--\index{MooreMachine@\texttt{MooreMachine}} A-->A<!--/i--> `Processor` that receives an event stream and which, upon each input event, updates its internal state according to a deterministic finite state machine. Each state can be associated with an event to output, corresponding to the formal definition of a Moore machine in theoretical computer science. The `MooreMachine` is depicted by the graph of the FSM it implements; if the graph is too cumbersome, a generic box can be used instead:
+
+{@img images/fsm/MooreMachine.png}{MooreMachine}{.6}
 
 #### `Multiplex`
 
@@ -665,6 +677,12 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 @palette Core@ <!--\index{Strings@\texttt{Strings}!ToString@\texttt{ToString}} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It attempts to convert an arbitrary Java `Object` into a `String`; this is done by calling the object's `toString` method. It is represented as:
 
 {@img images/util/ToString.png}{ToString}{.6}
+
+#### `Transition`
+
+@palette FSM@ <!--\index{Transition@\texttt{Transition}} An-->An<!--/i--> object used by the `MooreMachine` processor that indicates how the machine can move between its states. It is represented as:
+
+{@img images/fsm/Transition.png}{Transition}{.6}
 
 #### `Trim`
 
