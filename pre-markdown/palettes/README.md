@@ -170,6 +170,45 @@ Let us modify the previous example to illustrate the use of variables. We shall 
 
 This FSM looks very different as the previous one. As you can see, transitions now have conditions attached to them: these conditions are called *guards*. For example, the loop transition on the left-hand side of state 0 can be fired only if the incoming event is `hasNext` *and* the current value of local variable *c* is less than the current value of local variable *n*. In addition, transitions now also have *side effects* --that is, actions that change the processor's internal configuration other than simply moving it from one state to another. These side effects, in the figure, are seprated from the guard by a slash, and consist of assignments to the local variables. When a state has multiple outgoing transitions, the `*` is interpreted as the transition that fires when no other does.
 
+Take two minutes to convince yourself that this "extended" Moore machine indeed corresponds to the constraint we want to enforce. Let us now attempt to create this machine in code using BeepBeep processors. The first step is to create an empty 1:1 `MooreMachine` object, and to set variables *c* and *n* to their initial values. This is done in the following code snippet. We use `Processor`'s method `setContext` to give values to two new keys, called `c` and `n`, which are added to `machine`'s `Context` object:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{/}
+
+The next step is to define transitions, as before. Let us first consider the case of the loop on state 0 located on the left-hand side of the figure. The guard on this transition should express the condition that:
+
+- the current event is the string `hasNext` **and**
+- the current value of *c* in the processor's context is less than the current value of *n*
+
+Such a Boolean function can be created with the help of a `FunctionTree`, as is shown by the code below:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{!}
+
+The novelty of this line of code is the use of a new type of variable, called the <!--\index{ContextVariable@\texttt{ContextVariable}} \texttt{ContextVariable}-->`ContextVariable`<!--/i-->. When a `Function` object is evaluated inside a `Processor` (as will be the case here), a `ContextVariable` returns the value associated to the specified key in the processor's `Context` at the moment the function is evaluated. Therefore, in the present case, the function will compare the current value of *c* and *n*, every time the guard is evaluated by the Moore machine.
+
+The transition has a guard, but also a side effect, which in this case is to increment the value of *c* by one. To indicate such a side effect, we need to use yet another new object, called <!--\index{ContextAssignment@\texttt{ContextAssignment}} \texttt{ContextAssignment}-->`ContextAssignment`<!--/i-->. The constructor of the `ContextAssignment` takes two arguments: a string that indicates the context key to modify, and a `Function` object whose return value determines the new value associated to this key. The code for creating this object looks like this:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{\*}
+
+In our case, the function we pass is a `FunctionTree` that adds the constant 1 to the current value of *c* in the processor's context. This has indeed for effect of incrementing the processor's variable *c* by one.
+
+We are now ready to add the transition to the Moore machine. This is done, as before, by using method `addTransition`:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{%}
+
+Note that, this time, method `addTransition` takes three arguments: the `Function` corresponding to the guard, the number of the destination state, and the `ContextAssignment` corresponding to the side effect to apply on that transition. As a matter of fact, `addTransition` accepts any number of `ContextAssignment`s after its first two arguments; this makes it possible to change the value of multiple context keys in the same transition.
+
+Once we understand these concepts, defining the other self-loop on state 0 becomes straightforward. Instead of creating separate `guard` and `asg` objects, we put everything into the same method call:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{#}
+
+We agree that this notation tends to be a bit verbose, but in counterpart, it makes the definition of transitions and side effects very flexible.
+
+A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{@}
+
+The single argument of `TransitionOtherwise`'s constructor is the destination state of the transition.
+
 ## Plots
 
 One interesting purpose of processing event streams is to produce visualizations of their content --that is, to derive <!--\index{plots} plots-->plots<!--/i--> from data extracted from events. BeepBeep's `plots` palette provides a few processors to easily generate dynamic plots.

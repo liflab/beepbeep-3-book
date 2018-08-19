@@ -684,6 +684,12 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 
 {@img images/fsm/Transition.png}{Transition}{.6}
 
+#### `TransitionOtherwise`
+
+@palette FSM@ <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} A-->A<!--/i--> `Transition` object used by the `MooreMachine` processor that fires only if none of the other outgoing transitions from the same source state fires first.
+
+{@img images/fsm/TransitionOtherwise.png}{TransitionOtherwise}{.6}
+
 #### `Trim`
 
 @palette Core@ <!--\index{Trim@\texttt{Trim}} A-->A<!--/i--> `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
