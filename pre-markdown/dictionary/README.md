@@ -120,6 +120,12 @@ See also `PutInto`.
 
 @palette Core@ <!--\index{processor!context} An-->An<!--/i--> associative (key-value) map used by `Processor` objects to store persistent data. Each processor has its own `Context` object. When a processor is cloned, the context of the original is copied into the clone. In addition, all operations on a `Context` object are synchronized.
 
+#### `ContextAssignment`
+
+@palette Core@ <!--\index{ContextAssignment@\texttt{ContextAssignment}} An-->An<!--/i--> object that defines the value associated to a key in a `Processor`'s `Context` object. It is represented graphically as:
+
+{@img images/other/ContextAssignment.png}{ContextAssignment}{.6}
+
 #### `ContextVariable`
 
 @palette Core@ <!--\index{ContextVariable@\texttt{ContextVariable}} A-->A<!--/i--> `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `ApplyFunction` processor, it queries that processor's `Context` object to get the current value associated to the key. It is represented graphically as:
@@ -171,9 +177,15 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/functions/Equals.png}{Equals}{.6}
 
+#### `ExpandAsColumns`
+
+@palette Tuples@ <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} A-->A<!--/i--> `Function` that transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. It is represented as:
+
+{@img images/tuples/ExpandAsColumns.png}{ExpandAsColumns}{.6}
+
 #### `Explode`
 
-@palette Core@ <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}} A-->A<!--/i--> 1:*m* `Function`provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the oppsite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
+@palette Core@ <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}} A-->A<!--/i--> 1:*m* `Function` provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the oppsite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
 
 {@img images/util/Explode.png}{Explode}{.6}
 

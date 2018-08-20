@@ -130,13 +130,13 @@ We leave as an exercise to the reader the task of writing this processor chain i
 
 The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
 
-- The function `ScalarIntoToTuple` takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
+- The function <!--\index{ScalarIntoTuple@\texttt{ScalarIntoTuple}} \texttt{ScalarIntoTuple}-->`ScalarIntoToTuple`<!--/i--> takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
 
-- The function `MergeTuples` merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
+- The function <!--\index{MergeTuples@\texttt{MergeTuples}} \texttt{MergeTuples}-->`MergeTuples`<!--/i--> merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
 
-- The function `BlowTuple` breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
+- The function <!--\index{BlowTuples@\texttt{BlowTuples}} \texttt{BlowTuples}-->`BlowTuples`<!--/i--> breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
 
-- The function `ExpandAsColumns` transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
+- The function <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} \texttt{ExpandAsColumns}-->`ExpandAsColumns`<!--/i--> transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
 ## Finite-state machines
 
@@ -147,10 +147,10 @@ Sometimes, a stream is made of events representing a sequence of "actions". It m
 As a simple example, suppose that a log contains a list of calls on a single Java `Iterator` object. Typical method calls on an iterator are `next`, `hasNext`, `reset`, etc. Such a log could look like this:
 
 ```
-hasnext
+hasNext
 next
-hasnext
-hasnext
+hasNext
+hasNext
 next
 reset
 ...
@@ -166,26 +166,29 @@ In BeepBeep's FSM palette, finite-state machines are materialized by an object c
 
 ``` java
 MooreMachine machine = new MooreMachine(1, 1);
-    final int UNSAFE = 0, SAFE = 1, ERROR = 2;
-    machine.addTransition(UNSAFE, new FunctionTransition(
-            new FunctionTree(Equals.instance, StreamVariable.X, new Constant("hasnext")), SAFE));
-    machine.addTransition(UNSAFE, new FunctionTransition(
-            new FunctionTree(Equals.instance, StreamVariable.X, new Constant("next")), ERROR));
-    machine.addTransition(SAFE, new FunctionTransition(
-            new FunctionTree(Equals.instance, StreamVariable.X, new Constant("next")), UNSAFE));
-    machine.addTransition(SAFE, new FunctionTransition(
-            new FunctionTree(Equals.instance, StreamVariable.X, new Constant("hasnext")), SAFE));
-    machine.addTransition(ERROR, new FunctionTransition(
-            new Constant(true), ERROR));
+final int UNSAFE = 0, SAFE = 1, ERROR = 2;
+machine.addTransition(UNSAFE, new FunctionTransition(
+    new FunctionTree(Equals.instance,
+        StreamVariable.X, new Constant("hasNext")), SAFE));
+machine.addTransition(UNSAFE, new FunctionTransition(
+    new FunctionTree(Equals.instance,
+        StreamVariable.X, new Constant("next")), ERROR));
+machine.addTransition(SAFE, new FunctionTransition(
+    new FunctionTree(Equals.instance,
+        StreamVariable.X, new Constant("next")), UNSAFE));
+machine.addTransition(SAFE, new FunctionTransition(
+    new FunctionTree(Equals.instance,
+        StreamVariable.X, new Constant("hasNext")), SAFE));
+machine.addTransition(ERROR, new FunctionTransition(
+    new Constant(true), ERROR));
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/SimpleMooreMachine.java#L63)
 
 
 The first step is to create an empty `MooreMachine`; this machine receives one stream of events as its input, and produces one stream of events as its output --hence the two `1` in the object's constructor. In a `MooreMachine`, each state must be given a unique numerical identifier. Rather than hard-coding these numbers, we adopt a cleaner approach, and define symbolic constants for the three states of the Moore machine. It is recommended that the actual numbers for each state form a contiguous interval of integers starting at 0. Here, we associate numbers 0, 1 and 2 to the constants `UNSAFE`, `SAFE` and `ERROR`, respectively.
 
-We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There exist multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
+We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide the number of the "source" state *n*<sub>*s*</sub>, and a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There exist multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
 
-- the number of the "source" state *n*<sub>*s*</sub>
 - a `Function` *f* that determines when the transition should fire. This function must have the same input arity as the machine itself, and return a Boolean value;
 - the number of the "destination" state *n*<sub>*d*</sub>.
 
@@ -196,11 +199,11 @@ The remaining instructions simply add the other transitions to the machine. A sp
 These seven lines of code completely define our FSM. However, as it is, `machine` is not instructed to output any event at any time. We said earlier that this FSM is of a particular kind, called a *Moore machine*. Such a machine outputs a symbol when jumping into a new state. This means that we can associate arbitrary events to each states of the machine. In our case, let us simply associate the Boolean values `true` to states `UNSAFE` and `SAFE`, and the value `false` to state `ERROR`. This is done using a method called `addSymbol()`:
 
 ``` java
-machine.addSymbol(UNSAFE, new Constant("safe"));
-machine.addSymbol(SAFE, new Constant("unsafe"));
-machine.addSymbol(ERROR, new Constant("error"));
+machine.addSymbol(UNSAFE, new Constant(true));
+machine.addSymbol(SAFE, new Constant(true));
+machine.addSymbol(ERROR, new Constant(false));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/SimpleMooreMachine.java#L105)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/SimpleMooreMachine.java#L109)
 
 
 Method `addSymbol` takes as arguments the number of a state, and a `Function` object that is expected to return the desired symbol. This function is expected to ignore its input arguments, and to have the same output arity as the Moore machine itself. In the present case, the function is a simple `Constant` that returns a `Boolean` object. We stress that the machine does not need to return a Boolean, and that any Java object can be associated to a state.
@@ -209,16 +212,16 @@ We are now done. We can try our Moore machine on a sequence of events, by connec
 
 ``` java
 QueueSource source = new QueueSource();
-source.setEvents("hasnext", "next", "hasnext", "hasnext", "next", "next");
+source.setEvents("hasNext", "next", "hasNext", "hasNext", "next", "next");
 Connector.connect(source, machine);
 Pullable p = machine.getPullableOutput();
 for (int i = 0; i < 7; i++)
 {
-    String s = (String) p.pull();
-    System.out.println(s);
+  Boolean b = (Boolean) p.pull();
+  System.out.println(b);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/SimpleMooreMachine.java#L112)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/SimpleMooreMachine.java#L116)
 
 
 From the input events given to the source, the output of the machine should be:
@@ -254,7 +257,7 @@ MooreMachine machine = new MooreMachine(1, 1);
 machine.setContext("c", 0);
 machine.setContext("n", 1);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L47)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L50)
 
 
 The next step is to define transitions, as before. Let us first consider the case of the loop on state 0 located on the left-hand side of the figure. The guard on this transition should express the condition that:
@@ -271,7 +274,7 @@ new FunctionTree(Equals.instance,
 new FunctionTree(Numbers.isLessThan,
     new ContextVariable("c"), new ContextVariable("n")));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L53)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L56)
 
 
 The novelty of this line of code is the use of a new type of variable, called the <!--\index{ContextVariable@\texttt{ContextVariable}} \texttt{ContextVariable}-->`ContextVariable`<!--/i-->. When a `Function` object is evaluated inside a `Processor` (as will be the case here), a `ContextVariable` returns the value associated to the specified key in the processor's `Context` at the moment the function is evaluated. Therefore, in the present case, the function will compare the current value of *c* and *n*, every time the guard is evaluated by the Moore machine.
@@ -284,7 +287,7 @@ ContextAssignment asg = new ContextAssignment("c",
         new ContextVariable("c"), new Constant(1))
     );
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L60)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L63)
 
 
 In our case, the function we pass is a `FunctionTree` that adds the constant 1 to the current value of *c* in the processor's context. This has indeed for effect of incrementing the processor's variable *c* by one.
@@ -295,7 +298,7 @@ We are now ready to add the transition to the Moore machine. This is done, as be
 machine.addTransition(0, new FunctionTransition(
   guard, 0, asg));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L66)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L69)
 
 
 Note that, this time, method `addTransition` takes three arguments: the `Function` corresponding to the guard, the number of the destination state, and the `ContextAssignment` corresponding to the side effect to apply on that transition. As a matter of fact, `addTransition` accepts any number of `ContextAssignment`s after its first two arguments; this makes it possible to change the value of multiple context keys in the same transition.
@@ -317,21 +320,66 @@ machine.addTransition(0, new FunctionTransition(
         )
     ));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L70)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L73)
 
 
 We agree that this notation tends to be a bit verbose, but in counterpart, it makes the definition of transitions and side effects very flexible.
 
-A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
+A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. 
+
+To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
 
 ``` java
 machine.addTransition(0, new TransitionOtherwise(1));
 machine.addTransition(1, new TransitionOtherwise(1));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L85)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L88)
 
 
 The single argument of `TransitionOtherwise`'s constructor is the destination state of the transition.
+
+We are almost done. The remaining step is to associate output symbols to the each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the method `addSymbol()` requires a `Function` object; our previous example was just the particular case where this function was a `Constant`. Here, we pass a `ContextVariable` fetching the value of *c* in the processor's context, and associate it to state 0:
+
+``` java
+machine.addSymbol(0, new ContextVariable("c"));
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/finitestatemachines/ExtendedMooreMachine.java#L92)
+
+
+Whenever it reaches state 0, our Moore machine will query the current value of its local variable *c* and send it as its output event. This machine can be illustrated graphically as in the following figure.
+
+![The `MooreMachine` of our second example.](ExtendedMooreMachine.png)
+
+We can now try this machine on a feed of events, by connecting it to a queue source as before. If the source is made of the following sequence of strings:
+
+```
+hasNext
+next
+hasNext
+hasNext
+next
+next
+hasNext
+```
+
+the machine should output:
+
+```
+1.0
+0
+1.0
+2.0
+0
+```
+
+Notice how the count increments, then resets to 0 upon receiving a `next` event. Moreover, upon receiving the last `next` event, the machine moves to state 1 and no longer outputs anything, as expected.
+
+The purpose of this section is not to have an in-depth discussion on the theory of finite-state machines. The previous two examples have shown all the features of BeepBeep's `MooreMachine` processor, and highlighted its flexibility in defining guards, side effects, and associating symbols to states. In particular, our FSMs are not restricted to outputting Boolean values, and can also accept any kind of input event. A few use cases in the next chapter will further show how the `MooreMachine` can be used in various scenarios, and mixed with other BeepBeep processors.
+
+## First-order logic and temporal logic
+
+TODO
+
 
 ## Plots
 
@@ -630,6 +678,8 @@ A few things you might want to try:
   - A first line of (x,y) points where x is a counter that increments by 1 on each new point, and y is the value of the input stream at position x
   - A second line of (x,y) points which is the "smoothed" version of the original. You can achieve smoothing by taking the average of the values at position x-1, x and x+1.
 As an extra, try to make your processor chain so that the amount of smoothing can be parameterized by a number *n*, indicating how many events behind and ahead of the current one are included in the average.
+
+2. Modify the second Moore machine example so that the machine outputs the *cumulative* number of times `hasNext()` has been received when `next` is the current input event, and nothing the rest of the time.
 
 2. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
 

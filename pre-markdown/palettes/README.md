@@ -86,13 +86,13 @@ We leave as an exercise to the reader the task of writing this processor chain i
 
 The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
 
-- The function `ScalarIntoToTuple` takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
+- The function <!--\index{ScalarIntoTuple@\texttt{ScalarIntoTuple}} \texttt{ScalarIntoTuple}-->`ScalarIntoToTuple`<!--/i--> takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
 
-- The function `MergeTuples` merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
+- The function <!--\index{MergeTuples@\texttt{MergeTuples}} \texttt{MergeTuples}-->`MergeTuples`<!--/i--> merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
 
-- The function `BlowTuple` breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
+- The function <!--\index{BlowTuples@\texttt{BlowTuples}} \texttt{BlowTuples}-->`BlowTuples`<!--/i--> breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
 
-- The function `ExpandAsColumns` transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
+- The function <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} \texttt{ExpandAsColumns}-->`ExpandAsColumns`<!--/i--> transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
 ## Finite-state machines
 
@@ -103,10 +103,10 @@ Sometimes, a stream is made of events representing a sequence of "actions". It m
 As a simple example, suppose that a log contains a list of calls on a single Java `Iterator` object. Typical method calls on an iterator are `next`, `hasNext`, `reset`, etc. Such a log could look like this:
 
 ```
-hasnext
+hasNext
 next
-hasnext
-hasnext
+hasNext
+hasNext
 next
 reset
 ...
@@ -124,9 +124,8 @@ In BeepBeep's FSM palette, finite-state machines are materialized by an object c
 
 The first step is to create an empty `MooreMachine`; this machine receives one stream of events as its input, and produces one stream of events as its output --hence the two `1` in the object's constructor. In a `MooreMachine`, each state must be given a unique numerical identifier. Rather than hard-coding these numbers, we adopt a cleaner approach, and define symbolic constants for the three states of the Moore machine. It is recommended that the actual numbers for each state form a contiguous interval of integers starting at 0. Here, we associate numbers 0, 1 and 2 to the constants `UNSAFE`, `SAFE` and `ERROR`, respectively.
 
-We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There exist multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
+We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide the number of the "source" state *n*<sub>*s*</sub>, and a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There exist multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
 
-- the number of the "source" state *n*<sub>*s*</sub>
 - a `Function` *f* that determines when the transition should fire. This function must have the same input arity as the machine itself, and return a Boolean value;
 - the number of the "destination" state *n*<sub>*d*</sub>.
 
@@ -203,11 +202,52 @@ Once we understand these concepts, defining the other self-loop on state 0 becom
 
 We agree that this notation tends to be a bit verbose, but in counterpart, it makes the definition of transitions and side effects very flexible.
 
-A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
+A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. 
+
+To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{@}
 
 The single argument of `TransitionOtherwise`'s constructor is the destination state of the transition.
+
+We are almost done. The remaining step is to associate output symbols to the each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the method `addSymbol()` requires a `Function` object; our previous example was just the particular case where this function was a `Constant`. Here, we pass a `ContextVariable` fetching the value of *c* in the processor's context, and associate it to state 0:
+
+{@snipm finitestatemachines/ExtendedMooreMachine.java}{\(}
+
+Whenever it reaches state 0, our Moore machine will query the current value of its local variable *c* and send it as its output event. This machine can be illustrated graphically as in the following figure.
+
+{@img doc-files/finitestatemachines/ExtendedMooreMachine.png}{The `MooreMachine` of our second example.}{.6}
+
+We can now try this machine on a feed of events, by connecting it to a queue source as before. If the source is made of the following sequence of strings:
+
+```
+hasNext
+next
+hasNext
+hasNext
+next
+next
+hasNext
+```
+
+the machine should output:
+
+```
+1.0
+0
+1.0
+2.0
+0
+```
+
+Notice how the count increments, then resets to 0 upon receiving a `next` event. Moreover, upon receiving the last `next` event, the machine moves to state 1 and no longer outputs anything, as expected.
+
+The purpose of this section is not to have an in-depth discussion on the theory of finite-state machines. The previous two examples have shown all the features of BeepBeep's `MooreMachine` processor, and highlighted its flexibility in defining guards, side effects, and associating symbols to states. In particular, our FSMs are not restricted to outputting Boolean values, and can also accept any kind of input event. A few use cases in the next chapter will further show how the `MooreMachine` can be used in various scenarios, and mixed with other BeepBeep processors.
+
+## First-order logic and temporal logic
+
+TODO
+
 
 ## Plots
 
@@ -401,6 +441,8 @@ A few things you might want to try:
   - A first line of (x,y) points where x is a counter that increments by 1 on each new point, and y is the value of the input stream at position x
   - A second line of (x,y) points which is the "smoothed" version of the original. You can achieve smoothing by taking the average of the values at position x-1, x and x+1.
 As an extra, try to make your processor chain so that the amount of smoothing can be parameterized by a number *n*, indicating how many events behind and ahead of the current one are included in the average.
+
+2. Modify the second Moore machine example so that the machine outputs the *cumulative* number of times `hasNext()` has been received when `next` is the current input event, and nothing the rest of the time.
 
 2. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
 
