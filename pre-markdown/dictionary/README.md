@@ -221,7 +221,9 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 #### `Freeze`
 
-@palette Core@ <!--\index{Freeze@\texttt{Freeze}} A-->A<!--/i--> `Processor` that repeatedly outputs the first event it has received. `Freeze` works a bit like `PullConstant`; however, while <code>Constant</code> is given the event to output, <code>Freeze</code> waits for a first event, outputs it, and then outputs that event whenever some new input comes in.
+@palette Core@ <!--\index{Freeze@\texttt{Freeze}} A-->A<!--/i--> `Processor` that repeatedly outputs the first event it has received. It is represented graphically as:
+
+{@img images/tmf/Freeze.png}{Freeze}{.6}
 
 #### Front
 
@@ -288,7 +290,7 @@ The actual colour of the oval depends on the type of events that the function re
 
 #### `IfThenElse`
 
-@palette Core@ <!--\index{IfThenElse@\texttt{IfThenElse}} A-->A<!--/i--> `Function` that acts as an if-then-else. If its first input is true, it returns its second input; otherwise it returns its third input. It is represented as follows:
+@palette Core@ <!--\index{IfThenElse@\texttt{IfThenElse}} A-->A<!--/i--> 3:1 `Function` that acts as an if-then-else. If its first input is true, it returns its second input; otherwise it returns its third input. It is represented as follows:
 
 {@img images/functions/IfThenElse.png}{IfThenElse}{.6}
 
