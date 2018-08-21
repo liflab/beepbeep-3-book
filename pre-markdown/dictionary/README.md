@@ -177,6 +177,12 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/functions/Equals.png}{Equals}{.6}
 
+#### `ExistsFunction`
+
+@palette FOL@ <!--\index{ExistsFunction@\texttt{ExistsFunction}} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
+
+{@img images/fol/ExistsFunction.png}{ExistsFunction}{.6}
+
 #### `ExpandAsColumns`
 
 @palette Tuples@ <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} A-->A<!--/i--> `Function` that transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. It is represented as:
@@ -212,6 +218,12 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 @palette Core@ <!--\index{Strings@\texttt{Strings}!FindRegex@\texttt{FindRegex}} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It receives a string *s* as its argument, and returns an *array* of strings, corresponding to all the matches of a given regular expression *exp* on *s*. It is represented as:
 
 {@img images/util/FindRegex.png}{FindRegex}{.6}
+
+#### `ForAllFunction`
+
+@palette FOL@ <!--\index{ForAllFunction@\texttt{ForAllFunction}} A-->A<!--/i--> `Function` that acts as a universal quantifier in first-order logic. It is represented as:
+
+{@img images/fol/ForAllFunction.png}{ForAllFunction}{.6}
 
 #### `Fork`
 

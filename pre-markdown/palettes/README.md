@@ -246,7 +246,13 @@ The purpose of this section is not to have an in-depth discussion on the theory 
 
 ## First-order logic and temporal logic
 
-TODO
+The `Booleans` utility class provides basic logical functions for combining Boolean values together; anybody who does a little bit of programming has already used operators such as "and", "or" and "not". However, there is more to logic than these simple connectives. BeepBeep provides two palettes, called FOL and LTL, that extend classical logic with new operators pertaining to *first-order logic* and *linear temporal logic*, respectively. Let us examine these operators and see what they can do.
+
+### First-order logic
+
+The FOL palette contains two important processors called <!--\index{ForAllFunction@\texttt{ForAllFunction}} \texttt{ForAllFunction}-->`ForAllFunction`<!--/i--> and <!--\index{ExistsFunction@\texttt{ExistsFunction}} \texttt{ExistsFunction}-->`ExistsFunction`<!--/i-->.
+
+### Linear temporal logic
 
 
 ## Plots

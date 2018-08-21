@@ -37,7 +37,13 @@
 \DeclareUnicodeCharacter{2693}{\ding{46}}
 
 % Command for showing palette icon in glossary
-\newcommand{\bbpalette}[1]{\hspace{-1em}\includegraphics[height=2.5mm]{chapters/dictionary/Palette-#1}\phantom{W}}
+\usepackage{xsavebox}
+\xsavebox{Core}{\includegraphics[height=2.5mm]{chapters/dictionary/Palette-Core}}
+\xsavebox{FSM}{\includegraphics[height=2.5mm]{chapters/dictionary/Palette-Core}}
+\xsavebox{Serialization}{\includegraphics[height=2.5mm]{chapters/dictionary/Palette-Core}}
+\xsavebox{Tuples}{\includegraphics[height=2.5mm]{chapters/dictionary/Palette-Core}}
+%\newcommand{\bbpalette}[1]{\hspace{-1em}\includegraphics[height=2.5mm]{chapters/dictionary/Palette-#1}\phantom{W}}
+\newcommand{\bbpalette}[1]{\hspace{-1em}\xusebox{#1}\phantom{W}}
 
 \begin{document}
 \frontmatter
