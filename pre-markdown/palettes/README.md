@@ -250,7 +250,9 @@ The `Booleans` utility class provides basic logical functions for combining Bool
 
 ### First-order logic
 
-The FOL palette contains two important processors called <!--\index{ForAllFunction@\texttt{ForAllFunction}} \texttt{ForAllFunction}-->`ForAllFunction`<!--/i--> and <!--\index{ExistsFunction@\texttt{ExistsFunction}} \texttt{ExistsFunction}-->`ExistsFunction`<!--/i-->.
+Often, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called *quantifiers*.
+
+The FOL palette contains two important functions called <!--\index{ForAllFunction@\texttt{ForAllFunction}} \texttt{ForAllFunction}-->`ForAllFunction`<!--/i--> and <!--\index{ExistsFunction@\texttt{ExistsFunction}} \texttt{ExistsFunction}-->`ExistsFunction`<!--/i-->.
 
 ### Linear temporal logic
 
