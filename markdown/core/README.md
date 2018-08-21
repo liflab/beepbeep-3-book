@@ -726,7 +726,7 @@ source.setEvents(1, 6, 4, 3, 2, 1, 9);
 Function slicing_fct = new IdentityFunction(1);
 GroupProcessor counter = new GroupProcessor(1, 1);
 {
-    ReplaceWith to_one = new ReplaceWith(new Constant(1));
+    TurnInto to_one = new TurnInto(new Constant(1));
     Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
     Connector.connect(to_one, sum);
     counter.addProcessors(to_one, sum);
