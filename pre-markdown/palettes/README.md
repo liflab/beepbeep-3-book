@@ -250,11 +250,55 @@ The `Booleans` utility class provides basic logical functions for combining Bool
 
 ### First-order logic
 
-Often, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called *quantifiers*.
+Often, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called <!--\index{quantifier} \emph{quantifiers}-->*quantifiers*<!--/i-->.
 
-The FOL palette contains two important functions called <!--\index{ForAllFunction@\texttt{ForAllFunction}} \texttt{ForAllFunction}-->`ForAllFunction`<!--/i--> and <!--\index{ExistsFunction@\texttt{ExistsFunction}} \texttt{ExistsFunction}-->`ExistsFunction`<!--/i-->.
+In the BeepBeep world, a quantifier is a function *Q* that takes as parameter a String *x*, called the **quantification variable**, and another function *f*, which must have a Boolean output type. *Q* receives a Java `Collection` *C* as its input argument; for each element *e* in *C*, it evaluates *f* by passing it a `Context` object with the association *x*=*e*; it collects the Boolean value returned by each such call. The *universal* quantifier computes the conjunction (logical "and") of those values and returns it. In other words, a universal quantifier returns `true` if *f* returns `true` every time we assign to *x* an element in *C*. The *existential* quantifier rather computes the disjunction (logical "or") of those values; it returns `true` as soon as *f* returns `true` by replacing *x* by some element in *C*.
+
+In BeepBeep's FOL palette, universal and existential quantifiers are implemented by two `Function` objects called <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> and <!--\index{Exists@\texttt{Exists}} \texttt{Exists}-->`Exists`<!--/i-->. Let us illustrate the use of such quantifiers on a simple example. Consider the following piece of code:
+
+{@snipm fol/ForAllFunctionSimple.java}{/}
+
+The first line creates a new `FunctionTree` `f` that simply checks if the current value of context variable *x* is an even number. The next line creates a `ForAll` called `fa`, with *x* as its quantification variable and *f* as its function. We then create a list containing two «numbers. We proceed to evaluate `fa` on this list (you may want to go back to the beginning of chapter 3 to recall the syntax to evaluate `Function` objects). This has for effect of evaluating *f* twice: the first time by setting *x* to 2 in the context, and the second time by setting *x* to 6. Both calls return `true`; the conjunction of these values is also `true`, which is the value returned by `fa` and printed at the console. This corresponds to the intuition that `fa` verifies that "all the numbers in its input set are even".
+
+We then modify the list `nums` by appending number 7 at its tail. Re-evaluating `fa` on this list this time yields the value `false`. Three calls to *f* occur in the background, and the last one (corresponding to the context where *x*=7) returns `false`. This indeed matches the fact that not all numbers in the input set are even.
+
+Graphically, `fa` can be represented as in the following picture:
+
+{@img doc-files/fol/ForAllFunctionSimple.png}{A graphical representation of the `ForAll` processor.}{.6}
+
+We can identify in this drawing the quantified variable (in the grey box), as well as the `FunctionTree` that is used as the quantifier's function (made of the application of function `IsEven` on context variable *x*). In addition, note the consistency of the color coding:
+
+- the quantifier accepts a collection (pink) of numbers (teal), represented by the polka dot pattern; it also returns a Boolean value (grey-blue)
+- function `IsEven` accepts a number (teal) and returns a Boolean value (grey-blue).
+
+Quantifier `Exists` performs what is called the *dual* of the universal quantifier. It returns `true` when at least one call to the underlying function *f* returns `true`. In our example, replacing `ForAll` with `Exists` would check that at least one number in the input list is even.
+
+Quantifiers can also be *nested*. That is, the underlying function given to a quantifier can itself be another quantifier. Consider a condition such as this: "all strings in a collection have the same length". It can be represented graphically as follows:
+
+{@img doc-files/fol/NestedQuantifiers.png}{Nesting two quantifiers.}{.6}
+
+In this case, a first quantifier `fa1` creates a context object by setting the quantification variable *x* successively to each of the strings in the input collection. It then evaluates its underlying function using each context. This function turns out to be another quantifier, which is given the same input collection. Given a context and an input collection, this second quantifier (`fa2`) creates yet more context objects by taking the incoming context, and setting the quantification variable *y* successively to each of the strings in the input collection. It, too, evaluates its underlying function `f`, which checks the equality between the length of the string associated to context variable *x* and the length of the string associated to context variable *y*.
+
+Programmatically, the previous picture is represented by the following program; note how `fa2` is given as the `Function` argument to the constructor of `fa1`:
+
+{@snipm fol/NestedQuantifiers.java}{/}
+
+We can then evaluate `fa1` as in the previous example, but this time on collections of strings:
+
+{@snipm fol/NestedQuantifiers.java}{\*}
+
+As expected, the output of the program is:
+
+```
+true
+false
+```
+
+Since quantifiers are `Function` objects like any other, there is no constraint on how quantifiers can be mixed with other `Function` objects --provided that the input and output types match, obviously. For those who know what *prenex form* is, BeepBeep functions using quantifiers in BeepBeep do not have to be put into prenex form to be evaluated.
 
 ### Linear temporal logic
+
+TODO
 
 
 ## Plots

@@ -177,9 +177,9 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/functions/Equals.png}{Equals}{.6}
 
-#### `ExistsFunction`
+#### `Exists`
 
-@palette FOL@ <!--\index{ExistsFunction@\texttt{ExistsFunction}} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
+@palette FOL@ <!--\index{Exists@\texttt{Exists}} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
 
 {@img images/fol/ExistsFunction.png}{ExistsFunction}{.6}
 
@@ -219,9 +219,9 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/util/FindRegex.png}{FindRegex}{.6}
 
-#### `ForAllFunction`
+#### `ForAll`
 
-@palette FOL@ <!--\index{ForAllFunction@\texttt{ForAllFunction}} A-->A<!--/i--> `Function` that acts as a universal quantifier in first-order logic. It is represented as:
+@palette FOL@ <!--\index{ForAll@\texttt{ForAll}} A-->A<!--/i--> `Function` that acts as a universal quantifier in first-order logic. It is represented as:
 
 {@img images/fol/ForAllFunction.png}{ForAllFunction}{.6}
 

@@ -116,7 +116,8 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 								$out_pdf_filename = $out_dir.str_replace(".png", ".pdf", $match[1]);
 								$out_png_filename = $gitbook_out_dir.$match[1];
 						}
-						if (!file_exists($out_pdf_filename))
+						$svg_filemtime = filemtime($svg_filename);
+						if (!file_exists($out_pdf_filename) || filemtime($out_pdf_filename) < $svg_filemtime)
 						{
 								$command = $inkscape_command." -z --file=$svg_filename --export-pdf=$out_pdf_filename\n";
 								echo "    Converting $svg_filename to $out_pdf_filename\n";
@@ -124,7 +125,7 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 						}
 						$latex_contents = preg_replace("/\\\\includegraphics\\{(.*?)".str_replace("/", "\\/", preg_quote($basename))."\\}/", "\\scalebox{".$match[3]."}{\\includegraphics{\\1".str_replace(".png", ".pdf", $basename)."}}", $latex_contents);
 						// Convert SVG to PNG and put in the `markdown` folder
-						if (!file_exists($out_png_filename))
+						if (!file_exists($out_png_filename) || filemtime($out_png_filename) < $svg_filemtime)
 						{
 								$command = $inkscape_command." -z --file=$svg_filename --export-dpi 64 --export-png=$out_png_filename\n";
 								echo "    Converting $svg_filename to $out_png_filename\n";
