@@ -382,7 +382,7 @@ The `Booleans` utility class provides basic logical functions for combining Bool
 
 ### First-order logic
 
-Often, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called <!--\index{quantifier} \emph{quantifiers}-->*quantifiers*<!--/i-->.
+<!--\index{first-order logic} Often-->Often<!--/i-->, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called <!--\index{quantifier} \emph{quantifiers}-->*quantifiers*<!--/i-->.
 
 In the BeepBeep world, a quantifier is a function *Q* that takes as parameter a String *x*, called the **quantification variable**, and another function *f*, which must have a Boolean output type. *Q* receives a Java `Collection` *C* as its input argument; for each element *e* in *C*, it evaluates *f* by passing it a `Context` object with the association *x*=*e*; it collects the Boolean value returned by each such call. The *universal* quantifier computes the conjunction (logical "and") of those values and returns it. In other words, a universal quantifier returns `true` if *f* returns `true` every time we assign to *x* an element in *C*. The *existential* quantifier rather computes the disjunction (logical "or") of those values; it returns `true` as soon as *f* returns `true` by replacing *x* by some element in *C*.
 
@@ -460,9 +460,103 @@ true
 false
 ```
 
-Since quantifiers are `Function` objects like any other, there is no constraint on how quantifiers can be mixed with other `Function` objects --provided that the input and output types match, obviously. For those who know what *prenex form* is, BeepBeep functions using quantifiers in BeepBeep do not have to be put into prenex form to be evaluated.
+Since quantifiers are `Function` objects like any other, there is no constraint on how quantifiers can be mixed with other `Function` objects --provided that the input and output types match, obviously. For those who know what *prenex form* is, BeepBeep functions using quantifiers do not have to be put into prenex form to be evaluated.
 
 ### Linear temporal logic
+
+While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
+
+LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the tranditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively.
+
+Operator **G** means "globally". Suppose that *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression. An expression of the form **G** *p* stipulates that *p* must be true on the stream that starts at the current event (*e*<sub>1</sub>, *e*<sub>2</sub>, ...), but also on the stream that starts at the next event (*e*<sub>2</sub>, *e*<sub>3</sub>, ...), and so on.
+
+![The intuitive meaning of the four LTL temporal operators.](LTLOperators.png)
+
+The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The color of each circle indicates whether expression *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
+
+In BeepBeep, this operator is represented by a processor called <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Consider the following code example, represented by the illustration below:
+
+``` java
+Globally g = new Globally();
+Print print = new Print();
+Connector.connect(g, print);
+Pushable p = g.getPushableInput();
+System.out.println("Pushing true");
+p.push(true);
+System.out.println("Pushing true");
+p.push(true);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/GloballySimple.java#L13)
+
+
+![Pushing Boolean events to `Globally`.](GloballySimple.png)
+
+We create a new instance of `Globally`, to which we push Boolean events --these correspond to the values of *p*. Before each call to `push`, we print a line at the console. However, the first lines of output of the program may look surprising:
+
+```
+Pushing true
+Pushing true
+```
+
+We have pushed two events into `g`, but `g` in turn did not output anything. To understand why, we must go back to the definition we gave of operator **G**: it returns `true` on the current input event, if and only only if *p* is true for the current event *and* all subsequent events. But how can `g` know about future events? Therefore, after receiving the first event (`true`), no definite output value for this event can be determined yet. The same reasoning applies for the second event that is pushed to `g`, which again produces no output.
+
+Let us see what happens when we push some more events to `g`:
+
+``` java
+Globally g = new Globally();
+Print print = new Print();
+Connector.connect(g, print);
+Pushable p = g.getPushableInput();
+System.out.println("Pushing true");
+p.push(true);
+System.out.println("Pushing true");
+p.push(true);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/GloballySimple.java#L13)
+
+
+These additional lines of code produce this output:
+
+```
+Pushing false
+FALSE,FALSE,FALSE,Pushing true
+```
+
+We get another surprise: pushing event `false` makes `g` push *three* output events: the constant `FALSE` three times --but this is explainable. Upon the third call to `push()`, the stream of events *e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub> received so far is the sequence `true`, `true`, `false`. Now, `g` has enough information to determine what to output for *e*<sub>1</sub>: since the stream starting at this position is not made entirely of the value `true`, the corresponding output should be `false`, which explains the first output event.
+
+However, `g` also has enough information to determine what to output for *e*<sub>2</sub> as well: for the same reason as above, the stream starting at this position is not made entirely of the value `true`; this is why `g` can afford to output a second `false` event. The third output event can also be explained: obviously, the stream that starts at *e*<sub>3</sub> is not made entirely of the value `true` (as *e*<sub>3</sub> itself is false), and hence `g` can output `false` for *e*<sub>3</sub> right away.
+
+It takes some time to get used to this principle. What must be remembered is that `Globally` delays its output for an input event until enough is known about the future to provide a definite value. As a matter of fact, `Globally` can never return `true` --how could one be sure in advance that all future events are going to be true? It can only return the value `false`, in bursts, when it receives a `false` event. As an exercise, try pushing more events to `g` in order to train your intuition.
+
+Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true on a stream that starts some time in the future. The expression *p* may be true on the stream that starts at the current event (*e*<sub>1</sub>, *e*<sub>2</sub>, ...), or on the stream that starts at the next event (*e*<sub>2</sub>, *e*<sub>3</sub>, ...), or on any other stream starting at some future event. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future.
+
+Processor <!--\index{Eventually@\texttt{Eventually}} \texttt{Eventually}-->`Eventually`<!--/i--> implements the functionality of LTL's **F** operator, as is illustrated in the following code example:
+
+``` java
+Eventually e = new Eventually();
+Print print = new Print();
+Connector.connect(e, print);
+Pushable p = e.getPushableInput();
+System.out.println("Pushing false");
+p.push(false);
+System.out.println("Pushing false");
+p.push(false);
+System.out.println("Pushing true");
+p.push(true);
+System.out.println("Pushing false");
+p.push(false);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/EventuallySimple.java#L13)
+
+
+We perform similar operations to what we did with `Globally` in the previous example. You shall note that the behaviour of `Eventually` can be explained in the same way, with values `true` and `false` swapped. That is, `e` outputs a burst of `true` events as soon as it receives a `true` event, and delays its output as long as it receives `false` events. Thus, the program above outputs the following lines:
+
+```
+Pushing false
+Pushing false
+Pushing true
+TRUE,TRUE,TRUE,Pushing false
+```
 
 
 ## Plots
@@ -759,14 +853,16 @@ A few things you might want to try:
 ## Exercises
 
 1. Create a processor chain that takes as input a stream of numbers. Create a scatterplot that shows two lines:
-  - A first line of (x,y) points where x is a counter that increments by 1 on each new point, and y is the value of the input stream at position x
-  - A second line of (x,y) points which is the "smoothed" version of the original. You can achieve smoothing by taking the average of the values at position x-1, x and x+1.
+- A first line of (*x*,*y*) points where *x* is a counter that increments by 1 on each new point, and *y* is the value of the input stream at position *x*
+- A second line of (*x*,*y*) points which is the "smoothed" version of the original. You can achieve smoothing by taking the average of the values at position *x*-1, *x* and *x*+1.
 As an extra, try to make your processor chain so that the amount of smoothing can be parameterized by a number *n*, indicating how many events behind and ahead of the current one are included in the average.
 
 2. Modify the second Moore machine example so that the machine outputs the *cumulative* number of times `hasNext()` has been received when `next` is the current input event, and nothing the rest of the time.
 
-2. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
+3. Create a processor chain whose input events are sets of strings. The chain should return `true` if an event has at least one string of the same length than another one in the previous event, and `false` otherwise.
 
-3. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
+4. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
+
+5. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
 
 <!-- :wrap=soft: -->
