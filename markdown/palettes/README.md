@@ -479,6 +479,7 @@ In BeepBeep, this operator is represented by a processor called <!--\index{Globa
 ``` java
 Globally g = new Globally();
 Print print = new Print();
+print.setPrefix("Output: ").setSeparator("\n");
 Connector.connect(g, print);
 Pushable p = g.getPushableInput();
 System.out.println("Pushing true");
@@ -505,6 +506,7 @@ Let us see what happens when we push some more events to `g`:
 ``` java
 Globally g = new Globally();
 Print print = new Print();
+print.setPrefix("Output: ").setSeparator("\n");
 Connector.connect(g, print);
 Pushable p = g.getPushableInput();
 System.out.println("Pushing true");
@@ -519,7 +521,10 @@ These additional lines of code produce this output:
 
 ```
 Pushing false
-FALSE,FALSE,FALSE,Pushing true
+Output: false
+Output: false
+Output: false
+Pushing true
 ```
 
 We get another surprise: pushing event `false` makes `g` push *three* output events: the constant `FALSE` three times --but this is explainable. Upon the third call to `push()`, the stream of events *e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub> received so far is the sequence `true`, `true`, `false`. Now, `g` has enough information to determine what to output for *e*<sub>1</sub>: since the stream starting at this position is not made entirely of the value `true`, the corresponding output should be `false`, which explains the first output event.
@@ -535,6 +540,7 @@ Processor <!--\index{Eventually@\texttt{Eventually}} \texttt{Eventually}-->`Even
 ``` java
 Eventually e = new Eventually();
 Print print = new Print();
+print.setPrefix("Output: ").setSeparator("\n");
 Connector.connect(e, print);
 Pushable p = e.getPushableInput();
 System.out.println("Pushing false");
@@ -555,9 +561,63 @@ We perform similar operations to what we did with `Globally` in the previous exa
 Pushing false
 Pushing false
 Pushing true
-TRUE,TRUE,TRUE,Pushing false
+Output: true
+Output: true
+Output: true
+Pushing false
 ```
 
+The third LTL operator is **X**, which means "next".  If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true on a stream that starts at the next event --that is, *p* holds on the stream *e*<sub>2</sub>, *e*<sub>3</sub>, ...). This is illustrated in the third section of the previous figure. As you can see, for **X** *p* to return true in the current event, it suffices that *p* be true in the next event. In BeepBeep, operator **X** is implemented by processor <!--\index{Next@\texttt{Next}} \texttt{Next}-->`Next`<!--/i-->.
+
+
+
+``` java
+Fork f1 = new Fork(2);
+ApplyFunctionLazy imp = new ApplyFunctionLazy(
+    new FunctionTree(Booleans.implies,
+        new FunctionTree(Equals.instance,
+            StreamVariable.X, new Constant("open")),
+        StreamVariable.Y));
+ApplyFunction close = new ApplyFunction(
+    new FunctionTree(Equals.instance,
+        StreamVariable.X, new Constant("close")));
+Eventually e = new Eventually();
+Fork f2 = new Fork(2);
+Connector.connect(f1, BOTTOM, f2, INPUT);
+Connector.connect(f2, TOP, imp, TOP);
+Connector.connect(f2, BOTTOM, close, INPUT);
+Connector.connect(close, e);
+Connector.connect(e, OUTPUT, imp, BOTTOM);
+Filter filter = new Filter();
+Connector.connect(f1, TOP, filter, TOP);
+Connector.connect(imp, OUTPUT, filter, BOTTOM);
+Print print = new Print();
+print.setPrefix("Output: ").setSeparator("\n");
+Connector.connect(filter, print);
+Pushable p = f1.getPushableInput();
+System.out.println("Pushing nop");
+p.push("nop");
+System.out.println("Pushing open");
+p.push("open");
+System.out.println("Pushing read");
+p.push("read");
+System.out.println("Pushing close");
+p.push("close");
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/OpenClose.java#L27)
+
+
+Blabla
+
+![Filtering events that follow a temporal property](OpenClose.png)
+
+```
+Pushing nop
+Pushing open
+Pushing read
+Pushing close
+nop,open,read,close,
+```
 
 ## Plots
 

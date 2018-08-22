@@ -331,7 +331,10 @@ These additional lines of code produce this output:
 
 ```
 Pushing false
-FALSE,FALSE,FALSE,Pushing true
+Output: false
+Output: false
+Output: false
+Pushing true
 ```
 
 We get another surprise: pushing event `false` makes `g` push *three* output events: the constant `FALSE` three times --but this is explainable. Upon the third call to `push()`, the stream of events *e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub> received so far is the sequence `true`, `true`, `false`. Now, `g` has enough information to determine what to output for *e*<sub>1</sub>: since the stream starting at this position is not made entirely of the value `true`, the corresponding output should be `false`, which explains the first output event.
@@ -352,10 +355,21 @@ We perform similar operations to what we did with `Globally` in the previous exa
 Pushing false
 Pushing false
 Pushing true
-TRUE,TRUE,TRUE,Pushing false
+Output: true
+Output: true
+Output: true
+Pushing false
 ```
 
+The third LTL operator is **X**, which means "next".  If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true on a stream that starts at the next event --that is, *p* holds on the stream *e*<sub>2</sub>, *e*<sub>3</sub>, ...). This is illustrated in the third section of the previous figure. As you can see, for **X** *p* to return true in the current event, it suffices that *p* be true in the next event. In BeepBeep, operator **X** is implemented by processor <!--\index{Next@\texttt{Next}} \texttt{Next}-->`Next`<!--/i-->.
 
+
+
+{@snipm ltl/OpenClose.java}{/}
+
+Blabla
+
+{@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property}{.6}
 
 ```
 Pushing nop

@@ -312,7 +312,7 @@ As a first example, let us write a processor that receives character strings as 
 The actual functionality of our processor will be written in the body of method <!--\index{SingleProcessor@\texttt{SingleProcessor}!compute@\texttt{compute()}} \texttt{compute()}-->`compute()`<!--/i-->. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1).  Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
 
 ``` java
-public class StringLength extends SingleProcessor
+public class StringLength extends SynchronousProcessor
 {
     public StringLength()
     {
@@ -406,7 +406,7 @@ Note that we use wrapVector(), rather than wrapObject(), as the result we are pr
 So far, all processors we designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that we could have passed to an `ApplyFunction` processor.) This needs not be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
 
 ``` java
-public class OutIfPositive extends SingleProcessor {
+public class OutIfPositive extends SynchronousProcessor {
 
     public OutIfPositive() {
         super(1, 1);
@@ -423,7 +423,7 @@ The way to indicate that a processor does not produce any output for an input is
 Conversely, a processor does not need to output only one event for each input event. For example, the following processor repeats an input event as many times as its numerical value: if the event is the value 3, it is repeated 3 times in the output.
 
 ``` java
-public class Stuttering extends SingleProcessor {
+public class Stuttering extends SynchronousProcessor {
 
     public Stuttering() {
         super(1, 1);
@@ -449,7 +449,7 @@ the processor should output:
 Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before saying something. Here's a possible implementation:
 
 ``` java
-public class MyMax extends SingleProcessor
+public class MyMax extends SynchronousProcessor
 {
     Number last = null;
 
