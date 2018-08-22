@@ -177,6 +177,12 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 {@img images/functions/Equals.png}{Equals}{.6}
 
+#### `Eventually`
+
+@palette LTL@ <!--\index{Eventually@\texttt{Eventually}} A-->A<!--/i--> `Processor` that implements the "eventually" or **F** operator of Linear Temporal Logic. If *p* is an LTL expression, **F** *p* stipulates that *p* should evaluate to `true` on at least one suffix of the current trace. It is represented graphically as:
+
+{@img images/ltl/Eventually.png}{Eventually}{.6}
+
 #### `Exists`
 
 @palette FOL@ <!--\index{Exists@\texttt{Exists}} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
@@ -275,6 +281,12 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 {@img images/util/GetSize.png}{GetSize}{.6}
 
+#### `Globally`
+
+@palette LTL@ <!--\index{Globally@\texttt{Globally}} A-->A<!--/i--> `Processor` that implements the "globally" or **G** operator of Linear Temporal Logic. If *p* is an LTL expression, **G** *p* stipulates that *p* should evaluate to `true` on every suffix of the current trace. It is represented graphically as:
+
+{@img images/ltl/Globally.png}{Globally}{.6}
+
 #### `GroupProcessor`
 
 @palette Core@ <!--\index{GroupProcessor@\texttt{GroupProcessor}} A-->A<!--/i--> `Processor` that encapsulates a chain of processors as if it were a single object. It is represented as follows:
@@ -290,7 +302,6 @@ In a graphical representation of a `GroupProcessor`, the processor chain inside 
 @palette Core@ <!--\index{HttpGet@\texttt{HttpGet}} A-->A<!--/i--> `Source` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings. It is represented as:
 
 {@img images/io/HttpGet.png}{HttpGet}{.6}
-
 
 #### `IdentityFunction`
 
@@ -391,6 +402,12 @@ forward, padding the beginning of the trace with some dummy element.
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Multiplication@\texttt{Multiplication}} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the product of two numbers. It is represented as:
 
 {@img images/util/Multiplication.png}{Multiplication}{.6}
+
+#### `Next`
+
+@palette LTL@ <!--\index{Next@\texttt{Next}} A-->A<!--/i--> `Processor` that implements the "next" or **X** operator of Linear Temporal Logic. If *p* is an LTL expression, **X** *p* stipulates that *p* should evaluate to `true` on the suffix of the current trace starting at the next event. It is represented graphically as:
+
+{@img images/ltl/Next.png}{Next}{.6}
 
 #### `Not`
 
@@ -753,6 +770,12 @@ A `Processor` that produces the same number of output fronts for every input fro
 {@img images/util/Unpack.png}{Unpack}{.6}
 
 The opposite of `Unpack` is `Pack`.
+
+#### `Until`
+
+@palette LTL@ <!--\index{Until@\texttt{Until}} A-->A<!--/i--> `Processor` that implements the "until" or **U** operator of Linear Temporal Logic. If *p* and *q* are two streams of Boolean value, *p* **U** *q* stipulates that *q* should evaluate to `true` on some future input front, and that until then, *p* should evaluates to `true` on every input front. It is represented graphically as:
+
+{@img images/ltl/Until.png}{Until}{.6}
 
 #### `Values`
 

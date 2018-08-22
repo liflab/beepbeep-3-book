@@ -300,15 +300,15 @@ Since quantifiers are `Function` objects like any other, there is no constraint 
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
-LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the tranditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively.
+LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the tranditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively. There already exists ample documentation on LTL as a logical language. In this section, we take a slightly different approach, and describe each operator by viewing it as a `Processor` on Boolean streams.
 
-Operator **G** means "globally". Suppose that *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression. An expression of the form **G** *p* stipulates that *p* must be true on the stream that starts at the current event (*e*<sub>1</sub>, *e*<sub>2</sub>, ...), but also on the stream that starts at the next event (*e*<sub>2</sub>, *e*<sub>3</sub>, ...), and so on.
+Operator **G** means "globally"; this operator is represented by a processor called... <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Its purpose is to check that the input stream remains `true` indefinitely. 
 
 {@img LTLOperators.png}{The intuitive meaning of the four LTL temporal operators.}{.6}
 
-The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The color of each circle indicates whether expression *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
+The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The color of each circle indicates whether the input stream *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
 
-In BeepBeep, this operator is represented by a processor called <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Consider the following code example, represented by the illustration below:
+Consider the following code example, represented by the illustration below:
 
 {@snipm ltl/GloballySimple.java}{/}
 
@@ -337,15 +337,13 @@ Output: false
 Pushing true
 ```
 
-We get another surprise: pushing event `false` makes `g` push *three* output events: the constant `FALSE` three times --but this is explainable. Upon the third call to `push()`, the stream of events *e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub> received so far is the sequence `true`, `true`, `false`. Now, `g` has enough information to determine what to output for *e*<sub>1</sub>: since the stream starting at this position is not made entirely of the value `true`, the corresponding output should be `false`, which explains the first output event.
+We get another surprise: pushing event `false` makes `g` push *three* output events: the constant `false` three times --but this is explainable. Upon the third call to `push()`, the stream of events *e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub> received so far is the sequence `true`, `true`, `false`. Now, `g` has enough information to determine what to output for *e*<sub>1</sub>: since the stream starting at this position is not made entirely of the value `true`, the corresponding output should be `false`, which explains the first output event.
 
 However, `g` also has enough information to determine what to output for *e*<sub>2</sub> as well: for the same reason as above, the stream starting at this position is not made entirely of the value `true`; this is why `g` can afford to output a second `false` event. The third output event can also be explained: obviously, the stream that starts at *e*<sub>3</sub> is not made entirely of the value `true` (as *e*<sub>3</sub> itself is false), and hence `g` can output `false` for *e*<sub>3</sub> right away.
 
 It takes some time to get used to this principle. What must be remembered is that `Globally` delays its output for an input event until enough is known about the future to provide a definite value. As a matter of fact, `Globally` can never return `true` --how could one be sure in advance that all future events are going to be true? It can only return the value `false`, in bursts, when it receives a `false` event. As an exercise, try pushing more events to `g` in order to train your intuition.
 
-Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true on a stream that starts some time in the future. The expression *p* may be true on the stream that starts at the current event (*e*<sub>1</sub>, *e*<sub>2</sub>, ...), or on the stream that starts at the next event (*e*<sub>2</sub>, *e*<sub>3</sub>, ...), or on any other stream starting at some future event. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future.
-
-Processor <!--\index{Eventually@\texttt{Eventually}} \texttt{Eventually}-->`Eventually`<!--/i--> implements the functionality of LTL's **F** operator, as is illustrated in the following code example:
+Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of Boolean events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true at least once at some point in the future. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future. This is illustrated in the following code example:
 
 {@snipm ltl/EventuallySimple.java}{/}
 
@@ -361,7 +359,28 @@ Output: true
 Pushing false
 ```
 
-The third LTL operator is **X**, which means "next".  If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true on a stream that starts at the next event --that is, *p* holds on the stream *e*<sub>2</sub>, *e*<sub>3</sub>, ...). This is illustrated in the third section of the previous figure. As you can see, for **X** *p* to return true in the current event, it suffices that *p* be true in the next event. In BeepBeep, operator **X** is implemented by processor <!--\index{Next@\texttt{Next}} \texttt{Next}-->`Next`<!--/i-->.
+The third LTL operator is **X**, which means "next".  It simply checks that the next event in the stream is `true`. This is illustrated in the third section of the previous figure. In BeepBeep, operator **X** is implemented by processor <!--\index{Next@\texttt{Next}} \texttt{Next}-->`Next`<!--/i-->. Let us push events to this processor in this piece of code:
+
+{@snipm ltl/NextSimple.java}{/}
+
+As expected, the processor does not output any event on the first call to `push()`: this output should be `true`, if and only if the *next* event in the stream is true (something we don't know about yet). As a matter of fact, the *i*-th output event is simply that of the *i*+1-th input event. Therefore, the program outputs:
+
+```
+Pushing true
+Pushing true
+Output: true
+Pushing false
+Output: false
+Pushing true
+Output: true
+```
+
+The last temporal operator is **U**, which stands for "until". Contrary to the previous processors, the <!--\index{Until@\texttt{Until}} \texttt{Until}-->`Until`<!--/i--> processor takes as input two Boolean streams, whih we shall call *p* and *q*. The processor checks that the event on stream *q* is `true` on some future input front, and that until then, the event on stream *p* is `true` on every input front. In other words, *p* must be true until *q* becomes true. This can be seen in the figure describing the LTL operators.
+
+Let us interact with the `Until` processor, as in the following code snippet:
+
+{@snipm ltl/UntilSimple.java}{/}
+
 
 
 
