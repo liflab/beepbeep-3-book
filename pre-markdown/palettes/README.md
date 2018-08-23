@@ -296,7 +296,7 @@ false
 
 Since quantifiers are `Function` objects like any other, there is no constraint on how quantifiers can be mixed with other `Function` objects --provided that the input and output types match, obviously. For those who know what *prenex form* is, BeepBeep functions using quantifiers do not have to be put into prenex form to be evaluated.
 
-### Linear temporal logic
+### Linear temporal logic: operator "G"
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
@@ -343,6 +343,8 @@ However, `g` also has enough information to determine what to output for *e*<sub
 
 It takes some time to get used to this principle. What must be remembered is that `Globally` delays its output for an input event until enough is known about the future to provide a definite value. As a matter of fact, `Globally` can never return `true` --how could one be sure in advance that all future events are going to be true? It can only return the value `false`, in bursts, when it receives a `false` event. As an exercise, try pushing more events to `g` in order to train your intuition.
 
+### Other LTL operators
+
 Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of Boolean events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true at least once at some point in the future. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future. This is illustrated in the following code example:
 
 {@snipm ltl/EventuallySimple.java}{/}
@@ -382,21 +384,76 @@ Let us interact with the `Until` processor, as in the following code snippet:
 {@snipm ltl/UntilSimple.java}{/}
 
 
+The program produces the following output:
 
+```
+Pushing p=true, q=false
+Pushing p=true, q=false
+Pushing p=true, q=true
+Output: true
+Output: true
+Output: true
+Pushing p=false, q=false
+Output: false
+```
 
-{@snipm ltl/OpenClose.java}{/}
+At this point, we are more familiar with the behaviour of LTL processors. Note how `Until` delays its first output until it receives its third event front, at which point three definite output events can be produced. Indeed, starting at the first event front, we have that *p* has value `true` for all event fronts until *q* has value `true` in the third one. Hence, the first output event of the processor is `true`. The same reasoning applies when one starts at the second and third event front.
 
-Blabla
+Note that `Until`, like any other synchronous processor with an arity greater than 1, waits until a complete event front is available before performing a processing step. That is, if we push events only on `p` or on `q`, processor `u` will not produce any output --but this time, this will be because it is waiting for events at matching positions in the other input stream.
+
+### Nesting LTL operators
+
+Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ({@snipi ltl/Nested.java}{}).
+
+{@img doc-files/ltl/Nested.png}{A more complex example involving multiple "nested" temporal operators.}{.6}
+
+Although this chain looks a little more complex than the previous examples, one can follow the construction of the LTL formula by reading the figure from right to left. The rightmost `ApplyFunction` implements the implication *a* → *P*, where *P* is a Boolean trace of events created upstream. *P* itself corresponds the the stream coming out of the `Until` processor, which implements the sub-expression *Q* **U** *d*. In turn, *Q* corresponds the output of the `ApplyFunction` processor that evaluates ¬ (*b* ∧ *R*), while *R* is the output of a processor evaluating **X** *c*. One can observe that, by replacing each sub-expression in succession, the resulting LTL formula we obtain is indeed *a* → (¬ (*b* ∧ **X** *c*) **U** *d*).
+
+The chain has also been fitted with two `Print` processors, to print the events that are pushed on the left, and the events that come out on the right. Pushing some events yields an output like this:
+
+```
+Pushing: c
+Output: true
+Pushing: d
+Output: true
+Pushing: a
+Pushing: c
+Pushing: b
+Pushing: d
+Output: true
+Output: true
+Output: true
+Output: true
+Pushing: f
+Output: true
+```
+
+Notice how the use of an <!--\index{ApplyFunctionLazy@\texttt{ApplyFunctionLazy}} \texttt{ApplyFunctionLazy}-->`ApplyFunctionLazy`<!--/i--> processor on the rightmost processor has for effect of yielding an immediate verdict in some cases. The top-level expression that is ultimately evaluated is of the form *a* → *P*; when the current input event is not an *a*, it is not necessary to wait for the truth value of *P* to output the value `true`. Only when the input event is an *a* must the implication "wait" before returning a value. The output of the `ApplyFunctionLazy` processor is delayed, until the processor chain taking care of the right-hand side of the implication outputs a value.
+
+Intuitively, this processor chain can be seen as a "safeguard" mechanism. Suppose we want to prevent a program from producing a stream that violates the LTL constraint. Therefore, we would like to "monitor" an input stream, and only output its contents when we are certain that it respects the property. As long as the input stream contains events other than *a*, no constraint applies on future events. In other words, the input events, in this case, can be immediately output without fearing of violating the LTL formula.
+
+However, when the input event is an *a*, we must make sure that no *b* is immediately followed by a *c*, and moreover, that a *d* event eventually occurs. Since we do not know what future events may come, we must delay the output of event *a* until we are sure the constraint is respected --for example by putting it into a temporary buffer. When a *d* finally comes in, we can inspect the contents of the buffer, make sure that no *b* is followed by a *c*, and, if this is the case, output the whole contents of the buffer at once. In other words, our "monitor" would act as a gatekeeper, and let the input stream get through in chunks of events that are always guaranteed to comply with the constraints.
+
+This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ({@snipi ltl/OpenClose.java}{}):
 
 {@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property}{.6}
 
+The bottom part of the chain corresponds to the monitoring of the LTL formula. This output is then sent to the control pipe of a `Filter` processor, which receives on its data pipe a fork of the original stream. Pushing events on the fork produces an output like this:
+
 ```
 Pushing nop
+Output: nop
 Pushing open
 Pushing read
 Pushing close
-nop,open,read,close,
+Output: open
+Output: read
+Output: close
 ```
+
+Notice how, after pushing an `open` event, the output of the filter is buffered until a `close` is seen, after which all the buffered events are output.
+
+There is much more to be said about monitoring in general, and LTL in particular. Although somewhat clumsy, the expression of LTL properties can be a powerful means of verifying complex ordering constraints on streams of events. The reader is referred to the appendix for more references on this topic.
 
 ## Plots
 
