@@ -23,7 +23,7 @@
 %% Déclarations
 %% ------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{lifmanual}[2018/08/16 LIF manual, V1.5.2 par Sylvain Hallé]
+\ProvidesClass{lifmanual}[2018/08/16 LIF manual, V1.5.3 par Sylvain Hallé]
 
 %% ------------------------
 %% Passing options to book class
@@ -136,7 +136,8 @@
 %% On redéfinit le style plain pour ne pas avoir de numéros de page
 %% à  la première page des chapitres
 \fancypagestyle{plain}{%
-\fancyhf{} % clear all header and footer fields
+%\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 \fancyfoot[RO]{\sffamily\bfseries\small{\raggedleft\thepage}}

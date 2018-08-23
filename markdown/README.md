@@ -73,6 +73,27 @@ This program creates a new instance of a <!--\index{QueueSource@\texttt{QueueSou
 
 *Palettes* are additional JAR files that provide complementary functionalities to BeepBeep. Most of the <!--\index{palettes} palettes-->palettes<!--/i--> that will be used in this book can be downloaded from a sibling palette repository, located at [https://github.com/liflab/beepbeep-3-palettes](https://github.com/liflab/beepbeep-3-palettes). The *Releases* page of this repository offers a large zip file, inside which each individual palette is a single JAR file. Palettes can be loaded into a project in the same way as BeepBeep's main JAR file. Note that palettes are not stand-alone: your project still requires `beepbeep-3.jar` even if you include palettes into it. For this reason, palettes are also sensitive to the version of the main JAR that you are using; attempting to load a palette compiled for an older version of BeepBeep may create errors, and vice versa. You should not experience these problems if you use the latest versions.
 
+## How to read this book
+
+The first part of this book (chapters 2 to 5) is organized in a roughly linear fashion: each chapter builds on notions that have been covered in the previous one.
+
+- Chapter 2 describes the very basic concepts of BeepBeep's operation: streams, pipes, processors, pushing and pulling events, and composition. You will not understand anything of the rest of this book before first going through this chapter!
+- Chapter 3 describes the general-purpose `Function` and `Processor` objects that are provided in the system's core. You will learn how to trim, filter and slice event streams, apply functions and sliding windows to events, and so on. Virtually any BeepBeep program involves one of the objects described in this chapter.
+- Chapter 4 describes some more functions and processors specific to particular use cases, such as processing character strings or manipulating collections of objects. It also gives more details about more technical features of `Processor` objects, such as how to copy them, or call their functions across multiple threads.
+- Chapter 5 leaves BeepBeep's core, and describes the functionalities provided by a standard set of palettes that have been developed alongside the main software. Not all palettes may be interesting to you, so each section of this chapter is written so as to be relatively independent of the others.
+
+The second part of the book (chapters 6 to 8) is made of independent chapters covering other aspects of BeepBeep.
+
+- Chapter 6 mixes all the content of the previous chapters together, and shows a number of more complex use cases that illustrate the capabilities of BeepBeep and its standard palettes. You will learn how BeepBeep can be used to perform runtime monitoring in a video game, process telemetry from a space probe, or analyze the power consumption of home appliances, among other things.
+- Chapter 7 is intended for developers of BeepBeep. It shows how Java programmers can easily create their own `Processor` and `Function` objects, package them into their own palette, and make them interact with other BeepBeep objects.
+- Chapter 8 concentrates on one particular BeepBeep palette, called *DSL*. Rather than piping processors directly using Java, this palette makes it possible for end-users to define the syntax of a custom language, and to write an *interpreter* that builds processor chains automatically from expressions of that language.
+
+Finally, the book ends with a few appendices that are meant as a reference.
+
+- Appendix A defines the broad guidelines for drawing processor chains similar to the illustrations shown throughout this book.
+- Appendix B is an illustrated glossary listing all the `Processor` and `Function` objects provided by BeepBeep and its palettes, and which are mentioned somewhere in the book. For each of them, it shows the standard picture used to represent them and provides a short definition.
+- Appendix C is a list of references to books and scientific papers providing more details about some of the topics discussed in this book.
+
 ## Code examples and exercises
 
 Most of the code examples in this book are also available online in a single big project. This project can be downloaded from <!--\index{GitHub} GitHub-->GitHub<!--/i--> at [https://github.com/liflab/beepbeep-3-examples](https://github.com/liflab/beepbeep-3-examples). The project contains an extensive Javadoc documentation of every file, which can be explored online at [https://liflab.github.io/beepbeep-3-examples](https://liflab.github.io/beepbeep-3-examples).
