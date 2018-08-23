@@ -38,5 +38,6 @@ $s = file_get_contents("latex/chapters/body.tex");
 $s = preg_replace("/^\\\\subimport.*foreword.*$/m", "", $s);
 $s = preg_replace("/^\\\\subimport.*dictionary.*$/m", "", $s);
 $s = preg_replace("/^\\\\subimport.*drawing.*$/m", "", $s);
+$s = preg_replace("/^\\\\subimport.*reading.*$/m", "", $s);
 file_put_contents("latex/chapters/body.tex", $s);
 ?>

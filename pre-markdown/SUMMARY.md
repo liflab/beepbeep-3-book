@@ -65,3 +65,4 @@
   * [Mixing types](dsl/README.md#mixing-types)
 * [Glossary](dictionary/README.md)
 * [Drawing guide](drawing/README.md)
+* [Further reading](reading/README.md)
