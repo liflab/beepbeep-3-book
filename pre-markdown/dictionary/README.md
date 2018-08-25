@@ -491,7 +491,7 @@ as containing instances of `Object`, Java's most generic type.
 
 #### `Pullable`
 
-@palette Core@ Queries events on one of a processor's outputs. For a processor with an output arity *n*, there exists *n* distinct pullables, namely one for
+@palette Core@ <!--\index{Pullable@\texttt{Pullable}} A-->A<!--/i--> object that queries events on one of a processor's outputs. For a processor with an output arity *n*, there exists *n* distinct pullables, namely one for
 each output trace. Every pullable works roughly like a classical `Iterator`:
 it is possible to check whether new output events are available, and get one
 new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors. Graphically, a `Pullable` is represented by a pipe connected to a processor, with an outward pointing triangle:
@@ -500,11 +500,11 @@ new output event. However, contrarily to iterators, `Pullable`s have two version
 
 #### Pull mode
 
-One of the two operating modes of a chain of processors. In pull mode, a user or an application obtains references to the `Pullable` objects of the downstream processors of the chain, and calls their `pull()` method to ask for new output events. When using a chain of processors in pull mode, the chain must be closed at its inputs. The opposite mode is called *push mode*.
+One of the two operating modes of a chain of processors. In <!--\index{pull mode} pull mode-->pull mode<!--/i-->, a user or an application obtains references to the `Pullable` objects of the downstream processors of the chain, and calls their `pull()` method to ask for new output events. When using a chain of processors in pull mode, the chain must be closed at its inputs. The opposite mode is called *push mode*.
 
 #### `Pump`
 
-@palette Core@ Processor that repeatedly pulls its input, and pushes the resulting events to its output. The `Pump` is a way to bridge an upstream part of a processor chain that works in *pull* mode, to a downstream part that operates in *push* mode.
+@palette Core@ <!--\index{Pump@\texttt{Pump}} A-->A<!--/i--> `Processor` that repeatedly pulls its input, and pushes the resulting events to its output. The `Pump` is a way to bridge an upstream part of a processor chain that works in *pull* mode, to a downstream part that operates in *push* mode.
 
 Graphically, this processor is represented as:
 
@@ -520,14 +520,14 @@ The opposite of the `Pump` is the `Tank`.
 
 #### `Pushable`
 
-@palette Core@ An object that gives events to some of a processor's input. Interface `Pushable` is the opposite of `Pullable`: rather than querying events form a processor's output (i.e. "pulling"), it gives events to a processor's input. This has for effect of triggering the processor's computation and "pushing" results (if any) to the processor's output. If a processor is of input arity *n*, there exist *n* distinct
+@palette Core@ <!--\index{Pushable@\texttt{Pushable}} An-->An<!--/i--> object that gives events to some of a processor's input. Interface `Pushable` is the opposite of `Pullable`: rather than querying events form a processor's output (i.e. "pulling"), it gives events to a processor's input. This has for effect of triggering the processor's computation and "pushing" results (if any) to the processor's output. If a processor is of input arity *n*, there exist *n* distinct
 `Pullable`s: one for each input pipe. Graphically, a `Pushable` is represented by a pipe connected to a processor, with an inward pointing triangle:
 
 {@img images/Pushable.png}{Pushable}{.6}
 
 #### Push mode
 
-One of the two operating modes of a chain of processors. In push mode, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
+One of the two operating modes of a chain of processors. In <!--\index{push mode} push mode-->push mode<!--/i-->, a user or an application obtains references to the `Pushable` objects of the upstream processors of the chain, and calls their `push()` method to feed new input events. When using a chain of processors in push mode, the chain must be closed at its outputs. The opposite mode is called *pull mode*.
 
 #### `PutInto` (`Maps`)
 

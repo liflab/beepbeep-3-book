@@ -5,7 +5,28 @@ In this chapter, we shall explore a unique feature of BeepBeep, which is the pos
 
 ## The Turing tarpit of a single language {#single}
 
-As we already mentioned at the very beginning of this book, many other event stream processing engines provide the user with their own query language. In most of these systems, the syntax for these languages is borrowed from SQL, and many stream processing operations can be accomplished by writing statements such as `SELECT`. In the field of runtime verification, the majority of tools rather use variants of languages closer to mathematical logic or finite-state machines.
+As we already mentioned at the very beginning of this book, many other event stream processing engines provide the user with their own query language. In most of these systems, the syntax for these languages is borrowed from SQL, and many stream processing operations can be accomplished by writing statements such as `SELECT`. For example, the following query, taken from the documentation of a CEP system called <!--\index{Esper} Esper-->Esper<!--/i-->, selects a total price per customer over pairs of events (a ServiceOrder followed by a ProductOrder event for the same customer id within one minute), occurring in the last two hours, in which the sum of price is greater than 100, and using a *where* clause to filter on the customer's
+name:
+
+```
+select a.custId, sum(a.price + b.price)
+from pattern [every a=ServiceOrder ->
+  b=ProductOrder(custId = a.custId)
+where timer:within(1 min)].win:time(2 hour)
+where a.name in (’Repair’, b.name)
+group by a.custId
+having sum(a.price + b.price) > 100
+```
+
+In the field of runtime verification, the majority of tools rather use variants of languages closer to mathematical logic or finite-state machines.
+
+For example, the following property, expressed in a language called <!--\index{MFOTL} MFOTL-->MFOTL<!--/i--> used by the <!--\index{MonPoly} MonPoly-->MonPoly<!--/i--> tool, checks that for each user, the number of withdrawal peaks in the last 31 days does not exceed a threshold of five, where a withdrawal peak is a value at least twice the average over the last 31 days:
+
+```
+□ ∀*u*:∀*c*: [CNT<sub>j</sub> v; p; κ : [AVG <sub>a</sub> a;τ.♦<sub>[0;31)</sub>
+withdraw(*u*; a) ∧ ts(τ)](v; *u*) ∧
+♦<sub>[0;31)</sub> withdraw(*u*; p) ∧ ts(κ) ∧ 2 · ∨ ≺ p](*c*; *u*) → c ⪳ 5
+```
 
 The main problem with all these systems is that they force you to use them through their query language exclusively. Contrary to BeepBeep, you seldom have a direct access to the underlying objects that perform the computations. Most importantly, as each of these systems aim to be versatile and applicable to a wide variety of problems, their query language becomes extremely complex: every possible operation on streams has to be written as an expression of the single query language they provide. A typical symptom of this, in some CEP systems, is the presence  of tentacular `SELECT` statements with a dozen optional clauses attempting to cover every possible case. Runtime verification tools fare no better on this respect, and complex nested logical expressions of multiple lines regularly show up in research papers about them. In all cases, the legibility of the resulting expressions suffers a lot. Although there is almost always a way to twist a problem so that it can fit inside any system's language *in theory*, in practice many such expressions are often plain unusable. This can arguably fall into the category of what computer scientist Alan Perlis has described as a "Turing tarpit":
 

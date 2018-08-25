@@ -582,7 +582,7 @@ A common task in event stream processing is to discard events from an input stre
 
 In this section, we concentrate on the former; time decimation will be discussed in the next chapter.
 
-To perform count decimation, BeepBeep provides a processor called [`CountDecimate`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/CountDecimate.html). Let us push events to such a processor, as in the following code fragment.
+To perform count decimation, BeepBeep provides a processor called <!--\index{CountDecimate@\texttt{CountDecimate}} \texttt{CountDecimate}-->`CountDecimate`<!--/i-->. Let us push events to such a processor, as in the following code fragment.
 
 ``` java
 CountDecimate dec = new CountDecimate(3);
