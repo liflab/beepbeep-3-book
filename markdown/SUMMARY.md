@@ -46,6 +46,7 @@
   * [First-order logic and temporal logic](palettes/README.md#first-order-logic-and-temporal-logic)
   * [Plots](palettes/README.md#plots)
   * [Networking](palettes/README.md#networking)
+  * [JSON and XML parsing](palettes/README.md#json-and-xml-parsing)
   * [Exercises](palettes/README.md#exercises)
 * [A few use cases](use-cases/README.md)
   * [Stock ticker](use-cases/README.md#stock-ticker)

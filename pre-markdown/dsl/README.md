@@ -33,7 +33,7 @@ The main problem with all these systems is that they force you to use them throu
 > Beware of the Turing tar-pit in which everything is possible
 > but nothing of interest is easy.
 
-In contrast, BeepBeep was designed based on the observation that no single language could accommodate every conceivable problem on streams --at least in a simple and intuitive way. Rather that try to design a "one-size-fits-all" language, and falling victim to the same problem as other systems, BeepBeep provides no built-in query language at all. Rather it offers users the possibility to easily create their own query languages, using the syntax they wish, and including only the features they need.
+In contrast, BeepBeep was designed based on the observation that no single language could accommodate every conceivable problem on streams --at least in a simple and intuitive way. Rather that try to design a "one-size-fits-all" language, and falling victim to the same problem as other systems, BeepBeep provides no built-in query language at all. Instead, it offers users the possibility to easily create their own query languages, using the syntax they wish, and including only the features they need.
 
 The basic process of creating a DSL is as follows:
 

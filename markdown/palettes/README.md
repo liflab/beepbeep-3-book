@@ -987,6 +987,105 @@ A few things you might want to try:
 
 - Machine B's program depends on the numbers sent by Machine A. Therefore, if you stop Machine A and restart it, you will see Machine B starting the the sequence of twin primes from the beginning.
 
+## JSON and XML parsing
+
+The serialization example in the previous section alluded to a particular way of formatting information using a notation called <!--\index{JSON} JSON-->JSON<!--/i-->. This acronym stands for *JavaScript Object Notation*, as it was first used in the JavaScript programming language to represent "semi-structured" data. A JSON object is a textual document such as this:
+
+``` json
+{
+  "a" : 0,
+  "b" : [1, 2, 3],
+  "c" : {
+    "d" : true,
+    "e" : [
+      {"f": "foo"},
+      {"f": "bar"}
+    ]
+  }
+}
+```
+
+The top-level object is delimited by the outermost pair of braces. It is an associative map between keys (the character strings "a", "b", ...) and values (on the right hand side of the colon). A value can be:
+
+- a primitive type such as a number (the value of "a"), a Boolean (the value of "d") or a character string (the value of "f");
+- a list of primitive types (the value of "b") or of other JSON objects (the value of "e"); lists are denoted by square brackets;
+- another JSON object (the value of "c").
+
+As you can see, this notation allows an arbitrary nesting of objects within lists or other objects, which makes it both easy to read and quite versatile. An increasing number of applications uses this lightweight format to exchange, and sometimes even store data. We also learned in the previous section that JSON is one of the formats used by the Azrael library to serialize the contents of a Java object.
+
+A complete tutorial on JSON is out of the scope of this section. However, it is interesting to know that a BeepBeep palette exists to parse and query JSON objects. The parsing is done with a function called <!--\index{ParseJson@\texttt{ParseJson}} \texttt{ParseJson}-->`ParseJson`<!--/i-->: it receives a character string as input, and produces an instance of an object called <!--\index{JsonElement@\texttt{JsonElement}} \texttt{JsonElement}-->`JsonElement`<!--/i--> as its output. It is invoked like any other BeepBeep `Function`, as in the following code example:
+
+``` java
+ParseJson parse = ParseJson.instance;
+Object[] out = new Object[1];
+parse.evaluate(new Object[]{
+    "{\"a\" : 123, \"b\" : false, \"c\" : [4,5,6]}"}, out);
+JsonElement j = (JsonElement) out[0];
+System.out.println(j);
+parse.evaluate(new Object[]{
+"{\"a\" : "}, out);
+System.out.println(out[0].getClass());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/json/Parsing.java#L34)
+
+
+We do not illustrate this program, but you can find the symbol used for this function in the glossary at the end of this book. The output of this program is:
+
+```
+{"a":123,"b":false,"c":[4,5,6]}
+class ca.uqac.lif.json.JsonNull
+```
+
+If the parsing fails, such as when the input string is not properly formatted, the function outputs a special `JsonElement` called `JsonNull`, as can be observed in the second line of output.
+
+`JsonElement` is actually an umbrella class to designate a generic JSON object. In reality, the object returned by the parsing function will belong to one of the descendents of this class, namely:
+
+- `JsonMap` if the parsed string corresponds to an associative map
+- `JsonList` if the parsed string corresponds to a list
+- `JsonString`, `JsonNumber`, or `JsonBoolean` if the string parses to one of the primitive types.
+
+The contents of these objects can also be queried. For example, the following code extracts elements from the object `j` obtained previously, which is actually an instance of `JsonMap`:
+
+``` java
+JsonMap map = (JsonMap) j;
+JsonNumber n = (JsonNumber) map.get("a");
+System.out.println(n.numberValue());
+JsonList l = (JsonList) map.get("c");
+System.out.println(l.get(1));
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/json/Parsing.java#L46)
+
+
+The second line of code extracts the value corresponding to key "a" in the map; this value is a `JsonNumber` whose value is printed at the console (`123`). The fourth line of code extracts the value corresponding to key "c" in the map; this is a `JsonList`, in which we `get` the second element (i.e., the element at position 1) and print it at the console (`5`).
+
+JSON objects can be easily queried using these methods. However, suppose we receive a stream of JSON objects, of which we want to extract the value corresponding to some key (say, "a") and perform further processing on it. This task should be done by an `ApplyFunction` processor --except that `get` is a *method* of a class, not an instance of a BeepBeep `Function`. Thankfully, the JSON palette also provides a second object, called <!--\index{JPathFunction@\texttt{JPathFunction}} \texttt{JPathFunction}-->`JPathFunction`<!--/i-->. An instance of this function is created by giving it the name of an element to fetch in a JSON object. When it is called on a `JsonElement`, it returns the value corresponding to the given key (or `JsonNull` if the key cannot be found). This function can be passed to an `ApplyFunction` processor, and hence JSON extraction can be applied to a stream of JSON elements. The following code example illustrates this:
+
+``` java
+Object[] out = new Object[1];
+ParseJson.instance.evaluate(new Object[]{
+    "{\"a\" : 123, \"b\" : false, \"c\" : [4,5,6]}"}, out);
+JsonElement j = (JsonElement) out[0];
+JPathFunction f1 = new JPathFunction("a");
+f1.evaluate(new Object[]{j}, out);
+System.out.println(out[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/json/JPathExample.java#L32)
+
+
+A string is first parsed into a JSON element. A `JPathFunction` is then created, and instructed to fetch the value of a key named "a". When passed the element `j`, this function returns the `JsonNumber` 123, as expected.
+
+If the field to fetch is nested within another `JsonElement`, it is not necessary to make calls to multiple `JPathFunction`s in succession. As its name implies, the function can accept a *path* expression instead of a single argument. This path is a string that represents a specific traversal inside a JSON element. For example, the expression `c` refers to the path that fetches the value corresponding to key "c". In the present case, this value is a list; therefore, the path `c[1]` refers to the path that fetches the second value in the list corresponding to the key "c". This is what is done in the following code example:
+
+``` java
+JPathFunction f2 = new JPathFunction("c[1]");
+f2.evaluate(new Object[]{j}, out);
+System.out.println(out[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/json/JPathExample.java#L42)
+
+
+By convention, a period is used to designate a value inside a `JsonMap`, while brackets with a number designate a position inside a `JsonList`. Hence, the path `c.e[0].f` would lead to the value "bar" in the JSON document shown at the beginning of this chapter.
+
 ## Exercises
 
 1. Create a processor chain that takes as input a stream of numbers. Create a scatterplot that shows two lines:

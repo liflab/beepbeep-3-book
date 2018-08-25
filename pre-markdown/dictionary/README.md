@@ -353,6 +353,12 @@ forward, padding the beginning of the trace with some dummy element.
 
 {@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.6}
 
+#### `JPathFunction`
+
+@palette JSON@ <!--\index{JPathFunction@\texttt{JPathFunction}} A-->A<!--/i--> 1:1 `Function` that receives a `JsonElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:
+
+{@img images/json/JPathFunction.png}{JPathFunction}{.6}
+
 #### `KeepLast`
 
 @palette Core@ <!--\index{KeepLast@\texttt{KeepLast}} A-->A<!--/i--> `Processor` that returns only the very last event of its input stream, and discards all the previous ones. It is represented graphically as:
@@ -444,6 +450,18 @@ forward, padding the beginning of the trace with some dummy element.
 {@img images/util/Pack.png}{Pack}{.6}
 
 The oppositve of `Pack` in `Unpack`. See also `TimePack`.
+
+#### `ParseJson`
+
+@palette JSON@ <!--\index{ParseJson@\texttt{ParseJson}} A-->A<!--/i--> `Function` that turns a character string into a structured object called a `JsonElement`. The function is represented graphically as:
+
+{@img images/json/ParseJson.png}{ParseJson}{.6}
+
+#### `ParseXml`
+
+@palette XML@ <!--\index{ParseXml@\texttt{ParseXml}} A-->A<!--/i--> `Function` that turns a character string into a structured object called an `XmlElement`. The function is represented graphically as:
+
+{@img images/xml/ParseXml.png}{ParseXml}{.6}
 
 #### `Passthrough`
 
@@ -801,5 +819,11 @@ The opposite of `Unpack` is `Pack`.
 @palette Core@ <!--\index{WriteOutputStream@\texttt{WriteOutputStream}} A-->A<!--/i--> `Sink` that writes chunks of bytes to a Java `OutputStream`.  It is represented graphically as follows:
 
 {@img images/io/WriteOutputStream.png}{WriteOutputStream}{.6}
+
+#### `XPathFunction`
+
+@palette XML@ <!--\index{XPathFunction@\texttt{XPathFunction}} A-->A<!--/i--> 1:1 `Function` that receives an `XmlElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:
+
+{@img images/xml/XPathFunction.png}{XPathFunction}{.6}
 
 <!-- :wrap=soft: -->
