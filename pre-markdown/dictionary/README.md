@@ -187,6 +187,10 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 @palette FOL@ <!--\index{Exists@\texttt{Exists}} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
 
+{@img images/fol/Exists.png}{Exists}{.6}
+
+There also exists a variant that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
+
 {@img images/fol/ExistsFunction.png}{ExistsFunction}{.6}
 
 #### `ExpandAsColumns`
@@ -228,6 +232,10 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 #### `ForAll`
 
 @palette FOL@ <!--\index{ForAll@\texttt{ForAll}} A-->A<!--/i--> `Function` that acts as a universal quantifier in first-order logic. It is represented as:
+
+{@img images/fol/ForAll.png}{ForAll}{.6}
+
+There exists a variant of `ForAll` that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
 
 {@img images/fol/ForAllFunction.png}{ForAllFunction}{.6}
 
@@ -358,6 +366,10 @@ forward, padding the beginning of the trace with some dummy element.
 @palette JSON@ <!--\index{JPathFunction@\texttt{JPathFunction}} A-->A<!--/i--> 1:1 `Function` that receives a `JsonElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:
 
 {@img images/json/JPathFunction.png}{JPathFunction}{.6}
+
+#### `JsonElement`
+
+@palette JSON@ <!--\index{JsonElement@\texttt{JsonElement}} An-->An<!--/i--> object representing a part of a JSON document. Specific types of JSON elements are `JsonBoolean`, `JsonList`, `JsonMap`, `JsonNull`, `JsonNumber`, and `JsonString`.
 
 #### `KeepLast`
 
@@ -819,6 +831,10 @@ The opposite of `Unpack` is `Pack`.
 @palette Core@ <!--\index{WriteOutputStream@\texttt{WriteOutputStream}} A-->A<!--/i--> `Sink` that writes chunks of bytes to a Java `OutputStream`.  It is represented graphically as follows:
 
 {@img images/io/WriteOutputStream.png}{WriteOutputStream}{.6}
+
+#### `XmlElement`
+
+@palette XML@ <!--\index{XmlElement@\texttt{XmlElement}} An-->An<!--/i--> object representing an element of an XML document.«
 
 #### `XPathFunction`
 

@@ -296,6 +296,8 @@ false
 
 Since quantifiers are `Function` objects like any other, there is no constraint on how quantifiers can be mixed with other `Function` objects --provided that the input and output types match, obviously. For those who know what *prenex form* is, BeepBeep functions using quantifiers do not have to be put into prenex form to be evaluated.
 
+Each quantifier also exists in a variant which, instead of taking a set as its input, accepts an arbitrary object. When instantiated, this variant requires an extra `Function`, called the *domain function*, which is used to compute a set of elements from the input argument. 
+
 ### Linear temporal logic: operator "G"
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
@@ -643,7 +645,11 @@ A few things you might want to try:
 
 ## JSON and XML parsing
 
-The serialization example in the previous section alluded to a particular way of formatting information using a notation called <!--\index{JSON} JSON-->JSON<!--/i-->. This acronym stands for *JavaScript Object Notation*, as it was first used in the JavaScript programming language to represent "semi-structured" data. A JSON object is a textual document such as this:
+We have already seen how BeepBeep can process input streams such as CSV text files, and break each line of these files into a structured object called a *tuple*. Other BeepBeep palettes can also process input data in a variety of other formats. In this section, we elaborate on two such formats, called JSON and XML.
+
+### JSON parsing
+
+The serialization example in the previous section alluded to a particular way of formatting information using a notation called <!--\index{JSON} \textbf{JSON}-->**JSON**<!--/i-->. This acronym stands for *JavaScript Object Notation*, as it was first used in the JavaScript programming language to represent "semi-structured" data. A JSON object is a textual document such as this:
 
 ``` json
 {
@@ -703,6 +709,60 @@ If the field to fetch is nested within another `JsonElement`, it is not necessar
 {@snipm json/JPathExample.java}{\*}
 
 By convention, a period is used to designate a value inside a `JsonMap`, while brackets with a number designate a position inside a `JsonList`. Hence, the path `c.e[0].f` would lead to the value "bar" in the JSON document shown at the beginning of this chapter.
+
+### XML parsing
+
+**XML** parsing and processing works in the same way. As you may probably know, <!--\index{XML} XML-->XML<!--/i--> (the *eXtensible Markup Language*) is another popular notation for storing and exchanging data. An XML document is made of a set of nested "tags" and looks like this:
+
+``` xml
+<doc>
+  <a>
+    <b>1</b>
+    <c>10</c>
+  </a>
+  <a>
+    <b>2</b>
+    <c>15</c>
+  </a>
+  <d>123</d>
+  <e>
+    <f>foo</f>
+    <f>bar</f>
+  </e>
+</doc>
+```
+
+Each tag is enclosed between angle brackets; an *element* is the portion of a document delimited by an opening tag and its corresponding closing tag (these tags have a slash before their name). BeepBeep's XML palette provides a function called <!--\index{ParseXml@\texttt{ParseXml}} \texttt{ParseXml}-->`ParseXml`<!--/i--> that does the same thing for XML than `ParseJson` does for JSON: it converts a character string into an instance of an object, this time called <!--\index{XmlElement@\texttt{XmlElement}} \texttt{XmlElement}-->`XmlElement`<!--/i-->, as is shown in the following code example:
+
+{@snipm xml/Parsing.java}{/}
+
+The objects returned by the parsing function each have a name, some text (optionally), and a list of children tags (which may be empty). These various fields can be queried as follows:
+
+{@snipm xml/Parsing.java}{\*}
+
+The last line of code produces the output `b, foo`.
+
+Parts of an element can also be extracted using a `Function` object similar to `JPathFunction`. It is called `XPathFunction`, and it, too, performs a traversal in a document to retrieve some parts of it. However, since XML documents are structured differently from JSON, the syntax for writing paths and the actual output of the function are not identical. In its simplest form, a path is a list of tag names separated by slashes. In the XML document shown earlier, evaluating the path `doc/d` would return the `XmlElement` named `d`, which contains the number `1`.
+
+However, there may be multiple elements of the same name; for example, the path `doc/a/e/f` corresponds to two elements: `<f>foo</f>` and `<f>bar</f>`. This is why the evaluation of an XPath expression always returns a *collection*, even when the path corresponds to only one element. The behaviour of the `XPathFunction` is illustrated in the following code example:
+
+{@snipm xml/XPathExample.java}{/}
+
+We take a few shortcuts in this excerpt: since `XPathFunction` is a descendent of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
+
+```
+[<d>123</d>]
+[<b>1</b>, <b>2</b>]
+[<c>15</c>]
+```
+
+The result of the first path is straightforward; the latter two warrant further explanation. The meaning of the second path expression (`doc/a/b`) should be interpreted as: "get all the elements named `<b>` that are inside an element named `<a>`, itself inside an element named `<doc>`". There are indeed two such elements in the input document, but note that the two `<b>`'s do not need to have the same parent `<a>`.
+
+Finally, the third path expression introduces a special notation called a *predicate*, written inside brackets. A predicate is an additional condition on an element, which must be true for this element to be considered in the path. In this example, the condition is that element `a` must have a child called `b` whose textual contents is the value `2`. Therefore, the path expression can be interpreted as: "get all the elements named `<c>` that are inside an element named `<a>` which has a child `<b>` containing value 2, and which is inside an element named `<doc>`. There is indeed a single element satisfying this condition in the document, which is `<c>15</c>`.
+
+Again, the purpose of this section is not to provide an in-depth reference on XML or XPath, which turns out to be a full-fledged query language for XML documents (BeepBeep's palette supports only the basic functionalities of XPath). A last remark must be made on the fact that predicates can contain references to values fetched from a <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i--> object. The name of a context key is prefixed by a dollar sign. This is exemplified by the following function tree:
+
+{@img doc-files/xml/ContextExample.png}{Using an XPath expression inside a quantifier}{.6}
 
 ## Exercises
 
