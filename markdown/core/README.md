@@ -52,7 +52,7 @@ System.out.println("14 divided by 3 equals " +
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/FunctionUsage.java#L64)
 
 
-The first instruction creates a new instance of another `Function` object, this time called <!--\index{IntegerDivision@\texttt{IntegerDivision}} \texttt{IntegerDivision}-->`IntegerDivision`<!--/i-->.  From two numbers *x* and *y*, it outputs **two** numbers: the quotient and the remainder of the division of x by y. Note that contrary to the previous examples, this function was created by accessing the `instance` static field on class `IntegerDivision`. Most `Function` objects outside of utility classes such as `Booleans` or `Numbers` provide a reference to their singleton instance in this way. The remaining lines are again a call to `evaluate`: however, this time, the array receiving the output from the function is of size 2. The first element of the array is the quotient, the second is the remainder. Hence the last line of the program prints this:
+The first instruction creates a new instance of another `Function` object, this time called <!--\index{IntegerDivision@\texttt{IntegerDivision}} \texttt{IntegerDivision}-->`IntegerDivision`<!--/i-->.  From two numbers *x* and *y*, it outputs **two** numbers: the quotient and the remainder of the division of x by y. Note that contrary to the previous examples, this function was created by accessing the `instance` static field on class `IntegerDivision`. Most `Function` objects outside of utility classes such as `Booleans` or `Numbers` provide a reference to their singleton instance in this way. The remaining lines are again a call to `evaluate`: however, this time, the array receiving the output from the function is of size 2. The first element of the array is the quotient, the second is the remainder. Hence, the last line of the program prints this:
 
     14 divided by 3 equals 4 remainder 2
 
@@ -183,7 +183,7 @@ This single-line instruction effectively created a new `Function` object with th
 
 ![Chaining function processors.](FunctionTreeUsage.png)
 
-As one can see, the single `ApplyFunction` processor is attached to a tree of functions, which corresponds to the object built by line 4. By convention, stream variables are represented by diamonds, with either the name of a stream variable (*x*, *y* or *z*), or equivalently with a number designating the input stream. Again, the color of the nodes depicts the type of objects being manipulated. For the sake of clarity, in the remainder of the book, we will sometimes forego the representation of a function as a tree, and use an inline notation such as (*x*+*y*)×*z* to simplify the drawing.
+As one can see, the single `ApplyFunction` processor is attached to a tree of functions, which corresponds to the object built by line 4. By convention, stream variables are represented by diamonds, with either the name of a stream variable (*x*, *y* or *z*), or equivalently with a number designating the input stream. Again, the colour of the nodes depicts the type of objects being manipulated. For the sake of clarity, in the remainder of the book, we will sometimes forego the representation of a function as a tree, and use an inline notation such as (*x*+*y*)×*z* to simplify the drawing.
 
 Pulling events from `exp` will result in the same result as before:
 
@@ -354,7 +354,7 @@ Upon receiving the second event *y*=2, the cumulate processor computes *f*(*x*,2
     The event is: 10.0
     ...
 
-Cumulative processors and function processors can be put toghether into a common pattern, illustrated by the following schema:
+Cumulative processors and function processors can be put together into a common pattern, illustrated by the following schema:
 
 ![The running average of a stream of numbers.](Average.png)
 
@@ -468,7 +468,7 @@ for (int i = 0; i < 6; i++)
 
 ![Pushing events into a `Trim` processor.](TrimPush.png)
 
-Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers 0 to 5 into `trim`; however, the first three events are discarded, and do not reach `print`. It is only at the fourth event that a push on `trim` will result in a downstream push on `print`. Hence the output of the program is:
+Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers 0 to 5 into `trim`; however, the first three events are discarded, and do not reach `print`. It is only at the fourth event that a push on `trim` will result in a downstream push on `print`. Hence, the output of the program is:
 
     3,4,5,
 
@@ -481,7 +481,7 @@ Coupled with `Fork`, the `Trim` processor can be useful to create two copies of 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SumTwo.java)
 
 
-On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The procesor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
+On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The processor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
 
 From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{window!sliding} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
 
@@ -513,7 +513,7 @@ This code is relatively straightforward. The main novelty is the fact that the `
 
 The `Window` processor is depicted by a box with events grouped by a curly bracket. The number under that bracket indicates the width of the window. On one side of the box is a circle that leads to yet another box. This is to represent the fact that `Window` takes another processor as a parameter; in this box, we recognize the cumulative sum processor we used before. Notice how that processor lies alone in its box; as in the code fragment, it is not connected to anything. **Calling `pull` or `push` on that processor does not make sense, and will cause incorrect results, if not runtime exceptions.**
 
-Let us now see what happens when we call `pull` on `win`. The window processor requires three events before being able to output anything. Since we just started the program, currently, `win`'s window is empty. Therefore, three calls to `pull` are made on the source, in order to fetch the events 1, 2 and 3. Now that `win` has the correct number of input events, it pushes them into `sum` one by one. Since `sum` is a cumulative processor, it will successively output the events 1, 3 and 6 --corresponding to the sum of the first, the first two, and all three events, respectively. The window processor ignores all of these event except the last (6): this is the event that is return from the first call to `pull`:
+Let us now see what happens when we call `pull` on `win`. The window processor requires three events before being able to output anything. Since we just started the program, currently, `win`'s window is empty. Therefore, three calls to `pull` are made on the source, in order to fetch the events 1, 2 and 3. Now that `win` has the correct number of input events, it pushes them into `sum` one by one. Since `sum` is a cumulative processor, it will successively output the events 1, 3 and 6 --corresponding to the sum of the first, the first two, and all three events, respectively. The window processor ignores all of these events except the last (6): this is the event that is return from the first call to `pull`:
 
     First window: 6.0
 
@@ -580,7 +580,7 @@ for (int i = 0; i < 6; i++)
 
 After creating a source of numbers, we create a new empty `GroupProcessor`. The constructor takes two arguments, corresponding to the input and output <!--\index{processor!arity} arity-->arity<!--/i--> of the group. Here, our group processor will have one input pipe, and one output pipe. The block of instructions enclosed inside the pair of braces put contents inside the group. The first six lines work as usual: we create a fork, a trim and a function processor, and connect them all together. The remaining three lines are specific to the creation of a group. The seventh line calls method [`addProcessors()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#addProcessors(ca.uqac.lif.cep.Processor...)); this puts the created processors inside the group object.
 
-However, merely putting processors inside a group is not sufficient. The `GroupProcessor` has no way to know what are the inputs and outputs of the chain. This is done with calls to [`asociateInput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateInput(int, ca.uqac.lif.cep.Processor, int)) and [`asociateOutput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateOutput(int, ca.uqac.lif.cep.Processor, int)). The eigth line tells the group processor that its input pipe number 0 should be connect to input pipe number 0 of `fork`. The ninth line tells the group processor that its output pipe number 0 should be connect to output pipe number 0 of `add`.
+However, merely putting processors inside a group is not sufficient. The `GroupProcessor` has no way to know what are the inputs and outputs of the chain. This is done with calls to [`asociateInput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateInput(int, ca.uqac.lif.cep.Processor, int)) and [`asociateOutput()`](http://liflab.github.io/beepbeep-3/javadoc//GroupProcessor.html#associateOutput(int, ca.uqac.lif.cep.Processor, int)). The eighth line tells the group processor that its input pipe number 0 should be connect to input pipe number 0 of `fork`. The ninth line tells the group processor that its output pipe number 0 should be connect to output pipe number 0 of `add`.
 
 It is now possible to use `group` as if it were a single processor box. The remaining lines connect `source` to `group`, and fetch a `Pullable` object from `group`'s output pipe. Graphically, this is illustrated as follows:
 
@@ -644,7 +644,7 @@ Here, a `CountDecimate` processor is created and connected into a `Print` proces
 
 ![Pushing events to a `CountDecimate` processor.](CountDecimateSimple.png)
 
-The `CountDecimate` processor is designated by a pictogram where some events are transprent, representing decimation. Like many other processors that receive parameters, the decimation interval is written on one side of the box. Let us now push the integers 0 to 9 into this processor, and watch the output printed at the console. We get the following:
+The `CountDecimate` processor is designated by a pictogram where some events are transparent, representing decimation. Like many other processors that receive parameters, the decimation interval is written on one side of the box. Let us now push the integers 0 to 9 into this processor, and watch the output printed at the console. We get the following:
 
     0,3,6,9,
 
@@ -656,7 +656,7 @@ An important remark must be made when `CountDecimate` is used in pull mode, as i
 
 In such a case, the events received by each call to `pull` will be 1, 4, 7, etc. That is, after outputting event 1, the decimate processor does not ignore our next two calls to `pull` by returning nothing. Rather, it pulls three events from the queue source and discards the first two.
 
-The decimate procssor can be mixed with the other processors we have seen so far. For example, we have seen earlier how we can use a `Window` processor to calculate the sum of events on a sliding window of width *n*. We can affix a `CountDecimate` processor to the end of such a chain to create what is called a <!--\index{window!hopping} \textbf{hopping window}-->**hopping window**<!--/i-->. Contrary to sliding windows, where the content of two successive windows overlap, hopping windows are disjoint. For example, one can compute the sum of the first five events, then the sum of the next five, and so on. The difference between the two types of windows is illustrated in the following figure; sliding windows are shown at the left, and hopping windows are shown at the right.
+The decimate processor can be mixed with the other processors we have seen so far. For example, we have seen earlier how we can use a `Window` processor to calculate the sum of events on a sliding window of width *n*. We can affix a `CountDecimate` processor to the end of such a chain to create what is called a <!--\index{window!hopping} \textbf{hopping window}-->**hopping window**<!--/i-->. Contrary to sliding windows, where the content of two successive windows overlap, hopping windows are disjoint. For example, one can compute the sum of the first five events, then the sum of the next five, and so on. The difference between the two types of windows is illustrated in the following figure; sliding windows are shown at the left, and hopping windows are shown at the right.
 
 ![Difference between a sliding window (left) and a hopping window (right).](Hopping.png)
 
@@ -705,7 +705,7 @@ The last part of the program, as usual, simply pulls on the output of the `Filte
 
 As we can see, the events from `source_values` that are output are only those at a position where the corresponding value in `source_bool` is `true`. At position 0, the event in `source_bool` is `true`, so the value 6 is output. On the second call to `pull`, `filter` pulls on both its input pipes; it receives the value 5 from `source_values`, and the value `false` from `source_bool`. Since the control pipe holds the value `false`, the number 5 has to be discarded, meaning that `filter` has nothing to output. Consequently, it pulls again on its input pipes to receive another event front. This time, it receives the pair 3/`true`, so it can return 3 as its second event.
 
-Since the output of events depends entierly on the contents of the control stream, the relative positions of the events in the input and output streams do not follow any predictable pattern:
+Since the output of events depends entirely on the contents of the control stream, the relative positions of the events in the input and output streams do not follow any predictable pattern:
 
 - event at position 0 in the output corresponds to event at position 0 in the input;
 - event at position 1 in the output corresponds to event at position 2 in the input;
@@ -816,7 +816,7 @@ Something a little different happens in the next call to `pull`. The `slicer` re
 
 The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
 
-As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this. Giving it to the `Slice` processor will generate two streams: one made with the numbers for which `IsEven` returns `true` (the even numbers), and another made with the numbers for which `IsEven` returns `false` (the odd numbers). We then affix as the slice procesor a `GroupProcessor` that encapsulates a chain computing the cumulative sum of numbers.
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this. Giving it to the `Slice` processor will generate two streams: one made with the numbers for which `IsEven` returns `true` (the even numbers), and another made with the numbers for which `IsEven` returns `false` (the odd numbers). We then affix as the slice processor a `GroupProcessor` that encapsulates a chain computing the cumulative sum of numbers.
 
 ![Adding odd and even numbers separately.](SlicerOddEven.png)
 

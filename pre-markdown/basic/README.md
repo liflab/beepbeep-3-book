@@ -1,17 +1,17 @@
 Basic Concepts
 ==============
 
-In this chapter, you will learn about the the fundamental principles for using BeepBeep through simple examples. In particular, you'll be shown the basic usage of two types of objects: processors and functions.
+In this chapter, you will learn about the fundamental principles for using BeepBeep through simple examples. In particular, you'll be shown the basic usage of two types of objects: processors and functions.
 
 ## Processors
 
-The first fundamental building block of BeepBeep is an object called a <!--\index{processor} \textbf{processor}-->**processor**<!--/i-->. This object that takes one or more *event streams* as its input, and and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality. In terms of Java, all processors are descendents of the generic {@link jdc:ca.uqac.lif.cep.Processor Processor} class.
+The first fundamental building block of BeepBeep is an object called a <!--\index{processor} \textbf{processor}-->**processor**<!--/i-->. This object that takes one or more *event streams* as its input, and returns one or more *event streams* as its output. A processor is a stateful device: for a given input, its output may depend on events received in the past. Virtually all the processing of event traces is done through the action of a processor, or a combination of multiple processors chained together to achieve the desired functionality. In terms of Java, all processors are descendants of the generic {@link jdc:ca.uqac.lif.cep.Processor Processor} class.
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, we will often represent processors graphically exactly in this way, as the following figure shows. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
 {@img doc-files/Schematics.png}{A graphical representation of a generic processor taking one input stream, and producing one output stream}{.6}
 
-The color of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
+The colour of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers, a grey pipe contains a stream of Boolean values, etc.
 
 The number of input and output pipes is called the (input and output) <!--\index{processor!arity} \textbf{arity}-->**arity**<!--/i--> of a processor; these two numbers vary depending on the actual type of processor we are talking about. For example, the previous picture represents a processor with an input arity of 1, and an output arity of 1. Events come in by one end, while events (maybe of a different kind) come out by the other end.
 
@@ -138,7 +138,7 @@ This time, we create *two* sources of numbers. We intend to connect these two so
 
 {@img doc-files/basic/PipingBinary.png}{A processor with an input arity of two.}{.6}
 
-In a program, the two input pipes of `add` can be easily accessed through their number (0 or 1). However, in a drawing, it may be hard to decide which is which. In this book, we will follow the convention that the topmost input pipe is that with the lowest number. Hence, in the previous schema, input pipe 0 is the one connected to the queue 2-7-1-8-3. For some schemas, this may still not be clear enough; in such cases, we will explicitly write numbers next to the pipes to tell them apart.
+In a program, the two input pipes of `add` can be easily accessed through their number (0 or 1). However, in a drawing, it may be hard to decide which is which. In this book, we will follow the convention that the topmost input pipe is that with the lowest number. Hence, in the previous schema, input pipe 0 is the one connected to the queue 2-7-1-8-3. For some schemata, this may still not be clear enough; in such cases, we will explicitly write numbers next to the pipes to tell them apart.
 
 The rest of our program is done as usual: a `Pullable` is obtained from `add`, and its first few output events are printed:
 
@@ -166,7 +166,7 @@ The difference is that the first queue source has been replaced by a "slow" queu
 
 However, a new line is only printed every five seconds. This can be explained as follows: when a call to `pull` is made on `add`'s `Pullable` object, the processor checks whether a complete front can be consumed. It asks both `source1` and `source2` for a new event; `source2` answers immediately, but `source1` takes five seconds before producing an event. In the meantime, `add` can do nothing but wait. The whole process repeats upon every subsequent call to `pull`. Note that `add` only asks for *one* new event at a time from each source; that is, it does not keep on pulling on `source2` while it waits for an answer from `source1`.
 
-Synchronous processing is a strong assumption; many other stream processing engines allow events to be processed asynchronously, meaning that the output of a query may depend on what input stream produced an event first. One can easily imagine situations where synchronous processing is not appropriate. However, in use cases where it is suitable, assuming synchronous processing greatly simplifies the definition and implementation of processors. The output result is no longer sensitive to the order in which events arrive at each input, or to the time it takes for an upstream processor to compute an output (the order of arrival of events from the same input trace, obviously, is preserved). Since the timing of arrival of events is irrelevant to the result of a computation, this means that one can perform a "pen and paper" calculation of a chain of processors, and arrive at the same output as the real one, given knolwedge of the contents of each input stream.
+Synchronous processing is a strong assumption; many other stream processing engines allow events to be processed asynchronously, meaning that the output of a query may depend on what input stream produced an event first. One can easily imagine situations where synchronous processing is not appropriate. However, in use cases where it is suitable, assuming synchronous processing greatly simplifies the definition and implementation of processors. The output result is no longer sensitive to the order in which events arrive at each input, or to the time it takes for an upstream processor to compute an output (the order of arrival of events from the same input trace, obviously, is preserved). Since the timing of arrival of events is irrelevant to the result of a computation, this means that one can perform a "pen and paper" calculation of a chain of processors, and arrive at the same output as the real one, given knowledge of the contents of each input stream.
 
 We shall discuss synchronous processing in more detail in a later chapter.
 
@@ -180,7 +180,7 @@ The culprit lies in the next-to-last line of the program; this is due to the fac
 
 {@img doc-files/basic/IncorrectPiping.png}{Piping processors whose input/output types do not match.}{.6}
 
-This is the first of our examples that uses color coding to represent the type of each stream. Note how number streams and pipes are shown in turquoise, while Booleans are represented using a greyish shade of blue. Using such a graphical representation, the problem can easily be spotted: the call to `connect` attempts to link a turquoise output pipe to a grey-blue input pipe.
+This is the first of our examples that uses colour coding to represent the type of each stream. Note how number streams and pipes are shown in turquoise, while Booleans are represented using a greyish shade of blue. Using such a graphical representation, the problem can easily be spotted: the call to `connect` attempts to link a turquoise output pipe to a grey-blue input pipe.
 
 Since numbers cannot be converted into Booleans, the call to `connect()` will throw an exception similar to this one:
 

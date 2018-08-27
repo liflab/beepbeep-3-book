@@ -73,7 +73,7 @@ Graphically, this program can be represented as follows:
 
 ![Converting strings into tuples.](CsvReaderExample.png)
 
-This drawing introduces the symbol for the `TupleFeeder`, whose pictogram on the box represents a tuple. It also shows the color we use to represent tuple feeds (brown/orange).
+This drawing introduces the symbol for the `TupleFeeder`, whose pictogram on the box represents a tuple. It also shows the colour we use to represent tuple feeds (brown/orange).
 
 ### Querying tuples
 
@@ -132,7 +132,7 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 - The function <!--\index{ScalarIntoTuple@\texttt{ScalarIntoTuple}} \texttt{ScalarIntoTuple}-->`ScalarIntoToTuple`<!--/i--> takes a scalar value *x* (for example, a number) and creates a tuple with a single attribute-value pair A=*x*. Here "A" is a name passed to the function when it is instantiated.
 
-- The function <!--\index{MergeTuples@\texttt{MergeTuples}} \texttt{MergeTuples}-->`MergeTuples`<!--/i--> merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resuting tuple is equivalent to that of a elational JOIN operation.
+- The function <!--\index{MergeTuples@\texttt{MergeTuples}} \texttt{MergeTuples}-->`MergeTuples`<!--/i--> merges the key-value pairs of multiple tuples into a single tuple. If two tuples have the same key, the value in the resulting tuple is that of <em>one</em> of these tuples; which one is left undefined. However, if the tuples have the same value for their common keys, the resulting tuple is equivalent to that of a relational JOIN operation.
 
 - The function <!--\index{BlowTuples@\texttt{BlowTuples}} \texttt{BlowTuples}-->`BlowTuples`<!--/i--> breaks a single tuple into multiple tuples, one for each key-value pair of the original tuple. The output of this function is a *set* of tuples, and not a single tuple.
 
@@ -140,7 +140,7 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 ## Finite-state machines
 
-Sometimes, a stream is made of events representing a sequence of "actions". It may be interesting to check whether these actions follow a predefined pattern, which stipulates in what order the actions in a stream can be observed to be considered valid. A convenient way of specifiying these patterns is through a device called a <!--\index{finite-state machine} \emph{finite-state machine}-->*finite-state machine*<!--/i--> (FSM). BeepBeep's FSM palette allows users to create such machines.
+Sometimes, a stream is made of events representing a sequence of "actions". It may be interesting to check whether these actions follow a predefined pattern, which stipulates in what order the actions in a stream can be observed to be considered valid. A convenient way of specifying these patterns is through a device called a <!--\index{finite-state machine} \emph{finite-state machine}-->*finite-state machine*<!--/i--> (FSM). BeepBeep's FSM palette allows users to create such machines.
 
 ### Defining a Moore machine
 
@@ -160,7 +160,7 @@ The proper use of an iterator stipulates that one should never call method `next
 
 ![A finite-state machine representing the constraint that `next()` cannot be called before calling `hasNext()` first.](HasNextFSM.png)
 
-In this FSM, states are numbered 0, 1 and 2; transitions bewtween states are labelled with the method name they represent; for example, when the machine is in state 1, receiving a `next` event will make it move to state 0. One of these states is called the *intitial state*, and is identified by an arrow that is not attached to any source state. In our case, the initial state is 0. The "star" label on state 2's arrow indicates that this transition matches any incoming event.
+In this FSM, states are numbered 0, 1 and 2; transitions between states are labelled with the method name they represent; for example, when the machine is in state 1, receiving a `next` event will make it move to state 0. One of these states is called the *initial state*, and is identified by an arrow that is not attached to any source state. In our case, the initial state is 0. The "star" label on state 2's arrow indicates that this transition matches any incoming event.
 
 In BeepBeep's FSM palette, finite-state machines are materialized by an object called <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i-->; the origin of that name will be explained a little later. The creation of the machine is made by the following code example:
 
@@ -192,11 +192,11 @@ We are now ready to define the transitions (i.e. the "arrows" between states) fo
 - a `Function` *f* that determines when the transition should fire. This function must have the same input arity as the machine itself, and return a Boolean value;
 - the number of the "destination" state *n*<sub>*d*</sub>.
 
-Intuitively, a `FunctionTransition` transition stipulates that when the machine is currently in state *n*<sub>*s*</sub> and receives an event *e*, if *f*(*e*) returns `true`, the machine shall move to state *n*<sub>*d*</sub>. For example, the first line states that in state 0 (`UNSAFE`), if the incoming event is "hasnext", go to state 1 (`SAFE`). The condition itself is expressed by creating a `FunctionTree` that checks if the incoming event (which is put into the `StreamVarible`) is equal to the `Constant` "hasnext". By default, the first state number that is ever given to the `MooreMachine` object is taken as the initial state of that machine. So here, `UNSAFE` will be the initial state. In BeepBeep's implementation of FSMs, there can be only one initial state.
+Intuitively, a `FunctionTransition` transition stipulates that when the machine is currently in state *n*<sub>*s*</sub> and receives an event *e*, if *f*(*e*) returns `true`, the machine shall move to state *n*<sub>*d*</sub>. For example, the first line states that in state 0 (`UNSAFE`), if the incoming event is "hasNext", go to state 1 (`SAFE`). The condition itself is expressed by creating a `FunctionTree` that checks if the incoming event (which is put into the `StreamVarible`) is equal to the `Constant` "hasNext". By default, the first state number that is ever given to the `MooreMachine` object is taken as the initial state of that machine. So here, `UNSAFE` will be the initial state. In BeepBeep's implementation of FSMs, there can be only one initial state.
 
 The remaining instructions simply add the other transitions to the machine. A special remark must be made about state 2, which is a *sink state*; in other words, once you reach this state, you stay there forever. These states are typically used to indicate that the system has entered into an irrecoverable error condition. A possible way to say so is to define the condition on its only transition as the `Constant` true; it will fire whatever the incoming event may be.
 
-These seven lines of code completely define our FSM. However, as it is, `machine` is not instructed to output any event at any time. We said earlier that this FSM is of a particular kind, called a *Moore machine*. Such a machine outputs a symbol when jumping into a new state. This means that we can associate arbitrary events to each states of the machine. In our case, let us simply associate the Boolean values `true` to states `UNSAFE` and `SAFE`, and the value `false` to state `ERROR`. This is done using a method called `addSymbol()`:
+These seven lines of code completely define our FSM. However, as it is, `machine` is not instructed to output any event at any time. We said earlier that this FSM is of a particular kind, called a *Moore machine*. Such a machine outputs a symbol when jumping into a new state. This means that we can associate arbitrary events to each state of the machine. In our case, let us simply associate the Boolean values `true` to states `UNSAFE` and `SAFE`, and the value `false` to state `ERROR`. This is done using a method called `addSymbol()`:
 
 ``` java
 machine.addSymbol(UNSAFE, new Constant(true));
@@ -248,7 +248,7 @@ Let us modify the previous example to illustrate the use of variables. We shall 
 
 ![A finite-state machine representing the constraint our our second example.](HasNextFSMContext.png)
 
-This FSM looks very different as the previous one. As you can see, transitions now have conditions attached to them: these conditions are called *guards*. For example, the loop transition on the left-hand side of state 0 can be fired only if the incoming event is `hasNext` *and* the current value of local variable *c* is less than the current value of local variable *n*. In addition, transitions now also have *side effects* --that is, actions that change the processor's internal configuration other than simply moving it from one state to another. These side effects, in the figure, are seprated from the guard by a slash, and consist of assignments to the local variables. When a state has multiple outgoing transitions, the `*` is interpreted as the transition that fires when no other does.
+This FSM looks very different as the previous one. As you can see, transitions now have conditions attached to them: these conditions are called *guards*. For example, the loop transition on the left-hand side of state 0 can be fired only if the incoming event is `hasNext` *and* the current value of local variable *c* is less than the current value of local variable *n*. In addition, transitions now also have *side effects* --that is, actions that change the processor's internal configuration other than simply moving it from one state to another. These side effects, in the figure, are separated from the guard by a slash, and consist of assignments to the local variables. When a state has multiple outgoing transitions, the `*` is interpreted as the transition that fires when no other does.
 
 Take two minutes to convince yourself that this "extended" Moore machine indeed corresponds to the constraint we want to enforce. Let us now attempt to create this machine in code using BeepBeep processors. The first step is to create an empty 1:1 `MooreMachine` object, and to set variables *c* and *n* to their initial values. This is done in the following code snippet. We use `Processor`'s method `setContext` to give values to two new keys, called `c` and `n`, which are added to `machine`'s `Context` object:
 
@@ -327,7 +327,7 @@ We agree that this notation tends to be a bit verbose, but in counterpart, it ma
 
 A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. 
 
-To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the the self-loop on state 1:
+To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the self-loop on state 1:
 
 ``` java
 machine.addTransition(0, new TransitionOtherwise(1));
@@ -338,7 +338,7 @@ machine.addTransition(1, new TransitionOtherwise(1));
 
 The single argument of `TransitionOtherwise`'s constructor is the destination state of the transition.
 
-We are almost done. The remaining step is to associate output symbols to the each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the method `addSymbol()` requires a `Function` object; our previous example was just the particular case where this function was a `Constant`. Here, we pass a `ContextVariable` fetching the value of *c* in the processor's context, and associate it to state 0:
+We are almost done. The remaining step is to associate output symbols to each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the method `addSymbol()` requires a `Function` object; our previous example was just the particular case where this function was a `Constant`. Here, we pass a `ContextVariable` fetching the value of *c* in the processor's context, and associate it to state 0:
 
 ``` java
 machine.addSymbol(0, new ContextVariable("c"));
@@ -378,7 +378,7 @@ The purpose of this section is not to have an in-depth discussion on the theory 
 
 ## First-order logic and temporal logic
 
-The `Booleans` utility class provides basic logical functions for combining Boolean values together; anybody who does a little bit of programming has already used operators such as "and", "or" and "not". However, there is more to logic than these simple connectives. BeepBeep provides two palettes, called FOL and LTL, that extend classical logic with new operators pertaining to *first-order logic* and *linear temporal logic*, respectively. Let us examine these operators and see what they can do.
+The `Booleans` utility class provides basic logical functions for combining Boolean values together; anybody who does a bit of programming has already used operators such as "and", "or" and "not". However, there is more to logic than these simple connectives. BeepBeep provides two palettes, called FOL and LTL, that extend classical logic with new operators pertaining to *first-order logic* and *linear temporal logic*, respectively. Let us examine these operators and see what they can do.
 
 ### First-order logic
 
@@ -412,7 +412,7 @@ Graphically, `fa` can be represented as in the following picture:
 
 ![A graphical representation of the `ForAll` processor.](ForAllFunctionSimple.png)
 
-We can identify in this drawing the quantified variable (in the grey box), as well as the `FunctionTree` that is used as the quantifier's function (made of the application of function `IsEven` on context variable *x*). In addition, note the consistency of the color coding:
+We can identify in this drawing the quantified variable (in the grey box), as well as the `FunctionTree` that is used as the quantifier's function (made of the application of function `IsEven` on context variable *x*). In addition, note the consistency of the colour coding:
 
 - the quantifier accepts a collection (pink) of numbers (teal), represented by the polka dot pattern; it also returns a Boolean value (grey-blue)
 - function `IsEven` accepts a number (teal) and returns a Boolean value (grey-blue).
@@ -468,13 +468,13 @@ Each quantifier also exists in a variant which, instead of taking a set as its i
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
-LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the tranditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively. There already exists ample documentation on LTL as a logical language. In this section, we take a slightly different approach, and describe each operator by viewing it as a `Processor` on Boolean streams.
+LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the traditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively. There already exists ample documentation on LTL as a logical language. In this section, we take a slightly different approach, and describe each operator by viewing it as a `Processor` on Boolean streams.
 
 Operator **G** means "globally"; this operator is represented by a processor called... <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Its purpose is to check that the input stream remains `true` indefinitely. 
 
 ![The intuitive meaning of the four LTL temporal operators.](LTLOperators.png)
 
-The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The color of each circle indicates whether the input stream *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
+The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The colour of each circle indicates whether the input stream *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
 
 Consider the following code example, represented by the illustration below:
 
@@ -501,7 +501,7 @@ Pushing true
 Pushing true
 ```
 
-We have pushed two events into `g`, but `g` in turn did not output anything. To understand why, we must go back to the definition we gave of operator **G**: it returns `true` on the current input event, if and only only if *p* is true for the current event *and* all subsequent events. But how can `g` know about future events? Therefore, after receiving the first event (`true`), no definite output value for this event can be determined yet. The same reasoning applies for the second event that is pushed to `g`, which again produces no output.
+We have pushed two events into `g`, but `g` in turn did not output anything. To understand why, we must go back to the definition we gave of operator **G**: it returns `true` on the current input event, if and only if *p* is true for the current event *and* all subsequent events. But how can `g` know about future events? Therefore, after receiving the first event (`true`), no definite output value for this event can be determined yet. The same reasoning applies for the second event that is pushed to `g`, which again produces no output.
 
 Let us see what happens when we push some more events to `g`:
 
@@ -601,7 +601,7 @@ Pushing true
 Output: true
 ```
 
-The last temporal operator is **U**, which stands for "until". Contrary to the previous processors, the <!--\index{Until@\texttt{Until}} \texttt{Until}-->`Until`<!--/i--> processor takes as input two Boolean streams, whih we shall call *p* and *q*. The processor checks that the event on stream *q* is `true` on some future input front, and that until then, the event on stream *p* is `true` on every input front. In other words, *p* must be true until *q* becomes true. This can be seen in the figure describing the LTL operators.
+The last temporal operator is **U**, which stands for "until". Contrary to the previous processors, the <!--\index{Until@\texttt{Until}} \texttt{Until}-->`Until`<!--/i--> processor takes as input two Boolean streams, which we shall call *p* and *q*. The processor checks that the event on stream *q* is `true` on some future input front, and that until then, the event on stream *p* is `true` on every input front. In other words, *p* must be true until *q* becomes true. This can be seen in the figure describing the LTL operators.
 
 Let us interact with the `Until` processor, as in the following code snippet:
 
@@ -649,7 +649,7 @@ Like quantifiers, temporal operators can be *nested*: the output of an LTL proce
 
 ![A more complex example involving multiple "nested" temporal operators.](Nested.png)
 
-Although this chain looks a little more complex than the previous examples, one can follow the construction of the LTL formula by reading the figure from right to left. The rightmost `ApplyFunction` implements the implication *a* → *P*, where *P* is a Boolean trace of events created upstream. *P* itself corresponds the the stream coming out of the `Until` processor, which implements the sub-expression *Q* **U** *d*. In turn, *Q* corresponds the output of the `ApplyFunction` processor that evaluates ¬ (*b* ∧ *R*), while *R* is the output of a processor evaluating **X** *c*. One can observe that, by replacing each sub-expression in succession, the resulting LTL formula we obtain is indeed *a* → (¬ (*b* ∧ **X** *c*) **U** *d*).
+Although this chain looks a little more complex than the previous examples, one can follow the construction of the LTL formula by reading the figure from right to left. The rightmost `ApplyFunction` implements the implication *a* → *P*, where *P* is a Boolean trace of events created upstream. *P* itself corresponds to the stream coming out of the `Until` processor, which implements the sub-expression *Q* **U** *d*. In turn, *Q* corresponds the output of the `ApplyFunction` processor that evaluates ¬ (*b* ∧ *R*), while *R* is the output of a processor evaluating **X** *c*. One can observe that, by replacing each sub-expression in succession, the resulting LTL formula we obtain is indeed *a* → (¬ (*b* ∧ **X** *c*) **U** *d*).
 
 The chain has also been fitted with two `Print` processors, to print the events that are pushed on the left, and the events that come out on the right. Pushing some events yields an output like this:
 
@@ -782,7 +782,7 @@ Graphically, this chain of processors can be illustrated as follows:
 
 ![Producing a scatterplot from a source of random values.](CumulativeScatterplot.png)
 
-This drawing introduces a few new boxes. The one at the far right is the `BitmapJFrame`; its input pipe is colored in light green, which represents byte arrays. The box at its left is the `DrawPlot` processor. This processor is depicted with an icon indicating the type of plot that must be produced (here, a two-dimensional scatterplot). Yet to the left of this box is the `TableUpdateStream` processor. Next to each of its input pipes, a label indicates the name of the column that will be populated by values from that stream. The output pipe of this processor is colored in dark blue, which represents `Table` objects.
+This drawing introduces a few new boxes. The one at the far right is the `BitmapJFrame`; its input pipe is coloured in light green, which represents byte arrays. The box at its left is the `DrawPlot` processor. This processor is depicted with an icon indicating the type of plot that must be produced (here, a two-dimensional scatterplot). Yet to the left of this box is the `TableUpdateStream` processor. Next to each of its input pipes, a label indicates the name of the column that will be populated by values from that stream. The output pipe of this processor is coloured in dark blue, which represents `Table` objects.
 
 Running this program will pop a window containing a plot, whose contents are updated once every second (due to the action of an intermediate `Pump` object). The window should look like this one:
 
@@ -790,7 +790,7 @@ Running this program will pop a window containing a plot, whose contents are upd
 
 Each new table entry increments the value of *x* by one; the value of *y* is chosen at random. The end result is a dynamic plot created from event streams; the whole chain, from source to the actual bitmaps being displayed, amounts to only 12 lines of code. Obviously, sending the images into a bland JFrame is only done for the sake of giving an example. In a real-world situation, you will be more likely to divert the stream of byte arrays somewhere else, such as a file, or as a component of the user interface of some other software.
 
-Besides scatterplots, any other plot type supported by the MTNP library can be passed to `DrawPlot`'s constructor. This includes histograms, pie charts, heatmaps, and so on. The only important point is that each plot type expects to receive tables structured in a particular way; for example, a heatmap requires a table with three columns, corresponding to the *x*-coordinate, *y*-coordinate, and "temperature" value, in this order. It is up to the upstream processor chain to produce a `Table` object with the appropriate structure.
+Besides scatterplots, any other plot type supported by the MTNP library can be passed to `DrawPlot`'s constructor. This includes histograms, pie charts, heat maps, and so on. The only important point is that each plot type expects to receive tables structured in a particular way; for example, a heat map requires a table with three columns, corresponding to the *x*-coordinate, *y*-coordinate, and "temperature" value, in this order. It is up to the upstream processor chain to produce a `Table` object with the appropriate structure.
 
 Plots can also be customized by applying modifications to the `Plot` object passed to `DrawPlot`. For example, to set a custom title, one simply has to pass an instance of `Scatterplot` whose title has been changed using its `setTitle` method:
 
@@ -906,7 +906,7 @@ The main difference is that a processor applying `JsonSerializeString` has been 
 
 ![Serializing objects before using HTTP gateways.](PushLocal.png)
 
-Note the pictogram used to illustrate the serialization processor: the picture represents an event that is "packed" into a box with a barcode, representing its serialized form. The deserialization processor conversely represents an event that is "unpacked" from a box with a barcode. Although these processors are actually plain `ApplyFunction` processors, we represent them with these special pictograms to improve the legibility of the drawings.
+Note the pictogram used to illustrate the serialization processor: the picture represents an event that is "packed" into a box with a bar code, representing its serialized form. The deserialization processor conversely represents an event that is "unpacked" from a box with a bar code. Although these processors are actually plain `ApplyFunction` processors, we represent them with these special pictograms to improve the legibility of the drawings.
 
 We can now push `CompoundObject`s through the serializer, as is shown in the following instructions:
 
@@ -971,7 +971,7 @@ Connector.connect(int_to_string, up_gateway);
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/twinprimes/TwinPrimesA.java#L50)
 
 
-We first specify the URL where prime numbers will be pushed downstream. The first processor is a source that will push the BigInteger "2" repeatedly.  The second processor is a simple counter. We feed it with the BigInteger "2" repeatedly, and it returns the cumulatve sum of those "2" as its output. Since the start value of BigIntegerAdd is one, the resulting sequence is made of all odd numbers. The events output from the counter are duplicated along two paths. Along the first path, the numbers are checked for primality. Along the second path, we feed a filter and use the primality verdict as the filtering condition. What comes out of the filter are only prime numbers. We then fork the output of the filter, just so that we can print what comes out of it. BigIntegers are converted to Strings, and pushed across the network to Machine B using the `HttpUpstreamGateway`.
+We first specify the URL where prime numbers will be pushed downstream. The first processor is a source that will push the BigInteger "2" repeatedly.  The second processor is a simple counter. We feed it with the BigInteger "2" repeatedly, and it returns the cumulative sum of those "2" as its output. Since the start value of BigIntegerAdd is one, the resulting sequence is made of all odd numbers. The events output from the counter are duplicated along two paths. Along the first path, the numbers are checked for primality. Along the second path, we feed a filter and use the primality verdict as the filtering condition. What comes out of the filter are only prime numbers. We then fork the output of the filter, just so that we can print what comes out of it. BigIntegers are converted to Strings, and pushed across the network to Machine B using the `HttpUpstreamGateway`.
 
 Graphically, the chain of processors for Machine A can be represented as follows:
 
@@ -987,7 +987,7 @@ All in all, in this example we have written less than 50 lines of code. For that
 
 A few things you might want to try:
 
-- Machine B's program depends on the numbers sent by Machine A. Therefore, if you stop Machine A and restart it, you will see Machine B starting the the sequence of twin primes from the beginning.
+- Machine B's program depends on the numbers sent by Machine A. Therefore, if you stop Machine A and restart it, you will see Machine B starting the sequence of twin primes from the beginning.
 
 ## JSON and XML parsing
 
@@ -1011,7 +1011,7 @@ The serialization example in the previous section alluded to a particular way of
 }
 ```
 
-The top-level object is delimited by the outermost pair of braces. It is an associative map between keys (the character strings "a", "b", ...) and values (on the right hand side of the colon). A value can be:
+The top-level object is delimited by the outermost pair of braces. It is an associative map between keys (the character strings "a", "b", ...) and values (on the right-hand side of the colon). A value can be:
 
 - a primitive type such as a number (the value of "a"), a Boolean (the value of "d") or a character string (the value of "f");
 - a list of primitive types (the value of "b") or of other JSON objects (the value of "e"); lists are denoted by square brackets;
@@ -1044,7 +1044,7 @@ class ca.uqac.lif.json.JsonNull
 
 If the parsing fails, such as when the input string is not properly formatted, the function outputs a special `JsonElement` called `JsonNull`, as can be observed in the second line of output.
 
-`JsonElement` is actually an umbrella class to designate a generic JSON object. In reality, the object returned by the parsing function will belong to one of the descendents of this class, namely:
+`JsonElement` is actually an umbrella class to designate a generic JSON object. In reality, the object returned by the parsing function will belong to one of the descendants of this class, namely:
 
 - `JsonMap` if the parsed string corresponds to an associative map
 - `JsonList` if the parsed string corresponds to a list
@@ -1162,7 +1162,7 @@ System.out.println(
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/xml/XPathExample.java#L32)
 
 
-We take a few shortcuts in this excerpt: since `XPathFunction` is a descendent of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
+We take a few shortcuts in this excerpt: since `XPathFunction` is a descendant of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
 
 ```
 [123]
@@ -1170,7 +1170,7 @@ We take a few shortcuts in this excerpt: since `XPathFunction` is a descendent o
 [<c>15</c>]
 ```
 
-The result of the first path is straightforward; however, note the use of `text()` at the end of the path. This indicates to extract the textual content inside the last element. Hence, instead of returning `<d>123</d>` the expression simply returns `123`. It is important to know that `123` is not a `String` object; since the result of an XPath expression is always a collection of `XmlElement`s, the value is encased in a special descendent of this class, called `TextElement`. The textual value that this element contains can be queried using method `toString()`.
+The result of the first path is straightforward; however, note the use of `text()` at the end of the path. This indicates to extract the textual content inside the last element. Hence, instead of returning `<d>123</d>` the expression simply returns `123`. It is important to know that `123` is not a `String` object; since the result of an XPath expression is always a collection of `XmlElement`s, the value is encased in a special descendant of this class, called `TextElement`. The textual value that this element contains can be queried using method `toString()`.
 
 The meaning of the second path expression (`doc/a/b`) should be interpreted as: "get all the elements named `<b>` that are inside an element named `<a>`, itself inside an element named `<doc>`". There are indeed two such elements in the input document, but note that the two `<b>`'s do not need to have the same parent `<a>`.
 
@@ -1204,7 +1204,7 @@ Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}
 
 Given an XML document *x* as input, the quantifier:
 
-- evalutes function *d* on this document; in this case, it produces a set of numbers corresponding to all the values inside a `<b>` tag;
+- evaluates function *d* on this document; in this case, it produces a set of numbers corresponding to all the values inside a `<b>` tag;
 - for each number *n*, it creates a new copy of *f*, associates the value *n* to a context key called *z*, and evaluates *f*(*x*);
 - it finally computes the logical conjunction of all the returned values.
 
@@ -1237,7 +1237,7 @@ As an extra, try to make your processor chain so that the amount of smoothing ca
 
 2. Modify the second Moore machine example so that the machine outputs the *cumulative* number of times `hasNext()` has been received when `next` is the current input event, and nothing the rest of the time.
 
-3. Create a processor chain whose input events are sets of strings. The chain should return `true` if an event has at least one string of the same length than another one in the previous event, and `false` otherwise.
+3. Create a processor chain whose input events are sets of strings. The chain should return `true` if an event has at least one string of the same length as another one in the previous event, and `false` otherwise.
 
 4. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the program of Machine A on a computer, and the program of Machine B on a different one. What do you need to change for the communication to succeed?
 

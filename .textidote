@@ -1,0 +1,3 @@
+--dict dict.txt
+--check en_CA
+--ignore lt:en:EN_QUOTES

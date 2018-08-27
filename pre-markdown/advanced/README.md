@@ -25,7 +25,7 @@ We first create a `QueueSource` as usual; note that this time, each event in the
 
 {@img doc-files/util/BagsContains.png}{A first event stream with a more complex data structure.}{.6}
 
-This drawing introduces the "polka dot" pattern. The base color to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is not known or may vary, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
+This drawing introduces the "polka dot" pattern. The base colour to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is not known or may vary, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
 
 As expected, the output of the program is:
 
@@ -36,7 +36,7 @@ false
 true
 ```
 
-The `Bags` class also provides a function called {@link jdc:ca.uqac.lif.cep.util.Bags.ApplyToAll ApplyToAll}. This function is intantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
+The `Bags` class also provides a function called {@link jdc:ca.uqac.lif.cep.util.Bags.ApplyToAll ApplyToAll}. This function is instantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
 
 {@snipm util/BagsFunctions.java}{1}
 
@@ -145,7 +145,7 @@ The {@link jdc:ca.uqac.lif.cep.util.Lists.Unpack Unpack} processor is the exact 
 
 {@img doc-files/util/UnpackExample.png}{Unpacking events from a stream of lists using the `Unpack` processor.}{.6}
 
-Of course, putting an <!--\index{Lists@\texttt{Lists}!Unpack@\texttt{Unpack}} \texttt{Unpack}-->`Unpack`<!--/i--> processor next to a `Pack` processor will recreate the original stream. This means that the following procsesor chain is equivalent to a `Passthrough` processor on the stream of numbers 3, 1, 4, ...
+Of course, putting an <!--\index{Lists@\texttt{Lists}!Unpack@\texttt{Unpack}} \texttt{Unpack}-->`Unpack`<!--/i--> processor next to a `Pack` processor will recreate the original stream. This means that the following processor chain is equivalent to a `Passthrough` processor on the stream of numbers 3, 1, 4, ...
 
 {@img doc-files/util/PackUnpack.png}{Chaining a `Pack` and an `Unpack` processor.}{.6}
 
@@ -254,7 +254,7 @@ Exception in thread "main" java.util.NoSuchElementException
 
 ## Basic input/output
 
-So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somehwere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
+So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somewhere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
 
 ### Reading from a file
 
@@ -268,7 +268,7 @@ Consider for example a text <!--\index{file!reading from} files-->file<!--/i--> 
     9
     2.2
 
-The {@link jdc:ca.uqac.lif.cep.io.ReadLines ReadLines} processor takes a Java <!--\index{InputStream@\texttt{InputStream}} \texttt{InputStream}-->`InputStream`<!--/i-->, and returns as its output events each text line that can be extracted from that stream. Pulling from a <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor is then straightfoward:
+The {@link jdc:ca.uqac.lif.cep.io.ReadLines ReadLines} processor takes a Java <!--\index{InputStream@\texttt{InputStream}} \texttt{InputStream}-->`InputStream`<!--/i-->, and returns as its output events each text line that can be extracted from that stream. Pulling from a <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor is then straightforward:
 
 {@snipm io/LineReaderExample.java}{/}
 
@@ -298,13 +298,13 @@ The processor chain in this program can be represented as follows:
 
 {@img doc-files/io/LineReaderExample.png}{Reading lines from a text file with `ReadLines`.}{.6}
 
-This diagram introduces two new elements. First, the `ReadLines` processor is a box with a white sheet as its pictogram. As expected, the processor has one output pipe, which is painted in purple --the color that represents streams of `String` objects. Second, the processor seems to have an input pipe, but of a different shape than the ones we have seen earlier. This symbol does *not* represent a pipe, as can be confirmed by the fact that the input arity of `ReadLines` is zero. The funnel-shaped symbol rather represents a Java `InputStream` object. As we know, an `InputStream` can refer to an arbitrary source of bytes: a file, a network connection, and so on. Therefore, this symbol is intended to indicate that the line reader takes its source of bytes from some outside source --more precisely, from something that is not a BeepBeep processor. BeepBeep's square pipes cannot be connected into funnels, and vice-versa. The light-green color of the funnel indicates that the input stream provides raw bytes to the reader. The leftmost diskette symbol indicates that this particular input stream is connected to a file source.
+This diagram introduces two new elements. First, the `ReadLines` processor is a box with a white sheet as its pictogram. As expected, the processor has one output pipe, which is painted in purple --the colour that represents streams of `String` objects. Second, the processor seems to have an input pipe, but of a different shape than the ones we have seen earlier. This symbol does *not* represent a pipe, as can be confirmed by the fact that the input arity of `ReadLines` is zero. The funnel-shaped symbol rather represents a Java `InputStream` object. As we know, an `InputStream` can refer to an arbitrary source of bytes: a file, a network connection, and so on. Therefore, this symbol is intended to indicate that the line reader takes its source of bytes from some outside source --more precisely, from something that is not a BeepBeep processor. BeepBeep's square pipes cannot be connected into funnels, and vice-versa. The light-green colour of the funnel indicates that the input stream provides raw bytes to the reader. The leftmost diskette symbol indicates that this particular input stream is connected to a file source.
 
 ### Reading from the standard input
 
 As we have seen earlier, we can read lines from a source of text by passing an `InputStream` to a `ReadLines` processor. However, it is possible to read from arbitrary streams of bytes, and in particular from the special system stream called the <!--\index{standard input} \textbf{standard input}-->**standard input**<!--/i-->. The standard input is an implicit stream that every running program has; external processes can connect to this stream and send bytes that the program can then read.
 
-In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. We could pass it to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read abitrary chunks of characters. This can be done using another processor called {@link jdc:ca.uqac.lif.cep.io.ReadStringStream ReadStringStream}. The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
+In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. We could pass it to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read arbitrary chunks of characters. This can be done using another processor called {@link jdc:ca.uqac.lif.cep.io.ReadStringStream ReadStringStream}. The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
 
 {@snipm io/ReadStdin.java}{/}
 
@@ -364,7 +364,7 @@ A `StreamReader` processor connected to this file will output events in the form
     x,jumps,o
     ver,...
 
-As you can see, words can be cut across two successive chunks, and a single chunk may contain more than one word. Extra work must be done in order to reconstruct words out of these events: this involves glueing together some events, and cutting the strings to re-align them with the comma delimiters. In other words, we need to re-create "tokens" out of the sequence of strings, through a process that we call <!--\index{tokenization} \textbf{tokenization}-->**tokenization**<!--/i-->.
+As you can see, words can be cut across two successive chunks, and a single chunk may contain more than one word. Extra work must be done in order to reconstruct words out of these events: this involves gluing together some events, and cutting the strings to re-align them with the comma delimiters. In other words, we need to re-create "tokens" out of the sequence of strings, through a process that we call <!--\index{tokenization} \textbf{tokenization}-->**tokenization**<!--/i-->.
 
 BeepBeep's {@link jdc:ca.uqac.lif.cep.util.FindPattern FindPattern} can be used for this purpose. The <!--\index{FindPattern@\texttt{FindPattern}} \texttt{FindPattern}-->`FindPattern`<!--/i--> processor receives pieces of text as its input, and produces for its output the portions of the text that match a specific <!--\index{regular expression} \emph{regular expression}-->*regular expression*<!--/i--> as individual events. (A regular expression --"regex" for short-- is a way of specifying a pattern of characters that is commonly used in programming.)
 
@@ -408,7 +408,7 @@ jkl
 
 ### Reading from an HTTP request
 
-Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The {@link jdc:ca.uqac.lif.cep.io.HttpGet HttpGet} processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls an URL every 10 seconds and prints the response to the console.
+Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The {@link jdc:ca.uqac.lif.cep.io.HttpGet HttpGet} processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls a URL every 10 seconds and prints the response to the console.
 
 {@snipm io/ReadHttp.java}{/}
 
@@ -583,7 +583,7 @@ An `ApplyFunction` processor is created, and an association between the key "foo
 10,13,
 ```
 
-Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
+Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence, the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
 
 ## Duplicating processors
 
@@ -633,7 +633,7 @@ f2: 11
 
 This shows that the value of "foo" (10) has been transferred over from `f1` to its duplicate `f2`. From then on, `f1` and `f2` have separate context objects; changing the value of "foo" in `f1`'s context has no effect on `f2`, and vice versa. Keep in mind that duplication is like any other processor instantiation, and that the duplicated processor always has a distinct numerical ID, regardless of everything else.
 
-### Stateful dupliction
+### Stateful duplication
 
 It is also possible to duplicate a processor *and* its state at the same time. To this end, method `duplicate` accepts an optional Boolean argument; if set to `true`, this will instruct to create a copy of the process, and to place that processor in the same state as the original (instead of its initial state). Let us examine the difference by revisiting our original example on duplication, and adding the parameter `true` to the call to `duplicate`:
 
@@ -658,7 +658,7 @@ To make things more concrete, let us examine this code example:
 
 {@snipm basic/DuplicateGroup.java}{/}
 
-We first create a `GroupProcessor` that encapsulates a `Stutter` processor conntected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2). We then connect this group to an upstream source of numbers, and proceed to pull one event out of this chain. Without surprise, the output that is printed at the console is `3`.
+We first create a `GroupProcessor` that encapsulates a `Stutter` processor connected to a `Cumulate`. The `Stutter` processor simply repeats each input event a specified number of times (here, 2). We then connect this group to an upstream source of numbers, and proceed to pull one event out of this chain. Without surprise, the output that is printed at the console is `3`.
 
 The next part of the program will duplicate `gp1` into `gp2`, connect it to a new upstream source of numbers, and pull one event from `gp2`:
 
@@ -722,19 +722,19 @@ This figure provides graphical evidence that, under the assumption that each cal
 
 As we have already seen, the `Slice` is a 1:1 processor that separates an input trace into different "slices". It takes as input a processor *P* and a function *f*, called the *slicing function*. There exists potentially one instance of *P* for each value in the image of *f*. We know that the function *f* may return a special value `#`, indicating that no new slice must be created, but that the incoming event must be dispatched to *all* slices. In this latter case, a task similar to the `Window` processor can be done: each slice is put in a separate thread, so that it can process the input event in parallel with the others.
 
-### Pre-emptive Pulling
+### Preemptive Pulling
 
-A second strategy consists of continuously <!--\index{pre-emptive pulling} pulling-->pulling<!--/i--> for new outputs on a processor *P*, and storing these events in a queue. When a downstream processor *P'* calls *P*'s `pull()` method, the next event is simply popped from that queue, rather than being computed on-the-fly. If *P'* is running in a different thread from the process that polls *P*, each can compute a new event at the same time.
+A second strategy consists of continuously <!--\index{preemptive pulling} pulling-->pulling<!--/i--> for new outputs on a processor *P*, and storing these events in a queue. When a downstream processor *P'* calls *P*'s `pull()` method, the next event is simply popped from that queue, rather than being computed on-the-fly. If *P'* is running in a different thread from the process that polls *P*, each can compute a new event at the same time.
 
 The following figure shows the processing of an event when done in a sequential manner. A call to `pull()` on *Q* results in a pull on *P*, which produces some output event *e*. This event is then processed by *Q*, which produces some other output *e'*. If *TP* and *TQ* correspond to the computation times of *P* and *Q*, respectively, then the total time to fetch each event from *Q* is their sum, *TP* + *TQ*.
 
-{@img ppull-sequential.png}{Sequence diagram where no pre-emptive occurs.}{.6}
+{@img ppull-sequential.png}{Sequence diagram where no preemptive occurs.}{.6}
 
-On the contrary, the following figure shows the same process, with pre-emptive pulling on *P* occurring in a separate thread. One can see that in this case, *P* produces a new output event while *Q* is busy doing its computation on the previous one. The first output event still takes *TP* + *TQ* time units to be produced, but later ones can be retrieved in max{*TP*, *TQ*}.
+On the contrary, the following figure shows the same process, with preemptive pulling on *P* occurring in a separate thread. One can see that in this case, *P* produces a new output event while *Q* is busy doing its computation on the previous one. The first output event still takes *TP* + *TQ* time units to be produced, but later ones can be retrieved in max{*TP*, *TQ*}.
 
-{@img ppull-sequential.png}{Sequence diagram where W performs pre-emptive pulling on *P* in a separate thread.}{.6}
+{@img ppull-sequential.png}{Sequence diagram where W performs preemptive pulling on *P* in a separate thread.}{.6}
 
-In a manner similar to the `NonBlockingProcessor`, pre-emptive pulling is enabled by enclosing a group of processors inside a `PullGroup`. This processor behaves like a `GroupProcessor`: a set of connected processors can be added to the group, and this group can then be manipulated, piped and copied as if it were a single "black box". The difference is that a call to the `start()` method of a `PullGroup` creates a new thread where the repeated polling of its outputs occurs. To avoid needlessly producing too many events that are not retrieved by downstream calls to `pull()`, the polling stops when the queue reaches a predefined size; polling resumes when some events of that queue are finally pulled. As with the other constructs presented in this paper, the `PullGroup` takes into account the possibility that no thread is available; in such a case, output events are computed only upon request, like the regular `GroupProcessor`.
+In a manner similar to the `NonBlockingProcessor`, preemptive pulling is enabled by enclosing a group of processors inside a `PullGroup`. This processor behaves like a `GroupProcessor`: a set of connected processors can be added to the group, and this group can then be manipulated, piped and copied as if it were a single "black box". The difference is that a call to the `start()` method of a `PullGroup` creates a new thread where the repeated polling of its outputs occurs. To avoid needlessly producing too many events that are not retrieved by downstream calls to `pull()`, the polling stops when the queue reaches a predefined size; polling resumes when some events of that queue are finally pulled. As with the other constructs presented in this paper, the `PullGroup` takes into account the possibility that no thread is available; in such a case, output events are computed only upon request, like the regular `GroupProcessor`.
 
 In our analysis of computing time, we can see that the speed gain is maximized when *TP* = *TQ*; otherwise, either *P* produces events faster than *Q* can consume them (*TP* < *TQ*), or *Q* wastes time waiting for the output of *P* (*TQ* > *TP*). Therefore, an important part of using this strategy involves breaking a processor graph into connected regions of roughly equal computing load.
 
@@ -748,7 +748,7 @@ Note that, once the e1 processor is discarded, there is now room for creating a 
 
 {@img pipeline-parallel.png}{Sequence diagram with pipelining: *P* pulls multiple events from *S* and evaluates each of them on a copy of *P* in a separate thread}{.6}
 
-Although pipelining borrows features from both pre-emptive pulling and non-blocking pull, it is actually distinct from these two techniques. As in non-blocking pull, it sends input events in parallel to multiple copies of a processor; however, rather than sending the same event to multiple, independent instances of *P*, it sends events that should be processed in sequence by a single processor instance each to a distinct copy of *P* and collects their result. In the sequence e1 e2 ..., this means that one copy of *P* processes the subtrace e1, while another one processes (in parallel) the subtrace e2, and so on.
+Although pipelining borrows features from both preemptive pulling and non-blocking pull, it is actually distinct from these two techniques. As in non-blocking pull, it sends input events in parallel to multiple copies of a processor; however, rather than sending the same event to multiple, independent instances of *P*, it sends events that should be processed in sequence by a single processor instance each to a distinct copy of *P* and collects their result. In the sequence e1 e2 ..., this means that one copy of *P* processes the sub-trace e1, while another one processes (in parallel) the sub-trace e2, and so on.
 
 Obviously, this "trick" does not guarantee the correct result on all processors, as some of them have an output that depends on the complete trace. 
 As a simple example, one can consider the processor that computes the cumulative sum of all input events; it is clear that pipelining this processor will return an incorrect result, as each copy of the processor will receive (and hence add) a unique event of the input trace.
@@ -776,7 +776,7 @@ Note how adding multi-threading to this example involves very minimal modificati
 
 This observation brings us to the second important benefit of this architecture: multi-threaded code remains very localized. For example, the `Window` processor does not contain any special code to handle multi-threading; the same can be said of all other processor objects. Hence a user is not required to take multi-threading into account when writing a new, custom processor. Parallelism occurs only by virtue of enclosing some processor instances inside thread-aware wrappers.
 
-In counterpart, the current implementation of multi-threading in BeepBeep requires the user to explicitly define the regions of a query graph that are to be executed using multiple threads. This requires some knowledge of the underlying computations that are being executed in various parts of the query, and some intuition as to which of them could best benefit from the availability of more than one thread. Doing so improperly can actually turn out to be detrimental to the overall throughput of the system. It shall be noted that this issue is not specific to BeepBeep, and that the automated fine tuning of parallelism in query evaluation is a long-standing research problem. As an anecdotal proof, Oracle devotes a whole chapter of its documentation on intricate tuning tips for the evaluation of SQL queries (see `http://docs.oracle.com/cd/A84870_01/doc/server.816/a76994/tuningpe.htm`). Readers should not expect that BeepBeep, or any other monitor system, could transparently (one might say magically) setup threads in the best way for all possible queries.
+In counterpart, the current implementation of multi-threading in BeepBeep requires the user to explicitly define the regions of a query graph that are to be executed using multiple threads. This requires some knowledge of the underlying computations that are being executed in various parts of the query, and some intuition as to which of them could best benefit from the availability of more than one thread. Doing so improperly can actually turn out to be detrimental to the overall throughput of the system. It shall be noted that this issue is not specific to BeepBeep, and that the automated fine-tuning of parallelism in query evaluation is a long-standing research problem. As an anecdotal proof, Oracle devotes a whole chapter of its documentation on intricate tuning tips for the evaluation of SQL queries (see `http://docs.oracle.com/cd/A84870_01/doc/server.816/a76994/tuningpe.htm`). Readers should not expect that BeepBeep, or any other monitor system, could transparently (one might say magically) setup threads in the best way for all possible queries.
 
 ## Exercises
 
