@@ -1198,7 +1198,7 @@ The second line of code creates another function *f*, which checks that the valu
 
 Let us assume that the input documents always have a single `<c>` element inside an `<a>`. Therefore, the result of the expression will always be a *singleton*: a set with exactly one element. We can take this element out of the set by applying the `Bags` function <!--\index{Bags@\texttt{Bags}!AnyElement@\texttt{AnyElement}} \texttt{AnyElement}-->`AnyElement`<!--/i-->, which picks an arbitrary element of a collection. The element is then cast into a number; this is the value that is compared to *x* in the topmost `IsLessThan` function.
 
-Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> quantifier. Graphically, this can be represented in the following figure:
+Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> quantifier. Graphically, this can be represented in the following figure; the parts of the image that correspond to functions *d* and *f* have been identified.
 
 ![Using an XPath expression inside a quantifier](ContextExample.png)
 
