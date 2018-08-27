@@ -751,18 +751,44 @@ However, there may be multiple elements of the same name; for example, the path 
 We take a few shortcuts in this excerpt: since `XPathFunction` is a descendent of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
 
 ```
-[<d>123</d>]
+[123]
 [<b>1</b>, <b>2</b>]
 [<c>15</c>]
 ```
 
-The result of the first path is straightforward; the latter two warrant further explanation. The meaning of the second path expression (`doc/a/b`) should be interpreted as: "get all the elements named `<b>` that are inside an element named `<a>`, itself inside an element named `<doc>`". There are indeed two such elements in the input document, but note that the two `<b>`'s do not need to have the same parent `<a>`.
+The result of the first path is straightforward; however, note the use of `text()` at the end of the path. This indicates to extract the textual content inside the last element. Hence, instead of returning `<d>123</d>` the expression simply returns `123`. It is important to know that `123` is not a `String` object; since the result of an XPath expression is always a collection of `XmlElement`s, the value is encased in a special descendent of this class, called `TextElement`. The textual value that this element contains can be queried using method `toString()`.
+
+The meaning of the second path expression (`doc/a/b`) should be interpreted as: "get all the elements named `<b>` that are inside an element named `<a>`, itself inside an element named `<doc>`". There are indeed two such elements in the input document, but note that the two `<b>`'s do not need to have the same parent `<a>`.
 
 Finally, the third path expression introduces a special notation called a *predicate*, written inside brackets. A predicate is an additional condition on an element, which must be true for this element to be considered in the path. In this example, the condition is that element `a` must have a child called `b` whose textual contents is the value `2`. Therefore, the path expression can be interpreted as: "get all the elements named `<c>` that are inside an element named `<a>` which has a child `<b>` containing value 2, and which is inside an element named `<doc>`. There is indeed a single element satisfying this condition in the document, which is `<c>15</c>`.
 
-Again, the purpose of this section is not to provide an in-depth reference on XML or XPath, which turns out to be a full-fledged query language for XML documents (BeepBeep's palette supports only the basic functionalities of XPath). A last remark must be made on the fact that predicates can contain references to values fetched from a <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i--> object. The name of a context key is prefixed by a dollar sign. This is exemplified by the following function tree:
+Again, the purpose of this section is not to provide an in-depth reference on XML or XPath, which turns out to be a full-fledged query language for XML documents (BeepBeep's palette supports only the basic functionalities of XPath). A last remark must be made on the fact that predicates can contain references to values fetched from a <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i--> object. The name of a context key is prefixed by a dollar sign. This is exemplified by the following code:
+
+{@snipm xml/ContextExample.java}{/}
+
+We first create a function *d* that extracts elements according to the XPath expression `doc/a/b/text()`; this produces a set of `TextElement`s. We then call the `Bags` function <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i-->, which is instructed to cast the elements of the set into `Number`s (by applying <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{NumberCast}-->`NumberCast`<!--/i--> on each of them). The end result is that *d* takes as input an XML document, and returns (as numbers) the set of all values found inside a `<b>` tag.
+
+The second line of code creates another function *f*, which checks that the value of a context variable called *x* is less than another expression on the right-hand side. This expression evaluates the XPath expression `doc/a[b=$z]/c/text()`; note the presence of `$z` in the predicate, which is expected to be replaced by the value of *z* in the current context at the moment the function is evaluated. As before, this expression returns a set of `TextElement`s.
+
+Let us assume that the input documents always have a single `<c>` element inside an `<a>`. Therefore, the result of the expression will always be a *singleton*: a set with exactly one element. We can take this element out of the set by applying the `Bags` function <!--\index{Bags@\texttt{Bags}!AnyElement@\texttt{AnyElement}} \texttt{AnyElement}-->`AnyElement`<!--/i-->, which picks an arbitrary element of a collection. The element is then cast into a number; this is the value that is compared to *x* in the topmost `IsLessThan` function.
+
+Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> quantifier. Graphically, this can be represented in the following figure; the parts of the image that correspond to functions *d* and *f* have been identified.
 
 {@img doc-files/xml/ContextExample.png}{Using an XPath expression inside a quantifier}{.6}
+
+Given an XML document *x* as input, the quantifier:
+
+- evalutes function *d* on this document; in this case, it produces a set of numbers corresponding to all the values inside a `<b>` tag;
+- for each number *n*, it creates a new copy of *f*, associates the value *n* to a context key called *z*, and evaluates *f*(*x*);
+- it finally computes the logical conjunction of all the returned values.
+
+Informally, object `fa` evaluates the condition: "inside a document, the value of every `<b>` tag is less than the value of the `<c>` tag that is located under the same `<a>` parent". We can try this function on a simple document:
+
+{@snipm xml/ContextExample.java}{/}
+
+The result produced by `fa` is `true`, as expected. As an exercise, try replacing `2` by `20` in the second `<b>` tag; you shall see that the quantifier returns the value `false`.
+
+This last example was slightly more involved. However, it gives a foretaste of the wide range of capabilities that become available when one starts mixing objects from multiple palettes. The next chapter shall push the envelope even further on this respect.
 
 ## Exercises
 
