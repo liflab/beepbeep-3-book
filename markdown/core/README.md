@@ -273,6 +273,49 @@ Let's now push an event to the input of the fork and see what happens. We should
 
 The three lines should be printed almost instantaneously. This shows that all three print processors received their input event at the "same" time. This is not exactly true: the fork processor pushes the event to each of its outputs in sequence; however, since the time it takes to do so is so short, we can consider this to be instantaneous.
 
+An important thing to keep in mind is that the fork, like almost all other BeepBeep processors, passes **references** to objects. In the previous example, the output events that are sent out are just three references to the same input event. This can cause bizarre side effects if the input event is a <!--\index{mutable object} mutable-->mutable<!--/i--> object, and one of the downstream branches modifies that object. Consider a modified version of the previous example, as follows:
+
+``` java
+Fork fork = new Fork(3);
+Print p0 = new Print().setSeparator("\n").setPrefix("P0 ");
+Print p1 = new Print().setSeparator("\n").setPrefix("P1 ");
+Print p2 = new Print().setSeparator("\n").setPrefix("P2 ");
+Processor rf = new RemoveFirst();
+Connector.connect(fork, 0, p0, INPUT);
+Connector.connect(fork, 1, rf, INPUT);
+Connector.connect(rf, p1);
+Connector.connect(fork, 2, p2, INPUT);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ForkMutable.java#L50)
+
+
+The difference lies in the fact that a special processor called `RemoveFirst` has been introduced between the fork's second output branch and the second `Print` processor. Let us suppose that this processor removes the first element of the list it receives and returns that list. This can be illustrated like this:
+
+![Pushing a mutable object into a fork and modifying that object in one of the downstream branches.](ForkMutable.png)
+
+Let us now create a list and push it into the fork:
+
+``` java
+Pushable p = fork.getPushableInput();
+List<Number> list = new ArrayList<Number>();
+list.add(3); list.add(1); list.add(4);
+p.push(list);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/ForkMutable.java#L72)
+
+
+The output of this program is:
+
+```
+P0 [3, 1, 4]
+P1 [1, 4]
+P2 [1, 4]
+```
+
+Notice how, this time, the `Print` processors do not all print the same thing. The input list `[3,1,4]` is first pushed into `p0`, which produces the first line of output. The list is then pushed into `rf`, which removes the first element of that list, and passes it to `p1`, which prints the second line of the output. The surprise is on the third line of output, as we would expect `p2` to receive the input list `[3,1,4]`. However, since elements are passed by reference, processor `p2` is given a reference to the input list; it so happens that this list has been modified by `rf` just before, and is no longer in the same state as when it was pushed to the fork at the beginning of the program.
+
+We do not recommend exploiting this side effect in your BeepBeep programs; although the fork seems to push events from top to bottom, the ordering is in fact undefined and should not be taken for granted. Most BeepBeep processors that are specific to mutable objects such as lists or sets take care of creating and returning a *copy* of the original object to avoid such unwanted behaviour (`RemoveFirst` is an exception, which was crafted only for this example). However, one must still be careful when passing around mutable objects that are referenced from multiple points in a program --as is the case in Java programming in general.
+
 ## Cumulate values
 
 A variant of the function processor is the [`Cumulate`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/Cumulate.html) processor. Contrary to all the processors we have seen so far, which are stateless, <!--\index{Cumulate@\texttt{Cumulate}} \texttt{Cumulate}-->`Cumulate`<!--/i--> is our first example of a <!--\index{stateful processor} \textbf{stateful}-->**stateful**<!--/i--> processor: this means that the output it returns for a given event depends on what it has output in the past. In other words, a stateful processor has a "memory", and the same input event may produce different outputs. 

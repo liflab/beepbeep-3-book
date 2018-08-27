@@ -1153,7 +1153,7 @@ ParseXml.instance.evaluate(new Object[]{
         + "</doc>"}, out);
 XmlElement x = (XmlElement) out[0];
 System.out.println(
-    new XPathFunction("doc/d").getValue(x));
+    new XPathFunction("doc/d/text()").getValue(x));
 System.out.println(
     new XPathFunction("doc/a/b").getValue(x));
 System.out.println(
@@ -1189,7 +1189,7 @@ FunctionTree f = new FunctionTree(Numbers.isLessThan,
             new XPathFunction("doc/a[b=$z]/c/text()"))));
 ForAll fa = new ForAll("z", d, f);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/xml/ContextExample.java#L38)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/xml/ContextExample.java#L37)
 
 
 We first create a function *d* that extracts elements according to the XPath expression `doc/a/b/text()`; this produces a set of `TextElement`s. We then call the `Bags` function <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i-->, which is instructed to cast the elements of the set into `Number`s (by applying <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{NumberCast}-->`NumberCast`<!--/i--> on each of them). The end result is that *d* takes as input an XML document, and returns (as numbers) the set of all values found inside a `<b>` tag.
@@ -1221,7 +1221,7 @@ FunctionTree f = new FunctionTree(Numbers.isLessThan,
             new XPathFunction("doc/a[b=$z]/c/text()"))));
 ForAll fa = new ForAll("z", d, f);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/xml/ContextExample.java#L38)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/xml/ContextExample.java#L37)
 
 
 The result produced by `fa` is `true`, as expected. As an exercise, try replacing `2` by `20` in the second `<b>` tag; you shall see that the quantifier returns the value `false`.
