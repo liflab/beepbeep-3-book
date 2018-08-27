@@ -241,7 +241,7 @@ There exists a variant of `ForAll` that uses an auxiliary function to compute th
 
 #### `Fork`
 
-@palette Core@ <!--\index{Fork@\texttt{Fork}} A-->A<!--/i--> `Processor` that dupl	icates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
+@palette Core@ <!--\index{Fork@\texttt{Fork}} A-->A<!--/i--> `Processor` that duplicates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
 
 {@img images/tmf/Fork.png}{Fork}{.6}
 
