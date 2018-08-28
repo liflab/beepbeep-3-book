@@ -1,7 +1,7 @@
 Fundamental processors and functions
 ====================================
 
-BeepBeep is organized along a modular architecture. The main part of BeepBeep is called the *engine*, which provides the basic classes for creating processors and functions, and contains a handful of general-purpose processors for manipulating traces. The rest of BeepBeep's functionalities is dispersed across a number of *palettes*. In this chapter, we describe the basic processors and functions provided by BeepBeep's engine.
+BeepBeep is organized along a modular architecture. The main part of BeepBeep is called the *engine*, which provides the basic classes for creating processors and functions, and contains a handful of general-purpose processors for manipulating traces. BeepBeep's remaining functionalities are dispersed across a number of *palettes*. In this chapter, we describe the basic processors and functions provided by BeepBeep's engine.
 
 ## Function objects
 
@@ -13,7 +13,7 @@ Function objects can be instantiated and manipulated directly. The BeepBeep clas
 
 The first instruction gets a reference to a `Function` object, corresponding to the static member field `not` of class `Booleans`. This field refers to an instance of a function called {@link jdc:ca.uqac.lif.cep.util.Booleans.Negation Negation}. As a matter of fact, this is the only way to get an instance of <!--\index{Booleans@\texttt{Booleans}Not@\texttt{Not}} \texttt{Negation}-->`negation`<!--/i-->: its constructor is declared as `private`, which makes it impossible to create a new instance of the object using `new`. This is done on purpose, so that only one instance of `Negation` ever exists in a program --effectively making `Negation` a <!--\index{singleton} \emph{singleton}-->*singleton*<!--/i--> object. We shall see that the vast majority of `Function` objects are singletons, and are referred to using a static member field of some other object.
 
-In order to perform a computation, every function defines a method called {@link jdm:ca.uqac.lif.cep.functions.Function#evaluate(Object[], Object[]) evaluate()}. This method takes two arguments; the first is an array of objects, corresponding to the input values of the function. The second is another array of objects, intended to receive the output values of the function. Hence, like for a processor, a function also has an input arity and an output arity.
+In order to perform a computation, every function defines a method called {@link jdm:ca.uqac.lif.cep.functions.Function#evaluate(Object[], Object[]) evaluate()}. This method takes two arguments; the first is an array of objects, corresponding to the input values of the function. The second is another array of objects, intended to receive the output values of the function. Hence, as for a processor, a function also has an input arity and an output arity.
 
 For function `Negation`, both are equal to one: the negation takes one Boolean value as its argument, and returns the negation of that value. The second line of the example creates an array of size 1 to hold the return value of the function. Line 3 calls `evaluate`, with the Boolean value `true` used as the argument of the function. Finally, line 4 prints the result:
 
@@ -37,17 +37,17 @@ The first instruction creates a new instance of another `Function` object, this 
 
 ## Applying a function on a stream
 
-A function is a "static" object: a call to `evaluate` receives a single set of arguments, computes a return value, and ends. In many cases, it may be desirable to apply a function to each event of a stream. In other words, we would like to "turn" a function into a processor that applies this function. The processor responsible for this is called {@link jdc:ca.uqac.lif.cep.functions.ApplyFunction ApplyFunction}. When instantiated, <!--\index{ApplyFunction@\texttt{ApplyFunction}} \texttt{ApplyFunction}-->`ApplyFunction`<!--/i--> must be given a `Function` object; it calls this function's `evaluate` on each input event, and returns the result on its output pipe.
+A function is a "static" object: a call to `evaluate` receives a single set of arguments, computes a return value, and ends. In many cases, it may be desirable to apply a function to each event of a stream. In other words, we would like to "turn" a function into a processor applying this function. The processor responsible for this is called {@link jdc:ca.uqac.lif.cep.functions.ApplyFunction ApplyFunction}. When instantiated, <!--\index{ApplyFunction@\texttt{ApplyFunction}} \texttt{ApplyFunction}-->`ApplyFunction`<!--/i--> must be given a `Function` object; it calls this function's `evaluate` on each input event, and returns the result on its output pipe.
 
 In the following bit of code, an `ApplyFunction` is created by applying the Boolean negation function to an input trace of Boolean values:
 
 {@snipm basic/SimpleFunction.java}{/}
 
-The first lines should be familiar to you at this point: they create a `QueueSource`, and give it a list of events to be fed upon request. In this case, we give the source a list of five Boolean values. In line 3, we create a new `ApplyFunction` processor, and give to its constructor the instance of the `Negation` function referred to by the static member field `Booleans.not`. Graphically, we can represent this as follows:
+The first lines should be familiar at this point: they create a `QueueSource`, and give it a list of events to be fed upon request. In this case, we give the source a list of five Boolean values. In line 3, we create a new `ApplyFunction` processor, and give to its constructor the instance of the `Negation` function referred to by the static member field `Booleans.not`. Graphically, they can be represented as follows:
 
 {@img doc-files/basic/SimpleFunction.png}{Applying a function on each input event transforms an input stream into a new output stream.}{.6}
 
-The `ApplyFunction` processor is represented by a box with a yellow *f* as its pictogram. This processor has an argument, which is the actual function it is asked to apply. By convention, function objects are represented by small rounded rectangles; the rectangle placed on the bottom side of the box represents the `Negation` function. Following the colour coding we introduced in the previous chapter, the stream we are manipulating is made of Boolean values; hence all pipes are painted in the blue-gray shade representing Booleans.
+The `ApplyFunction` processor is represented by a box with a yellow *f* as its pictogram. This processor has an argument, the actual function it is asked to apply. By convention, function objects are represented by small rounded rectangles; the rectangle placed on the bottom side of the box represents the `Negation` function. Following the colour coding we introduced in the previous chapter, the stream manipulated is made of Boolean values; hence all pipes are painted in the blue-gray shade representing Booleans.
 
 Calling `pull` on the `not` processor will return, as expected, the negation of the events given to the source. The program will print:
 
@@ -57,17 +57,17 @@ Calling `pull` on the `not` processor will return, as expected, the negation of 
     The event is: true
     The event is: false
 
-The input and output arity of the `ApplyFunction` matches that of the `Function` object given as its argument. Hence, a binary function will result in a binary processor. For example, the following code example computes the pairwise addition of numbers from two streams:
+The input and output arity of the `ApplyFunction` matches that of the `Function` object given as its argument. Hence, a binary function will result in a binary processor. For instance, the following code example computes the pairwise addition of numbers from two streams:
 
 {@snipm functions/FunctionBinary.java}{/}
 
-The reader may notice that this example is very similar to one we saw in the previous chapter. The difference lies in the fact that the original example used a special processor called `Adder` to perform the addition. Here, we use a generic `ApplyFunction` processor, to which the addition function is passed as a parameter. This difference is important: in the original case, there was no easy way to replace the addition by some other operation --apart from finding another purpose-built processor to do it. In the present case, changing the operation to some other binary function on numbers simply amounts to changing the function object given to `ApplyFunction`.
+The reader may notice that this example is very similar to one we saw in the previous chapter. The difference lies in the fact that the original example used a special processor called `Adder` to perform the addition. Here, a generic `ApplyFunction` processor is used, to which the addition function is passed as a parameter. This difference is important: in the original case, there was no easy way to replace the addition by some other operation --apart from finding another purpose-built processor to do it. In the present case, changing the operation to some other binary function on numbers simply amounts to changing the function object given to `ApplyFunction`.
 
 Function processors can be chained to perform more complex calculations, as is illustrated by the following code fragment:
 
 {@snipm functions/FunctionChain.java}{/}
 
-Here, we create three sources of numbers; events from the first two are added, and the result is multiplied by the event at the corresponding position in the third stream. The schema of such a program becomes more interesting:
+Here, three sources of numbers are created; events from the first two are added, and the result is multiplied by the event at the corresponding position in the third stream. The diagram of such a program becomes more interesting:
 
 {@img doc-files/functions/FunctionChain.png}{Chaining function processors.}{.6}
 
@@ -83,27 +83,27 @@ Indeed, (2+3)×1=5, (7+1)×1=8, (1+4)×2=10, and so on.
 
 ## Function trees
 
-In the previous example, if we name the three input streams *x*, *y* and *z*, the processor chain we created corresponds informally to the expression (*x*+*y*)×*z*. However, having to write each arithmetical operator as an individual processor can become tedious. After all, (*x*+*y*)×*z* is itself a function *f*(*x*,*y*,*z*) of three variables; isn't there a way to create a `Function` object corresponding to this expression, and to give *that* to a single `ApplyFunction` processor?
+In the previous example, if the three input streams were named *x*, *y* and *z*, the processor chain created corresponds informally to the expression (*x*+*y*)×*z*. However, having to write each arithmetical operator as an individual processor can become tedious. After all, (*x*+*y*)×*z* is itself a function *f*(*x*,*y*,*z*) of three variables; isn't there a way to create a `Function` object corresponding to this expression, and to give this expression to a single `ApplyFunction` processor?
 
-Fortunately, the answer is yes. It is possible to create complex functions by composing simpler ones, through the use of a special `Function` object called the {@link jdc:ca.uqac.lif.cep.functions.FunctionTree FunctionTree}. As its name implies, a <!--\index{FunctionTree@\texttt{FunctionTree}} \texttt{FunctionTree}-->`FunctionTree`<!--/i--> is exactly that: a tree structure whose nodes can either be:
+Fortunately, the answer is yes. It is possible to create complex functions by composing simpler ones, through the use of a special `Function` object called the {@link jdc:ca.uqac.lif.cep.functions.FunctionTree FunctionTree}. As its name implies, a <!--\index{FunctionTree@\texttt{FunctionTree}} \texttt{FunctionTree}-->`FunctionTree`<!--/i--> is effectively a tree structure whose nodes can either be:
 
-- a `Function` object;
-- another `FunctionTree`;
-- or a special type of variable, called a `StreamVariable`.
+- a `Function` object,
+- another `FunctionTree`; or
+- a special type of variable, called a `StreamVariable`.
 
 By nesting function trees within each other, it is possible to create complex expressions from simpler functions. As an example, let us revisit the previous program, and simplify the chain of `ApplyFunction` processors:
 
 {@snipm functions/FunctionTreeUsage.java}{/}
 
-After creating the three sources, we instantiate a new `FunctionTree` object. The first argument is the function at the root of the tree; in an expression using parentheses, this corresponds to the operator that is to be evaluated *last* (here, the multiplication). The number of arguments that follow is variable: it corresponds to the expressions that are the arguments of the operator. In our example, the left-hand side of the multiplication is itself a `FunctionTree`. The operator of this inner tree is the addition, followed by its two arguments. Since we want to add the events coming from the first and second streams, these arguments are two <!--\index{PullableException@\texttt{PullableException}} \texttt{PullableException}-->`PullableException`<!--/i--> objects. By convention, `StreamVariable.X` corresponds to input stream number 0, while `StreamVariable.Y` corresponds to input stream number 1. Finally, the right-hand side of the multiplication is `StreamVariable.Z`, which by convention corresponds to input stream number 2.
+After creating the three sources, we instantiate a new `FunctionTree` object. The first argument is the function at the root of the tree; in an expression using parentheses, this corresponds to the operator that is to be evaluated *last* (here, the multiplication). The number of arguments that follow is variable: it corresponds to the expressions that are the arguments of the operator. In the example provided, the left-hand side of the multiplication is itself a `FunctionTree`. The operator of this inner tree is the addition, followed by its two arguments. Since we want to add the events coming from the first and second streams, these arguments are two <!--\index{PullableException@\texttt{PullableException}} \texttt{PullableException}-->`PullableException`<!--/i--> objects. By convention, `StreamVariable.X` corresponds to input stream number 0, while `StreamVariable.Y` corresponds to input stream number 1. Finally, the right-hand side of the multiplication is `StreamVariable.Z`, which by convention corresponds to input stream number 2.
 
-This single-line instruction effectively created a new `Function` object with three arguments, which is then given to an `ApplyFunction` processor like any other function. Processor `exp` has an input arity of 3; we can connect all three sources directly into it: `source1` into input stream 0, `source2` into input stream 1, and `source3` into input stream 2. Graphically, this can be illustrated as follows:
+This single-line instruction effectively created a new `Function` object with three arguments, which is then given to an `ApplyFunction` processor like any other function. Processor `exp` has an input arity of 3; all three sources can directly be connected into it: `source1` into input stream 0, `source2` into input stream 1, and `source3` into input stream 2. Graphically, this can be illustrated as follows:
 
 {@img doc-files/functions/FunctionTreeUsage.png}{Chaining function processors.}{.6}
 
-As one can see, the single `ApplyFunction` processor is attached to a tree of functions, which corresponds to the object built by line 4. By convention, stream variables are represented by diamonds, with either the name of a stream variable (*x*, *y* or *z*), or equivalently with a number designating the input stream. Again, the colour of the nodes depicts the type of objects being manipulated. For the sake of clarity, in the remainder of the book, we will sometimes forego the representation of a function as a tree, and use an inline notation such as (*x*+*y*)×*z* to simplify the drawing.
+As one can see, the single `ApplyFunction` processor is attached to a tree of functions, which corresponds to the object built by line 4. By convention, stream variables are represented by diamond shapes, with either the name of a stream variable (*x*, *y* or *z*), or equivalently with a number designating the input stream. Again, the colour of the nodes depicts the type of objects being manipulated. In the rest of the book and for the sake of clarity, the representation of a function as a tree will sometimes be forsaken; an inline notation such as (*x*+*y*)×*z* will be used to simplify the drawing.
 
-Pulling events from `exp` will result in the same result as before:
+Pulling events from `exp` will result in a similar pattern as before:
 
     The event is: 5.0
     The event is: 8.0
@@ -111,31 +111,31 @@ Pulling events from `exp` will result in the same result as before:
     The event is: 27.0
     The event is: 45.0
 
-Note that a stream variable may appear more than once in a function tree. Hence an expression like (*x*+*y*)×(*x*+*z*) is perfectly fine.
+Note that a stream variable may appear more than once in a function tree. Hence, an expression such as (*x*+*y*)×(*x*+*z*) is perfectly fine.
 
 ## Forking a stream
 
 Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} split-->split<!--/i--> the original stream into multiple identical copies. This is the purpose of the {@link jdc:ca.uqac.lif.cep.tmf.Fork Fork} processor.
 
-As a first example, let us connect a queue source to create a fork processor that will replicate each input event in two output streams. The "2" passed as an argument to the fork's constructor signifies this.
+As a first example, let us connect a queue source to create a fork processor that will replicate each input event in two output streams. This is the meaning of the number 2 passed as an argument to the fork's constructor.
 
 {@snipm basic/ForkPull.java}{/}
 
 {@img doc-files/basic/ForkPull.png}{Pulling events from a fork.}{.6}
 
-We get Pullables on both outputs of the fork (`p0` and `p1`), and then pull a first event from `p0`. As expected, `p1` returns the first event of the source, which is the number 1:
+We get Pullables on both outputs of the fork (`p0` and `p1`), and then pull a first event from `p0`. As expected, `p1` returns the first event of the source, which is the `Number` 1:
 
     Output from p0: 1
 
-We then pull an event from `p1`. Surprisingly (perhaps), the output is:
+We then pull an event from `p1`. Surprisingly enough, the output is:
 
     Output from p1: 1
 
-...and not 2 as we might have expected. This can be explained by the fact that each input event in the fork is replicated to all its output pipes. The fact that we pulled an event from `p0` has no effect on `p1`, and vice versa. The independence between the fork's two outputs is further illustrated by this sequence of calls:
+...and not 2 as might have been expected. This can be explained by the fact that each input event in the fork is replicated to all its output pipes. The fact that we pulled an event from `p0` has no effect on `p1`, and vice versa. The independence between the fork's two outputs is further illustrated by this sequence of calls:
 
 {@snipm basic/ForkPull.java}{\*}
 
-which produces the output:
+Producing the output:
 
     Output from p0: 2
     Output from p0: 3
@@ -149,7 +149,7 @@ Forks also exhibit a special behaviour in push mode. Consider the following exam
 
 {@snipm basic/ForkPush.java}{/}
 
-We create a fork processor that will replicate each input event in three output streams. We now create three "print" processors. Each simply prints to the console whatever event they receive. We ask each of them to append their printed line with a different prefix ("Px") so we can know who is printing what. Finally, we connect each of the three outputs streams of the fork (numbered 0, 1 and 2) to the input of each print processor. This corresponds to the following schema:
+We create a fork processor that will replicate each input event in three output streams. We now create three "print" processors. Each of them simply prints to the console whatever event they receive. Each of them is asked to append its printed line with a different prefix ("Px") to define who is printing what. Finally, we connect each of the three outputs streams of the fork (numbered 0, 1 and 2) to the input of each print processor. This corresponds to the following diagram:
 
 {@img doc-files/basic/ForkPush.png}{Pushing events into a fork.}{.6}
 
@@ -195,7 +195,7 @@ As its name implies, `Cumulate` is intended to compute a cumulative "sum" of all
 
 {@snipm basic/CumulativeSum.java}{/}
 
-We first wrap the `Addition` function into a {@link jdc:ca.uqac.lif.cep.functions.CumulativeFunction  CumulativeFunction}. This object extends addition by defining a start value *t*. It is then given to the `Cumulate` processor. Graphically, this can be drawn as follows:
+We first wrap the `Addition` function into a {@link jdc:ca.uqac.lif.cep.functions.CumulativeFunction  CumulativeFunction}. This object extends addition by defining a start value *t*. It is then given to the `Cumulate` processor. Graphically, this can be represented as follows:
 
 {@img doc-files/basic/CumulativeSum.png}{Computing the cumulative sum of numbers.}{.6}
 
@@ -203,7 +203,7 @@ The `Cumulate` processor is represented by a box with the Greek letter sigma. On
 
 Upon receiving the first event *y*=1, the cumulate processor computes *f*(*x*,1). Since no previous value *x* has yet been output, the processor uses the start value *t*=0 instead. Hence, the processor computes *f*(0,1), that is, 0+1=1, and returns 1 as its first output event.
 
-Upon receiving the second event *y*=2, the cumulate processor computes *f*(*x*,2), with *x* being the event output at the previous step --that is, *x*=1. This amounts to computing *f*(1,2), that is 1+2=3. Upon receiving the third event *y*=3, the processor computes *f*(3,3) = 3+3 = 6. As we can see, the processor outputs the cumulative sum of all values received so far:
+Upon receiving the second event *y*=2, the cumulate processor computes *f*(*x*,2), with *x* being the event output at the previous step --that is, *x*=1. This amounts to computing *f*(1,2), that is 1+2=3. Upon receiving the third event *y*=3, the processor computes *f*(3,3) = 3+3 = 6. As can be seen, the processor outputs the cumulative sum of all values received so far:
 
     The event is: 1.0
     The event is: 3.0
@@ -211,29 +211,29 @@ Upon receiving the second event *y*=2, the cumulate processor computes *f*(*x*,2
     The event is: 10.0
     ...
 
-Cumulative processors and function processors can be put together into a common pattern, illustrated by the following schema:
+Cumulative processors and function processors can be put together into a common pattern, illustrated by the following diagram:
 
 {@img doc-files/basic/Average.png}{The running average of a stream of numbers.}{.6}
 
-We first create a source of arbitrary numbers. We pipe the output of this processor to a cumulative processor. Then, we create a source of 1s and sum it; this is done with the same process as above, but on a stream that outputs the value 1 all the time. This effectively creates a counter outputting 1, 2, 3, etc. We finally divide one stream by the other.
+We first create a source of arbitrary numbers. The output of this processor is piped to a cumulative processor. Then, we create a source of 1s and sum it; this is done with the same process as above, but on a stream outputting the value 1 all the time. This effectively creates a counter outputting 1, 2, 3, etc. We finally divide one stream by the other.
 
-Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{running average} \textbf{running average}-->**running average**<!--/i-->, and occurs very often in stream processing. In code, this corresponds to the following instructions:
+Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the first event, the cumulative average is 2÷1 = 2. After reading the second event, the average is (2+7)÷(1+1), and after reading the third, the average is (2+7+1)÷(1+1+1) = 3.33 --and so on. The output is the average of all numbers seen so far. This is called the <!--\index{running average} \textbf{running average}-->**running average**<!--/i-->, and it occurs very often in stream processing. Coded, this corresponds to the following instructions:
 
 {@snipm basic/Average.java}{/}
 
-This example, however, requires a second queue just to count events received. Our chain of processors can be refined by creating a counter out of the original stream of values, as follows:
+This example, however, requires a second queue just to count events received. Our chain of processors can be refined by creating a counter out of the original stream of values, as shown here:
 
 {@img doc-files/basic/AverageFork.png}{Running average that does not rely on an external counter.}{.6}
 
-We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called {@link jdc:ca.uqac.lif.cep.functions.TurnInto TurnInto}; this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, effectively creating a counter 1, 2, 3, etc. The two streams are then divided as in the original example.
+We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called {@link jdc:ca.uqac.lif.cep.functions.TurnInto TurnInto}; this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, effectively creating a counter that produces the stream 1, 2, 3, etc. The two streams are then divided as in the previous example.
 
-It shall be noted that, `Cumulate` does not have to work only with addition, and not even with numbers. Depending on the function *f*, cumulative processors can represent many other things. For example, in the next code snippet, we create a stream of Boolean values, and pipe it into a `Cumulate` processor, using <!--\index{Booleans@\texttt{Booleans}!And@\texttt{And}} logical conjunction-->logical conjunction<!--/i--> ("and") as the function, and `true` as the start value:
+It shall be noted that, `Cumulate` does not have to work only with addition, or even with numbers. Depending on the function *f*, cumulative processors can represent many other things. For example, in the next code snippet, a stream of Boolean values is created, and piped into a `Cumulate` processor, using <!--\index{Booleans@\texttt{Booleans}!And@\texttt{And}} logical conjunction-->logical conjunction<!--/i--> ("and") as the function, and `true` as the start value:
 
 {@snipm functions/CumulateAnd.java}{/}
 
 {@img doc-files/functions/CumulateAnd.png}{Using the Boolean "and" operator in a `Cumulate` processor.}{.6}
 
-When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, no matter the input events that arrive. This is because the conjunction of `false` (the previous output event) with anything always returns `false`. Hence, the expected output of the program is this:
+When receiving the first event (`true`), the processor computes its conjunction with the start value (also `true`), resulting in the first output event (`true`). The same thing happens for the second input event, resulting in the output event `true`. The third input event is `false`; its conjunction with the previous output event (`true`) results in `false`. From then on, the processor will return `false`, regardless of the input events. This is because the conjunction of `false` (the previous output event) with anything always returns `false`. Hence, the expected output of the program is this:
 
     The event is: true
     The event is: true
@@ -245,7 +245,7 @@ Intuitively, this processor performs the logical conjunction of all events recei
 
 ## Trimming events
 
-So far, all the processors we have studied are <!--\index{uniform processor} \textbf{uniform}-->**uniform**<!--/i-->: for each input event, they emit exactly one output event (or more precisely, for each input *front*, they emit exactly one output *front*). Not all processors need to be uniform; as a first example, let us have a look at the {@link jdc:ca.uqac.lif.cep.tmf.Trim Trim} processor.
+Up until now, all the processors studied were <!--\index{uniform processor} \textbf{uniform}-->**uniform**<!--/i-->: for each input event, they emitted exactly one output event (or more precisely, for each input *front*, they emitted exactly one output *front*). Not all processors need to be uniform; as a first example, let us have a look at the {@link jdc:ca.uqac.lif.cep.tmf.Trim Trim} processor.
 
 The purpose of <!--\index{Trim@\texttt{Trim}} \texttt{Trim}-->`Trim`<!--/i--> is simple: it discards a fixed number of events from the beginning of a stream. This number is specified by passing it to the processor's constructor. Consider for example the following code:
 
@@ -255,11 +255,11 @@ The `Trim` processor is connected to a source, and is instructed to trim 3 event
 
 {@img doc-files/basic/TrimPull.png}{Pulling events from a `Trim` processor.}{.6}
 
-As one can see, the `Trim` processor is depicted as a box with a pair of scissors; the number of events to be trimmed is shown in a small box on one of the sides of the processor. Let us see what happens when we call `pull` on `Trim` six times. The first call to `pull` produces the following line:
+As one can see, the `Trim` processor is depicted as a box with a pair of scissors; the number of events to be trimmed is shown in a small box on one of the sides of the processor. Let us see what happens when we `pull` is called six times on `Trim`. The first call to `pull` produces the following line:
 
     The event is: 4
 
-This indeed corresponds to the *fourth* event in `source`'s list of events; the first three seem to have been cut off. But how can `trim` instruct `source` to start sending events at the fourth? Then answer is: it does not. There is no way for a processor upstream or downstream to "talk" to another and give it instructions to behave in a special way. What `trim` does is much easier: upon its first call to `pull`, it simply calls `pull` on its upstream processor four times, and discards the events returned by the first three calls.
+This indeed corresponds to the *fourth* event in `source`'s list of events; the first three seem to have been cut off. But how can `trim` instruct `source` to start sending events at the fourth? In fact, the answer is that it does not. There is no way for a processor upstream or downstream to "talk" to another and give it instructions as to how to behave. What `trim` does is much easier: upon its first call to `pull`, it simply calls `pull` on its upstream processor four times, and discards the events returned by the first three calls.
 
 At this point, `pull` behaves like `Passthrough`: it lets all events out without modification. The rest of the program goes as follows:
 
@@ -283,7 +283,7 @@ Here, we connect a `Trim` to a `Print` processor. The `for` loop pushes integers
 
 The `Trim` processor introduces an important point: from now on, the number of calls to `pull` or `push` is not necessarily equal across all processors of a chain. For example, in the last piece of code, we performed six `push` calls on `trim`, but `print` was pushed events only three times.
 
-Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This allows us to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; on one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
+Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This makes it possible to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; on one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
 
 {@img doc-files/basic/SumTwo.png}{Computing the sum of two successive events.}{.6}
 
@@ -297,7 +297,7 @@ From this point on, the top and the bottom pipe of the addition processor are al
 
 For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, {@link jdc:ca.uqac.lif.cep.tmf.Window Window}.
 
-The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves a bit of explanation. Suppose we want to compute the sum of input events over a sliding window of width 3. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of three events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
+The <!--\index{Window@\texttt{Window}} \texttt{Window}-->`Window`<!--/i--> processor is one of the two most complex processors in BeepBeep's core, and deserves some explanation. Suppose that we want to compute the sum of input events over a sliding window of width 3. That is, the first output event should be the sum of input events at positions 0 to 2; the second output event should be the sum of input events at positions 1 to 3, and so on. Each of these sequences of three events is called a **window**. The first step is to think of a processor that performs the appropriate computation on each window, as if the events were fed one by one. In our case, the answer is easy: it is a `Cumulate` processor with addition as its function. If we pick any window of three successive events and feed them to a fresh instance of `Cumulate` one by one, the last event we collect is indeed the sum of all events in the window.
 
 The second step is to encase this `Cumulate` processor within a `Window` processor, and to specify a window width (3 in our present case). A simple example of a window processor is the following piece of code:
 
@@ -307,15 +307,15 @@ This code is relatively straightforward. The main novelty is the fact that the `
 
 {@img doc-files/basic/WindowSimple.png}{Using the `Window` processor to perform a computation over a sliding window of events.}{.6}
 
-The `Window` processor is depicted by a box with events grouped by a curly bracket. The number under that bracket indicates the width of the window. On one side of the box is a circle that leads to yet another box. This is to represent the fact that `Window` takes another processor as a parameter; in this box, we recognize the cumulative sum processor we used before. Notice how that processor lies alone in its box; as in the code fragment, it is not connected to anything. **Calling `pull` or `push` on that processor does not make sense, and will cause incorrect results, if not runtime exceptions.**
+The `Window` processor is depicted by a box with events grouped by a curly bracket. The number under that bracket indicates the width of the window. On one side of the box is a circle leading to yet another box. This is to represent the fact that `Window` takes another processor as a parameter; in this box, we recognize the cumulative sum processor we used before. Notice how that processor lies alone in its box; as in the code fragment, it is not connected to anything. **Calling `pull` or `push` on that processor does not make sense, and will cause incorrect results, if not runtime exceptions.**
 
-Let us now see what happens when we call `pull` on `win`. The window processor requires three events before being able to output anything. Since we just started the program, currently, `win`'s window is empty. Therefore, three calls to `pull` are made on the source, in order to fetch the events 1, 2 and 3. Now that `win` has the correct number of input events, it pushes them into `sum` one by one. Since `sum` is a cumulative processor, it will successively output the events 1, 3 and 6 --corresponding to the sum of the first, the first two, and all three events, respectively. The window processor ignores all of these events except the last (6): this is the event that is return from the first call to `pull`:
+Let us now see what happens when we call `pull` on `win`. The window processor requires three events before being able to output anything. Since we just started the program, `win`'s window is currently empty. Therefore, three calls to `pull` are made on the source, in order to fetch the events 1, 2 and 3. Now that `win` has the correct number of input events, it pushes them into `sum` one by one. Since `sum` is a cumulative processor, it will successively output the events 1, 3 and 6 --corresponding to the sum of the first, the first two, and all three events, respectively. The window processor ignores all of these events except the last (6): this is the event that is returned from the first call to `pull`:
 
     First window: 6.0
 
 Things are slightly different on the second call to `pull`. This time, `win`'s window already contains three events; it only needs to discard the first event it received (1), and to let in one new event at the other end of the window. Therefore, it makes only one `pull` on `source`; this produces the event 4, and the contents of the window become 2, 3 and 4. As we can see, the window of three events has shifted one event forward, and now contains the second, third and fourth event of the input stream.
 
-The window processor cannot push these three events to `sum` immediately. Remember that `sum` is a cumulative processor, and that it has already received three events. Pushing three more would not result in the sum of events in the current window. In fact, `sum` has a "memory", which must be wiped so that the processor returns to its original state. Every processor has a method that allows this, called {@link jdm:ca.uqac.lif.cep.Processor#reset() reset()}. `Window` first calls <!--\index{Processor@\texttt{Processor}!reset@\texttt{reset}} \texttt{reset}-->`reset`<!--/i--> on `sum`, and then proceeds to push the three events of the current window into it. The last collected event is 2+3+4=9, and hence the second line printed by the program is:
+The window processor cannot push these three events to `sum` immediately. Remember that `sum` is a cumulative processor, and that it has already received three events. Pushing three more would not result in the sum of events in the current window. In fact, `sum` has a "memory", which must be wiped so that the processor returns to its original state. Every processor has a method allowing this, called `reset`. `Window` first calls <!--\index{Processor@\texttt{Processor}!reset@\texttt{reset}} \texttt{reset}-->`reset`<!--/i--> on `sum`, and then proceeds to push the three events of the current window into it. The last collected event is 2+3+4=9, and hence the second line printed by the program is:
     
     Second window: 9.0
 
@@ -333,7 +333,7 @@ A numerical stream is passed into an `ApplyFunction` processor; the function eva
 
 As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows is unique among existing stream processors.
 
-This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> in the drawing has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
+This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> in the diagram has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
 
 ## Group processors
 
@@ -341,9 +341,9 @@ We claimed a few moments ago that "anything can be encased in a sliding window".
 
 {@img doc-files/basic/RunningAverage.png}{A chain of processors that computes the running average of a stream.}{.6}
 
-But how exactly can we give this *chain* of processors as a parameter to `Window`? Its constructor expects a *single* `Processor` object, so which one shall we give? If we pass the input fork, how is `Window` supposed to know where is the output of the chain? And conversely, if we pass the downstream processor that computes the division, how is `Window` supposed to learn where to push events?
+But how exactly can we give this *chain* of processors as a parameter to `Window`? Its constructor expects a *single* `Processor` object, so which one shall we give? If we pass the input fork, how is `Window` supposed to know where the output of the chain is? And conversely, if we pass the downstream processor that computes the division, how is `Window` supposed to learn where to push events?
 
-The answer to this is a special type of processor called {@link jdc:ca.uqac.lif.cep.GroupProcessor GroupProcessor}. The <!--\index{GroupProcessor@\texttt{GroupProcessor}} \texttt{GroupProcessor}-->`GroupProcessor`<!--/i--> allows a user to encapsulate a complete chain of processors into a composite object that can be manipulated as if it were a single `Processor`. In other words, `GroupProcessor` hides its contents into a "black box", and only exposes the input and output pipes at the very ends of the chain.
+The answer to this is a special type of processor called {@link jdc:ca.uqac.lif.cep.GroupProcessor GroupProcessor}. The <!--\index{GroupProcessor@\texttt{GroupProcessor}} \texttt{GroupProcessor}-->`GroupProcessor`<!--/i--> allows a user to encapsulate a complete chain of processors into a composite object which can be manipulated as if it were a single `Processor`. In other words, `GroupProcessor` hides its contents into a "black box", and only exposes the input and output pipes at the very ends of the chain.
 
 Let us revisit a previous example ({@snipi basic/SumTwo.java}{/}), and use a group processor, as in the following code fragment.
 
@@ -386,23 +386,23 @@ To perform count decimation, BeepBeep provides a processor called <!--\index{Cou
 
 {@snipm basic/CountDecimateSimple.java}{/}
 
-Here, a `CountDecimate` processor is created and connected into a `Print` processor. The decimate processor is instructed to keep one event every 3, and to discard the others. This is the meaning of value 3 passed to its constructor, which is called the *decimation interval*. This can be drawn as follows:
+Here, a `CountDecimate` processor is created and connected into a `Print` processor. The decimate processor is instructed to keep one event for every 3, and to discard the others. This is the meaning of value 3 passed to its constructor, which is called the *decimation interval*, as shown in the following:
 
 {@img doc-files/basic/CountDecimateSimple.png}{Pushing events to a `CountDecimate` processor.}{.6}
 
-The `CountDecimate` processor is designated by a pictogram where some events are transparent, representing decimation. Like many other processors that receive parameters, the decimation interval is written on one side of the box. Let us now push the integers 0 to 9 into this processor, and watch the output printed at the console. We get the following:
+The `CountDecimate` processor is designated by a pictogram in which some events are transparent, representing decimation. Like many other processors receiving parameters, the decimation interval is written on one side of the box. Let us now push the integers 0 to 9 into this processor, and watch the output printed at the console. The result is the following:
 
     0,3,6,9,
 
 As expected, the processor passed the first event (0), discarded the next two (1 and 2), then passed the fourth (3), and so on.
 
-An important remark must be made when `CountDecimate` is used in pull mode, as in the following chain:
+An important point must be made when `CountDecimate` is used in pull mode, as in the following chain:
 
 {@img doc-files/basic/CountDecimatePull.png}{Pulling events from a `CountDecimate` processor.}{.6}
 
 In such a case, the events received by each call to `pull` will be 1, 4, 7, etc. That is, after outputting event 1, the decimate processor does not ignore our next two calls to `pull` by returning nothing. Rather, it pulls three events from the queue source and discards the first two.
 
-The decimate processor can be mixed with the other processors we have seen so far. For example, we have seen earlier how we can use a `Window` processor to calculate the sum of events on a sliding window of width *n*. We can affix a `CountDecimate` processor to the end of such a chain to create what is called a <!--\index{window!hopping} \textbf{hopping window}-->**hopping window**<!--/i-->. Contrary to sliding windows, where the content of two successive windows overlap, hopping windows are disjoint. For example, one can compute the sum of the first five events, then the sum of the next five, and so on. The difference between the two types of windows is illustrated in the following figure; sliding windows are shown at the left, and hopping windows are shown at the right.
+The decimate processor can be mixed with the other processors seen so far. For example, we have seen earlier how we can use a `Window` processor to calculate the sum of events on a sliding window of width *n*. We can affix a `CountDecimate` processor to the end of such a chain to create what is called a <!--\index{window!hopping} \textbf{hopping window}-->**hopping window**<!--/i-->. Contrary to sliding windows, where the content of two successive windows overlap, hopping windows are disjoint. For example, one can compute the sum of the first five events, then the sum of the next five, and so on. The difference between the two types of windows is illustrated in the following figure; sliding windows are shown at the left, and hopping windows are shown at the right.
 
 {@img doc-files/basic/Hopping.png}{Difference between a sliding window (left) and a hopping window (right).}{.6}
 
@@ -410,9 +410,9 @@ As one can see, hopping windows can be created out of sliding windows of width *
 
 ## Filtering events
 
-The `CountDecimate` processor acts as a kind of filter, based on the events' position. If an input event is at a position that is an integer multiple of the decimation interval, it is let through to the output, otherwise it is discarded. Apart from the `Trim` processor we have encountered earlier, this is so far the only way to discard events from an input stream.
+The `CountDecimate` processor acts as a kind of filter, based on the events' position. If an input event is at a position that is an integer multiple of the decimation interval, it is sent in the output; otherwise, it is discarded. Apart from the `Trim` processor we have encountered earlier, this is so far the only way to discard events from an input stream.
 
-The {@link jdc:ca.uqac.lif.cep.tmf.Filter Filter} processor allows a user to keep or discard events from an input stream in a completely arbitrary way. In its simplest form, a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i--> has two input pipes and one output pipe. The first input pipe is called the *data pipe*: it consists of the stream of events that needs to be filtered. The second input pipe is called the *control pipe*: it receives a stream of Boolean values. As its name implies, this Boolean stream is responsible for deciding what events coming into the data pipe will be let through, and what events will be discarded. The event at position *n* in the data stream is sent to the output, if and only if the event at position *n* in the control stream is the Boolean value `true`.
+The {@link jdc:ca.uqac.lif.cep.tmf.Filter Filter} processor allows a user to keep or discard events from an input stream in a completely arbitrary way. In its simplest form, a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i--> has two input pipes and one output pipe. The first input pipe is called the *data pipe*: it consists of the stream of events that needs to be filtered. The second input pipe is called the *control pipe*: it receives a stream of Boolean values. As its name implies, this Boolean stream is responsible for deciding what events coming into the data pipe will be kept, and what events will be discarded. The event at position *n* in the data stream is sent to the output, if and only if the event at position *n* in the control stream is the Boolean value `true`.
 
 As a first example, consider the following piece of code, which connects two sources to a `Filter` processor:
 
@@ -436,10 +436,10 @@ As we can see, the events from `source_values` that are output are only those at
 
 Since the output of events depends entirely on the contents of the control stream, the relative positions of the events in the input and output streams do not follow any predictable pattern:
 
-- event at position 0 in the output corresponds to event at position 0 in the input;
-- event at position 1 in the output corresponds to event at position 2 in the input;
-- event at position 2 in the output corresponds to event at position 3 in the input;
-- event at position 3 in the output corresponds to event at position 7 in the input.
+- Event at position 0 in the output corresponds to event at position 0 in the input;
+- Event at position 1 in the output corresponds to event at position 2 in the input;
+- Event at position 2 in the output corresponds to event at position 3 in the input;
+- Event at position 3 in the output corresponds to event at position 7 in the input.
 
 Note also that on a call to `pull`, a filter *must* return something. Therefore, it will keep pulling on its input pipes until it receives an event front where the control event is `true`. If that event never comes, **the call to `pull` will never end**. As a small exercise, try to replace all the Boolean values in `source_bool` by `false`, and run the program again. You will see that nothing is printed on the console, and that the program loops forever.
 
@@ -451,7 +451,7 @@ The solution is to combine the `Filter` with another processor we have seen earl
 
 {@snipm basic/FilterConditionSimple.java}{/}
 
-As we can see, the bottom part of the chain passes the input stream through an `ApplyFunction` processor, which evaluates the function {@link jdc:ca.uqac.lif.cep.util.Numbers.IsEven IsEven}. This function turns the stream of numbers into a stream of Booleans, which is then connected to the filter's control pipe. The end result of this chain is to produce an output stream where all odd numbers from the input stream have been removed. Obviously, if a more complex condition needs to be evaluated, you can use a `FunctionTree` instead of a single function. As a matter of fact, you are not limited to a single `ApplyFunction` processor, and can create whatever chain of processors you wish, as long as it produces a Boolean stream!
+As we can see, the bottom part of the chain passes the input stream through an `ApplyFunction` processor, which evaluates the function {@link jdc:ca.uqac.lif.cep.util.Numbers.IsEven IsEven}. This function turns the stream of numbers into a stream of Booleans, which is then connected to the filter's control pipe. The end result of this chain is to produce an output stream where all odd numbers from the input stream have been removed. Obviously, if a more complex condition needs to be evaluated, a `FunctionTree` can be used instead of a single function. As a matter of fact, users are not limited to a single `ApplyFunction` processor, and can create whatever chain of processors they wish, as long as it produces a Boolean stream!
 
 ## Slicing a stream
 
@@ -459,32 +459,32 @@ The `Filter` is a powerful processor in our toolbox. Using a filter, we can take
 
 {@img doc-files/basic/OddEvenSubstreams.png}{Creating two sub-streams of events: a stream of odd numbers, and a stream of even numbers.}{.6}
 
-However, we can see that this drawing contains lots of repetitions. The chains of processors at both ends of the first fork are almost identical; the only difference is the function passed to each instance of `ApplyFunction`: in the top chain, we keep even numbers, while in the bottom chain, a negation is added to the condition, so that we keep odd numbers. The two output pipes at the far right of the drawing hence produce a stream of even numbers (at the top) and a stream of odd numbers (at the bottom).
+However, we can see that this drawing contains lots of repetitions. The chains of processors at both ends of the first fork are almost identical; the only difference is the function passed to each instance of `ApplyFunction`: in the top chain, even numbers are kept, while in the bottom chain, a negation is added to the condition, so that odd numbers are kept. The two output pipes at the far right of the diagram hence produce a stream of even numbers (at the top) and a stream of odd numbers (at the bottom).
 
-Suppose however that we need to perform further processing on both these sub-streams. For example, we would like to compute their cumulative sum. We would need to repeat the same chain of processors at the end of both pipes. Suppose further we would like to create *three* sub-streams instead of two, by filtering events according to their value modulo 3 (which returns either 0, 1 or 2): we would need to copy-paste even more processors and pipes. There must be a better way, isn't it?
+Suppose, however, that we need to perform further processing on both these sub-streams. For example, we would like to compute their cumulative sum. We would need to repeat the same chain of processors at the end of both pipes. Suppose further that we would like to create *three* sub-streams instead of two, by filtering events according to their value modulo 3 (which returns either 0, 1 or 2): we would then need to copy-paste even more processors and pipes. There should be a better way to proceed.
 
-Fortunately, there is. It turns out that there are many situations in which we would like to separate a stream into multiple sub-streams, and perform the same computation over each of these sub-streams separately. This happens often enough for BeepBeep to provide a processor dedicated to this task: {@link jdc:ca.uqac.lif.cep.tmf.Slice Slice}.
+Fortunately, there is. In fact, there are many situations in which we would like to separate a stream into multiple sub-streams, and perform the same computation over each of these sub-streams separately. Because this situation is a recurrent one, BeepBeep provides `Slice`, a processor dedicated to this specific task.
 
-Creating a <!--\index{Slice@\texttt{Slice}} \texttt{Slice}-->`Slice`<!--/i--> processor works in a similar way to `Window`. The constructor to `Slice` takes two parameters: 
+Creating a <!--\index{Slice@\texttt{Slice}} \texttt{Slice}-->`Slice`<!--/i--> processor works in a similar way to `Window`. Two parameters are needed to construct `Slice`:
 
-1. The first is a **slicing function**, which is evaluated on each incoming event. The value of that function decides what sub-stream that event belongs to. Typically, there will exist as many sub-streams as there are possible output values for the slicing function. These sub-streams are called *slices*, hence the name of the processor.
+1. The first is a **slicing function**, which is evaluated on each incoming event. The value of that function determines to which sub-stream that event belongs. Typically, there will exist as many sub-streams as there are possible output values for the slicing function. These sub-streams are called *slices*, hence the name of the processor.
 2. The second is a **slice processor**. A different instance of this processor is created for each possible value of the slicing function. When an incoming event is evaluated by the slicing function, it is then pushed to the instance of the slice processor associated to that value.
 
-As with the `Window` processor, the `Slice` processor expects a single object as its slice processor. If you would like to pass a chain of multiple processors, you must encapsulate it into a `GroupProcessor`, as we have seen before.
+As with the `Window` processor, the `Slice` processor expects a single object as its slice processor. To pass a chain of multiple processors, it must be encapsulated into a `GroupProcessor`, as seen previously.
 
 To illustrate the operation of a slice processor, consider the following code example:
 
 {@snipm basic/SlicerSimple.java}{/}
 
-In this program, we first create a simple source of numbers, and connect it to an instance of `Slice`. In this case, the slicing function is the {@link jdc:ca.uqac.lif.cep.functions.IdentityFunction IdentityFunction}: this function returns its input as is. The slice processor is a simple counter that increments every time an event is received, which we encapsulate into a `GroupProcessor`. Since there will be one such counter instance for each different input event, the slicer effectively maintains the count of how many times each value has been seen in its input stream. Graphically, this can be represented as: 
+In this program, we first create a simple source of numbers, and connect it to an instance of `Slice`. In this case, the slicing function is the {@link jdc:ca.uqac.lif.cep.functions.IdentityFunction IdentityFunction}: this function returns its input as is. The slice processor is a simple counter that increments every time an event is received, which we encapsulate into a `GroupProcessor`. Since there will be one such counter instance for each different input event, the slicer effectively keeps count of how many times each value has been seen in its input stream. Graphically, this can be represented as: 
 
 {@img doc-files/basic/SlicerSimple.png}{Using a `Slice` processor.}{.6}
 
-The `Slice` processor is represented by a box with a piece of cheese (yes, cheese) as its pictogram. Like the `Window` processor, one of its arguments (the slicing function) is placed on one side of the box, and the other argument (the slice processor) is linked to the box by a circle and a line. We took the artistic license of putting the slice processor inside a "cloud" instead of a plain rectangle. As expected, this slice processor is itself a group that encapsulates a `TurnInto` and a `Cumulate` processor.
+The `Slice` processor is represented by a box with a piece of cheese (yes, cheese) as its pictogram. Like the `Window` processor, one of its arguments (the slicing function) is placed on one side of the box, and the other argument (the slice processor) is linked to the box by a circle and a line. We took the liberty of putting the slice processor inside a "cloud" instead of a plain rectangle. As expected, this slice processor is itself a group that encapsulates a `TurnInto` and a `Cumulate` processor.
 
-Let us now see what happens when we start pulling events on `slicer`. On the first call to `pull`, `slicer` pulls on the source and receives the number 1. It evaluates the slicing function, which (obviously) returns 1. It then looks in its memory for an instance of the slice processor associated to the value 1. There is none, so `slicer` creates a new copy of the slice processor, and pushes the value 1 into it. It then collects the output from that slice processor, which is (again) the value 1.
+Let us now see what happens when we start pulling events on `slicer`. On the first call to `pull`, `slicer` pulls on the source and receives the number 1. It evaluates the slicing function, which (obviously) returns 1. It then looks into its memory for an instance of the slice processor associated to the value 1. Since there is none, `slicer` creates a new copy of the slice processor, and pushes the value 1 into it. It then collects the output from that slice processor, which is (again) the value 1.
 
-The last step is to return something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating to the slice "1" the value 1. The first line printed by the program is the contents of the map, namely:
+The last step is to return something to the call to `pull`. What a slicer outputs is always a Java `Map` object. The keys of that map correspond to values of the slicing function, and the value for each key is the last event produced by the corresponding slice processor. Every time an event is received, the slicer returns as its output the newly updated map. At the beginning of the program, the map is empty; this first call to `pull` will add a new entry to the map, associating the value 1 to the slice "1". The first line printed by the program is the contents of the map, namely:
 
     {1=1.0}
 
@@ -498,23 +498,23 @@ A similar process occurs for the next three input events, creating three new map
     {1=1.0, 3=1.0, 4=1.0, 6=1.0}
     {1=1.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
 
-Something a little different happens in the next call to `pull`. The `slicer` receives the number 1, evaluates the slice function, which returns 1. It turns out that this is a value for which there already exists a slice processor. Therefore, `slicer` retrieves that processor instance, and pushes the value 1 into it. Note that for this slice processor, this is the *second* time it is given an event; since it acts as a counter, it returns the value 2. Then, `slicer` updates its map by associating to slice 1 the value 2, which replaces the original entry. The map that is returned on the call to `pull` is:
+Something slightly different happens in the next call to `pull`. The `slicer` receives the number 1, evaluates the slice function, which returns 1. It turns out that this is a value for which a slice processor already exists. Therefore, `slicer` retrieves that processor instance, and pushes the value 1 into it. Note that for this slice processor, this is the *second* time it is given an event; since it acts as a counter, it returns the value 2. Then, `slicer` updates its map by associating the value 2 to slice 1, which replaces the original entry. The map that is returned on the call to `pull` is:
 
     {1=2.0, 2=1.0, 3=1.0, 4=1.0, 6=1.0}
 
-The end result of this processor chain is to keep track of how many times each number has been seen in the input stream so far.
+The end result of this processor chain is that it keeps track of how many times each number has been seen in the input stream so far.
 
-As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> can do this. Giving it to the `Slice` processor will generate two streams: one made with the numbers for which `IsEven` returns `true` (the even numbers), and another made with the numbers for which `IsEven` returns `false` (the odd numbers). We then affix as the slice processor a `GroupProcessor` that encapsulates a chain computing the cumulative sum of numbers.
+As we can see, each copy of the slice processor is fed the sub-trace of all events for which the slicing function returns the same value. Different results can be obtained by using a different slicing function. Let us go back to our original example, where we would like to create sub-streams of odd and even numbers, and to compute their cumulative sum separately. This time, the slicing function will determine if a number is odd or even; this task can be done using the function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i-->. Passing it to the `Slice` processor will generate two streams: one comprising the numbers for which `IsEven` returns `true` (the even numbers), and another comprising the numbers for which `IsEven` returns `false` (the odd numbers). We then affix as the slice processor a `GroupProcessor` that encapsulates a chain computing the cumulative sum of numbers.
 
 {@img doc-files/basic/SlicerOddEven.png}{Adding odd and even numbers separately.}{.6}
 
 {@snipi basic/SlicerOddEven.java}{/}
 
-The end result of this program is map with two keys (`true` and `false`), associated with the cumulative sum of even numbers and odd numbers, respectively.
+The end result of this program is a map with two keys (`true` and `false`), associated with the cumulative sum of even numbers and odd numbers, respectively.
 
 - - -
 
-In this chapter, we have covered the dozen or so fundamental processors provided by BeepBeep's core. These processors allow us to manipulate event streams in various ways: applying a function to each event, filtering, decimating, slicing and creating sliding windows. Most of these processors are "type agnostic": the actual type of events they handle has no influence in the way they operate. Therefore, a lot of event processing tasks can be achieved by appropriately combining these basic building blocks together. We could show many other examples of graphs that mix processors in various ways; we rather left them as exercises in the section below. It takes a little time to get used to decomposing a problem in terms of streams; this is why we recommend you to try some of these exercises and develop your intuition before moving on to the next chapter.
+In this chapter, we have covered the dozen or so fundamental processors provided by BeepBeep's core. These processors allow us to manipulate event streams in various ways: applying a function to each event, filtering, decimating, slicing and creating sliding windows. Most of these processors are "type agnostic": the actual type of events they handle has no influence in the way they operate. Therefore, a large number of event processing tasks can be achieved by appropriately combining these basic building blocks together. We could show many other examples of graphs that combine processors in various ways; these were rather left as exercises in the section below. A little time is required to get used to decomposing a problem in terms of streams; this is why we recommend that you try some of these exercises and develop your intuition before moving on to the next chapter.
 
 ## Exercises
 
