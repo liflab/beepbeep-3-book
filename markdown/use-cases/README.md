@@ -3,11 +3,7 @@ A few use cases
 
 The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been crafted especially for this book.
 
-Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed below:
-
-- S. Hallé. (2017). From Complex Event Processing to Simple Event Processing. arXiv technical report. DOI: XXX
-- S. Hallé, S. Gaboury, B. Bouchard. (2016). Activity Recognition through Complex Event Processing: First Findings.
-- S. Hallé. (2016). When RV Meets CEP. Proceedings of the Xth Runtime Verification Conference. DOI: 
+Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed at the end of this book.
 
 ## Stock ticker
 

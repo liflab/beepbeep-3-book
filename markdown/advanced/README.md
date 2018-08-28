@@ -1,15 +1,15 @@
 Advanced features
 =================
 
-The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors that come in BeepBeep's core that you are likely to use in one of your processor chains.
+The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors comprised in BeepBeep's core likely to be used in one of your processor chains.
 
 ## Lists, sets and maps
 
-Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we have said in the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists, sets and maps.
+Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we mentioned at the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists, sets and maps.
 
 A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
 
-[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object with a few elements inside, one could use `GetSize` like any other function:
+[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object containing a few elements, one could use `GetSize` like any other function:
 
 ``` java
 Object[] outs = new Object[1];
@@ -41,7 +41,7 @@ for (int i = 0; i < 4; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/BagsContains.java#L42)
 
 
-We first create a `QueueSource` as usual; note that this time, each event in the source is itself a *list* (method `createList` is a small utility method that creates a `List` object out of its arguments). We then pipe this source as the first argument of an `ApplyFunction` processor that evaluates `Bags.contains`; its second argument comes from a stream of numbers that increments by one. The end result is a stream where the *n*-th output event is the value `true` if and only if the *n*-th input list in `src1` contains the value *n*. This can be illustrated like this:
+First, a `QueueSource` is created, as usual; note that this time, each event in the source is itself a *list* (method `createList` is a small utility method that creates a `List` object out of its arguments). Then, this source is piped as the first argument of an `ApplyFunction` processor that evaluates `Bags.contains`; its second argument comes from a stream of numbers that increments by one. The end result is a stream where the *n*-th output event is the value `true` if and only if the *n*-th input list in `src1` contains the value *n*. This can be illustrated as such:
 
 ![A first event stream with a more complex data structure.](BagsContains.png)
 
@@ -56,7 +56,7 @@ false
 true
 ```
 
-The `Bags` class also provides a function called [`ApplyToAll`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/ApplyToAll.html). This function is instantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
+The `Bags` class also provides a function called `ApplyToAll`. This function is instantiated by giving it a `Function` object *f*; given a set/list/array, <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}} \texttt{ApplyToAll}-->`ApplyToAll`<!--/i--> returns a *new* set/list/array whose content is the result of applying *f* to each element. This can be shown in the following example:
 
 ``` java
 List<Object> list = UtilityMethods.createList(-3, 6, -1, -2);
@@ -74,7 +74,7 @@ The output of this code snippet is indeed a new list with the absolute value of 
 [3.0, 6.0, 1.0, 2.0]
 ```
 
-The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements form a collection. Like `ApplyToAll`, <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
+The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements from a collection. Like `ApplyToAll`, <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and must return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
 
 ``` java
 Function filter = new Bags.FilterElements(Numbers.isEven);
@@ -125,7 +125,7 @@ When run, this program will take each front of events from the sources, and crea
 [1, 8, 3]
 ```
 
-The functions <!--\index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but create respectively a `Set` object and an array instead of a list.
+The functions <!--\index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but respectively create a `Set` object and an array instead of a list.
 
 Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} A-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
 
@@ -149,7 +149,7 @@ for (int i = 0; i < 4; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/util/RunOnExample.java#L49)
 
 
-A `RunOn` processor is created, and is given a `Cumulate` processor that is instructed to compute the cumulative sum of a stream of events. When receiving a collection, `RunOn` pushes each element into a fresh copy `Cumulate`; the last event is collected and returned. The end result is a program that computes the sum of elements in each set:
+A `RunOn` processor is created, and is given a `Cumulate` processor that is instructed to compute the cumulative sum of a stream of events. When receiving a collection, `RunOn` pushes each element into a fresh copy of `Cumulate`; the last event is collected and returned. The end result is a program that computes the sum of elements in each set:
 
 ```
 9.0
@@ -158,7 +158,7 @@ A `RunOn` processor is created, and is given a `Cumulate` processor that is inst
 10.0
 ```
 
-The following picture shows how to depict the `RunOn` processor graphically. Like the other processors we have seen earlier (such as `Window` and `Slice`), `RunOn` can take any `Processor` object as an argument. However, if we want to pass a chain of processors, we must take care to encapsulate that chain inside a `GroupProcessor`.
+The following picture shows how to depict the `RunOn` processor graphically. Like the other processors seen earlier (such as `Window` and `Slice`), `RunOn` can take any `Processor` object as an argument. However, if we want to pass a chain of processors, we must carefully encapsulate that chain inside a `GroupProcessor`.
 
 ![Applying a processor on collections of events with `RunOn`.](RunOnExample.png)
 
@@ -193,13 +193,13 @@ Set 2: [A, B, C, D]
 Set 1: [A, B, C, D]
 ```
 
-Note how after the second call to `pull`, the variable `set1` is a set that contains the first two events, "A" and "B". Two calls to `pull` later, variable `set2` contains, as expected, the first four events. The last call to `println` is more surprising. It reveals that `set1` now also contains the first four events! This is because the variables `set1` and `set2` actually are two references to the same object. In other words, processor `PutInto` keeps returning the same `Set`, each time with a new element added to it. We say that `PutInto` is a <!--\index{mutator processor} \textbf{mutator}-->**mutator**<!--/i--> processor: it modifies the state of the objects it returns.
+Note how after the second call to `pull`, the variable `set1` is a set that contains the first two events, "A" and "B". Two calls to `pull` later, variable `set2` contains, as expected, the first four events. The last call to `println` is more surprising. It reveals that `set1` now also contains the first four events! This is because the variables `set1` and `set2` are actually two references to the same object. In other words, processor `PutInto` keeps returning the same `Set`, each time with a new element added to it. We say that `PutInto` is a <!--\index{mutator processor} \textbf{mutator}-->**mutator**<!--/i--> processor: it modifies the state of the objects it returns.
 
 If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutIntoNew.html). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
 
 ### List-specific objects
 
-Functions and processors that work on arbitrary collections obviously also work on lists. BeepBeep provides a few more for collections that are *ordered*, such as lists and arrays. For example, [`NthElement`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/NthElement.html) is a function that returns the <!--\index{NthElement@\texttt{NthElement}} element-->element<!--/i--> at the *n*-th position in an ordered collection.
+Functions and processors that work on arbitrary collections obviously also work on lists. BeepBeep provides a few more of these for collections that are *ordered*, such as lists and arrays. For example, [`NthElement`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/NthElement.html) is a function that returns the <!--\index{NthElement@\texttt{NthElement}} element-->element<!--/i--> at the *n*-th position in an ordered collection.
 
 The [`Lists`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists.html) class defines two processors that work on lists in a special way. The first is called [`Pack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Pack.html) and has two input pipes. The first, called the *data* pipe, is a stream of arbitrary events. The second, called the *control* pipe, is a stream of Boolean values. You may remember that the `Filter` processor seen in the previous chapter had two similarly-named input pipes.
 
@@ -233,7 +233,7 @@ We create a data and a control stream, connect them to a `Pack` processor and pu
 [6, 5]
 ```
 
-One can see how the control stream acts as a "trigger" that tells the `Pack` processor when to release a list of events.
+One can see how the control stream acts as a "trigger" telling the `Pack` processor when to release a list of events.
 
 The [`Unpack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Unpack.html) processor is the exact opposite of `Pack`. It receives a stream of lists, and outputs the event of each list one by one:
 
@@ -266,7 +266,7 @@ One final remark must be made about `Unpack` when it is used in <!--\index{push 
 
 ![Using the `Unpack` processor in push mode.](UnpackPush.png)
 
-Suppose that `p` is `Unpack`'s `Pushable` object; what do you think the following program will print?
+Suppose that `p` is `Unpack`'s `Pushable` object; what do you suppose the following program will print?
 
 ``` java
 List<Object> list = UtilityMethods.createList(1, 2, 3, 4);
@@ -340,7 +340,7 @@ One last function of interest is called [`Values`](http://liflab.github.io/beepb
 
 ## Pumps and tanks
 
-All the processor chains we have given as examples operate either in <!--\index{pull mode} pull mode-->pull mode<!--/i--> or in <!--\index{push mode} push mode-->push mode<!--/i-->. In pull mode, a chain must be closed upstream by having the chain start by processors of input arity 0. To opposite applies for push mode: the chain must be closed downstream by ending each branch by a processor of output arity 0. Because of this, we cannot mix pull and push in the same chain.
+All the processor chains provided as examples operate either in <!--\index{pull mode} pull mode-->pull mode<!--/i--> or in <!--\index{push mode} push mode-->push mode<!--/i-->. In pull mode, a chain must be closed upstream by having the chain start by processors of input arity 0. To opposite applies for push mode: the chain must be closed downstream by ending each branch by a processor of output arity 0. Because of this, we cannot combine pull and push in the same chain.
 
 There exist situations, however, where it would be desirable to use both modes. Consider this simple program:
 
@@ -358,15 +358,15 @@ while (true)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithoutPump.java#L35)
 
 
-Here, we pull events from a `QueueSource`, which we then push into the `Print` processor to display them on the console. Since the only way for a processor to push events downstream is to be pushed events from upstream, `source` cannot be asked to push events to `print`. For the reverse reason, `print` cannot be asked to pull events from `source`. The only way to make these two objects interact is by the hand-written `while` loop, which acts as a "bridge" between an upstream chain that works in pull mode, and a downstream chain that works in push mode.
+Here, events are pulled from a `QueueSource`, which are then pushed into the `Print` processor to display them on the console. Since the only way for a processor to push events downstream is to be pushed events from upstream, `source` cannot be asked to push events to `print`. For the reverse reason, `print` cannot be asked to pull events from `source`. The only way to make these two objects interact is by the hand-written `while` loop, which acts as a "bridge" between an upstream chain working in pull mode, and a downstream chain working in push mode.
 
 While the loop works well in this example, the fact that the link between `print` and `source` is done outside of BeepBeep's objects has a few negative implications:
 
-- The upstream and downstream parts are two separate groups of processors that are completely unaware of each other. Since they are not a continuous chain of processors, they cannot be encapsulated in a `GroupProcessor` and passed to other processors. This also breaks the traceability chain, meaning that is becomes impossible to trace an output event back to one or more input events.
-- The connection between `source` and `print` is not done through `Connector`'s `connect` method; this bypasses a few sanity checks, such as the verification that input and output types are compatible.
-- There is no easy way to start/stop this process on demand, or to ask this chain to process one event at a time. The control flow of the program must stay in the `while` loop as long as events need to be processed.
+- The upstream and downstream parts are two separate groups of processors that are completely unaware of each other. Since they are not a continuous chain of processors, they cannot be encapsulated in a `GroupProcessor` and passed to other processors. This also breaks the traceability chain, meaning that it becomes impossible to trace an output event back to one or more input events.
+- The connection between `source` and `print` is not done through `Connector`'s `connect` method; this bypasses a few sanity checks, such as the verification of input and output types compatibility.
+- There is no easy way to start/stop this process upon request, or to ask this chain to process one event at a time. The control flow of the program must stay in the `while` loop as long as events need to be processed.
 
-Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the [`Pump`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Pump.html). Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, our previous program can be replaced by this one:
+Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the [`Pump`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Pump.html). Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, the previous program can be replaced by this one:
 
 ``` java
 QueueSource source = new QueueSource().setEvents(1, 2, 3, 4);
@@ -383,9 +383,9 @@ A pump is created and connected between `source` and  `print`. This object is th
 
 ![A chain of processors using a `Pump`.](WithPump.png)
 
-Notice that this chain of processors, contrary to the examples we have seen so far, is closed on both ends. The only way to move events around is by the internal action of the pump. This can also be done manually by calling method `turn`, which activates for a single pull/push.
+Notice that, contrary to the examples seen so far, this chain of processors is closed on both ends. The only way to move events around is by the internal action of the pump. This can also be done manually by calling method `turn`, which performs a single pull/push.
 
-There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; these calls propagate until they reach the tank, which outputs the accumulated events one by one.
+There also exists a processor that performs the reverse operation, by bridging an upstream "push" section to a downstream "pull" section. This processor is called the <!--\index{Tank@\texttt{Tank}} \texttt{Tank}-->`Tank`<!--/i-->. In a processor chain that uses a tank, events are pushed from upstream until they reach the tank, at which point they are accumulated indefinitely. The downstream part of the chain can be queried using calls to `pull`; these calls propagate until they reach the tank, outputting the accumulated events one by one.
 
 Consider the following program:
 
@@ -398,11 +398,11 @@ Connector.connect(to_number, tank, sum);
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithTank.java#L33)
 
 
-A function processor that casts strings into numbers is connected to a tank, which itself is connected to a processor that computes a cumulative sum. This can be illustrated like this:
+A function processor casting strings into numbers is connected to a tank, which itself is connected to a processor that computes a cumulative sum. This can be illustrated as such:
 
 ![A chain of processors using a `Tank`.](WithTank.png)
 
-A telling sign that `Tank` is the true dual of `Pump`: note that the chain, this time, is open at both ends. This means we can push events from one end, and pull events from the other independently.
+A telling sign that `Tank` is the true dual of `Pump`: note that the chain, this time, is open at both ends. This means that events can be pushed from one end, and pullled from the other independently.
 
 ``` java
 Pushable ps = to_number.getPushableInput();
@@ -416,7 +416,7 @@ System.out.println(pl.pull());
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithTank.java#L39)
 
 
-However, we cannot pull more events from the tank than were pushed to it beforehand. On the last call to `pull` in our example, the tank is empty; this will throw an exception, as if the processor were connected to nothing. Therefore, the program outputs:
+However, events cannot be pulled from the tank more than were pushed to it beforehand. On the last call to `pull` in our example, the tank is empty; this will throw an exception, as if the processor were connected to nothing. Therefore, the program outputs:
 
 ```
 1.0
@@ -426,7 +426,7 @@ Exception in thread "main" java.util.NoSuchElementException
 
 ## Basic input/output
 
-So far, the data sources we used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somewhere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
+So far, the data sources used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somewhere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
 
 ### Reading from a file
 
@@ -458,11 +458,11 @@ p.pull();
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/io/LineReaderExample.java#L52)
 
 
-A few important observations must be made form this code sample. The first is that since we are reading from a file, eventually the `ReadLines` processor will reach the end of the file, and no further output event will be produced when pulled. Therefore, we must repeatedly ask the `Pullable` object whether there is a new output event available. This can be done using method <!--\index{Pullable@\texttt{Pullable}!hasNext@\texttt{hasNext}} \texttt{hasNext}-->`hasNext()`<!--/i-->. This method returns `true` when a new event can be pulled, and `false` when the corresponding processor has no more events to produce. Therefore, in our code sample, we loop until `hasNext` returns `false`.
+A few important observations must be made from this code sample. The first is that since we are reading from a file, eventually the `ReadLines` processor will reach the end of the file, and no further output event will be produced when pulled. Therefore, the `Pullable` object must repeatedly be asked whether there is a new output event available. This can be done using method <!--\index{Pullable@\texttt{Pullable}!hasNext@\texttt{hasNext}} \texttt{hasNext}-->`hasNext()`<!--/i-->. This method returns `true` when a new event can be pulled, and `false` when the corresponding processor has no more events to produce. Therefore, in our code sample, the program stays in the loop until `hasNext` returns `false`.
 
-Note also that instead of using method `pull`, we use method <!--\index{Pullable@\texttt{Pullable}!next@\texttt{next}} \texttt{next}-->`next()`<!--/i--> to get a new event. Methods `pull` and `next` are in fact *synonyms*: they do exactly the same thing. However, the pair of methods `hasNext`/`next` makes a `Pullable` look like a plain old Java <!--\index{Iterator@\texttt{Iterator}} \texttt{Iterator}-->`Iterator`<!--/i-->. As a matter of fact, this is precisely the case: although we did not mention it earlier, a `Pullable` does implement Java's `Iterator` interface, meaning that a `Pullable` can be used in a program wherever an `Iterator` is expected. This makes it very handy to use BeepBeep objects inside an existing program, without even being aware that they actually refer to processor chains.
+Note also that instead of using the `pull` method, we use method <!--\index{Pullable@\texttt{Pullable}!next@\texttt{next}} \texttt{next}-->`next()`<!--/i--> to get a new event. Methods `pull` and `next` are in fact *synonyms*: they do exactly the same thing. However, the pair of methods `hasNext`/`next` makes a `Pullable` look like a plain old Java <!--\index{Iterator@\texttt{Iterator}} \texttt{Iterator}-->`Iterator`<!--/i-->. As a matter of fact, this is precisely the case: although we did not mention it earlier, a `Pullable` does implement Java's `Iterator` interface, meaning that it can be used in a program wherever an `Iterator` is expected. This makes BeepBeep objects very handy to use inside an existing program, without even being aware that they actually refer to processor chains.
 
-The last remark is that the output events of `ReadLines` are *strings*. This means that if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/NumberCast.html), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In our code example, we pipe the output of `reader` into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
+One last remark: the output events of `ReadLines` are *strings*. This implies that, if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/NumberCast.html), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In the code example, the output of `reader` is piped into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
 
 The expected output of the program is:
 
@@ -478,19 +478,19 @@ The expected output of the program is:
 
 Note how the first lines of the file have been cast as an `Integer` number; the last number could not be parsed as an integer, therefore it has been cast as a `Float`.
 
-The last printed lines show that an exception has been thrown by the program. This is caused by the very last instruction in the code, which makes one last `pull` on `p`. However, this happens right after `p.hasNext()` returns false, which has taken us out of the loop. As we have said earlier, attempting to pull an event from a `Pullable` that has no more event to produce causes such an exception to be thrown. Yet another programming mistake is to disregard the return value of `hasNext` (or not even calling it in the first place) and attempting to pull from a source that has "run dry".
+The last printed lines show that an exception has been thrown by the program. This is caused by the very last instruction in the code, which makes one last `pull` on `p`. However, this happens right after `p.hasNext()` returns false, which takes the program out of the loop. As we have said earlier, attempting to pull an event from a `Pullable` that has no more event to produce causes such an exception to be thrown. Yet another programming mistake is to disregard the return value of `hasNext` (or not even calling it in the first place) and attempting to pull from a source that has "run dry".
 
 The processor chain in this program can be represented as follows:
 
 ![Reading lines from a text file with `ReadLines`.](LineReaderExample.png)
 
-This diagram introduces two new elements. First, the `ReadLines` processor is a box with a white sheet as its pictogram. As expected, the processor has one output pipe, which is painted in purple --the colour that represents streams of `String` objects. Second, the processor seems to have an input pipe, but of a different shape than the ones we have seen earlier. This symbol does *not* represent a pipe, as can be confirmed by the fact that the input arity of `ReadLines` is zero. The funnel-shaped symbol rather represents a Java `InputStream` object. As we know, an `InputStream` can refer to an arbitrary source of bytes: a file, a network connection, and so on. Therefore, this symbol is intended to indicate that the line reader takes its source of bytes from some outside source --more precisely, from something that is not a BeepBeep processor. BeepBeep's square pipes cannot be connected into funnels, and vice-versa. The light-green colour of the funnel indicates that the input stream provides raw bytes to the reader. The leftmost diskette symbol indicates that this particular input stream is connected to a file source.
+This diagram introduces two new elements. First, the `ReadLines` processor is a box with a white sheet as its pictogram. As expected, the processor has one output pipe, which is painted in purple --the colour representing streams of `String` objects. Second, the processor seems to have an input pipe, but of a different shape than the ones seen earlier. This symbol does *not* represent a pipe, as can be confirmed by the fact that the input arity of `ReadLines` is zero. The funnel-shaped symbol rather represents a Java `InputStream` object. As we know, an `InputStream` can refer to an arbitrary source of bytes: a file, a network connection, and so on. Therefore, this symbol is intended to indicate that the line reader takes its source of bytes from some outside source --more precisely, from something that is not a BeepBeep processor. BeepBeep's square pipes cannot be connected into funnels, and vice-versa. The light-green colour of the funnel indicates that the input stream provides raw bytes to the reader. The leftmost diskette symbol indicates that this particular input stream is connected to a file source.
 
 ### Reading from the standard input
 
-As we have seen earlier, we can read lines from a source of text by passing an `InputStream` to a `ReadLines` processor. However, it is possible to read from arbitrary streams of bytes, and in particular from the special system stream called the <!--\index{standard input} \textbf{standard input}-->**standard input**<!--/i-->. The standard input is an implicit stream that every running program has; external processes can connect to this stream and send bytes that the program can then read.
+As we have seen earlier, we can read lines from a source of text by passing an `InputStream` to a `ReadLines` processor. However, it is possible to read from arbitrary streams of bytes, and in particular from the special system stream called the <!--\index{standard input} \textbf{standard input}-->**standard input**<!--/i-->. The standard input is an implicit stream present in every running program; external processes can connect to this stream and send bytes that can then be read by the program.
 
-In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. We could pass it to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read arbitrary chunks of characters. This can be done using another processor called [`ReadStringStream`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/ReadStringStream.html). The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
+In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. It could be sent to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read arbitrary chunks of characters. This can be done by using another processor called [`ReadStringStream`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/ReadStringStream.html). The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
 
 ``` java
 ReadStringStream reader = new ReadStringStream(System.in);
@@ -513,17 +513,17 @@ Since <!--\index{ReadStreamString@\texttt{ReadStreamString}} it-->`ReadStringStr
 
 ![Reading characters from the standard input.](ReadStdin.png)
 
-In this picture, the leftmost processor is the [`StreamReader`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/StreamReader.html). As you can see, <!--\index{StreamReader@\texttt{StreamReader}} it-->it<!--/i--> takes its input from the standard input; note how its left-hand side input has the "funnel" shape that represents system streams (and not BeepBeep pipes). A similar comment can be done for the <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, which we have seen earlier. It receives input events, but as far as BeepBeep is concerned, does not produce any output events. Rather, it sends whatever it receives to the "outside world", this time through the `stdout` system stream. This is also what does the `Print` processor in examples from the previous chapters; however, the "stdout" output which was implicit in those examples is written here explicitly in the drawing. 
+In this picture, the leftmost processor is the [`StreamReader`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/StreamReader.html). As you can see, <!--\index{StreamReader@\texttt{StreamReader}} it-->it<!--/i--> takes its input from the standard input; note how its left-hand side input has the "funnel" shape that represents system streams (and not BeepBeep pipes). A similar comment can be made for the <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, which was seen earlier. It receives input events, but as far as BeepBeep is concerned, does not produce any output events. Rather, it sends whatever it receives to the "outside world", this time through the `stdout` system stream. This is also what the `Print` processor does in examples from the previous chapters; however, the "stdout" output which was implicit in those examples is explicitly written here, in the diagram. 
 
-You can compile this program as a runnable JAR file (e.g. `read-stdin.jar`) and try it out on the command line. Suppose you type:
+This program can be compiled as a runnable JAR file (e.g. `read-stdin.jar`) and tried out on the command line. Suppose you type:
 
 ```
 $ java -jar read-stdin.jar 
 ```
 
-Nothing happens; however, if you type a few characters and press `Enter`, you should see the program reprint exactly what you typed (followed by a comma, as the `Print` processor is instructed to insert one between each event).
+Nothing happens; however, by typing a few characters and pressing `Enter`, one should see the program reprint exactly what was typed (followed by a comma, as the `Print` processor is instructed to insert one between each event).
 
-Let's try something slightly more interesting. If you are at a Unix-like command prompt, you can create a [named pipe](https://en.wikipedia.org/wiki/Named_pipe). Let us create one with the <!--\index{named pipe} name-->name<!--/i--> `mypipe`:
+Let's try something slightly more interesting. At a Unix-like command prompt, one can create a [*named pipe*](https://en.wikipedia.org/wiki/Named_pipe) using a command called `mkfifo`. Let us create one with the <!--\index{named pipe} name-->name<!--/i--> `mypipe`:
 
 ```
 $ mkfifo mypipe
@@ -534,13 +534,13 @@ Now, let us launch `read-stdin.jar`, by redirecting `mypipe` into its standard i
 ```
 $ cat mypipe > java -jar read-stdin.jar
 ```
-If you open another command prompt, you can then push characters into `mypipe`; for example using the command `echo`. Hence, if you type
+By opening another command prompt, one can then push characters into `mypipe`; for example using the command `echo`. Hence, if you type
 
 ```
 $ echo "foo" > mypipe
 ```
 
-you should see the string `foo` being immediately printed at the other command prompt. This happens because `read-stdin.jar` continuously polls its standard input for new characters, and pushes them down the processor chain whenever it receives some.
+the string `foo` should immediately be printed at the other command prompt. This happens because `read-stdin.jar` continuously polls its standard input for new characters, and pushes them down the processor chain whenever it receives them.
 
 As you can see, the use of stream readers in BeepBeep, combined with system pipes on the command line, makes it possible for BeepBeep to interact with other programs from the command line, in exactly the same way Unix programs can be connected into each other.
 
@@ -550,7 +550,7 @@ This can be used to read a file. Instead of redirecting a named pipe to the prog
 $ cat somefile.txt > java -jar read-stdin.jar
 ```
 
-This will have for effect of reading and pushing the entire contents of `somefile.txt` into the processor chain.
+This will have the effect of reading and pushing the entire contents of `somefile.txt` into the processor chain.
 
 ### Separating the input into tokens
 
@@ -558,7 +558,7 @@ In general, reading from an external source is done in "chunks" of bytes that do
 
     the,quick,brown,fox,jumps,over,...
 
-A `StreamReader` processor connected to this file will output events in the form of character strings; however, to this processor, the commas that are present in the file have no special meaning. Therefore, the output of the `StreamReader` is likely to be made of pieces of text like this:
+A `StreamReader` processor connected to this file will output events in the form of character strings; however, the commas that are present in the file have no special meaning for this processor. Therefore, the output of the `StreamReader` is likely to be made of pieces of text like this:
 
     the,qui
     ck,brown,fo
@@ -590,7 +590,7 @@ while (true)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/io/ReadTokens.java#L94)
 
 
-Upstream, the `FindPattern` processor is connected to a `Pump`, itself connected to a `ReadStringStream` that polls the standard input. Downstream, `FindPattern` is connected to a `Print` processor that will show its output on the console. The pattern to look for, in this case, is represented by the regex "`(.*?),`". This expression matches any number of characters (`.*?`), followed by a comma. The parentheses do not match actual characters, but rather represent what is called a *capture group*; when a piece of text matches the whole regex, the `FindPattern` processor only outputs the part inside the capture group. Here, this means that the trailing comma will be taken out of each output event.
+Upstream, the `FindPattern` processor is connected to a `Pump`, itself connected to a `ReadStringStream` that polls the standard input. Downstream, `FindPattern` is connected to a `Print` processor that will display its output on the console. The pattern to look for, in this case, is represented by the regex "`(.*?),`". This expression matches any number of characters (`.*?`), followed by a comma. The parentheses do not match actual characters, but rather represent what is called a *capture group*; when a piece of text matches the whole regex, the `FindPattern` processor only outputs the part inside the capture group. Here, this indicates that the trailing comma will be taken out of each output event.
 
 Let us compile this program as a runnable file called `read-tokens.jar`, and run it by redirecting the named pipe `mypipe` as in the previous example:
 
@@ -609,12 +609,11 @@ abc
 def
 ```
 
-Note here how each of "abc" and "def" have been printed on *two* separate lines. This is because the processor broke the input string into two events, since there are two commas that indicate the presence of two tokens. This also means that `feeder` waits until the
-comma before outputting an event; hence writing:
+Note here how each of "abc" and "def" have been printed on *two* separate lines. This is because the processor broke the input string into two events, since there are two commas indicating the presence of two tokens. This also means that `feeder` waits for the comma before outputting an event; hence writing the following command will result in no output.
 ```
 $ echo "gh" > mypipe
 ```
-will result in no output. The processor buffers the character string until it sees the desired pattern. Typing:
+The processor buffers the character string until it sees the desired pattern. Typing:
 ```
 $ echo "i,jkl," > mypipe
 ```
