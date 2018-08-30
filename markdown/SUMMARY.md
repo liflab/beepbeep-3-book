@@ -44,6 +44,7 @@
   * [Tuples](palettes/README.md#tuples)
   * [Finite-state machines](palettes/README.md#finite-state-machines)
   * [First-order logic and temporal logic](palettes/README.md#first-order-logic-and-temporal-logic)
+  * [Java widgets](palettes/README.md#java-widgets)
   * [Plots](palettes/README.md#plots)
   * [Networking](palettes/README.md#networking)
   * [JSON and XML parsing](palettes/README.md#json-and-xml-parsing)

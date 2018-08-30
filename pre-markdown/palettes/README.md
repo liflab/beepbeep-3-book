@@ -457,6 +457,17 @@ Notice how, after pushing an `open` event, the output of the filter is buffered 
 
 There is much more to be said about monitoring in general, and LTL in particular. Although somewhat clumsy, the expression of LTL properties can be a powerful means of verifying complex ordering constraints on streams of events. The reader is referred to the appendix for more references on this topic.
 
+## Java widgets
+
+Up until now, none of the examples we have shown involve interaction with a user. The sample programs get their data from a fixed source, such as a text file or a predefined `QueueSource`. In the same way, apart from the basic `Print` processor, there is little in the way of displaying information to the user. The *Widgets* palette fills some of these gaps, by allowing widgets of the Java <!--\index{Swing (library)} Swing-->Swing<!--/i--> graphical user interface (<!--\index{GUI} GUI-->GUI<!--/i-->) to be used as processors, and interact with other such objects in a chain.
+
+In a nutshell, building a GUI in Java involves creating what are called *components*, such as windows (`JFrame`), buttons (`JButton`), sliders (`JSlider`), and defining the placement and properties of these various elements. Some of these components are sensitive to user input and other actions, and generate various kinds of objects called *events*: for example, pressing a button generates an instance of an `ActionEvent` containing information about the click (the position of the mouse, a reference to the button that was clicked, etc.). Similarly, moving the cursor of a slider generates an instance of a `ChangeEvent`.
+
+In order for a program to react to user input, one must *register* an object implementing the `EventListener` interface (or one of its descendants). Hence, to react to a click on some `JButton` instance `b`, one would call `b.addActionListener(a)`, where `a` is an arbitrary object that implements the `ActionListener` interface. Such an object must have a method called `actionPerformed`, which receives an `ActionEvent` as its argument. It is up to the code of this method to perform the actions required by the program for this specific button click.
+
+You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source.
+
+
 ## Plots
 
 One interesting purpose of processing event streams is to produce visualizations of their content --that is, to derive <!--\index{plots} plots-->plots<!--/i--> from data extracted from events. BeepBeep's `plots` palette provides a few processors to easily generate dynamic plots.
@@ -789,6 +800,7 @@ Informally, object `fa` evaluates the condition: "inside a document, the value o
 The result produced by `fa` is `true`, as expected. As an exercise, try replacing `2` by `20` in the second `<b>` tag; you shall see that the quantifier returns the value `false`.
 
 This last example was slightly more involved. However, it gives a foretaste of the wide range of capabilities that become available when one starts mixing objects from multiple palettes. The next chapter shall push the envelope even further on this respect.
+
 
 ## Exercises
 

@@ -9,16 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="114.20699mm"
-   height="26.370531mm"
-   viewBox="0 0 114.20699 26.370531"
+   width="536.74493"
+   height="94.109093"
+   viewBox="0 0 142.01377 24.899697"
    version="1.1"
    id="svg21652"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="Palette-Swing.svg"
-   inkscape:export-filename="/home/sylvain/Workspaces/beepbeep/book/pre-markdown/dictionary/Palette-MTNP.png"
-   inkscape:export-xdpi="64"
-   inkscape:export-ydpi="64">
+   sodipodi:docname="Palette-Widgets.svg"
+   inkscape:export-filename="/home/sylvain/Workspaces/beepbeep/book/pre-markdown/dictionary/Palette-Widgets.png"
+   inkscape:export-xdpi="63.894901"
+   inkscape:export-ydpi="63.894901">
   <defs
      id="defs21646" />
   <sodipodi:namedview
@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="331.34648"
-     inkscape:cy="428.4109"
+     inkscape:cx="154.28125"
+     inkscape:cy="425.63137"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -38,11 +38,12 @@
      fit-margin-left="1"
      fit-margin-right="1"
      fit-margin-bottom="1"
-     inkscape:window-width="1280"
-     inkscape:window-height="971"
+     inkscape:window-width="1920"
+     inkscape:window-height="1052"
      inkscape:window-x="0"
-     inkscape:window-y="31"
-     inkscape:window-maximized="1" />
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     units="px" />
   <metadata
      id="metadata21649">
     <rdf:RDF>
@@ -59,7 +60,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(281.19256,-205.57508)">
+     transform="translate(280.45715,-206.3105)">
     <g
        transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
        id="g21321"
@@ -121,6 +122,6 @@
          id="tspan22673"
          x="-216.98906"
          y="253.40022"
-         style="stroke-width:0.50346756">SWING</tspan></text>
+         style="stroke-width:0.50346756">WIDGETS</tspan></text>
   </g>
 </svg>
