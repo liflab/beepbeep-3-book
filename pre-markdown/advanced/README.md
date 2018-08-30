@@ -25,7 +25,7 @@ First, a `QueueSource` is created, as usual; note that this time, each event in 
 
 {@img doc-files/util/BagsContains.png}{A first event stream with a more complex data structure.}{.6}
 
-This drawing introduces the "polka dot" pattern. The base colour to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is not known or may vary, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
+This drawing introduces the "polka dot" pattern. The base colour to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is unknown or varies, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
 
 As expected, the output of the program is:
 

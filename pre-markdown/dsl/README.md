@@ -55,12 +55,12 @@ The definition of the grammar must follow a well-known notation called [Backus-N
 
 Taken together, the rules define a set of expressions called *valid* expressions. In the above example, this specific grammar defines a simple subset of arithmetical expressions, involving only addition, subtraction, and three numbers. An expression is valid if there exists a way to begin at the start symbol, and successively apply rules from the grammar to ultimately produce that expression.
 
-According to the grammar above, the expression `1 + 0` is valid, since it is possible to begin at the start symbol `<exp>` and apply rules to obtain the expression:
+According to the grammar above, the expression `1 + 0` is valid, since it is possible to begin at the start symbol `<exp>` and apply rules to obtain the expression. An algorithm could perform the following manipulations:
 
-1. We transform `<exp>` into `<add>` according to the first case of rule 1.
-2. We transform `<add>` into `<num> + <num>` according to the (only) case of rule 2.
-3. We transform the first `<num>` into `1` according to the second case of rule 4; our expression becomes `1 + <num>`.
-3. We transform the second `<num>` into `0` according to the first case of rule 4; our expression becomes `1 + 0`.
+1. Transform `<exp>` into `<add>` according to the first case of rule 1.
+2. Transform `<add>` into `<num> + <num>` according to the (only) case of rule 2.
+3. Transform the first `<num>` into `1` according to the second case of rule 4; the expression becomes `1 + <num>`.
+3. Transform the second `<num>` into `0` according to the first case of rule 4; the expression becomes `1 + 0`.
 
 On the contrary, the expression `1 + 0 - 2` is not valid as there is no possible way to apply the rules in the grammar to transform `<exp>` into that expression.
 

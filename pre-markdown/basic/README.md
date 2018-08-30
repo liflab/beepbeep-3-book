@@ -148,7 +148,7 @@ The rest of our program is done as usual: a `Pullable` is obtained from `add`, a
 	The event is: 9.0
 	...
 
-The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. Indeed, 2+3=5, 7+1=8, 1+4=5, and so on. This is indeed exactly the case. When a processor has an input arity of 2 or more, it processes its inputs in batches called <!--\index{front} \textbf{fronts}-->**fronts**<!--/i-->. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
+The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. This is, in fact, exactly the case: 2+3=5, 7+1=8, 1+4=5, and so on. This is indeed exactly the case. When a processor has an input arity of 2 or more, it processes its inputs in batches called <!--\index{front} \textbf{fronts}-->**fronts**<!--/i-->. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
 
 When a processor has an arity of 2 or more, the processing of its input is done *synchronously*. This means that a computation step will be performed if and only if a new event can be consumed from each input stream. It this is not the case, the processor **waits** (and the call to `pull` blocks) until a complete front is ready to be processed. This can be exemplified in the following code example:
 
