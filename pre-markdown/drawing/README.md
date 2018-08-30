@@ -1,4 +1,4 @@
-Drawing guide
+Drawing Guide
 =============
 
 As you may have realized, in many cases the best way of understading a chain of processors is to represent it graphically.

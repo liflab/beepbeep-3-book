@@ -1,7 +1,7 @@
-Further reading
+Further Reading
 ===============
 
-## BeepBeep research papers
+## BeepBeep Research Papers
 
 BeepBeep has been the subject of multiple scientific research papers in the past couple of years. Here is a list of these publications. Note that each of them covers only a specific part of the system and that, depending on its age, may not faithfully reflect the current state of the implementation. Moreover, a few publications (mostly from 2014 and earlier) refer to version 1.x of BeepBeep, which worked differently from the current software. Some of these articles, however, detail interesting use cases where BeepBeep has been involved.
 
@@ -26,18 +26,18 @@ Event Stream Processing with Multiple Threads. RV 2017: 359-369. DOI: https://do
 - Sylvain Hallé, Roger Villemaire. (2009). Browser-Based Enforcement of Interface Contracts in Web Applications with BeepBeep. CAV 2009: 648-653. DOI: 10.1007/978-3-642-02658-4_50
 - Sylvain Hallé, Roger Villemaire. (2008). Runtime Monitoring of Message-Based Workflows with Data. EDOC 2008: 63-72. DOI: 10.1109/EDOC.2008.32
 
-## Complex-event processing systems
+## Complex Event Processing Systems
 
 As was mentioned in the introduction, BeepBeep is very close to the field of complex event processing (CEP). Here are a few pointers to books and papers on this topic.
 
-### General literature
+### General Literature
 
 
 - Neha Narkhede. (2017). Kafka: The Definitive Guide: Real-Time Data and Stream Processing at Scale. O'Reilly. ISBN: 978-1491936160
 - Jay Kreps. (2014). I Heart Logs: Event Data, Stream Processing, and Data Integration. O'Reilly. ISBN: 978-1491909386
 - David C. Luckham. (2005). The power of events -- An introduction to complex event processing in distributed enterprise systems. ACM. ISBN: 978-0-201-72789-0
 
-### Research papers and technical papers
+### Research Papers and Technical Papers
 
 Multiple CEP systems have been mentioned in the introduction. Here are links to research papers and whitepapers about some of these systems.
 
@@ -64,7 +64,7 @@ Multiple CEP systems have been mentioned in the introduction. Here are links to 
 - Praveen Seshadri, Miron Livny, Raghu Ramakrishnan. (1994). Sequence Query Processing. SIGMOD 1994: 430-441. DOI: 10.1145/191839.191926
 - Nicolas Halbwachs, Fabienne Lagnier, Christophe Ratel. (1992). Programming and Verifying Real-Time Systems by Means of the Synchronous Data-Flow Language LUSTRE. IEEE Trans. Software Eng. 18(9): 785-793. DOI: 10.1109/32.159839
 
-## Runtime verification and log analysis
+## Runtime Verification and Log Analysis
 
 - Martin Leucker, César Sánchez, Torben Scheffel, Malte Schmitz, Alexander Schramm:
 TeSSLa: runtime verification of non-synchronized real-time streams. SAC 2018: 1925-1933. DOI: 10.1145/3167132.3167338
@@ -93,7 +93,7 @@ TeSSLa: runtime verification of non-synchronized real-time streams. SAC 2018: 19
 - Hubert Garavel and Radu Mateescu. (2004). SEQ.OPEN: A Tool for Efficient Trace-Based Verification. SPIN 2004: 151-157. DOI: 10.1007/978-3-540-24732-6_11
 - Moonzoo Kim, Mahesh Viswanathan, Sampath Kannan, Insup Lee, Oleg Sokolsky. (2004). Java-MaC: A Run-Time Assurance Approach for Java Programs. FMSD 2004: 129-155. DOI: 10.1023/B:FORM.0000017719.43755.7c
 
-## Automata, logic, formal methods
+## Automata, Logic, Formal Methods
 
 - Michael Huth, Mark Ryan. (2004). Logic in Computer Science: Modelling and Reasoning about Systems. Cambridge University Press. ISBN: 978-0521543101
 - Amir Pnueli. (1977). The Temporal logic of programs. FOCS18: 46-57. DOI: 10.1109/SFCS.1977.32 

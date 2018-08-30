@@ -17,7 +17,7 @@ The number of input and output pipes is called the (input and output) <!--\index
 
 A processor produces its output in a *streaming* fashion: this means that output events are made available progressively while the input events are consumed. In other words, a processor does not wait to read its entire input trace before starting to produce output events. However, a processor can require more than one input event to create an output event, and hence may not always output something right away.
 
-## Pulling events
+## Pulling Events
 
 There are two ways to interact with a processor. The first is by getting a hold of the processor's output pipe, and by repeatedly asking for new events. The action of requesting a new output event is called **pulling**, and this mode of operation is called <!--\index{pull mode} \emph{pull mode}-->*pull mode*<!--/i-->.
 
@@ -64,7 +64,7 @@ This simple example shows the basic concepts around the use of a processor:
 - To read events from its output, we must obtain an instance of a `Pullable` object from this processor
 - Events can be queried by calling `pull()` on this `Pullable` object
 
-## Piping processors
+## Piping Processors
 
 BeepBeep provides dozens of processors, but each of them in isolation performs a simple operation. To perform more complex computations, processors can be composed (or "piped") together, by letting the output of one processor be the input of another. This piping is possible as long as the type of the first processor's output matches the type expected by the second processor's input.
 
@@ -97,7 +97,7 @@ Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull
 3. Processor `source` produces a new event, and emits it as the return value to its call on `pull`
 4. Processor `doubler` now has a new input event; it multiplies it by two, and emits it as the return value to its own call on `pull`
 
-## Two common mistakes
+## Two Common Mistakes
 
 This simple example of processor piping brings us to talk about two common mistakes one can make when creating processors and connecting them.
 
@@ -128,7 +128,7 @@ The first two outputs are identical to our original program. As was just explain
 
 As one can see, it generally does not make much sense to pull on processors that are not at the very end of the chain. To prevent the possibility of mistakes, it is possible to encapsulate a group of processors into a "box" that only gives access to the very last `Pullable`s of a chain --on which we will elaborate later.
 
-## Processors with more than one input
+## Processors with More than One Input
 
 We mentioned earlier that processors can have more than one input "pipe", or one or more output "pipe". The following example shows it:
 
@@ -170,7 +170,7 @@ Synchronous processing is a strong assumption; many other stream processing engi
 
 We shall discuss synchronous processing in more detail in a later chapter.
 
-## When types do not match
+## When Types do not Match
 
 We mentioned earlier that any processor can be piped to any other, *provided that they have matching types*. The following code example shows what happens when types do not match:
 
@@ -194,7 +194,7 @@ Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively. As 
 
 A processor can be queried for the types it accepts for input number *n* by using the method {@link jdm:ca.uqac.lif.cep.Processor#getInputType(int) getInputType()}; likewise for the type produced at output number *n* with {@link jdm:ca.uqac.lif.cep.Processor#getOutputType(int) getOutputType()}.
 
-## Pushing events
+## Pushing Events
 
 Earlier we mentioned there were two ways to interact with a processor. The first, which we have used so far, is called *pulling*. The second, as you may guess, is called **pushing**, and works more or less in reverse. In so-called <!--\index{push mode} \emph{push mode}-->*push mode*<!--/i-->, rather than querying events form a processor's output, we give events to a processor's input. This has for effect of triggering the processor's computation and "pushing" events (if any) to the processor's output.
 
@@ -229,7 +229,7 @@ The `for` loop pushes the integers 0 to 7 into the input pipe of `doubler`; the 
 
 Notice the one-second interval between each number. This shows that, in push mode, nothing happens until an upstream call to `push` triggers the chain of computation.
 
-## Pushing on binary processors
+## Pushing on Binary Processors
 
 The push mode exhibits a special behaviour in the case where a processor has an input arity of 2 or more. Consider the following piece of code:
 
@@ -279,7 +279,7 @@ The next question that generally comes to one's mind is: what happens if we keep
 
 Fortunately, there are many use cases (especially realistic ones) where such a catastrophic scenario never occurs. Notice also that this is not a limitation on BeepBeep's side: if the goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, those excess numbers *must* be stored somewhere, and that storage *must* to increase linearly with time. There is no escaping it, whether using BeepBeep or not!
 
-## Closing processor chains
+## Closing Processor Chains
 
 We mentioned earlier that a common mistake is to forget to connect two processors. A variant of this mistake is to forget to attach sources or sinks to the endpoints of a processor chain. Take the very simple example of the <!--\index{Passthrough@\texttt{Passthrough}} \texttt{Passthrough}-->`Passthrough`<!--/i--> processor, which simply takes input events and returns them as is to its output pipe. It can be depicted as follows:
 

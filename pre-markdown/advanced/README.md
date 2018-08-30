@@ -1,4 +1,4 @@
-Advanced features
+Advanced Features
 =================
 
 The previous chapters have shown the fundamental concepts around BeepBeep and the basic processors that can be used in general use cases. In this chapter, we shall see a number of more special-purpose processors comprised in BeepBeep's core likely to be used in one of your processor chains.
@@ -96,7 +96,7 @@ The following picture shows how to depict the `RunOn` processor graphically. Lik
 
 {@img doc-files/util/RunOnExample.png}{Applying a processor on collections of events with `RunOn`.}{.6}
 
-### Set-specific objects
+### Set-specific Objects
 
 The `util` package also provides a few functions and processors specific to some particular types of collections. The {@link jdc:ca.uqac.lif.cep.util.Sets Sets} class has a member field <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}} \texttt{Sets.isSubsetOrEqual}-->`Sets.isSubsetOrEqual`<!--/i--> which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor {@link jdc:ca.uqac.lif.cep.util.Sets.PutInto PutInto} which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
 
@@ -204,7 +204,7 @@ Note how the map is *updated*: if a key already exists in the map, its correspon
 
 One last function of interest is called {@link jdc:ca.uqac.lif.cep.util.Maps.Values Values}. This function takes a map as input, and returns the collection made of all the <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
 
-## Pumps and tanks
+## Pumps and Tanks
 
 All the processor chains provided as examples operate either in <!--\index{pull mode} pull mode-->pull mode<!--/i--> or in <!--\index{push mode} push mode-->push mode<!--/i-->. In pull mode, a chain must be closed upstream by having the chain start by processors of input arity 0. To opposite applies for push mode: the chain must be closed downstream by ending each branch by a processor of output arity 0. Because of this, we cannot combine pull and push in the same chain.
 
@@ -252,11 +252,11 @@ However, events cannot be pulled from the tank more than were pushed to it befor
 Exception in thread "main" java.util.NoSuchElementException
 ```
 
-## Basic input/output
+## Basic Input/Output
 
 So far, the data sources used in our examples were simple, hard-coded `QueueSource`s. Obviously, the events in real-world use cases are more likely to come from somewhere else: a file, the program's standard input, or some other source. BeepBeep's `io` package provides a few functionalities for connecting processor chains to the outside world.
 
-### Reading from a file
+### Reading from a File
 
 Consider for example a text <!--\index{file!reading from} files-->file<!--/i--> containing single numbers, each on a separate line:
 
@@ -413,7 +413,7 @@ Instead of reading local files, it is also possible to obtain text from a remote
 
 The interest of this technique lies in the fact that the resource at the end of the URL does not need to be a static file. If the server that replies to the request returns content that changes over time, a repeated polling can be used as a dynamic source of events.
 
-## Soft vs. hard pulling
+## Soft vs. Hard Pulling
 
 So far, we have used `Pullable` objects like ordinary Java iterators. Method `hasNext` is used to ask whether a new event is available; if the answer is `true`, we can then use `pull` to fetch this new event, with the guarantee that there is indeed a new event to fetch. On the contrary, if the answer is `false`, this means that the processor to which the `Pullable` is attached has stopped producing events for good. Like for an iterator over a normal collection of objects, it is useless to try to call `hasNext` at a later time: no new event will ever come out.
 
@@ -492,7 +492,7 @@ As you can see, using hard and soft pulling ultimately produces the same stream 
 
 For the same processor, mixing calls to soft and hard methods is discouraged. As a matter of fact, the `Pullable`'s behaviour in such a situation is left undefined.
 
-## The state of a processor
+## The State of a Processor
 
 We have said a couple of times that the main distinction between functions and processors is the fact that the latter are *stateful*. That is, given the same inputs, a function always returns the same output; in contrast, the output produced by a processor for an event may depend on what other events have been seen before. As a consequence, a `Processor` object must have some memory of the past --hence the term "stateful". 
 
@@ -584,11 +584,11 @@ An `ApplyFunction` processor is created, and an association between the key "foo
 
 Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence, the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their {@link jdc:ca.uqac.lif.cep.Context Context} object.
 
-## Duplicating processors
+## Duplicating Processors
 
 In some occasions, it may be useful to create a copy of an existing processor instance. This process is called <!--\index{processor!duplication} \textbf{duplication}-->**duplication**<!--/i-->, and is done using a processor's method `duplicate()`.  There are two types of duplication: *stateless* and *stateful*.
 
-### Stateless duplication
+### Stateless Duplication
 
 The following example shows how to perform what is called *stateless* duplication:
 
@@ -632,7 +632,7 @@ f2: 11
 
 This shows that the value of "foo" (10) has been transferred over from `f1` to its duplicate `f2`. From then on, `f1` and `f2` have separate context objects; changing the value of "foo" in `f1`'s context has no effect on `f2`, and vice versa. Keep in mind that duplication is like any other processor instantiation, and that the duplicated processor always has a distinct numerical ID, regardless of everything else.
 
-### Stateful duplication
+### Stateful Duplication
 
 It is also possible to duplicate a processor *and* its state at the same time. To this end, method `duplicate` accepts an optional Boolean argument; if set to `true`, this will instruct to create a copy of the process, and to place that processor in the same state as the original (instead of its initial state). Let us examine the difference by revisiting our original example on duplication, and adding the parameter `true` to the call to `duplicate`:
 
@@ -673,7 +673,7 @@ Copying the contents of input and output queues inside `GroupProcessor`s is esse
 
 The discussion in this section is a bit technical, and BeepBeep is designed precisely so that you don't need to bother about these intricate details. However, it may sometimes be useful to get a deeper understanding of what is happening at a lower level of abstraction.
 
-## Using multiple threads
+## Using Multiple Threads
 
 Many existing runtime monitors, and BeepBeep's core in particular, work by default using a single <!--\index{threads} thread-->thread<!--/i--> of the host machine. The figure below gives an example of this situation. The execution of the single-thread system is shown in the left part of the graph. One can see that, while the high CPU usage alternates between the four available cores of the host machine (a result of the operating system's load balancing), only one at a time exhibits a high load. This results in much available CPU power that is not used to speed up the system.
 

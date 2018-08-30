@@ -1,4 +1,4 @@
-The standard palettes
+The Standard Palettes
 =====================
 
 A large part of BeepBeep's functionalities is dispersed across a number of *palettes*. These palettes are additional libraries (i.e. JAR files) that define new processors or functions for use along with BeepBeep's core elements. Each palette is optional, and has to be included in your project only if you need its contents.
@@ -22,7 +22,7 @@ Input files are seldom made of a single value per line of text. A more frequent 
 
 Blank lines and lines that begin with the hash symbol (`#`) are typically ignored (although the latter is not standard). The first non-ignored line in the file gives the *name* of each attribute. In the example above, the file defines three attributes named "A", "B" and "C". All the remaining lines of the file defines what are called <!--\index{tuple} \textbf{tuples}-->**tuples**<!--/i-->; a tuple is a data object that associates each attribute to a value. For example, the fourth line of the file defines a tuple that associates attribute A to value 3, attribute B to value 2, and attribute C to value 1. In other words, a CSV file is similar to a **table** in a relational database.
 
-### Reading tuples
+### Reading Tuples
 
 The following program reads a CSV file called `file1.csv`, and extracts tuples from this file one by one:
 
@@ -56,7 +56,7 @@ Graphically, this program can be represented as follows:
 
 This drawing introduces the symbol for the `TupleFeeder`, whose pictogram on the box represents a tuple. It also shows the colour we use to represent tuple feeds (brown/orange).
 
-### Querying tuples
+### Querying Tuples
 
 The previous example has shown us how to read tuples, but not how to manipulate them. The `tuples` palette defines a few handy `Function` objects that allow us, among other things, to fetch the value of an attribute and also to merge tuples. From the same input file as above, let us create an output stream made of the sum of attributes A and B in each line. The following piece of code performs exactly that:
 
@@ -82,7 +82,7 @@ which indeed corresponds to the sum of A and B in each line. However, this proce
 
 We leave as an exercise to the reader the task of writing this processor chain in code.
 
-### Other tuple functions
+### Other Tuple Functions
 
 The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
 
@@ -94,11 +94,11 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 - The function <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} \texttt{ExpandAsColumns}-->`ExpandAsColumns`<!--/i--> transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
-## Finite-state machines
+## Finite-state Machines
 
 Sometimes, a stream is made of events representing a sequence of "actions". It may be interesting to check whether these actions follow a predefined pattern, which stipulates in what order the actions in a stream can be observed to be considered valid. A convenient way of specifying these patterns is through a device called a <!--\index{finite-state machine} \emph{finite-state machine}-->*finite-state machine*<!--/i--> (FSM). BeepBeep's FSM palette allows users to create such machines.
 
-### Defining a Moore machine
+### Defining a Moore Machine
 
 As a simple example, suppose that a log contains a list of calls on a single Java `Iterator` object. Typical method calls on an iterator are `next`, `hasNext`, `reset`, etc. Such a log could look like this:
 
@@ -159,7 +159,7 @@ A complete graphical representation of the chain of processors in this program w
 
 {@img doc-files/finitestatemachines/SimpleMooreMachine.png}{A complete representation of the `MooreMachine` example.}{.6}
 
-### Using the machine's context
+### Using the Machine's Context
 
 We have seen in the previous chapter how each `Processor` object carries an associative map called the <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i-->. A `MooreMachine` is one example of a processor that can put this `Context` object to good use, by employing it as a storage location for local variables. These variables can be initialized by the `MooreMachine` when it is created, modified when a transition is taken, and their value can be used in the conditions that determine which transition should fire. In this respect, such variables work in a very similar way to the same kind of local variables one can find in UML state machines.
 
@@ -244,11 +244,11 @@ Notice how the count increments, then resets to 0 upon receiving a `next` event.
 
 The purpose of this section is not to have an in-depth discussion on the theory of finite-state machines. The previous two examples have shown all the features of BeepBeep's `MooreMachine` processor, and highlighted its flexibility in defining guards, side effects, and associating symbols to states. In particular, our FSMs are not restricted to outputting Boolean values, and can also accept any kind of input event. A few use cases in the next chapter will further show how the `MooreMachine` can be used in various scenarios, and mixed with other BeepBeep processors.
 
-## First-order logic and temporal logic
+## First-order Logic and Temporal Logic
 
 The `Booleans` utility class provides basic logical functions for combining Boolean values together; anybody who does a bit of programming has already used operators such as "and", "or" and "not". However, there is more to logic than these simple connectives. BeepBeep provides two palettes, called FOL and LTL, that extend classical logic with new operators pertaining to *first-order logic* and *linear temporal logic*, respectively. Let us examine these operators and see what they can do.
 
-### First-order logic
+### First-order Logic
 
 <!--\index{first-order logic} Often-->Often<!--/i-->, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called <!--\index{quantifier} \emph{quantifiers}-->*quantifiers*<!--/i-->.
 
@@ -298,7 +298,7 @@ Since quantifiers are `Function` objects like any other, there is no constraint 
 
 Each quantifier also exists in a variant which, instead of taking a set as its input, accepts an arbitrary object. When instantiated, this variant requires an extra `Function`, called the *domain function*, which is used to compute a set of elements from the input argument. 
 
-### Linear temporal logic: operator "G"
+### Linear Temporal Logic: Operator "G"
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
@@ -345,7 +345,7 @@ However, `g` also has enough information to determine what to output for *e*<sub
 
 It takes some time to get used to this principle. What must be remembered is that `Globally` delays its output for an input event until enough is known about the future to provide a definite value. As a matter of fact, `Globally` can never return `true` --how could one be sure in advance that all future events are going to be true? It can only return the value `false`, in bursts, when it receives a `false` event. As an exercise, try pushing more events to `g` in order to train your intuition.
 
-### Other LTL operators
+### Other LTL Operators
 
 Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of Boolean events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true at least once at some point in the future. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future. This is illustrated in the following code example:
 
@@ -403,7 +403,7 @@ At this point, we are more familiar with the behaviour of LTL processors. Note h
 
 Note that `Until`, like any other synchronous processor with an arity greater than 1, waits until a complete event front is available before performing a processing step. That is, if we push events only on `p` or on `q`, processor `u` will not produce any output --but this time, this will be because it is waiting for events at matching positions in the other input stream.
 
-### Nesting LTL operators
+### Nesting LTL Operators
 
 Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ({@snipi ltl/Nested.java}{}).
 
@@ -624,7 +624,7 @@ Not very surprising, but think about all the magic that happened in the backgrou
 
 All this process requires only about 10 lines of code.
 
-### All together now: distributed twin primes
+### All Together Now: Distributed Twin Primes
 
 As we mentioned earlier, the use of HTTP gateways can make for a simple way to distribute computation over multiple computers. As a matter of fact, any chain of processors can be "cut" into parts, with the loose ends attached to upstream and downstream gateways.
 
@@ -654,11 +654,11 @@ A few things you might want to try:
 
 - Machine B's program depends on the numbers sent by Machine A. Therefore, if you stop Machine A and restart it, you will see Machine B starting the sequence of twin primes from the beginning.
 
-## JSON and XML parsing
+## JSON and XML Parsing
 
 We have already seen how BeepBeep can process input streams such as CSV text files, and break each line of these files into a structured object called a *tuple*. Other BeepBeep palettes can also process input data in a variety of other formats. In this section, we elaborate on two such formats, called JSON and XML.
 
-### JSON parsing
+### JSON Parsing
 
 The serialization example in the previous section alluded to a particular way of formatting information using a notation called <!--\index{JSON} \textbf{JSON}-->**JSON**<!--/i-->. This acronym stands for *JavaScript Object Notation*, as it was first used in the JavaScript programming language to represent "semi-structured" data. A JSON object is a textual document such as this:
 
@@ -721,7 +721,7 @@ If the field to fetch is nested within another `JsonElement`, it is not necessar
 
 By convention, a period is used to designate a value inside a `JsonMap`, while brackets with a number designate a position inside a `JsonList`. Hence, the path `c.e[0].f` would lead to the value "bar" in the JSON document shown at the beginning of this chapter.
 
-### XML parsing
+### XML Parsing
 
 **XML** parsing and processing works in the same way. As you may probably know, <!--\index{XML} XML-->XML<!--/i--> (the *eXtensible Markup Language*) is another popular notation for storing and exchanging data. An XML document is made of a set of nested "tags" and looks like this:
 

@@ -1,9 +1,9 @@
-Fundamental processors and functions
+Fundamental Processors and Functions
 ====================================
 
 BeepBeep is organized along a modular architecture. The main part of BeepBeep is called the *engine*, which provides the basic classes for creating processors and functions, and contains a handful of general-purpose processors for manipulating traces. BeepBeep's remaining functionalities are dispersed across a number of *palettes*. In this chapter, we describe the basic processors and functions provided by BeepBeep's engine.
 
-## Function objects
+## Function Objects
 
 A <!--\index{Function@\texttt{Function}} \textbf{function}-->**function**<!--/i--> is something that accepts *arguments* and produces a return *value*. In BeepBeep, functions are "first-class citizens"; this means that every function that is to be applied on an event is itself an object, which inherits from a generic class called {@link jdc:ca.uqac.lif.cep.functions.Function Function}. For example, the negation of a Boolean value is a function object called {@link jdc:ca.uqac.lif.cep.util.Booleans.Negation Negation}; the sum of two numbers is also a function object called {@link jdc:ca.uqac.lif.cep.util.Numbers.Addition Addition}.
 
@@ -35,7 +35,7 @@ The first instruction creates a new instance of another `Function` object, this 
 
     14 divided by 3 equals 4 remainder 2
 
-## Applying a function on a stream
+## Applying a Function on a Stream
 
 A function is a "static" object: a call to `evaluate` receives a single set of arguments, computes a return value, and ends. In many cases, it may be desirable to apply a function to each event of a stream. In other words, we would like to "turn" a function into a processor applying this function. The processor responsible for this is called {@link jdc:ca.uqac.lif.cep.functions.ApplyFunction ApplyFunction}. When instantiated, <!--\index{ApplyFunction@\texttt{ApplyFunction}} \texttt{ApplyFunction}-->`ApplyFunction`<!--/i--> must be given a `Function` object; it calls this function's `evaluate` on each input event, and returns the result on its output pipe.
 
@@ -81,7 +81,7 @@ The expected output of the program should look like this:
 
 Indeed, (2+3)×1=5, (7+1)×1=8, (1+4)×2=10, and so on.
 
-## Function trees
+## Function Trees
 
 In the previous example, if the three input streams were named *x*, *y* and *z*, the processor chain created corresponds informally to the expression (*x*+*y*)×*z*. However, having to write each arithmetical operator as an individual processor can become tedious. After all, (*x*+*y*)×*z* is itself a function *f*(*x*,*y*,*z*) of three variables; isn't there a way to create a `Function` object corresponding to this expression, and to give this expression to a single `ApplyFunction` processor?
 
@@ -113,7 +113,7 @@ Pulling events from `exp` will result in a similar pattern as before:
 
 Note that a stream variable may appear more than once in a function tree. Hence, an expression such as (*x*+*y*)×(*x*+*z*) is perfectly fine.
 
-## Forking a stream
+## Forking a Stream
 
 Sometimes, it may be useful to perform multiple separate computations over the same stream. In order to do so, one must be able to <!--\index{Fork@\texttt{Fork}} split-->split<!--/i--> the original stream into multiple identical copies. This is the purpose of the {@link jdc:ca.uqac.lif.cep.tmf.Fork Fork} processor.
 
@@ -185,7 +185,7 @@ Notice how, this time, the `Print` processors do not all print the same thing. T
 
 We do not recommend exploiting this side effect in your BeepBeep programs; although the fork seems to push events from top to bottom, the ordering is in fact undefined and should not be taken for granted. Most BeepBeep processors that are specific to mutable objects such as lists or sets take care of creating and returning a *copy* of the original object to avoid such unwanted behaviour (`RemoveFirst` is an exception, which was crafted only for this example). However, one must still be careful when passing around mutable objects that are referenced from multiple points in a program --as is the case in Java programming in general.
 
-## Cumulate values
+## Cumulating Values
 
 A variant of the function processor is the {@link jdc:ca.uqac.lif.cep.functions.Cumulate Cumulate} processor. Contrary to all the processors we have seen so far, which are stateless, <!--\index{Cumulate@\texttt{Cumulate}} \texttt{Cumulate}-->`Cumulate`<!--/i--> is our first example of a <!--\index{stateful processor} \textbf{stateful}-->**stateful**<!--/i--> processor: this means that the output it returns for a given event depends on what it has output in the past. In other words, a stateful processor has a "memory", and the same input event may produce different outputs. 
 
@@ -243,7 +243,7 @@ When receiving the first event (`true`), the processor computes its conjunction 
 
 Intuitively, this processor performs the logical conjunction of all events received so far. This conjunction becomes false forever, as soon as a `false` event is received.
 
-## Trimming events
+## Trimming Events
 
 Up until now, all the processors studied were <!--\index{uniform processor} \textbf{uniform}-->**uniform**<!--/i-->: for each input event, they emitted exactly one output event (or more precisely, for each input *front*, they emitted exactly one output *front*). Not all processors need to be uniform; as a first example, let us have a look at the {@link jdc:ca.uqac.lif.cep.tmf.Trim Trim} processor.
 
@@ -293,7 +293,7 @@ On the first call on `pull`, the addition processor first calls `pull` on its fi
 
 From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{window!sliding} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
 
-## Sliding windows
+## Sliding Windows
 
 For a window of two events, like in the previous example, using a `Trim` processor may be sufficient. However, as soon as the window becomes larger, doing such a computation becomes very impractical (an exercise at the end of this chapter asks you to try with three events instead of two). The use of sliding windows is so prevalent in event stream processing that BeepBeep provides a processor that does just that. It is called, as you may guess, {@link jdc:ca.uqac.lif.cep.tmf.Window Window}.
 
@@ -335,7 +335,7 @@ As we can see, although this example makes use of a `Window` processor, its mean
 
 This example also marks the first time we have a chain of processors where multiple event types are mixed. The first end of the chain manipulates numbers (green pipes), while the last part of the chain has Boolean events (grey-blue). Notice how function <!--\index{IsEven@\texttt{IsEven}} \texttt{IsEven}-->`IsEven`<!--/i--> in the diagram has two colours. The bottom part represents the input (green, for numbers), while the top part represents the output (grey-blue, for Booleans). Similarly, the input pipe of the `ApplyFunction` processor is green, while its output pipe is grey-blue, for the same reason.
 
-## Group processors
+## Grouping Processors
 
 We claimed a few moments ago that "anything can be encased in a sliding window". This means that, instead of a single processor, we could give `Window` a more complex chain, like the one that computes the <!--\index{running average} running average-->running average<!--/i--> of a stream of numbers, as illustrated below.
 
@@ -373,7 +373,7 @@ Here, we create two copies of the input stream offset by one event. These two st
 
 {@snipm basic/GroupBinary.java}{/}
 
-## Decimating events
+## Decimating Events
 
 A common task in event stream processing is to discard events from an input stream at periodic intervals. This process is called <!--\index{decimation} \textbf{decimation}-->**decimation**<!--/i-->. The two common ways to decimate events are:
 
@@ -408,7 +408,7 @@ The decimate processor can be mixed with the other processors seen so far. For e
 
 As one can see, hopping windows can be created out of sliding windows of width *n* by simply keeping one window out of every *n*.
 
-## Filtering events
+## Filtering Events
 
 The `CountDecimate` processor acts as a kind of filter, based on the events' position. If an input event is at a position that is an integer multiple of the decimation interval, it is sent in the output; otherwise, it is discarded. Apart from the `Trim` processor we have encountered earlier, this is so far the only way to discard events from an input stream.
 
@@ -453,7 +453,7 @@ The solution is to combine the `Filter` with another processor we have seen earl
 
 As we can see, the bottom part of the chain passes the input stream through an `ApplyFunction` processor, which evaluates the function {@link jdc:ca.uqac.lif.cep.util.Numbers.IsEven IsEven}. This function turns the stream of numbers into a stream of Booleans, which is then connected to the filter's control pipe. The end result of this chain is to produce an output stream where all odd numbers from the input stream have been removed. Obviously, if a more complex condition needs to be evaluated, a `FunctionTree` can be used instead of a single function. As a matter of fact, users are not limited to a single `ApplyFunction` processor, and can create whatever chain of processors they wish, as long as it produces a Boolean stream!
 
-## Slicing a stream
+## Slicing a Stream
 
 The `Filter` is a powerful processor in our toolbox. Using a filter, we can take a larger stream and create a "sub-stream" --that is, a stream that contains a subset of the events of the original stream. Using forks, we can even create *multiple* different sub-streams from the same input stream. For example, we can separate a stream of numbers into a sub-stream of even numbers on one side, and a sub-stream of odd numbers on the other. This is perfectly possible, as the picture below shows.
 

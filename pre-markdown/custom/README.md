@@ -5,14 +5,14 @@ BeepBeep was designed from the start to be easily extensible. As was discussed e
 
 However, it may very well be possible that none of the processors or functions in existing palettes are appropriate for a particular problem. Fortunately, BeepBeep provides easy means of creating your own objects, by simply extending some of the classes provided by the core library. In this chapter, we shall see through multiple examples how custom functions and processors can be created, often in just a few lines of code.
 
-## Creating custom functions
+## Creating Custom Functions
 
 Let us start with the simple case of functions. A custom function is any object that inherits from the base class {@link ca:uqac.lif.cep.functions.Function Function}. There are two main ways to create new function classes:
 
 - By extending `FunctionTree` and composing existing `Function` objects
 - By extending `Function` or one of its more specific descendents, such as `UnaryFunction` or `BinaryFunction`. In such a case, the function can made of arbitrary Java code.
 
-### As a function tree
+### As a Function Tree
 
 A first way of creating a function is to create a new class that extends {@link jdc:ca.uqac.lif.cep.functions FunctionTree}. The constructor to this class has to call `FunctionTree`'s constructor, and to build the appropriate function tree right there. Recall the function tree we created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
 
@@ -37,7 +37,7 @@ ApplyFunction af = new ApplyFunction(f);
 
 An interesting advantage is that, should you with to change the actual function that is computed, you only need to make the modification at a single location.
 
-### As a new object
+### As a New Object
 
 The previous technique only works for custom functions that can actually be expressed in terms of existing functions. When this is not possible, we must resort to creating a new, full-fledged `Function` object from scratch, composed of arbitrary Java code. It turns out that this is not very hard.
 
@@ -87,7 +87,7 @@ As you might expect, a `Function` may have more than one input or output argumen
 
 {@snips functions/custom/CutString.java}{public class CutString}
 
-### Unary and binary functions
+### Unary and Binary Functions
 
 Extending `Function` directly results in lots of "boilerplate" code. If your intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either {@link jdc:ca.uqac.lif.cep.functions.UnaryFunction UnaryFunction} or {@link jdc:ca.uqac.lif.cep.functions.BinaryFunction BinaryFunction}. These classes take care of most of the housekeeping associated to functions, and require you to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, you can write whatever Java code you want.
 
@@ -105,7 +105,7 @@ Function `CutString` could also be simplified by defining it as a descendent of 
 
 This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, method `getValue` works according to similar principles as `UnaryFunction`.
 
-## Create your own processor
+## Create your Own Processor
 
 In the same way as for functions, BeepBeep allows you to create new `Processor` objects, which can then be composed with existing processors. What is more, you start to do so with **no more than 4 lines of boilerplate code**.
 
@@ -161,7 +161,7 @@ public class MyProcessor extends SingleProcessor {
 
 This results in a processor that accepts no inputs, and produces no output. To make things more interesting, we will study a couple of examples.
 
-### Example 1: string length
+### Example 1: String Length
 
 As a first example, let us write a processor that receives character strings as its input events, and that computes the length of each string. The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
 
@@ -177,7 +177,7 @@ The other method that we need to implement is `duplicate`; it works in the same 
 
 That's it. From then on, you can instantiate `StringLength`, connect it to the output of any other processor that produces strings, and pipe its result to the input of any other processor that accepts numbers.
 
-### Example 2: Euclidean distance
+### Example 2: Euclidean Distance
 
 This second example will show an example of a processor that takes as input two traces. The events of each trace are instances of the user-defined class Point:
 
@@ -208,7 +208,7 @@ public class EuclideanDistance extends SingleProcessor {
 }
 ```
 
-### Example 3: separating a point
+### Example 3: Separating a Point
 
 This processor takes as input a single trace of Points (see example above), and sends the x and y component of that point as events of two output traces. It is an example of processor with an output arity of 2.
 
@@ -233,7 +233,7 @@ public class SplitPoint extends SingleProcessor {
 
 Note that we use wrapVector(), rather than wrapObject(), as the result we are producing is already an array of size 2. Method wrapVector() simply puts that array into a new empty queue. Note also that it is an error to produce an array whose size is not equal to the processor's output arity.
 
-### Example 4: threshold
+### Example 4: Threshold
 
 So far, all processors we designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that we could have passed to an `ApplyFunction` processor.) This needs not be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
 
@@ -241,7 +241,7 @@ So far, all processors we designed return one output event for every input event
 
 The way to indicate that a processor does not produce any output for an input is to return null. Note that this should not be confused with the output arity of the processor.
 
-### Example 5: stuttering
+### Example 5: Stuttering
 
 Conversely, a processor does not need to output only one event for each input event. For example, the following processor repeats an input event as many times as its numerical value: if the event is the value 3, it is repeated 3 times in the output.
 
@@ -250,7 +250,7 @@ Conversely, a processor does not need to output only one event for each input ev
 This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SingleProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as you wish in the output queue, and `SingleProcessor` takes care of releasing them one by one through its `Pullable` object.
 
 
-### Example 6: a processor with memory
+### Example 6: a Processor with Memory
 
 So far, all our processors are memoryless: they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let's create a processor that outputs the maximum between the current event and the previous one. That is, given the following input trace:
 
