@@ -465,8 +465,23 @@ In a nutshell, building a GUI in Java involves creating what are called *compone
 
 In order for a program to react to user input, one must *register* an object implementing the `EventListener` interface (or one of its descendants). Hence, to react to a click on some `JButton` instance `b`, one would call `b.addActionListener(a)`, where `a` is an arbitrary object that implements the `ActionListener` interface. Such an object must have a method called `actionPerformed`, which receives an `ActionEvent` as its argument. It is up to the code of this method to perform the actions required by the program for this specific button click.
 
-You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source.
+You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source. 
 
+As an example, let us create a window containing a text label and a slider widget, using simple Swing objects:
+
+{@snipm widgets/GetValueSlider.java}{/}
+
+The window should look like the following screenshot:
+
+{@img doc-files/widgets/SliderWindow-frame.png}{A simple window with a text label and a slider widget.}{.6}
+
+{@snipm widgets/GetValueSlider.java}{!}
+
+Every time the slider is moved, a text line should be printed at the console:
+
+```
+javax.swing.event.ChangeEvent[source=javax.swing.JSlider[,10,25,276x42,...
+```
 
 
 
