@@ -1,9 +1,9 @@
-Designing a query language
+Designing a Query Language
 ==========================
 
 In this chapter, we shall explore a unique feature of BeepBeep, which is the possibility to create custom **query languages**. Rather than instantiate and pipe processors directly through Java code, a query language allows a user to create processor chains by writing expressions using a custom syntax, effectively enabling the creation of <!--\index{domain-specific language} \textbf{domain-specific languages}-->**domain-specific Languages**<!--/i--> (DSLs).
 
-## The Turing tarpit of a single language {#single}
+## The Turing tarpit of a Single Language {#single}
 
 As already mentioned at the very beginning of this book, many other event stream processing engines provide the user with their own query language. In most of these systems, the syntax for these languages is borrowed from SQL, and many stream processing operations can be accomplished by writing statements such as `SELECT`. For example, the following query, taken from the documentation of a CEP system called <!--\index{Esper} Esper-->Esper<!--/i-->, selects a total price per customer over pairs of events (a ServiceOrder followed by a ProductOrder event for the same customer id within one minute), occurring in the last two hours, in which the sum of price is greater than 100, and using a *where* clause to filter on the customer's
 name:
@@ -40,7 +40,7 @@ The basic process of creating a DSL is as follows:
 1. First, users decide what expressions of the language will look like by defining what is called a *grammar*
 2. Then, users devise a mechanism to build objects (typically `Function` and `Processor` objects) from expressions of the language
 
-## Defining a grammar {#grammar}
+## Defining a Grammar {#grammar}
 
 A special palette called `dsl` allows the user to design query languages for various purposes. Under the hood, `dsl` uses <!--\index{Bullwinkle (parser)} Bullwinkle-->Bullwinkle<!--/i-->, a parser for languages that operates through recursive descent with backtracking. Typical [parser generators](http://en.wikipedia.org/wiki/Parser_generator) such as ANTLR, <!--\index{Yacc} Yacc-->Yacc<!--/i--> or <!--\index{Bison (parser)} Bison-->Bison<!--/i--> take a <!--\index{grammar} grammar-->grammar<!--/i--> as input and produce code for a parser specific to that grammar, which must then be compiled to be used. On the contrary, Bullwinkle reads the definition of a grammar at *runtime* and can parse strings on the spot.
 
@@ -55,12 +55,12 @@ The definition of the grammar must follow a well-known notation called [Backus-N
 
 Taken together, the rules define a set of expressions called *valid* expressions. In the above example, this specific grammar defines a simple subset of arithmetical expressions, involving only addition, subtraction, and three numbers. An expression is valid if there exists a way to begin at the start symbol, and successively apply rules from the grammar to ultimately produce that expression.
 
-According to the grammar above, the expression `1 + 0` is valid, since it is possible to begin at the start symbol `<exp>` and apply rules to obtain the expression:
+According to the grammar above, the expression `1 + 0` is valid, since it is possible to begin at the start symbol `<exp>` and apply rules to obtain the expression. An algorithm could perform the following manipulations:
 
-1. We transform `<exp>` into `<add>` according to the first case of rule 1.
-2. We transform `<add>` into `<num> + <num>` according to the (only) case of rule 2.
-3. We transform the first `<num>` into `1` according to the second case of rule 4; our expression becomes `1 + <num>`.
-3. We transform the second `<num>` into `0` according to the first case of rule 4; our expression becomes `1 + 0`.
+1. Transform `<exp>` into `<add>` according to the first case of rule 1.
+2. Transform `<add>` into `<num> + <num>` according to the (only) case of rule 2.
+3. Transform the first `<num>` into `1` according to the second case of rule 4; the expression becomes `1 + <num>`.
+3. Transform the second `<num>` into `0` according to the first case of rule 4; the expression becomes `1 + 0`.
 
 On the contrary, the expression `1 + 0 - 2` is not valid as there is no possible way to apply the rules in the grammar to transform `<exp>` into that expression.
 
@@ -104,7 +104,7 @@ Once a grammar has been loaded into an instance of `BnfParser`, it is possible t
 
 The leaves of this tree are literals; all the other nodes correspond to non-terminal symbols. Intuitively, a node represents the application of a rule, and the children of that node are the symbols in the specific case of the rule that was applied. For example, the root of the tree corresponds to the start symbol `<exp>`; this symbol is transformed into `<add>` by applying the first case of rule 1. The symbol `add`, in turn, is transformed into the expression `<num> + ( <exp> )` by applying the second case of rule 2 --and so on.
 
-## Building objects from the parsing tree {#objectbuilder}
+## Building Objects from the Parsing Tree {#objectbuilder}
 
 As we can see, the process of parsing transforms an arbitrary character string into a structured tree. Using this tree to construct an object is much easier than trying to process a character string directly: one simply needs to traverse the parsing tree, and to build the parts of the object piece by piece. This is done by using an object called the  <!--\index{GrammarObjectBuilder@\texttt{GrammarObjectBuilder}} \texttt{GrammarObjectBuilder}-->`GrammarObjectBuilder`<!--/i-->.
 
@@ -253,7 +253,7 @@ This program simply reads expressions at the console, parses and evaluates them,
     -3.0
     ? q
 
-## Simpler stack manipulations {#stack}
+## Simpler Stack Manipulations {#stack}
 
 As one can see, it is possible to create builders that read expressions and create new objects with very little effort. However, the manipulation of the stack in each method remains a delicate operation. Popping one object less than expected, or one more, may put the stack in an inconsistent state and have disastrous cascading effects on the build process. As a simple example, suppose that method `handleAdd` is modified as follows:
 
@@ -374,7 +374,7 @@ The array indices become 0 and 1, since only the two `FunctionTree` objects rema
 
 ![A graphical representation of the stack manipulations for rule `<add>` in infix notation, using the `clean` option.](Rule-add-infix-clean.png)
 
-## Building processor chains {#procchains}
+## Building Processor Chains {#procchains}
 
 So far, the examples have focused on simple grammars building `Function` objects in various ways. The process for building and chaining `Processor` objects is largely similar; however, since processors must be connected to each other in a specific way, one will need to pay attention to this detail when manipulating these objects on the stack.
 
@@ -510,7 +510,7 @@ In our code example, we pull five events from it and print them to the console; 
     1
     3
 
-## Mixing types {#mix}
+## Mixing Types {#mix}
 
 Nothing prevents an object builder to create objects of various types. As more involved example, let us add new rules to the previous builder, which will allow us to create `Function` objects and `ApplyFunction` processors. The grammar could look appear this:
 

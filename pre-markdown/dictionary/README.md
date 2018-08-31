@@ -289,6 +289,12 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 {@img images/util/GetSize.png}{GetSize}{.6}
 
+#### `GetWidgetValue`
+
+@palette Widgets@ <!--\index{GetWidgetValue@\texttt{GetWidgetValue}} A-->A<!--/i--> `Function` that takes a Swing component as input, and returns the current "value" of this component. It is represented graphically as:
+
+{@img images/widgets/GetWidgetValue.png}{GetWidgetValue}{.6}
+
 #### `Globally`
 
 @palette LTL@ <!--\index{Globally@\texttt{Globally}} A-->A<!--/i--> `Processor` that implements the "globally" or **G** operator of Linear Temporal Logic. If *p* is an LTL expression, **G** *p* stipulates that *p* should evaluate to `true` on every suffix of the current trace. It is represented graphically as:
@@ -376,6 +382,12 @@ forward, padding the beginning of the trace with some dummy element.
 @palette Core@ <!--\index{KeepLast@\texttt{KeepLast}} A-->A<!--/i--> `Processor` that returns only the very last event of its input stream, and discards all the previous ones. It is represented graphically as:
 
 {@img images/tmf/KeepLast.png}{KeepLast}{.6}
+
+#### `ListenerSource`
+
+@palette Widgets@ <!--\index{ListenerSource@\texttt{ListenerSource}} A-->A<!--/i--> `Source` processor that wraps around a Swing component, and pushes `ActionEvent`s or `ChangeEvent`s when user actions are performed on the component. It is represented as a box illustrating the widget that is being wrapped, such as follows:
+
+{@img images/widgets/ListenerSource.png}{ListenerSource}{.6}
 
 #### `Lists`
 
@@ -487,7 +499,7 @@ The oppositve of `Pack` in `Unpack`. See also `TimePack`.
 
 {@img images/util/Power.png}{Power}{.6}
 
-#### Prefix
+#### `Prefix`
 
 @palette Core@ <!--\index{Prefix@\texttt{Prefix}} A-->A<!--/i--> `Processor` that returns the first <i>n</i> input events and discards the following ones. It is represented graphically as:
 
@@ -744,6 +756,12 @@ The oppositve of `TimePack` in `Unpack`. See also `Pack`.
 @palette Core@ <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \index{Bags@\texttt{Bags}!ToList@\texttt{ToList}} \index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} Three-->Three<!--/i--> *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
 
 {@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.6}
+
+#### `ToImageIcon`
+
+@palette Widgets@ <!--\index{ToImageIcon@\texttt{ToImageIcon}} An-->An<!--/i--> `UnaryFunction` that converts an array of bytes containing an image, into a Swing `ImageIcon`. It is represented as:
+
+{@img images/widgets/ToImageIcon.png}{ToImageIcon}{.6}
 
 #### `ToString`
 

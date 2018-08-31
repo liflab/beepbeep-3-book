@@ -1,4 +1,4 @@
-The standard palettes
+The Standard Palettes
 =====================
 
 A large part of BeepBeep's functionalities is dispersed across a number of *palettes*. These palettes are additional libraries (i.e. JAR files) that define new processors or functions for use along with BeepBeep's core elements. Each palette is optional, and has to be included in your project only if you need its contents.
@@ -22,7 +22,7 @@ Input files are seldom made of a single value per line of text. A more frequent 
 
 Blank lines and lines that begin with the hash symbol (`#`) are typically ignored (although the latter is not standard). The first non-ignored line in the file gives the *name* of each attribute. In the example above, the file defines three attributes named "A", "B" and "C". All the remaining lines of the file defines what are called <!--\index{tuple} \textbf{tuples}-->**tuples**<!--/i-->; a tuple is a data object that associates each attribute to a value. For example, the fourth line of the file defines a tuple that associates attribute A to value 3, attribute B to value 2, and attribute C to value 1. In other words, a CSV file is similar to a **table** in a relational database.
 
-### Reading tuples
+### Reading Tuples
 
 The following program reads a CSV file called `file1.csv`, and extracts tuples from this file one by one:
 
@@ -75,7 +75,7 @@ Graphically, this program can be represented as follows:
 
 This drawing introduces the symbol for the `TupleFeeder`, whose pictogram on the box represents a tuple. It also shows the colour we use to represent tuple feeds (brown/orange).
 
-### Querying tuples
+### Querying Tuples
 
 The previous example has shown us how to read tuples, but not how to manipulate them. The `tuples` palette defines a few handy `Function` objects that allow us, among other things, to fetch the value of an attribute and also to merge tuples. From the same input file as above, let us create an output stream made of the sum of attributes A and B in each line. The following piece of code performs exactly that:
 
@@ -126,7 +126,7 @@ which indeed corresponds to the sum of A and B in each line. However, this proce
 
 We leave as an exercise to the reader the task of writing this processor chain in code.
 
-### Other tuple functions
+### Other Tuple Functions
 
 The `tuples` palette provides a few other functions to manipulate tuples. We mention them briefly:
 
@@ -138,11 +138,11 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 - The function <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} \texttt{ExpandAsColumns}-->`ExpandAsColumns`<!--/i--> transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
-## Finite-state machines
+## Finite-state Machines
 
 Sometimes, a stream is made of events representing a sequence of "actions". It may be interesting to check whether these actions follow a predefined pattern, which stipulates in what order the actions in a stream can be observed to be considered valid. A convenient way of specifying these patterns is through a device called a <!--\index{finite-state machine} \emph{finite-state machine}-->*finite-state machine*<!--/i--> (FSM). BeepBeep's FSM palette allows users to create such machines.
 
-### Defining a Moore machine
+### Defining a Moore Machine
 
 As a simple example, suppose that a log contains a list of calls on a single Java `Iterator` object. Typical method calls on an iterator are `next`, `hasNext`, `reset`, etc. Such a log could look like this:
 
@@ -240,7 +240,7 @@ A complete graphical representation of the chain of processors in this program w
 
 ![A complete representation of the `MooreMachine` example.](SimpleMooreMachine.png)
 
-### Using the machine's context
+### Using the Machine's Context
 
 We have seen in the previous chapter how each `Processor` object carries an associative map called the <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i-->. A `MooreMachine` is one example of a processor that can put this `Context` object to good use, by employing it as a storage location for local variables. These variables can be initialized by the `MooreMachine` when it is created, modified when a transition is taken, and their value can be used in the conditions that determine which transition should fire. In this respect, such variables work in a very similar way to the same kind of local variables one can find in UML state machines.
 
@@ -376,11 +376,11 @@ Notice how the count increments, then resets to 0 upon receiving a `next` event.
 
 The purpose of this section is not to have an in-depth discussion on the theory of finite-state machines. The previous two examples have shown all the features of BeepBeep's `MooreMachine` processor, and highlighted its flexibility in defining guards, side effects, and associating symbols to states. In particular, our FSMs are not restricted to outputting Boolean values, and can also accept any kind of input event. A few use cases in the next chapter will further show how the `MooreMachine` can be used in various scenarios, and mixed with other BeepBeep processors.
 
-## First-order logic and temporal logic
+## First-order Logic and Temporal Logic
 
 The `Booleans` utility class provides basic logical functions for combining Boolean values together; anybody who does a bit of programming has already used operators such as "and", "or" and "not". However, there is more to logic than these simple connectives. BeepBeep provides two palettes, called FOL and LTL, that extend classical logic with new operators pertaining to *first-order logic* and *linear temporal logic*, respectively. Let us examine these operators and see what they can do.
 
-### First-order logic
+### First-order Logic
 
 <!--\index{first-order logic} Often-->Often<!--/i-->, we want to express the fact that a condition applies "for all objects" of some kind. For example, given a set of numbers, we could say that each of them is even; given a set of strings, we could say that each of them has at most five characters. Instead of repeating the same condition for each object, a cleaner approach consists of using what are called <!--\index{quantifier} \emph{quantifiers}-->*quantifiers*<!--/i-->.
 
@@ -464,7 +464,7 @@ Since quantifiers are `Function` objects like any other, there is no constraint 
 
 Each quantifier also exists in a variant which, instead of taking a set as its input, accepts an arbitrary object. When instantiated, this variant requires an extra `Function`, called the *domain function*, which is used to compute a set of elements from the input argument. 
 
-### Linear temporal logic: operator "G"
+### Linear Temporal Logic: Operator "G"
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
@@ -535,7 +535,7 @@ However, `g` also has enough information to determine what to output for *e*<sub
 
 It takes some time to get used to this principle. What must be remembered is that `Globally` delays its output for an input event until enough is known about the future to provide a definite value. As a matter of fact, `Globally` can never return `true` --how could one be sure in advance that all future events are going to be true? It can only return the value `false`, in bursts, when it receives a `false` event. As an exercise, try pushing more events to `g` in order to train your intuition.
 
-### Other LTL operators
+### Other LTL Operators
 
 Once you grasp the meaning of `Globally`, other operators are easier to understand. The LTL operator **F** is the dual of **G**, and means "eventually" (the "F" stands for "in the *future*"). If *e*<sub>1</sub>, *e*<sub>2</sub>, ... is a stream of Boolean events, and *p* is an arbitrary LTL expression, an expression of the form **F** *p* stipulates that *p* must be true at least once at some point in the future. This is illustrated in the second section of the previous figure. As you can see, for **F** *p* to return true in the current event, it suffices that *p* be true right now, or in some event in the future. This is illustrated in the following code example:
 
@@ -642,7 +642,7 @@ At this point, we are more familiar with the behaviour of LTL processors. Note h
 
 Note that `Until`, like any other synchronous processor with an arity greater than 1, waits until a complete event front is available before performing a processing step. That is, if we push events only on `p` or on `q`, processor `u` will not produce any output --but this time, this will be because it is waiting for events at matching positions in the other input stream.
 
-### Nesting LTL operators
+### Nesting LTL Operators
 
 Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/Nested.java)
 ).
@@ -698,16 +698,98 @@ Notice how, after pushing an `open` event, the output of the filter is buffered 
 
 There is much more to be said about monitoring in general, and LTL in particular. Although somewhat clumsy, the expression of LTL properties can be a powerful means of verifying complex ordering constraints on streams of events. The reader is referred to the appendix for more references on this topic.
 
-## Java widgets
+## Java Widgets
 
 Up until now, none of the examples we have shown involve interaction with a user. The sample programs get their data from a fixed source, such as a text file or a predefined `QueueSource`. In the same way, apart from the basic `Print` processor, there is little in the way of displaying information to the user. The *Widgets* palette fills some of these gaps, by allowing widgets of the Java <!--\index{Swing (library)} Swing-->Swing<!--/i--> graphical user interface (<!--\index{GUI} GUI-->GUI<!--/i-->) to be used as processors, and interact with other such objects in a chain.
 
-In a nutshell, building a GUI in Java involves creating what are called *components*, such as windows (`JFrame`), buttons (`JButton`), sliders (`JSlider`), and defining the placement and properties of these various elements. Some of these components are sensitive to user input and other actions, and generate various kinds of objects called *events*: for example, pressing a button generates an instance of an `ActionEvent` containing information about the click (the position of the mouse, a reference to the button that was clicked, etc.). Similarly, moving the cursor of a slider generates an instance of a `ChangeEvent`.
+In a nutshell, building a GUI in Java involves creating what are called *components*, such as windows (`JFrame`), buttons (`JButton`), sliders (`JSlider`), and defining the placement and properties of these various elements. Some of these components are sensitive to user input and other actions, and generate various kinds of objects called *events*: for example, pressing a button generates an instance of an <!--\index{ActionEvent@\texttt{ActionEvent}} \texttt{ActionEvent}-->`ActionEvent`<!--/i--> containing information about the click (the position of the mouse, a reference to the button that was clicked, etc.). Similarly, moving the cursor of a slider generates an instance of a `ChangeEvent`.
 
 In order for a program to react to user input, one must *register* an object implementing the `EventListener` interface (or one of its descendants). Hence, to react to a click on some `JButton` instance `b`, one would call `b.addActionListener(a)`, where `a` is an arbitrary object that implements the `ActionListener` interface. Such an object must have a method called `actionPerformed`, which receives an `ActionEvent` as its argument. It is up to the code of this method to perform the actions required by the program for this specific button click.
 
-You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source.
+You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source. 
 
+As an example, let us create a window containing a text label and a slider widget, using simple Swing objects:
+
+``` java
+JFrame frame = new JFrame("My Widget Frame");
+frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+JPanel panel = new JPanel();
+panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 100, 30);
+slider.setMajorTickSpacing(20);
+slider.setPaintTicks(true);
+slider.setPaintLabels(true);
+JLabel slider_label = new JLabel("Value", JLabel.CENTER);
+slider_label.setAlignmentX(Component.CENTER_ALIGNMENT);
+panel.add(slider_label);
+panel.add(slider);
+panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+frame.add(panel);
+frame.pack();
+frame.setVisible(true);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L18)
+
+
+The window should look like the following screenshot:
+
+![A simple window with a text label and a slider widget.](SliderWindow-frame.png)
+
+We would now like the slider to act as a BeepBeep `Source`, and send an event every time the slider's position is changed. To this end, we register a new `ListenerSource` object as a <!--\index{ChangeListener@\texttt{ChangeListener}} \texttt{ChangeListener}-->`ChangeListener`<!--/i--> on `slider`, as follows:
+
+``` java
+ListenerSource ls = new ListenerSource();
+slider.addChangeListener(ls);
+Print print = new Print();
+Connector.connect(ls, print);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L37)
+
+
+Once the `ListenerSource` is created and associated with a Swing component, it can be piped to other BeepBeep processors just like any other source. In this example, the source is simply connected to a `Print` processor, so that the events produced by the slider can be seen at the console. Once this program is started, a text line like the following should be printed at the console every time the slider is moved:
+
+```
+javax.swing.event.ChangeEvent[source=javax.swing.JSlider[,10,25,276x42,...
+```
+
+As one can see, the events generated by the slider are instances of Swing's <!--\index{ChangeEvent@\texttt{ChangeEvent}} \texttt{ChangeEvent}-->`ChangeEvent`<!--/i--> class. Each event contains lots of information, which could be queried using the event's accessor methods. However, most of the time, one is interested in the widget's *value*. The Widgets palette provides a BeepBeep `Function` object that extracts such value from a `ChangeEvent`. Therefore, the previous example could be modified as follows:
+
+``` java
+ListenerSource ls = new ListenerSource();
+slider.addChangeListener(ls);
+ApplyFunction gwv = new ApplyFunction(GetWidgetValue.instance);
+Connector.connect(ls, gwv);
+Print print = new Print();
+Connector.connect(gwv, print);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/GetValueSlider.java#L39)
+
+
+A new function called `GetWidgetValue` has been inserted between `ls` and `print`. This time, moving the slider produces a stream of numbers that are printed at the console:
+
+```
+30,28,26,25,22,...
+```
+
+In the same way that widgets can be used as event sources, some of them can also be used as sinks. The <!--\index{WidgetSink@\texttt{WidgetSink}} \texttt{WidgetSink}-->`WidgetSink`<!--/i--> is a 0:1 processor that is instantiated by giving it a Swing widget. When it receives an event, it sets the widget's state according to the event's content. This may mean different things, according to the widget and the event's type. For example, if the widget is a text label (`JLabel`) and the input event is a number or a string, the `WidgetSink` will use the event to set the label's text. However, if the event is an instance of Swing's `ImageIcon`, the sink will use it to set the label's background.
+
+In the case of a slider, the `WidgetSink` expects a numerical value, and uses it to change the slider's position. Using the same `JFrame` as the previous example, we can therefore write a piece of code like the following:
+
+``` java
+WidgetSink ws = new WidgetSink(slider);
+Pushable p = ws.getPushableInput();
+for (int i = 10; i <= 100; i+= 10)
+{
+  p.push(i);
+  Thread.sleep(1000);
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/SetValueSlider.java#L34)
+
+
+Notice how, this time, the program pushes events into the `WidgetSink` associated to the slider. By running this program, you should see the slider jumping from value 10 to 100, in increments of 10, every second.
+
+The palette also includes another `Function` object, called <!--\index{ToImageIcon@\texttt{ToImageIcon}} \texttt{ToImageIcon}-->`ToImageIcon`<!--/i-->, which converts an array of bytes into a Swing `ImageIcon` object. It can be useful to take the output of a processor that produces an image (such as a PNG or JPEG bitmap), and to display it inside a Swing component. The next section will show an example that uses this function to display a plot and dynamically update it.
 
 ## Plots
 
@@ -946,7 +1028,7 @@ Not very surprising, but think about all the magic that happened in the backgrou
 
 All this process requires only about 10 lines of code.
 
-### All together now: distributed twin primes
+### All Together Now: Distributed Twin Primes
 
 As we mentioned earlier, the use of HTTP gateways can make for a simple way to distribute computation over multiple computers. As a matter of fact, any chain of processors can be "cut" into parts, with the loose ends attached to upstream and downstream gateways.
 
@@ -1000,11 +1082,11 @@ A few things you might want to try:
 
 - Machine B's program depends on the numbers sent by Machine A. Therefore, if you stop Machine A and restart it, you will see Machine B starting the sequence of twin primes from the beginning.
 
-## JSON and XML parsing
+## JSON and XML Parsing
 
 We have already seen how BeepBeep can process input streams such as CSV text files, and break each line of these files into a structured object called a *tuple*. Other BeepBeep palettes can also process input data in a variety of other formats. In this section, we elaborate on two such formats, called JSON and XML.
 
-### JSON parsing
+### JSON Parsing
 
 The serialization example in the previous section alluded to a particular way of formatting information using a notation called <!--\index{JSON} \textbf{JSON}-->**JSON**<!--/i-->. This acronym stands for *JavaScript Object Notation*, as it was first used in the JavaScript programming language to represent "semi-structured" data. A JSON object is a textual document such as this:
 
@@ -1103,7 +1185,7 @@ System.out.println(out[0]);
 
 By convention, a period is used to designate a value inside a `JsonMap`, while brackets with a number designate a position inside a `JsonList`. Hence, the path `c.e[0].f` would lead to the value "bar" in the JSON document shown at the beginning of this chapter.
 
-### XML parsing
+### XML Parsing
 
 **XML** parsing and processing works in the same way. As you may probably know, <!--\index{XML} XML-->XML<!--/i--> (the *eXtensible Markup Language*) is another popular notation for storing and exchanging data. An XML document is made of a set of nested "tags" and looks like this:
 
