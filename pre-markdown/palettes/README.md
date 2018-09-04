@@ -94,6 +94,42 @@ The `tuples` palette provides a few other functions to manipulate tuples. We men
 
 - The function <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}} \texttt{ExpandAsColumns}-->`ExpandAsColumns`<!--/i--> transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. For example, with the tuple: {(foo,1), (bar,2), (baz,3)}, using "foo" as the key column and "baz" as the value column, the resulting tuple would be: {(1,3), (bar,2)}. The value of foo is the new key, and the value of baz is the new value. If the value of the "key" pair is not a string, it is converted into a string by calling its `toString()` method (since the key of a tuple is always a string). The other key-value pairs are left unchanged.
 
+### Relational Databases
+
+We have already seen how a log of events stored in a file can be fed, line by line, to a BeepBeep processor chain and act as a pre-recorded event source. A BeepBeep palette allows users to do the same thing, this time using a relational database as the source of events. To this end, BeepBeep leverages Java's facilities for interacting with databases, regrouped under the name *Java Database Connectivity* (<!--\index{JDBC} JDBC-->JDBC<!--/i-->).
+
+Suppose you have a local database server running on your machine. This server hosts a database called `mydb`, which itself contains a table called `mytable`. The contents of `mytable` are shown below:
+
++-----------------------+------------+
+| **Name**              | **Salary** |
++=======================+============+
+| Fred Flintstone       | 1000       |
++-----------------------+------------+
+| Barney Rubble         | 1200       |
++-----------------------+------------+
+| Wilma Filntstone      | 1300       |
++-----------------------+------------+
+| George Jetson         | 1100       |
++-----------------------+------------+
+
+It is possible to use the lines of this table as a source of events, each of which will consist of a `Tuple` object with the data of the corrresponding line. To this end, one uses a special BeepBeep processor called <!--\index{JdbcSource@\texttt{JdbcSource}} \texttt{JdbcSource}-->`JdbcSource`<!--/i-->, which converts an <!--\index{SQL} SQL-->SQL<!--/i--> query sent to a database server into a stream of tuples. Consider the following program:
+
+{@snipm jdbc/SourceExample.java}{/}
+
+The first line of this program is standard JDBC: it creates a `Connection` object to a database, based on a JDBC URL, a user name and a password. In the present case, the program connects to a server hosted on the local machine (`localhost`), using the MySQL driver, on a database called `mydb`, using "betty" and "foo" as the user/password credentials. The next line defines a query to be executed on this database; in this case, this amounts to a simple `SELECT` statement picking all the columns and all the lines from table `mytable`.
+
+The next instruction creates a BeepBeep `JdbcSource` object; this objects acts as a gateway between JDBC objects and BeepBeep processors. This source is given the database `Connection` object and the query to execute. From then on, `src` can be used like any other BeepBeep `Source` object. The next line obtains a reference to `src`'s `Pullable`, and repeatedly pulls events from it. As one can see by looking at the console, each event is indeed a `Tuple` object corresponding to a line of the result:
+
+```
+{"Name": "Fred Flintstone", "Salary" : "1000"}
+{"Name": "Barney Rubble", "Salary" : "1200"}
+...
+```
+
+It is useful to know that, under the hood, the `JdbcSource` does not call the database multiple times. It does so a single time, upon the first call to `pull`; this triggers the evaluation of the SQL query and the retrieval of its result as a JDBC `ResultSet` object. Each subsequent call to `pull` simply amounts to pulling one new line from the result set, until all lines have been enumerated.
+
+Obviously, the basic `SELECT` statement we used in this example can be replaced by a more complex expression. Moreover, since tables are, by definition, unordered collections of tuples, the ordering in which `src` enumerates the tuples may vary from one execution to the next, unless an `ORDER BY` clause is present in the statement.
+
 ## Finite-state Machines
 
 Sometimes, a stream is made of events representing a sequence of "actions". It may be interesting to check whether these actions follow a predefined pattern, which stipulates in what order the actions in a stream can be observed to be considered valid. A convenient way of specifying these patterns is through a device called a <!--\index{finite-state machine} \emph{finite-state machine}-->*finite-state machine*<!--/i--> (FSM). BeepBeep's FSM palette allows users to create such machines.

@@ -367,6 +367,12 @@ forward, padding the beginning of the trace with some dummy element.
 
 {@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.6}
 
+#### `JdbcSource`
+
+@palette JDBC@ <!--\index{JdbcSource@\texttt{JdbcSource}|textsl} A-->A<!--/i--> `Source` object that executes an SQL query on a JDBC connection, and returns the result as a sequence of tuples. It is represented graphically as:
+
+{@img images/jdbc/JdbcSource.png}{JdbcSource}{.6}
+
 #### `JPathFunction`
 
 @palette JSON@ <!--\index{JPathFunction@\texttt{JPathFunction}|textsl} A-->A<!--/i--> 1:1 `Function` that receives a `JsonElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:

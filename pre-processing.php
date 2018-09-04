@@ -182,7 +182,7 @@ function remove_comments($s)
 	$out = "";
 	foreach ($lines as $line)
 	{
-		$new_line = rtrim(preg_replace("/[^\\:]\\/\\/.*$/", "", $line));
+		$new_line = rtrim(preg_replace("/[^\\:l]\\/\\/.*$/", "", $line));
 		$new_line = rtrim(preg_replace("/^\\/\\/.*$/", "", $new_line));
 		if (!empty($new_line))
 			$out .= $new_line."\n";
