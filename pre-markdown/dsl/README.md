@@ -129,7 +129,7 @@ As you may have noticed, this method receives as an argument the current content
 
 To the left-hand side of the diagram, a box represents the top of the object stack when the method is called. Here, the pattern expects the stack to contain a String object with a numerical value *n*. The right-hand side of the stack represent the content of the object stack after the method returns. Here, one can see that the string at top of the stack has been popped, and replaced by a `Constant` object with the value *n*. The stack may contain other objects below, but they are not relevant to the application of this method. For the sake of clarity, the grammar rule and case corresponding to this operation are often written next to the diagram.
 
-What remains to be done is to report to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> <!--\index{Builds@\texttt{\@Builds}} \texttt{pop}-->`@Builds`<!--/i--> to the method, which reads as follows:
+What remains to be done is to report to the object builder that this method should be called whenever a `<num>` tree node is visited. This can be done by adding an <!--\index{annotation} annotation-->annotation<!--/i--> <!--\index{Builds@\texttt{Builds} (annotation)} \texttt{@Builds}-->`@Builds`<!--/i--> to the method, which reads as follows:
 
 ``` java
 @Builds(rule="<num>")
