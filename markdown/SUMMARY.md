@@ -46,6 +46,7 @@
   * [First-order Logic and Temporal Logic](palettes/README.md#first-order-logic-and-temporal-logic)
   * [Java Widgets](palettes/README.md#java-widgets)
   * [Plots](palettes/README.md#plots)
+  * [Signal Processing](palettes/README.md#signal-processing)
   * [Networking](palettes/README.md#networking)
   * [JSON and XML parsing](palettes/README.md#json-and-xml-parsing)
   * [Exercises](palettes/README.md#exercises)

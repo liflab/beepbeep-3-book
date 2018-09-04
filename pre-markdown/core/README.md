@@ -528,11 +528,13 @@ In this chapter, we have covered the dozen or so fundamental processors provided
 
 5. Write a processor chain that computes the Fibonacci sequence. The sequence starts with numbers 1 and 1; every subsequent number is the sum of the previous two.
 
+6. Write a processor chain receiving a stream of numerical values, and which flattens to zero any input value that lies below a predefined threshold *k*. The chain should leave the values greater than *k* as they are. (Hint: use a function called <!--\index{IfThenElse@\texttt{IfThenElse}} \texttt{IfThenElse}-->`IfThenElse`<!--/i-->.)
+
 6. Write a `GroupProcessor` that takes a stream of numbers, and alternates their sign: it multiplies the first event by -1, the second by 1, the third by -1, and so on. This processor only needs to work in pull mode.
 
 7. The value of pi can be estimated using the [Leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80). According to this formula, pi is four times the infinite expression 1/1 - 1/3 + 1/5 - 1/7 + 1/9... Create a chain of processors that produces an increasingly precise approximation of the value of pi using this formula.
 
-8. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[X²]-E[X]², where E[X] is the running average, and E[X²] is the running average of the square of each input event.
+8. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[*X*²]-E[*X*]², where E[*X*] is the running average, and E[*X*²] is the running average of the square of each input event.
 
 9. Write a processor chain that takes as input a stream of numbers, and outputs a stream of Booleans. Output event at position *i* should be true if and only if input event at position *i* is more than two standard deviations away from the running average of the stream at this point. (Hint: the standard deviation is the square root of the running variance.)
 

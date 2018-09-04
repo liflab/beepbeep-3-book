@@ -728,7 +728,7 @@ frame.add(panel);
 frame.pack();
 frame.setVisible(true);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L18)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L39)
 
 
 The window should look like the following screenshot:
@@ -743,7 +743,7 @@ slider.addChangeListener(ls);
 Print print = new Print();
 Connector.connect(ls, print);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L37)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/ListenerSourceExample.java#L58)
 
 
 Once the `ListenerSource` is created and associated with a Swing component, it can be piped to other BeepBeep processors just like any other source. In this example, the source is simply connected to a `Print` processor, so that the events produced by the slider can be seen at the console. Once this program is started, a text line like the following should be printed at the console every time the slider is moved:
@@ -762,7 +762,7 @@ Connector.connect(ls, gwv);
 Print print = new Print();
 Connector.connect(gwv, print);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/GetValueSlider.java#L39)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/GetValueSlider.java#L60)
 
 
 A new function called `GetWidgetValue` has been inserted between `ls` and `print`. This time, moving the slider produces a stream of numbers that are printed at the console:
@@ -784,7 +784,7 @@ for (int i = 10; i <= 100; i+= 10)
   Thread.sleep(1000);
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/SetValueSlider.java#L34)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/widgets/SetValueSlider.java#L54)
 
 
 Notice how, this time, the program pushes events into the `WidgetSink` associated to the slider. By running this program, you should see the slider jumping from value 10 to 100, in increments of 10, every second.
@@ -894,6 +894,82 @@ DrawPlot dp = new DrawPlot(plot);
 ```
 
 Since the `plots` palette is a simple wrapper around MTNP objects, the reader is referred to this library's online documentation for complete details about plots, tables, and table transformations.
+
+## Signal Processing
+
+The input of a processor chain may be a stream of numerical values obtained from physical measurements, such as temperature or power sensors. In those cases, it may be desirable to transform this "raw" signal into a higher-level stream of values, on which some preliminary clean up has been performed. The *Signal* palette provides processors suitable for some basic signal processing tasks, such as finding peaks, plateaus, etc.
+
+To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/FakeSignal.java)
+):
+
+![Producing a numerical signal that varies with time.](FakeSignal.png)
+
+This example is one of the firsts using the <!--\index{VariableStutter@\texttt{VariableStutter}} \texttt{VariableStutter}-->`VariableStutter`<!--/i--> processor. In the previous processor chain, it is represented by the box connected into the `Fork`. Its first input (top) is a stream of values, while its second input (bottom) indicates how many times each value should be repeated in the output. With the numbers contained in the two sources, the processor is expected to output the value 0 five times, followed by the value 10 five times, and so on.
+
+This stream is then forked in two copies. The topmost path should be familiar to the reader, and creates a simple counter producing the output values 1, 2, 3, ...; these values will act as a clock tick "T". The bottom path cumulates the values of the forked input stream. This will produce an output signal "V" whose values move up and down upon each clock tick, from a relative amount defined by the number in the input stream.
+
+This chain of seven processors gives us a crude way of producing a numerical signal whose behaviour is somewhat controlled by the contents of the two `QueueSource`s. In our example, in order to better see the end result, the pairs of values from "T" and "V" are sent into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, transformed into a plot and displayed in a window. Running this program should show a plot like the following:
+
+![Plotting the numerical signal produced by the previous chain of processors.](plot-envelope.png)
+
+As an exercise, try changing the contents of the two sources to see the effect they have on the resulting plot.
+
+We shall use this simple "signal generator" to illustrate the operation of various processors of the *Signal* palette. To simplify both the code and the diagrams, we shall put the previous processors into two <!--\index{GroupProcessor@\texttt{GroupProcessor}} \texttt{GroupProcessor}s-->`GroupProcessor`s<!--/i-->: the first half (up to the vertical dotted line) into a group called `GenerateSignal`, and the second into a group called `PlotSignal`. Using these two groups, the processor chain shown in the last diagram can be simplified into the following one:
+
+![Producing a numerical signal that varies with time (grouped version).](FakeSignalGrouped.png)
+
+As one can see, the source box is parameterized by the contents of the two input queues, while the sink box is parameterized by the number and the names of each stream of numbers it receives. We use the "delta" letter in the source, since the two input queues of this processor encode a discrete form of the first derivative of the input signal to generate. The reader is encouraged to have a look at the code of `GenerateSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignal.java)
+) and `PlotSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlotSignal.java)
+), in the examples repository, to better understand how these two groups are implemented.
+
+A first useful processor of the *Signal* palette is used to find <!--\index{peak (signal)} \textbf{peaks}-->**peaks**<!--/i--> in an input stream. A peak is informally defined as an abrupt increase in the values of the signal over a short number of values (or *samples*). One possible way of looking for a peak is to use a sliding window of a few samples, and to identify local maxima in this window. The <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> procesor does exactly that. Consider the following code snippet:
+
+<pre><code>Source code not found: ../examples/Source/src/signal/PeakFinderExample.java</code></pre>
+
+Using the graphical conventions we just established, this chain of processors can be represented as in the following diagram:
+
+![Finding peaks in a numerical signal.](PeakFinderExample.png)
+
+In this program, the "signal" stream produced by the delta box is forked in two parts. One of them goes directly to the `PlotSignal` processor as before. The other is first passed through the `PeakFinderLocalMaximum` processor. This processor is parameterized by the length of the window, which, in this case, is of five events. This processed signal is also fed to the `PlotSignal` box, and given the name *P*. Therefore, the resulting plot will be made of *two* lines: one joining points from the pairs of numbers (*T*,*V*), and another joining points from the pairs (*T*,*P*). This makes it possible to visualize the effect of the `PeakFinderLocalMaximum` processor on the same plot as the original signal. The result should be a graph like the following:
+
+![The original signal (V) and the detected local maxima (P).](peak-signal.png)
+
+As one can see, the processsor outputs the value 0 if the current input event is not considered as a peak; otherwise, it outputs the height of that peak. The definition of what constitutes a peak varies, depending on the underlying algorithm that is being used; in the present case, any local maximum that exits the sliding window is considered as a peak. The current version of the *Signal* palette also provides another processor, the <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->, which uses a different algorithm for detecting peaks.
+
+The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlateauExample.java)
+). This will produce the following plot:
+
+![The original signal (V) and the detected local maxima (P).](plateau-signal.png)
+
+We can observe that the processor outputs the value 0 when no plateau is detected; otherwise, it outputs the height of the plateau at the position of the event that corresponds to the start of a plateau. Obviously, for this processor to detect a plateau, a delay in the output is required: the start of a plateau can only be ascertained until a few events later, when enough values in the same interval have been observed. This interval is called the *window width*, and it can be configured by passing this width to the object's constructor.
+
+Let us now change our input signal by changing its envelope and adding some random noise to its values. The processor chain to generate the signal is modified to look as follows:
+
+![Generating a signal and adding some noise.](GenerateSignalNoise.png)
+
+The main difference lies in the presence of a new fork on the bottom branch. The output signal from the `VariableStutter` processor is forked one more time; on the first path (top), the signal is sent into a processor called <!--\index{Randomize@\texttt{Randomize}} \texttt{Randomize}-->`Randomize`<!--/i-->; this processor turns any input event into a floating-point number, which is randomly selected from an predefined interval. In the current example, the interval is from -2 to 2, as indicated by the two numbers on the processor's box. This stream of random numbers is then added to the original signal (second path). This will result in a "jagged" output signal, with the amount of variation being parameterized by the interval set on `Randomize`. The code for this modified signal generator can be found in the example repository ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignalNoise.java)
+).
+
+Equipped with this new signal generator, we can illustrate a few more processors from the *Signal* palette. The first is called  <!--\index{Threshold@\texttt{Threshold}} \texttt{Threshold}-->`Threshold`<!--/i-->. Its task is to flatten to zero any input number whose absolute value lies below a predefined threshold, and to let the other numbers through. An example program showing the use of this processor produces the following plot ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/ThresholdExample.java)
+):
+
+![The original signal (V) and the signal after the application of the `Threshold` processor (P).](threshold-signal.png)
+
+Here, the threshold has been set to 4, meaning that all values lying between -4 and 4 will be turned into 0 in the output signal. Notice how this has for effect of partly "de-noising" the input, by removing the small signal variations around the x-axis.
+
+Like `PlateauFinder`, the <!--\index{Persist@\texttt{Persist}} \texttt{Persist}-->`Persist`<!--/i--> processor also operates on a window of width *k*; it returns the maximum value of the window. This has for effect of "persisting" high values in a signal for some time after they occur, in a way similar to some graphic equalizers used in music software. The examples repository contains a program that illustrates the use of `Persist`; it produces a plot like the following ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PersistExample.java)
+):
+
+![The original signal (V) and the and the signal after the application of the `Persist` processor (P).](persist-signal.png)
+
+As one can see, the high values in a window remain in the output for a number of events after they occur, when no higher value is observed in the sliding window.
+
+The last processor contained in the *Signal* palette is called <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i-->. Instead of preserving high values, as is the case for `Persist`, this processor rather restricts the amount of non-zero events that can be output in a certain interval of time. The processor is instantitated with a window width *k*; when it receives a non-zero event, it outputs it, but will then turn into 0 the next *k*-1 events, regardless of whether they are zero or not. This is shown by the following plot, which applies the `Limit` processor to an input signal with a window width of 4 ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/LimitExample.java)
+):
+
+![The original signal (V) and the and the signal after the application of the `Limit` processor (P).](limit-signal.png)
+
+The *Signal* palette is still under development; it currently only provides basic processors for manipulating raw streams of numerical values. In particular, all the processors contained in the palette operate on the *time* domain; the addition of processors working on the *frequency* domain (such as Fourier transforms) is planned in future development steps. Nevertheless, the next chapter will show an example of an actual use case that uses processors from the *Signal* palette in its current state.
 
 ## Networking
 
