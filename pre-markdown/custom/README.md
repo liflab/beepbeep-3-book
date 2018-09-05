@@ -238,7 +238,7 @@ This example puts in light an interesting feature of the `SynchronousProcessor` 
 
 {@snipm customprocessors/Stuttering.java}{/}
 
-This program calls `pull` on an instance of the `Stuttering` processor four times. The first call to pull triggers a call to `compute` on `s` in the background; this explains the first two lines printed at the console:
+This program calls `pull` on an instance of the `Stuttering` processor four times. The first call to `pull` triggers a call to `compute` on `s` in the background; this explains the first two lines printed at the console:
 
 ```
 Call to compute
@@ -258,11 +258,13 @@ However, the third call to `pull` directly outputs the value 2, without triggeri
 Call to pull: 2
 ```
 
-This may seem surprising, but can easily be explained.
+This may seem surprising, but can easily be explained. The previous call to `pull` made `s` receive the input event 2. As a result, the call to `compute` put into the `outputs` queue *two* object arrays, each containing the number 2. The first object array was immediately retrieved and returned as the result of the call to `pull`, while the contents of the second object array was put into the processor's output queue, waiting for the next call to `pull`. Consequently, upon the next call to `pull`, there was no need to call `compute`, since an output event was already waiting in the processor's output queue, ready to be retrieved.
+
+Therefore, when designing a new `SynchronousProcessor`, one must keep in mind that calls to `push` (resp. `pull`) on a processor's `Pushable` (resp. `Pullable`) do not always correspond to a call to `compute`, depending on the current contents of the processor's input and output queues.
 
 ### Stateful Processors
 
-So far, all our processors are memoryless: they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let's create a processor that outputs the maximum between the current event and the previous one. That is, given the following input trace:
+So far, all our processors are "memoryless": they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let us create a processor called `MyMax`, which outputs the maximum between the current event and the previous one. That is, given the following input trace:
 
     5, 1, 2, 3, 6, 4, ...
 
@@ -270,8 +272,18 @@ the processor should output:
 
     (nothing), 5, 2, 3, 6, 6, ...
 
-Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before saying something. Here's a possible implementation:
+Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before being able to output something. A possible implementation could be the following:
 
 {@snips customprocessors/MyMax.java}{public class}
+
+This processor is the first in this chapter to have a member field, called `last`. When the processor is instantiated, `last` is set to `null`. Each call to `compute` compares the value of `last` with the current event (if `last` is not null), and then sets the value of `last` to the current event. Therefore, the member field `last` acts as a form of "memory": for a given input event, the processor will produce a different output depending on the contents of this field --which itself depends on the previous event given to the processor.
+
+The presence of a member field changes the way of implementing method `duplicate`. Remember that a processor has the option of being copied *along with its state*, by setting the value of argument `with_state` to `true`. Therefore, the code for `duplicate` must take into account this additional possibility. Notice how a new instance of `MyMax`, called `mm`, is created; if the duplication is stateful, an extra step is taken to copy the current value of `last` into `mm`. This has for effect of putting `mm` into the same state as the current object.
+
+The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforseen and hard-to-debug behaviours.
+
+## Creating Palettes
+
+TODO
 
 <!-- :wrap=soft: -->

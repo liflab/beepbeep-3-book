@@ -513,6 +513,28 @@ for (int i = 0; i < 4; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L35)
 
 
+This program calls `pull` on an instance of the `Stuttering` processor four times. The first call to `pull` triggers a call to `compute` on `s` in the background; this explains the first two lines printed at the console:
+
+```
+Call to compute
+Call to pull: 1
+```
+
+The second call to `pull` results in another call to `compute` on `s`, producing the value 2, and printing the next two lines:
+
+```
+Call to compute
+Call to pull: 2
+```
+
+However, the third call to `pull` directly outputs the value 2, without triggering a call to `compute`; therefore, the next line to be printed is:
+
+```
+Call to pull: 2
+```
+
+This may seem surprising, but can easily be explained. The previous call to `pull` made `s` receive the input event 2. As a result, the call to `compute` put into the `outputs` queue *two* object arrays, each containing the number 2. The first object array was immediately retrieved and returned as the result of the call to `pull`, while the contents of the second object array was put into the processor's output queue, waiting for the next call to `pull`. Consequently, upon the next call to `pull`, there was no need to call `compute`, since an output event was already waiting in the processor's output queue, ready to be retrieved.
+
 ### Stateful Processors
 
 So far, all our processors are memoryless: they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let's create a processor that outputs the maximum between the current event and the previous one. That is, given the following input trace:
