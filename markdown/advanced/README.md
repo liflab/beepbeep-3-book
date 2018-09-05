@@ -728,7 +728,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PullSoft.java#L47)
 
 
-We can observe that `hasNextSoft`, contrary to `hasNext`, does not return a Boolean, but rather a special value of type <!--\index{Pullable@\texttt{Pullable}!NextStatus} \texttt{NextStatus}-->`NextStatus`<!--/i-->. This type is actually an enumeration of three symbolic constants: `YES`, `NO` and `MAYBE`. A call to `hasNextSoft` that returns `YES` or `NO` has the same meaning as a call to `hasNext` returning `true` or `false`, respectively. When `YES` is the answer, a new event is available and ready to be pulled. When `NO` is the answer, no new event will ever come out of this `Pullable` object.
+We can observe that `hasNextSoft`, contrary to `hasNext`, does not return a Boolean, but rather a special value of type <!--\index{Pullable@\texttt{Pullable}!NextStatus@\texttt{NextStatus}} \texttt{NextStatus}-->`NextStatus`<!--/i-->. This type is actually an enumeration of three symbolic constants: `YES`, `NO` and `MAYBE`. A call to `hasNextSoft` that returns `YES` or `NO` has the same meaning as a call to `hasNext` returning `true` or `false`, respectively. When `YES` is the answer, a new event is available and ready to be pulled. When `NO` is the answer, no new event will ever come out of this `Pullable` object.
 
 However, `hasNextSoft` can also return `MAYBE`, which indicates that the underlying processor does not have a new event to output, but *may* have one on a subsequent call to `hasNextSoft`. Let us look at the output of our modified program:
 

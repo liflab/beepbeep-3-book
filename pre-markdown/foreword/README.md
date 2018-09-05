@@ -19,7 +19,7 @@ I came to admit that without a thorough and well-structured tutorial, BeepBeep w
 
 The rest is simple: I sat down and started typing. This simple process had a positive impact on the system itself: it made me fix some inconsistencies in naming conventions, forced me to standardize and extend the pool of graphical symbols I was already using informally, and overall, added a layer of polish on the library to make it presentable to the outside world. What started as a small documentation file ended up as a complete book, which in its current version contains:
 
-- **114** different code examples, for a total of 3,600 lines of Java
+- **119** different code examples, for a total of 3,800 lines of Java
 - **128** colour illustrations
 - **29** exercises across all chapters
 
