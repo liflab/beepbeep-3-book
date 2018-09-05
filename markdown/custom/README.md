@@ -279,16 +279,32 @@ public class CounterGroup extends GroupProcessor
 
 From then on, it is possible to write `new CounterGroup()` to get a fresh instance of this processor.
 
-### As a `SynchronousProcessor`
+### As a Descendant of `Processor`
 
-Using a group works only if your custom processor can be expressed by piping other existing processors. If this is not the case, you have to resort to extending one of BeepBeep's `Processor` descendents.
+Using a group works only if your custom processor can be expressed by piping other existing processors. If this is not the case, you have to resort to extending one of BeepBeep's `Processor` descendents. The most generic way to do so is to extend the `Processor` class directly. This class defines many functionalities that the user does not need to implement:
 
-The simplest way to do so is to extend the <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}} \texttt{SynchronousProcessor}-->`SynchronousProcessor`<!--/i--> class, which takes care of most of the "plumbing" related to event management: connecting inputs and outputs, looking after event queues, etc. All you have left to do is to:
+- methods <!--\index{Processor@\texttt{Processor}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> declare the input and output arity of the processor
+- based on these arities, the `Processor` class takes care of creating the appropriate number of input and output queues for storing events
+- method <!--\index{Processor@\texttt{Processor}!setPullableInput@\texttt{setPullableInput}} \texttt{setPullableInput}-->`setPullableInput`<!--/i--> associates one of the the processor's input pipes to the `Pullable` object of an upstream processor
+- method <!--\index{Processor@\texttt{Processor}!setPushableOutput@\texttt{setPushableOutput}} \texttt{setPushableOutput}-->`setPushableOutput`<!--/i--> associates one of the the processor's output pipes to the `Pushable` object of a downstream processor
+- methods <!--\index{Processor@\texttt{Processor}!getContext@\texttt{getContext}} \texttt{getContext}-->`getContext`<!--/i--> and <!--\index{Processor@\texttt{Processor}!setContext@\texttt{setContext}} \texttt{setContext}-->`setContext`<!--/i--> handle the interaction with the processor's internal `Context` object
+- finally, the `Processor` class also handles the unique ID given to each instance, which can be queried with <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId}-->`getId`<!--/i-->.
 
-- Define how many input pipes your processor needs, and how many output streams it produces. As we know, these two values are called the input and output <!--\index{processor!arity} \emph{arity}-->*arity*<!--/i--> of the processor, respectively.
-- Write the actual computation that should occur, i.e. what output event(s) to produce (if any), given an input event.
+These methods correspond to the very basic functionalities of a BeepBeep processor. As the reader may observe, almost none of these methods need to be called by an end-user creating processor chains (as a matter of fact, none of the code examples we have seen so far use these methods, except for `getId`). They are mostly used by the `Connector` utility class, which, as we have seen, is responsible for piping processor objects together. Many of these methods are declared `final`, which means that their behaviour cannot be changed by descendents of this class. However, since `Processor` itself is abstract, a number of important methods are left to the user to be implemented:
 
-The minimal working example for a custom processor is made of six lines of code:
+- <!--\index{Processor@\texttt{Processor}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> must create a copy of the current processor object
+- <!--\index{Processor@\texttt{Processor}!getPushableInput@\texttt{getPushableInput}} \texttt{getPushableInput}-->`getPushableInput`<!--/i--> must provide an instance of an object implementing the `Pushable` interface to feed input values when the processor is used in push mode
+- <!--\index{Processor@\texttt{Processor}!getPullableOutput@\texttt{getPullableOutput}} \texttt{getPullableOutput}-->`getPullableOutput`<!--/i--> must provide an instance of an object implementing the `Pullable` interface to fetch output values when the processor is used in pull mode
+
+All the event handling functionalities must, of course, be implemented by the user. Typically, this means that the `Pullable` and `Pushable` objects keep a reference to the underlying processor they are associated with; calls to `pull` or `push` trigger some computation inside the processor and manipulate events in the input and output queues. For synchronous processing (which corresponds to almost every processor found in this book), this task is tedious, especially for processors with an input arity greater than 1. For example, a call to `push` may not trigger the computation of an output event if a complete input front cannot be consumed; in push mode, one must also carefully implement the subtle behaviour of the `pull` and `pullSoft` methods, and so on. We do not recommend users to extend this class directly, except perhaps in very specific situations.
+
+Thankfully, BeepBeep provides a descendent of `Processor` that takes care of even more functionalities for the user; this class is called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}} \texttt{SynchronousProcessor}-->`SynchronousProcessor`<!--/i-->.  This class defines its own `Pushable` and `Pullable` objects, and therefore, already implements the `getPushableInput` and `getPullableInput` methods. All the user has left to do is to:
+
+- decide the input and output arity of the processor; this is done by passing these two numbers to `SynchronousProcessor`'s constructor, typically in a call to `super()` in the new class's constructor
+- write the actual computation that should occur when a *complete* input front becomes available, i.e. what output event(s) to produce (if any), given an input event; this is done by implementing a method called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}!compute@\texttt{compute}} \texttt{compute}-->`compute`<!--/i-->.
+- optionally, override the methods `duplicate` (to allow the creation of copies of the processor), as well as  <!--\index{Processor@\texttt{Processor}!getInputTypesFor@\texttt{getInputTypesFor}} \texttt{getInputTypesFor}-->`getInputTypesFor`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputTypeFor@\texttt{getOutputTypeFor}} \texttt{getOutputTypeFor}-->`getOutputTypeFor`<!--/i--> (to declare the input and output type for each of the processor's pipes)
+
+Using `SynchronousProcessor`, the minimal working example for a custom processor is made of six lines of code:
 
 ``` java
 import ca.uqac.lif.cep.*;
@@ -307,11 +323,11 @@ public class MyProcessor extends SynchronousProcessor {
 
 This results in a processor that accepts no inputs, and produces no output. To make things more interesting, we will study a couple of examples.
 
-### Example 1: String Length
+### A Simple 1:1 Processor
 
-As a first example, let us write a processor that receives character strings as its input events, and that computes the length of each string. The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
+As a first example, let us write a processor that receives character strings as its input events, and that computes the length of each string (we know that BeepBeep's `Size` function already does this, but let us ignore it for the purpose of this example). The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
 
-The actual functionality of our processor will be written in the body of method <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}!compute@\texttt{compute}} \texttt{compute()}-->`compute()`<!--/i-->. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1).  Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
+The actual functionality of the processor is written in the body of method `compute`. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1). Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
 
 ``` java
 public class StringLength extends SynchronousProcessor
@@ -333,23 +349,41 @@ public class StringLength extends SynchronousProcessor
         return new StringLength();
     }
 
+    @Override
+  public void getInputTypesFor(Set<Class<?>> classes, int position)
+  {
+    if (position == 0)
+    {
+      classes.add(String.class);
+    }
+  }
+
+    @Override
+    public Class<?> getOutputType(int position)
+    {
+      if (position == 0)
+      {
+        return Number.class;
+      }
+      return null;
+    }
 }
 
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StringLength.java#L8)
 
 
-Note that the compute() method has a second argument, which is a queue of arrays of objects. If the processor is of arity *n*, it must create an event front of size *n*, i.e. put an event into each of its *n* output traces. It may also decide to output more than one such *n*-uplet for a single input event, and these events are accumulated into a queue --hence the slightly odd object type.
+Note that the `compute` method has a second argument, which is a queue of object arrays. If the processor is of arity *n*, it must create an event front of size *n*, which means putting an event into each of its *n* output queues. It may also decide to output more than one such *n*-uplet for a single input event, and these events are accumulated into a queue --hence the slightly odd object type. The method puts into the `outputs` queue an array of `Object`s with a single element, which, in this case, is an integer corresponding to the input string's length.
 
 The return type of method `compute` is a `boolean`. This value is used to signal to a `Pullable` object whether the processor is expected to produce more events in the future. A processor should return `false` only if it is absolutely sure that no more events will be produced in the future; in all other situations, it must return `true`. Examples of processors whose `compute` method returns `false` are processors that read from a file; when the end of the file is reached, they return false to indicate that no more new events are expected. Except in very special situations such as these, a processor should return `true`.
 
-The other method that we need to implement is `duplicate`; it works in the same way as for functions, and in general only consists of returning a new instance of our class.
+The other method that needs to be implemented is `duplicate`; it works in the same way as for functions, and in general only consists of returning a new instance of the class. However, the reader should notice that for processors, `duplicate` takes a Boolean argument, <!--\index{processor!duplication} called-->called<!--/i--> `with_state`. If this argument is set to `true`, the processor should not simply create a new copy of itself; it must also transfer its current *state* to the new object. Typically, this means that if the processor has member fields that determine its behaviour, these member fields must be set to the same values in the newly created copy. This is not the case in this simple example, since the processor we create has no member field at all. Therefore, method `duplicate` simply ignores the argument and returns a new instance of `StringLength`. From then on, a user can instantiate `StringLength`, connect it to the output of any other processor that produces strings, and pipe its result to the input of any other processor that accepts numbers.
 
-That's it. From then on, you can instantiate `StringLength`, connect it to the output of any other processor that produces strings, and pipe its result to the input of any other processor that accepts numbers.
+Optionally, a processor can declare its input and output types, as is the case for function objects. Therefore, one can override the methods `getInputTypesFor` and `getOutputType`. In the present case, the type of the first (and only) input stream is `String`, while the type of the first (and only) output stream is `Number`. This leads to the methods shown in the previous code snippet. If a processor does not override these methods, by default the `Processor` class returns a special type called <!--\index{Variant@\texttt{Variant}} \texttt{Variant}-->`Variant`<!--/i-->. The occurrence of such a type in an input or output pipe disables the type checking step that the `Connector` class normally performs before connecting two processors together.
 
-### Example 2: Euclidean Distance
+### Greater Input and Output Arity
 
-This second example will show an example of a processor that takes as input two traces. The events of each trace are instances of the user-defined class Point:
+This second example will show a processor that takes as input two traces. The events of each trace are instances of a simple user-defined class called `Point`, defined as follows:
 
 ``` java
 public class Point {
@@ -361,51 +395,74 @@ public class Point {
 We will write a processor that takes one event (i.e. one Point) from each input trace, and return the Euclidean distance between these two points.
 
 ``` java
-import ca.uqac.lif.cep.*;
+public class EuclideanDistance extends SynchronousProcessor
+{
+  public static final EuclideanDistance instance = new EuclideanDistance();
 
-public class EuclideanDistance extends SynchronousProcessor {
-
-  public StringLength() {
-	super(2, 1);
+  EuclideanDistance()
+  {
+    super(2, 1);
   }
 
-  public Queue<Object[]> compute(Object[] inputs) {
-	Point p1 = (Point) inputs[0];
-	Point p2 = (Point) inputs[1];
-	float distance = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-	return Processor.wrapObject(distance);
+  public boolean compute(Object[] inputs, Queue<Object[]> outputs)
+  {
+    Point p1 = (Point) inputs[0];
+    Point p2 = (Point) inputs[1];
+    double distance = Math.sqrt(Math.pow(p2.x - p1.x, 2)
+        + Math.pow(p2.y - p1.y, 2));
+    outputs.add(new Object[] {distance});
+    return true;
+  }
+
+  @Override
+  public Processor duplicate(boolean with_state)
+  {
+    return this;
   }
 }
+
 ```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/EuclideanDistance.java#L6)
 
-### Example 3: Separating a Point
 
-This processor takes as input a single trace of Points (see example above), and sends the x and y component of that point as events of two output traces. It is an example of processor with an output arity of 2.
+As the reader can see, the `compute` method now expects the `input` array to contain *two* elements, and these two elements are cast as instances of `Point`. In addition, the `duplicate` method introduces a small variant: rather than returning a new copy of the processor, it returns itself (`this`). This behaviour makes sense in the case of a <!--\index{singleton} \textbf{singleton}-->**singleton**<!--/i--> --that is, an object which exists in a single copy across an entire program. In such a case, a good practice is to reduce the visibility of the class' constructor (to prevent users from calling it and creating new instances), and to provide instead a static reference to a single instance of the object. This is the goal of the `instance` static field.
+
+As we have seen in earlier chapters, many BeepBeep objects (especially functions) are singletons. For example, the utility classes `Booleans` and `Numbers` provide static references to a few general-purpose objects, such as `Booleans.and` or `Numbers.addition`. Singleton processors are less common, but this example shows that it is possible to implement them in a clean way.
+
+As we know, a processor is not limited to producing a single output stream. In this example, we show how to implement a processor with an output arity of two. This processor takes as input a single trace of `Point`s (see the example above), and sends the *x* and *y* component of that point as events of two output streams.
 
 ``` java
-import ca.uqac.lif.cep.*;
-
-public class SplitPoint extends SynchronousProcessor {
-
-  public SplitPoint() {
-	super(1, 2);
+public class SplitPoint extends SynchronousProcessor
+{
+  public SplitPoint()
+  {
+    super(1, 2);
   }
 
-  public Queue<Object[]> compute(Object[] inputs) {
-	Point p = (Point) inputs[0];
-	float[] output_event = new float[2];
-	float[0] = p.x;
-	float[1] = p.y;
-	return Processor.wrapVector(output_event);
+  @Override
+  protected boolean compute(Object[] inputs, Queue<Object[]> outputs)
+  {
+    Point p = (Point) inputs[0];
+    outputs.add(new Object[] {p.x, p.y});
+    return true;
+  }
+
+  @Override
+  public Processor duplicate(boolean with_state)
+  {
+    return new SplitPoint();
   }
 }
+
 ```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/SplitPoint.java#L6)
 
-Note that we use wrapVector(), rather than wrapObject(), as the result we are producing is already an array of size 2. Method wrapVector() simply puts that array into a new empty queue. Note also that it is an error to produce an array whose size is not equal to the processor's output arity.
 
-### Example 4: Threshold
+This time, the processor adds to the output queue an array of size 2. One must remember that it is an error to add an array whose size is not equal to the processor's output arity. Although this may not be detected immediately, such an incorrect behaviour is likely to create exceptions at some point in the execution of the program.
 
-So far, all processors we designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that we could have passed to an `ApplyFunction` processor.) This needs not be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
+### Non-Uniform Processors
+
+So far, all processors we designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that we could have passed to an `ApplyFunction` processor.) In BeepBeep's terminology, these processors are called **uniform** (or more precisely, 1-uniform). However, this needs not be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
 
 ``` java
 public class OutIfPositive extends SynchronousProcessor {
@@ -418,27 +475,45 @@ public class OutIfPositive extends SynchronousProcessor {
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/OutIfPositive.java#L7)
 
 
-The way to indicate that a processor does not produce any output for an input is to return null. Note that this should not be confused with the output arity of the processor.
+The way to indicate that a processor does not produce any output for an input is to simply add nothing to the output queue. Note that this should not be confused with returning `false`, which signifies that the processor will never output any event in the future.
 
-### Example 5: Stuttering
-
-Conversely, a processor does not need to output only one event for each input event. For example, the following processor repeats an input event as many times as its numerical value: if the event is the value 3, it is repeated 3 times in the output.
+Conversely, a processor does not need to output only one event for each input event. For example, the following processor repeats an input event as many times as its numerical value: if the event is the value 3, it is repeated 3 times in the output. Method `compute` of this processor would look like the following:
 
 ``` java
-public class Stuttering extends SynchronousProcessor {
-
-    public Stuttering() {
-        super(1, 1);
+public boolean compute(Object[] inputs, Queue<Object[]> outputs)
+{
+  System.out.println("Call to compute");
+    Number n = (Number) inputs[0];
+    for (int i = 0; i < n.intValue(); i++)
+    {
+        outputs.add(new Object[] {inputs[0]});
     }
+    return true;
+}
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L8)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L16)
 
 
-This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SynchronousProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as you wish in the output queue, and `SynchronousProcessor` takes care of releasing them one by one through its `Pullable` object.
+This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SynchronousProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as one wishes in the output queue, and `SynchronousProcessor` takes care of releasing them one by one through its `Pullable` object.
+
+This example puts in light an interesting feature of the `SynchronousProcessor` class. Notice how we inserted a `println` statement in the first line of method `compute`. This allows us to track the moments where method `compute` is being called by BeepBeep. Consider the following program:
+
+``` java
+QueueSource src = new QueueSource();
+src.setEvents(1, 2, 1);
+Stuttering s = new Stuttering();
+Connector.connect(src, s);
+Pullable p = s.getPullableOutput();
+for (int i = 0; i < 4; i++)
+{
+  System.out.println("Call to pull: " + p.pull());
+}
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L35)
 
 
-### Example 6: a Processor with Memory
+### Stateful Processors
 
 So far, all our processors are memoryless: they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let's create a processor that outputs the maximum between the current event and the previous one. That is, given the following input trace:
 

@@ -550,9 +550,7 @@ input and output streams.
 
 {@img images/Processor-generic.png}{Processor}{.6}
 
-This class itself is abstract; nevertheless, it provides important methods for handling input/output event queues, connecting processors together, etc. However, if you write your own processor, you will most likely want to inherit from its child, `SingleProcessor`, which does some more work for you.
-
-The `Processor` class does not assume anything about the type of events
+This class itself is abstract; nevertheless, it provides important methods for handling input/output event queues, connecting processors together, etc. However, if you write your own processor, you will most likely want to inherit from its child, `SynchronousProcessor`, which does some additional work. The `Processor` class does not assume anything about the type of events
 being input or output. All its input and output queues are therefore declared
 as containing instances of `Object`, Java's most generic type.
 
@@ -692,9 +690,9 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 {@img images/util/Signum.png}{Signum}{.6}
 
-#### `SingleProcessor`
+#### `SynchronousProcessor`
 
-@palette Core@ <!--\index{SingleProcessor@\texttt{SingleProcessor}|textsl} A-->A<!--/i--> `Processor` that performs a computation on input events to produce output events. This is the direct descendant of `Processor`, and probably the one you'll want to inherit from when creating your own processors. While `Processor` takes care of input and output queues, `SingleProcessor` also implements `Pullable`s and `Pushable`s. These take care of collecting input events, waiting until one new event is received from all input traces before triggering the computation, pulling and buffering events from all outputs when either of the `Pullable`s is being called, etc. The only thing that is left undefined is what to do when new input events have been received from all input traces. This is the task of abstract method `compute()`, which descendants of this class must implement.
+@palette Core@ <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}|textsl} A-->A<!--/i--> `Processor` that performs a computation on input events to produce output events. This is the direct descendant of `Processor`, and probably the one you'll want to inherit from when creating your own processors. While `Processor` takes care of input and output queues, `SynchronousProcessor` also implements `Pullable`s and `Pushable`s. These take care of collecting input events, waiting until one new event is received from all input traces before triggering the computation, pulling and buffering events from all outputs when either of the `Pullable`s is being called, etc. The only thing that is left undefined is what to do when new input events have been received from all input traces. This is the task of abstract method `compute()`, which descendants of this class must implement.
 
 #### `Sink`
 
@@ -885,6 +883,10 @@ The opposite of `Unpack` is `Pack`.
 @palette Core@ <!--\index{VariableStutter@\texttt{VariableStutter}|textsl} A-->A<!--/i--> 2:1 `Processor` that repeats each input event coming in its first input pipe a number of times defined by the input event coming into its second input pipe. It is represented graphically as:
 
 {@img images/tmf/VariableStutter.png}{VariableStutter}{.6}
+
+#### `Variant`
+
+<!--\index{Variant@\texttt{Variant}|textsl} A-->A<!--/i--> special class that can be returned by a call to a processor's `getInputTypesFor` or `getOutputType` methods. The occurrence of such a type in an input or output pipe disables the type checking step that the `Connector` class normally performs before connecting two processors together.
 
 #### `Window`
 
