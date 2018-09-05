@@ -165,16 +165,55 @@ We then perform a drastic reduction of the data stream. The input files have hou
 
 ### Processing
 
-
+The next step is to perform computations on this stream of arrays. The goal is to detect rapid variations in the spacecraft's speed, and to visualize these variations in a plot. To this end, the input stream will be forked in three parts, as shown in the following diagram:
 
 {@img doc-files/voyager/processing.png}{Processing the Voyager data.}{.6}
 
+In the first copy of the stream, we apply a `FunctionTree` which extracts the first element of the input array (a year), the second element of the array (the number of a day in the year), and passes these two values to a custom function called `ToDate`, which turns them into a single number. This number corresponds to the number of days elapsed since January 1st, 1977 (the first day in the input files). Converting the date in such a format will make it easier to plot afterwards. This date is then fed into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, and will provides values for the first column of a three-column table.
+
+In the second copy of the stream, we extract the fourth component of the input array and convert it into a number. This number corresponds to the spacecraft's distance. The third copy of the stream is trimmed from its first event, and the distance to the Sun is also extracted. The two values are then subtracted. The end result is a stream of numbers, representing the difference in distance between two successive events. Since events are spaced by exactly one week, this value makes a crude approximation of the spacecraft's weekly speed.
+
+However, since the weekly distance is very close to the measurement's precision, we "smoothen" those values by replacing them by the average of each two successive points. This is the task of the <!--\index{Smoothen@\texttt{Smoothen}} \texttt{Smoothen}-->`Smoothen`<!--/i--> processor, represented in the diagram by a piece of sandpaper.
+
+This stream is again separated in two. The first copy goes directly into the table, and provides the values for its second column. The second copy goes first into a `PeakFinder` processor from the *Signal* palette, before being sent into the table as its third column. The end result is a processor chain that populates a table containing:
+
+- The number of days since 1/1/1977
+- The smoothened weekly speed
+- The peaks extracted from the weekly speed
+
+In code, this chain of processor looks as follows:
+
+{@snipm voyager/PlotSpeed.java}{!}
+
 ### Visualization
+
+The last step is to display the contents of this table graphically. This can be done using the *Widgets* palette, in the following processor chain:
 
 {@img doc-files/voyager/visualization.png}{Visualizing the Voyager data.}{.6}
 
-One can see that the last three peaks correspond precisely to the dates of Voyager's flybys of Jupiter, Saturn, and Neptune: 
+A `Pump` is asked to repeatedly pull on the `UpdateTableStream`; its output is pushed into a `KeepLast` processor; this processor discards all its input events, except when it receives the last one from its upstream source. In this case, this corresponds to a reference the `Table` object once it is fully populated. This table is then passed to a `DrawPlot` processor, and then to a `WidgetSink` in order to be displayed in a `JFrame`. The code producing this chain of processor is as follows:
 
+{@snipm voyager/PlotSpeed.java}{\*}
+
+The end result of this program produces a graph, which should look like in the following figure. The blue line shows the craft's average speed, in AU/week, while the green line shows the signal produced by the peak detector. As one can see, the speed fluctuates relatively smoothly, and the line is interspersed with a few abrupt variations. We can observe that these abrupt changes are picked up by the peak detector, which otherwise outputs a stream of zeros.
+
+{@img voyager/voyager-plot.png}{A scatterplot created from the Voyager data.}{.6}
+
+A fun fact about this plot: the last three peaks correspond precisely to the dates of Voyager's flybys of Jupiter, Saturn, and Neptune: 
+
++----------------+-----------------+-----------------------+
+| **Planet**     | **Date**        | **Days after 1/1/77** |
++================+=================+=======================+
+| Jupiter        | July 9, 1979    | 918                   |
++----------------+-----------------+-----------------------+
+| Saturn         | August 25, 1981 | 1,696                 |
++----------------+-----------------+-----------------------+
+| Neptune        | August 25, 1989 | 4,618                 |
++----------------+-----------------+-----------------------+
+
+The flyby of Uranus (January 24, 1986, or Day 3310) does not produce a speed variation large enough to be detected through this method.
+
+Creating This whole chain of processors, from the raw text files to the plot, has required exactly 100 lines of code.
 
 ## Electric Load Monitoring
 

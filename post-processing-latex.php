@@ -32,6 +32,25 @@ $s = preg_replace("/\\@palette (.*?)@/ms", "\\bbpalette{\\1}", $s);
 $s = preg_replace("/\\\\begin\\{figure\\}.*?(\\\\includegraphics[^\\}]*)\\}.*?\\\\caption.*?\\\\end\\{figure\\}/ms", "\\begin{center}\n\\1}\n\\end{center}", $s);
 file_put_contents("latex/chapters/dictionary/README.tex", $s);
 
+// Hack to table in use case section
+file_put_contents("latex/chapters/flyby.inc.tex", <<<EOD
+\\begin{center}
+\\begin{tabular}{lll}
+\\hline
+\\textbf{Planet} & \\textbf{Date} & \\textbf{Days after 1/1/77} \\\\
+\\hline
+Jupiter & July 9, 1979 & 918 \\\\
+Saturn & August 25, 1981 & 1,696 \\\\
+Neptune & August 25, 1989 & 4,618 \\\\
+\\hline
+\\end{tabular}
+\\end{center}
+EOD
+);
+$s = file_get_contents("latex/chapters/use-cases/README.tex");
+$s = preg_replace("/\\\\begin\\{longtable\\}.*?\\\\end\\{longtable\\}/ms", "\\input{flyby.inc.tex}", $s);
+file_put_contents("latex/chapters/use-cases/README.tex", $s);
+
 // Remove foreword, dictionary and drawing guide from body.tex, as these files are
 // manually included by book.tex
 $s = file_get_contents("latex/chapters/body.tex");
