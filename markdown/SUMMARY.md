@@ -60,6 +60,7 @@
 * [Extending BeepBeep](custom/README.md)
   * [Creating Custom Functions](custom/README.md#creating-custom-functions)
   * [Creating Custom Processors](custom/README.md#creating-custom-processors)
+  * [Creating Palettes](custom/README.md#creating-palettes)
 * [Designing a Query Language](dsl/README.md)
   * [Defining a Grammar](dsl/README.md#defining-a-grammar)
   * [Building Objects from the Parsing Tree](dsl/README.md#building-objects-from-the-parsing-tree)

@@ -280,7 +280,40 @@ This processor is the first in this chapter to have a member field, called `last
 
 The presence of a member field changes the way of implementing method `duplicate`. Remember that a processor has the option of being copied *along with its state*, by setting the value of argument `with_state` to `true`. Therefore, the code for `duplicate` must take into account this additional possibility. Notice how a new instance of `MyMax`, called `mm`, is created; if the duplication is stateful, an extra step is taken to copy the current value of `last` into `mm`. This has for effect of putting `mm` into the same state as the current object.
 
-The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforseen and hard-to-debug behaviours.
+The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforseen and hard-to-debug behaviours. As an example, let us go back to the `Stuttering` processor we created previously. Consider the following program:
+
+{@snipm customprocessors/StatefulDuplication.java}{/}
+
+```
+Call to compute
+Call to pull on p1: 2
+```
+
+Let us now make a stateful duplicate of `s1`, connect it to a new event source, and call `pull` once:
+
+{@snipm customprocessors/StatefulDuplication.java}{\*}
+
+The program prints:
+
+```
+Call to compute
+Call to pull on p2: 3
+```
+
+However, this is not the expected output. As we have seen in a previous example, the next event that should be output by processor `s1` is the second instance of number 2. Processor `s2` should be a *stateful* copy of `s1`, and hence, produce the same output event. Instead, the call to `pull` on `s2` resulted in `s2` pulling number 3 from `src2` and sending it to its output. The reason for this strange behaviour is the fact that, when `s1` was duplicated, the contents of its input and output queues was not transferred to `s2`. 
+
+{@snipm customprocessors/StatefulDuplication.java}{!}
+
+```
+Call to compute
+Call to pull on p1: 2
+```
+
+{@snipm customprocessors/StatefulDuplication.java}{&}
+
+```
+Call to pull on p2: 2
+```
 
 ## Creating Palettes
 

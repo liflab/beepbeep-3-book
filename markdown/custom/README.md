@@ -332,24 +332,24 @@ The actual functionality of the processor is written in the body of method `comp
 ``` java
 public class StringLength extends SynchronousProcessor
 {
-    public StringLength()
-    {
-        super(1, 1);
-    }
+  public StringLength()
+  {
+    super(1, 1);
+  }
 
-    public boolean compute(Object[] inputs, Queue<Object[]> outputs)
-    {
-        int length = ((String) inputs[0]).length();
-        return outputs.add(new Object[]{length});
-    }
+  public boolean compute(Object[] inputs, Queue<Object[]> outputs)
+  {
+    int length = ((String) inputs[0]).length();
+    return outputs.add(new Object[]{length});
+  }
 
-    @Override
-    public Processor duplicate(boolean with_state)
-    {
-        return new StringLength();
-    }
+  @Override
+  public Processor duplicate(boolean with_state)
+  {
+    return new StringLength();
+  }
 
-    @Override
+  @Override
   public void getInputTypesFor(Set<Class<?>> classes, int position)
   {
     if (position == 0)
@@ -358,19 +358,19 @@ public class StringLength extends SynchronousProcessor
     }
   }
 
-    @Override
-    public Class<?> getOutputType(int position)
+  @Override
+  public Class<?> getOutputType(int position)
+  {
+    if (position == 0)
     {
-      if (position == 0)
-      {
-        return Number.class;
-      }
-      return null;
+      return Number.class;
     }
+    return null;
+  }
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StringLength.java#L8)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StringLength.java#L25)
 
 
 Note that the `compute` method has a second argument, which is a queue of object arrays. If the processor is of arity *n*, it must create an event front of size *n*, which means putting an event into each of its *n* output queues. It may also decide to output more than one such *n*-uplet for a single input event, and these events are accumulated into a queue --hence the slightly odd object type. The method puts into the `outputs` queue an array of `Object`s with a single element, which, in this case, is an integer corresponding to the input string's length.
@@ -422,7 +422,7 @@ public class EuclideanDistance extends SynchronousProcessor
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/EuclideanDistance.java#L6)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/EuclideanDistance.java#L23)
 
 
 As the reader can see, the `compute` method now expects the `input` array to contain *two* elements, and these two elements are cast as instances of `Point`. In addition, the `duplicate` method introduces a small variant: rather than returning a new copy of the processor, it returns itself (`this`). This behaviour makes sense in the case of a <!--\index{singleton} \textbf{singleton}-->**singleton**<!--/i--> --that is, an object which exists in a single copy across an entire program. In such a case, a good practice is to reduce the visibility of the class' constructor (to prevent users from calling it and creating new instances), and to provide instead a static reference to a single instance of the object. This is the goal of the `instance` static field.
@@ -455,7 +455,7 @@ public class SplitPoint extends SynchronousProcessor
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/SplitPoint.java#L6)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/SplitPoint.java#L23)
 
 
 This time, the processor adds to the output queue an array of size 2. One must remember that it is an error to add an array whose size is not equal to the processor's output arity. Although this may not be detected immediately, such an incorrect behaviour is likely to create exceptions at some point in the execution of the program.
@@ -472,7 +472,7 @@ public class OutIfPositive extends SynchronousProcessor {
     }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/OutIfPositive.java#L7)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/OutIfPositive.java#L24)
 
 
 The way to indicate that a processor does not produce any output for an input is to simply add nothing to the output queue. Note that this should not be confused with returning `false`, which signifies that the processor will never output any event in the future.
@@ -492,7 +492,7 @@ public boolean compute(Object[] inputs, Queue<Object[]> outputs)
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L16)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L33)
 
 
 This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SynchronousProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as one wishes in the output queue, and `SynchronousProcessor` takes care of releasing them one by one through its `Pullable` object.
@@ -510,7 +510,7 @@ for (int i = 0; i < 4; i++)
   System.out.println("Call to pull: " + p.pull());
 }
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L35)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L52)
 
 
 This program calls `pull` on an instance of the `Stuttering` processor four times. The first call to `pull` triggers a call to `compute` on `s` in the background; this explains the first two lines printed at the console:
@@ -535,9 +535,11 @@ Call to pull: 2
 
 This may seem surprising, but can easily be explained. The previous call to `pull` made `s` receive the input event 2. As a result, the call to `compute` put into the `outputs` queue *two* object arrays, each containing the number 2. The first object array was immediately retrieved and returned as the result of the call to `pull`, while the contents of the second object array was put into the processor's output queue, waiting for the next call to `pull`. Consequently, upon the next call to `pull`, there was no need to call `compute`, since an output event was already waiting in the processor's output queue, ready to be retrieved.
 
+Therefore, when designing a new `SynchronousProcessor`, one must keep in mind that calls to `push` (resp. `pull`) on a processor's `Pushable` (resp. `Pullable`) do not always correspond to a call to `compute`, depending on the current contents of the processor's input and output queues.
+
 ### Stateful Processors
 
-So far, all our processors are memoryless: they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let's create a processor that outputs the maximum between the current event and the previous one. That is, given the following input trace:
+So far, all our processors are "memoryless": they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let us create a processor called `MyMax`, which outputs the maximum between the current event and the previous one. That is, given the following input trace:
 
     5, 1, 2, 3, 6, 4, ...
 
@@ -545,14 +547,15 @@ the processor should output:
 
     (nothing), 5, 2, 3, 6, 6, ...
 
-Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before saying something. Here's a possible implementation:
+Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before being able to output something. A possible implementation could be the following:
 
 ``` java
 public class MyMax extends SynchronousProcessor
 {
     Number last = null;
 
-    public MyMax() {
+    public MyMax()
+    {
         super(1, 1);
     }
 
@@ -571,13 +574,92 @@ public class MyMax extends SynchronousProcessor
     }
 
     @Override
-    public Processor duplicate(boolean with_state) {
-        return new MyMax();
+    public Processor duplicate(boolean with_state)
+    {
+      MyMax mm = new MyMax();
+      if (with_state)
+      {
+        mm.last = this.last;
+      }
+        return mm;
     }
 }
 
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/MyMax.java#L7)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/MyMax.java#L24)
 
+
+This processor is the first in this chapter to have a member field, called `last`. When the processor is instantiated, `last` is set to `null`. Each call to `compute` compares the value of `last` with the current event (if `last` is not null), and then sets the value of `last` to the current event. Therefore, the member field `last` acts as a form of "memory": for a given input event, the processor will produce a different output depending on the contents of this field --which itself depends on the previous event given to the processor.
+
+The presence of a member field changes the way of implementing method `duplicate`. Remember that a processor has the option of being copied *along with its state*, by setting the value of argument `with_state` to `true`. Therefore, the code for `duplicate` must take into account this additional possibility. Notice how a new instance of `MyMax`, called `mm`, is created; if the duplication is stateful, an extra step is taken to copy the current value of `last` into `mm`. This has for effect of putting `mm` into the same state as the current object.
+
+The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforseen and hard-to-debug behaviours. As an example, let us go back to the `Stuttering` processor we created previously. Consider the following program:
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.setEvents(2, 1);
+Stuttering s1 = new Stuttering();
+Connector.connect(src1, s1);
+Pullable p1 = s1.getPullableOutput();
+System.out.println("Call to pull on p1: " + p1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StatefulDuplication.java#L31)
+
+
+```
+Call to compute
+Call to pull on p1: 2
+```
+
+``` java
+QueueSource src2 = new QueueSource();
+src2.setEvents(3, 1);
+Stuttering s2 = s1.duplicate(true);
+Connector.connect(src2, s2);
+Pullable p2 = s2.getPullableOutput();
+System.out.println("Call to pull on p2: " + p2.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StatefulDuplication.java#L39)
+
+
+```
+Call to compute
+Call to pull on p2: 3
+```
+
+``` java
+QueueSource src1 = new QueueSource();
+src1.setEvents(2, 1);
+StutteringCopy s1 = new StutteringCopy();
+Connector.connect(src1, s1);
+Pullable p1 = s1.getPullableOutput();
+System.out.println("Call to pull on p1: " + p1.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StatefulDuplication.java#L50)
+
+
+```
+Call to compute
+Call to pull on p1: 2
+```
+
+``` java
+QueueSource src2 = new QueueSource();
+src2.setEvents(3, 1);
+StutteringCopy s2 = s1.duplicate(true);
+Connector.connect(src2, s2);
+Pullable p2 = s2.getPullableOutput();
+System.out.println("Call to pull on p2: " + p2.pull());
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StatefulDuplication.java#L58)
+
+
+```
+Call to pull on p2: 2
+```
+
+## Creating Palettes
+
+TODO
 
 <!-- :wrap=soft: -->
