@@ -9,7 +9,7 @@ In most cases, these streams are not interesting by themselves. Rather, we are m
 
 Stream processing can be found in an extremely wide range of applications, but it is not always named as such. For example, observing the behaviour of a program for testing purposes is often called <!--\index{runtime verification} \emph{runtime verification}-->*runtime verification*<!--/i-->, yet the sequence of observations made on the program at various moments in time fits the definition of an event stream very well. Amplifying a feed of raw audio samples can also be seen as a very specific form of event stream processing, although an audio technician would probably never think about it in this way. Very often, a stream is analyzed and transformed on-the-fly, but this is not even a requirement: hence, reading a pre-recorded sequence of events from some static source also counts as stream processing.
 
-## Computations over streams
+## Computations Over Streams
 
 At the onset, event stream processing is like any normal programming activity. Given an input stream, one can write a script or a program in the language of one's choice to perform the desired computation. However, certain hypotheses make event stream processing more complex than simple scripting.
 
@@ -47,7 +47,7 @@ Although BeepBeep has a host of interesting features, it is not a panacea. There
 
 However, if these limitations are not restrictive, BeepBeep can prove an easy and convivial tool to experiment with event stream processing.
 
-## Getting started
+## Getting Started
 
 BeepBeep is free and open source software, distributed under the Lesser General Public License (LGPL). Accordingly, its use is free of charge, and the tool may even be included as a library inside commercial software.
 
@@ -73,7 +73,7 @@ This program creates a new instance of a <!--\index{QueueSource@\texttt{QueueSou
 
 *Palettes* are additional JAR files that provide complementary functionalities to BeepBeep. Most of the <!--\index{palettes} palettes-->palettes<!--/i--> that will be used in this book can be downloaded from a sibling palette repository, located at [https://github.com/liflab/beepbeep-3-palettes](https://github.com/liflab/beepbeep-3-palettes). The *Releases* page of this repository offers a large zip file, inside which each individual palette is a single JAR file. Palettes can be loaded into a project in the same way as BeepBeep's main JAR file. Note that palettes are not stand-alone: your project still requires `beepbeep-3.jar` even if palettes are included into it. For this reason, palettes are also sensitive to the version of the main JAR that you are using; attempting to load a palette compiled for an older version of BeepBeep may create errors, and vice versa. No problems should occur if the latest versions are used.
 
-## How to read this book
+## How to Read This Book
 
 The first part of this book (chapters 2 to 5) is organized in a roughly linear fashion: each chapter builds on notions that have been covered in the previous one.
 
@@ -94,7 +94,7 @@ Finally, the book ends with a few appendices that are meant as a reference.
 - Appendix B is an illustrated glossary listing all the `Processor` and `Function` objects provided by BeepBeep and its palettes, and which are mentioned somewhere in the book. For each of them, it shows the standard picture used to represent them and provides a short definition.
 - Appendix C is a list of references to books and scientific papers providing more details about some of the topics discussed in this book.
 
-## Code examples and exercises
+## Code Examples and Exercises
 
 Most of the code examples in this book are also available online in a single big project. This project can be downloaded from <!--\index{GitHub} GitHub-->GitHub<!--/i--> at [https://github.com/liflab/beepbeep-3-examples](https://github.com/liflab/beepbeep-3-examples). It contains an extensive Javadoc documentation of every file, which can be explored online at [https://liflab.github.io/beepbeep-3-examples](https://liflab.github.io/beepbeep-3-examples).
 
@@ -159,8 +159,6 @@ Running this program will produce an output as the following:
 
 This indicates that the tutor found an input stream for which the output does not match what is expected of the correct solution. Here, since the `Trim` processor discards the first event it receives, the first event to be output is the letter "B" instead of the expected "A".
 
-Evidently, the tutor can be a useful way to get answers checked automatically. More will be said about the tutor in the first exercise section.
-
 ## Building BeepBeep
 
 Instead of using a pre-compiled release, users may want to build BeepBeep directly from the sources, thus giving access to the very latest features. First make sure the following has been installed:
@@ -187,5 +185,11 @@ BeepBeep can also test itself by running:
     ant test
 
 Unit tests are run with [jUnit](http://junit.org); a detailed report of these tests in HTML format is available in the folder `tests/junit`, which is automatically created. Code coverage is also computed with [JaCoCo](http://www.eclemma.org/jacoco/); a detailed report is available in the folder `tests/coverage`.
+
+For the sake of clarity, we give below the hashes of the latest commits on the various GitHub repositories containing BeepBeep code and examples. All the examples in this book are based on the software in the state it was when these commits were pushed:
+
+- BeepBeep core: `001d9579098cfe3e7b65fb571e24bf4043593b6b`
+- BeepBeep palettes: `0b8e589deae626ff2ed7cfba9d751b3104b1b5f8`
+- Code examples: `9dd840abf4983e16b51526f205d034cef19c8246`
 
 <!-- :wrap=soft: -->
