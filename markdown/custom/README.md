@@ -234,6 +234,85 @@ public class BinaryCutString extends BinaryFunction<String,Number,String>
 
 This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, method `getValue` works according to similar principles as `UnaryFunction`.
 
+### Partial Evaluation
+
+We have seen in Chapter 4 that functions can also be partially evaluated. As an example, let us create a function that calculates the area of a triangle based on the length of its three sides, by using <!--\index{Heron's formula} Heron's formula-->Heron's formula<!--/i-->: if *A* is the area of the triangle, and *a*, *b*, and *c* are the lengths of its sides, then *A*² = *s*(*s*-*a*)(*s*-*b*)(*s*-*c*), where *s* is the *semiperimeter*, or half of the triangle's perimeter. Writing method `evaluate` is relatively straightforward:
+
+``` java
+public void evaluate(Object[] inputs, Object[] outputs)
+{
+  float a = ((Number) inputs[0]).floatValue();
+  float b = ((Number) inputs[1]).floatValue();
+  float c = ((Number) inputs[2]).floatValue();
+  float s = (a + b + c) / 2f;
+  outputs[0] = Math.sqrt(s * (s-a) * (s-b) * (s-c));
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/TriangleArea.java#L15)
+
+
+However, a few shortcuts can be made when evaluating this function. For example, as soon as one of the sides is 0, the shape cannot be a triangle, and we can set the area to 0. To implement this functionality, a `Function` object must override a method called <!--\index{Function@\texttt{Function}!evaluatePartial@\texttt{evaluatePartial}} \texttt{evaluatePartial}-->`evaluatePartial`<!--/i-->, as follows:
+
+``` java
+public boolean evaluatePartial(Object[] inputs, Object[] outputs, Context c)
+{
+  if (inputs[0] != null && ((Number) inputs[0]).floatValue() == 0)
+  {
+    outputs[0] = 0;
+    return true;
+  }
+  if (inputs[1] != null && ((Number) inputs[1]).floatValue() == 0)
+  {
+    outputs[0] = 0;
+    return true;
+  }
+  if (inputs[2] != null && ((Number) inputs[2]).floatValue() == 0)
+  {
+    outputs[0] = 0;
+    return true;
+  }
+  if (inputs[0] != null && inputs[1] != null && inputs[2] != null)
+  {
+    evaluate(inputs, outputs);
+    return true;
+  }
+  outputs[0] = null;
+  return false;
+}
+
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/TriangleArea.java#L25)
+
+
+The signature of this method contains an array of input arguments, an array of output values, and a `Context` object (which may be null). Since this method is called during partial evaluation, any of the elements of the `inputs` array may be null. Therefore the method checks, for each of the three elements of the array, whether it is non-null, and if so, whether it is equal to zero. If this is the case, value 0 is put into the `outputs` array, and the method returns `true`. This is meant to indicate that the function was successfully evaluated and produced an output value.
+
+If none of the elements is equal to zero, the method then checks if all the elements are non-null; if so, the method calls `evaluate` to compute its output value using the formula. Finally, when none of these conditions apply, the method returns `false`, indicating that no output value could be computed.
+
+Let us now try partial evaluation using various combinations of input arguments, as in the following program:
+
+``` java
+TriangleArea ta = new TriangleArea();
+Object[] out = new Object[1];
+boolean b;
+b = ta.evaluatePartial(new Object[] {3, 4, 5}, out, null);
+System.out.println("b: " + b + ", " + out[0]);
+b = ta.evaluatePartial(new Object[] {3, null, 5}, out, null);
+System.out.println("b: " + b + ", " + out[0]);
+b = ta.evaluatePartial(new Object[] {3, null, 0}, out, null);
+System.out.println("b: " + b + ", " + out[0]);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/TriangleArea.java#L83)
+
+
+The first case corresponds to regular evaluation; the method returns `true` and puts the area 6 in the `out` array. The second case corresponds to partial evaluation, but where no output value can be computed; consequently, the method returns `false`. Finally, the third case also corresponds to partial evaluation, but where an output value can be produced. Therefore, the output of this program is:
+
+```
+b: true, 6.0
+b: false, null
+b: true, 0
+```
+
 ## Create your Own Processor
 
 In the same way as for functions, BeepBeep allows you to create new `Processor` objects, which can then be composed with existing processors. What is more, you start to do so with no more than a few lines of boilerplate codeq.
@@ -266,7 +345,8 @@ public class CounterGroup extends GroupProcessor
     {
         super(1, 1);
         TurnInto one = new TurnInto(1);
-        Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+        Cumulate sum = new Cumulate(
+            new CumulativeFunction<Number>(Numbers.addition));
         Connector.connect(one, sum);
         associateInput(0, one, 0);
         associateOutput(0, sum, 0);

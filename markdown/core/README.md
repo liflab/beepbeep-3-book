@@ -921,7 +921,7 @@ In this chapter, we have covered the dozen or so fundamental processors provided
 
 6. Write a `GroupProcessor` that takes a stream of numbers, and alternates their sign: it multiplies the first event by -1, the second by 1, the third by -1, and so on. This processor only needs to work in pull mode.
 
-7. The value of pi can be estimated using the [Leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80). According to this formula, pi is four times the infinite expression 1/1 - 1/3 + 1/5 - 1/7 + 1/9... Create a chain of processors that produces an increasingly precise approximation of the value of pi using this formula.
+7. The value of pi can be estimated using <!--\index{Leibniz formula} the-->the<!--/i--> [Leibniz formula](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80). According to this formula, pi is four times the infinite expression 1/1 - 1/3 + 1/5 - 1/7 + 1/9... Create a chain of processors that produces an increasingly precise approximation of the value of pi using this formula.
 
 8. Write a processor chain that computes the running variance of a stream of numbers. The variance can be calculated by the expression E[*X*²]-E[*X*]², where E[*X*] is the running average, and E[*X*²] is the running average of the square of each input event.
 

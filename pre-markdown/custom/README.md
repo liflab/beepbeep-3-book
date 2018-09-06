@@ -107,6 +107,32 @@ Function `CutString` could also be simplified by defining it as a descendent of 
 
 This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, method `getValue` works according to similar principles as `UnaryFunction`.
 
+### Partial Evaluation
+
+We have seen in Chapter 4 that functions can also be partially evaluated. As an example, let us create a function that calculates the area of a triangle based on the length of its three sides, by using <!--\index{Heron's formula} Heron's formula-->Heron's formula<!--/i-->: if *A* is the area of the triangle, and *a*, *b*, and *c* are the lengths of its sides, then *A*² = *s*(*s*-*a*)(*s*-*b*)(*s*-*c*), where *s* is the *semiperimeter*, or half of the triangle's perimeter. Writing method `evaluate` is relatively straightforward:
+
+{@snips customprocessors/TriangleArea.java}{public void evaluate}
+
+However, a few shortcuts can be made when evaluating this function. For example, as soon as one of the sides is 0, the shape cannot be a triangle, and we can set the area to 0. To implement this functionality, a `Function` object must override a method called <!--\index{Function@\texttt{Function}!evaluatePartial@\texttt{evaluatePartial}} \texttt{evaluatePartial}-->`evaluatePartial`<!--/i-->, as follows:
+
+{@snips customprocessors/TriangleArea.java}{public boolean evaluatePartial}
+
+The signature of this method contains an array of input arguments, an array of output values, and a `Context` object (which may be null). Since this method is called during partial evaluation, any of the elements of the `inputs` array may be null. Therefore the method checks, for each of the three elements of the array, whether it is non-null, and if so, whether it is equal to zero. If this is the case, value 0 is put into the `outputs` array, and the method returns `true`. This is meant to indicate that the function was successfully evaluated and produced an output value.
+
+If none of the elements is equal to zero, the method then checks if all the elements are non-null; if so, the method calls `evaluate` to compute its output value using the formula. Finally, when none of these conditions apply, the method returns `false`, indicating that no output value could be computed.
+
+Let us now try partial evaluation using various combinations of input arguments, as in the following program:
+
+{@snipm customprocessors/TriangleArea.java}{/}
+
+The first case corresponds to regular evaluation; the method returns `true` and puts the area 6 in the `out` array. The second case corresponds to partial evaluation, but where no output value can be computed; consequently, the method returns `false`. Finally, the third case also corresponds to partial evaluation, but where an output value can be produced. Therefore, the output of this program is:
+
+```
+b: true, 6.0
+b: false, null
+b: true, 0
+```
+
 ## Create your Own Processor
 
 In the same way as for functions, BeepBeep allows you to create new `Processor` objects, which can then be composed with existing processors. What is more, you start to do so with no more than a few lines of boilerplate codeq.
