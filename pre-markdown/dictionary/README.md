@@ -36,11 +36,11 @@ For more technical information about each of these objects, the reader is referr
 
 {@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
 
-#### `ApplyFunction`
+#### `ApplyFunctionPartial`
 
 @palette Core@ <!--\index{ApplyFunctionPartial@\texttt{ApplyFunctionPartial}|textsl} A-->A<!--/i--> variant of `ApplyFunction` that attempts to evaluate a function on incomplete input event fronts. It is represented graphically as:
 
-{@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
+{@img images/functions/ApplyFunctionPartial.png}{ApplyFunctionPartial}{.6}
 
 #### `ApplyToAll`
 
