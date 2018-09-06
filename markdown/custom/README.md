@@ -1,20 +1,20 @@
 Extending BeepBeep
 ==================
 
-BeepBeep was designed from the start to be easily extensible. As was discussed earlier, it consists of only a small core of built-in processors and functions. The rest of its functionalities are implemented through custom processors and grammar extensions, grouped in packages called *palettes*.
+BeepBeep was initially designed to be easily extensible. As was discussed earlier, it consists of only a small core of built-in processors and functions. The rest of its functionalities are implemented through custom processors and grammar extensions, grouped in packages called *palettes*.
 
-However, it may very well be possible that none of the processors or functions in existing palettes are appropriate for a particular problem. Fortunately, BeepBeep provides easy means of creating your own objects, by simply extending some of the classes provided by the core library. In this chapter, we shall see through multiple examples how custom functions and processors can be created, often in just a few lines of code.
+However, it is quite possible that none of the processors or functions in existing palettes are appropriate for a particular problem. Fortunately, BeepBeep provides easy means to create your own objects, by simply extending some of the classes provided by the core library. Through multiple examples contained in this chapter, we shall see how custom functions and processors can be created, often in just a few lines of code.
 
 ## Creating Custom Functions
 
-Let us start with the simple case of functions. A custom function is any object that inherits from the base class {@link ca:uqac.lif.cep.functions.Function Function}. There are two main ways to create new function classes:
+Let us start with the simple case of functions. A custom function is any object that inherits from the base class `Function`. There are two main ways to create new function classes:
 
 - By extending `FunctionTree` and composing existing `Function` objects
 - By extending `Function` or one of its more specific descendents, such as `UnaryFunction` or `BinaryFunction`. In such a case, the function can made of arbitrary Java code.
 
 ### As a Function Tree
 
-A first way of creating a function is to create a new class that extends [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions.html). The constructor to this class has to call `FunctionTree`'s constructor, and to build the appropriate function tree right there. Recall the function tree we created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
+A first way of creating a function is to create a new class that extends [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions.html). Remember the function tree that was created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
 
 ``` java
 FunctionTree tree = new FunctionTree(Numbers.multiplication,
@@ -23,7 +23,7 @@ FunctionTree tree = new FunctionTree(Numbers.multiplication,
 				StreamVariable.Z);
 ```
 
-However, if we want to reuse this function in various programs, we need to copy-paste this instruction multiple times --with all the problems associated with copy-pasting. A better practice would be to create a `CustomFunctionTree` that encapsulates the creation of the function inside its constructor. This can be done by creating a new class that extends `FunctionTree`, like this:
+However, ifthis function needs to be reused in various programs, the previous instruction has to be copy-pasted multiple times --which creates all the problems associated with copy-pasting. A better practice would be to create a `CustomFunctionTree` that encapsulates the creation of the function inside its constructor. This can be done by creating a new class that extends `FunctionTree`, like this:
 
 ``` java
 public class CustomFunctionTree extends FunctionTree
@@ -48,18 +48,18 @@ ApplyFunction af = new ApplyFunction(f);
 ...
 ```
 
-An interesting advantage is that, should you wish to change the actual function that is computed, you only need to make the modification at a single location.
+An interesting advantage is that, if one wishes to change the actual function that is computed, a modification needs to be made in a single location.
 
 ### As a New Object
 
-The previous technique only works for custom functions that can actually be expressed in terms of existing functions. When this is not possible, we must resort to creating a new, full-fledged `Function` class from scratch, composed of arbitrary Java code. It turns out that this is not very hard.
+The previous technique only works for custom functions that can actually be expressed in terms of existing functions. When this is not possible, users can create a new `Function` class from scratch, composed of arbitrary Java code. It turns out that this is not very hard.
 
 The most generic way of doing so is to directly extend the abstract class `Function`, and to implement all the mandatory methods. There are six of them:
 
-- Method `evaluate` is responsible for doing the actual computation; it receives an array of input arguments, and writes to an array of output arguments.
-- Method `getInputArity` and `getOutputArity` declare the function's input and output arity, respectively. They must each return a single integer number.
-- Method `getInputTypesFor` is used to specify the type of the function's input arguments. Method `getOutputTypeFor` does the same thing for the function's output values.
-- Method `duplicate` must return a new instance (a "clone") of the function.
+- The `evaluate` method is responsible for doing the actual computation; it receives an array of input arguments, and writes to an array of output arguments.
+- The `getInputArity` and `getOutputArity` methods report the function's input and output arity, respectively. They must each return a single integer number.
+- The `getInputTypesFor` method is used to specify the type of the function's input arguments. The `getOutputTypeFor` method does the same thing for the function's output values.
+- The `duplicate` method must return a new instance (a "clone") of the function.
 
 As a simple example, let us write a new `Function` that multiplies a number by two. We start by creating an empty class that extends `Function`:
 
@@ -69,7 +69,7 @@ public class CustomDouble extends Function
 }
 ```
 
-A few methods are easy to implement. The case of <!--\index{Function@\texttt{Function}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Function@\texttt{Function}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> can be solved quickly: our function is expected to receive one argument, and to produce one output value; hence both methods should return 1. The <!--\index{Function@\texttt{Function}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> method is also straightfoward: we simply need to return a new instance of `CustomDouble`. This yields the following code:
+A few methods are easy to implement. The case of <!--\index{Function@\texttt{Function}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Function@\texttt{Function}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> can be solved quickly: here, the function is expected to receive one argument, and to produce one output value; hence both methods should return 1. The <!--\index{Function@\texttt{Function}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> method is also straightfoward: we simply need to return a new instance of `CustomDouble`. This yields the following code:
 
 ``` java
 @Override
@@ -91,7 +91,7 @@ public Function duplicate(boolean with_state)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L16)
 
 
-The next method to implement is <!--\index{Function@\texttt{Function}!evaluate@\texttt{evaluate}} \texttt{evaluate}-->`evaluate`<!--/i-->, which receives an `inputs` array and an `outputs` array. Since our function declares an input arity of 1, `inputs` should contain a single element; moreover, this element should be an instance of `Number`. Similarly, we expect `outputs` to be an array of size 1. The method produces its return value by writing to the `outputs` array. The code for `evaluate` could therefore look like this:
+The next method to implement is <!--\index{Function@\texttt{Function}!evaluate@\texttt{evaluate}} \texttt{evaluate}-->`evaluate`<!--/i-->, which receives an `inputs` array and an `outputs` array. Since the function reports an input arity of 1, `inputs` should contain a single element; moreover, this element should be an instance of `Number`. Similarly, we expect `outputs` to be an array of size 1. The method produces its return value by writing to the `outputs` array. The code for `evaluate` could therefore look like this:
 
 ``` java
 public void evaluate(Object[] inputs, Object[] outputs)
@@ -104,7 +104,7 @@ public void evaluate(Object[] inputs, Object[] outputs)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L10)
 
 
-Method <!--\index{Function@\texttt{Function}!getInputTypesFor@\texttt{getInputTypesFor}} \texttt{getInputTypesFor}-->`getInputTypesFor`<!--/i--> allows other objects to ask the function about the type of its arguments. It receives as arguments a set *s* of classes and an index *i*; its task is to add to *s* the `Class` object corresponding to the expected type of the *i*-th argument of the function (as usual, indices start at 0). This results in the following code:
+The <!--\index{Function@\texttt{Function}!getInputTypesFor@\texttt{getInputTypesFor}} \texttt{getInputTypesFor}-->`getInputTypesFor`<!--/i--> method allows other objects to query the function about the type of its arguments. It receives a set *s* of classes and an index *i* as arguments; its task is to add to *s* the `Class` object corresponding to the expected type of the *i*-th argument of the function (as usual, indexes start at 0). This results in the following code:
 
 ``` java
 public void getInputTypesFor(Set<Class<?>> s, int i)
@@ -117,7 +117,7 @@ public void getInputTypesFor(Set<Class<?>> s, int i)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L37)
 
 
-Note that we check if *i* is 0; if so, we add the class `Number` to *s*, otherwise we add nothing. This is because `CustomDouble` has only one argument; it does not make sense to declare a type for indices higher than 0. It is important to note that this method can add more than one class to the set. For example, a function could accept either sets or lists as its arguments; in such a case, method `getInputTypesFor` would add both `List.class` and `Set.class` to the set.
+The method checks if *i* is 0; if so, it adds the class `Number` into *s*, otherwise it adds nothing. This is because `CustomDouble` has only one argument; it does not make sense to provide type information for indexes higher than 0. It is important to note that this method can add more than one class to the set. For example, a function could accept either sets or lists as its arguments; in such a case, method `getInputTypesFor` would add both `List.class` and `Set.class` to the set.
 
 The principle for <!--\index{Function@\texttt{Function}!getOutputTypeFor@\texttt{getOutputTypeFor}} \texttt{getOutputTypeFor}-->`getOutputTypeFor`<!--/i--> is similar; the slight difference is that the method must *return* a `Class` object:
 
@@ -133,18 +133,18 @@ public Class<?> getOutputTypeFor(int i)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/CustomDouble.java#L44)
 
 
-We again check for the index, and only return a type for *i*=0.
+Again, a type is only returned if *i*=0.
 
 The purpose of the input/output arity/type methods is to declare what is called the function's *signature*. The <!--\index{Connector@\texttt{Connector}} \texttt{Connector}-->`Connector`<!--/i--> object we use to create processor chains calls these methods to make sure that functions and processors are piped correctly. It is therefore important to properly declare the arity and types for each custom object we create, in order to avoid exceptions being thrown when calling `connect()` with these objects.
 
-We now have a complete new `Function` object that can be used like any other. For example:
+This code produces a complete new `Function` object that can be used like any other. For example:
 
 ``` java
 Function f = new CustomDouble();
 ApplyFunction af = new ApplyFunction(f);
 ```
 
-As you might expect, a `Function` may have more than one input or output argument, and these arguments do not need to be of the same type. To illustrate this, let us create a new function `CutString` that takes two arguments: a string *s* and a number *n*. Its purpose is to cut *s* after *n* characters and return the result. A possible implementation would be:
+As you might expect, a `Function` may have more than one input or output argument; these arguments do not need to be of the same type. To illustrate this, let us create a new function `CutString` that takes two arguments: a string *s* and a number *n*. Its purpose is to cut *s* after *n* characters and return the result. A possible implementation would be:
 
 ``` java
 public class CutString extends Function
@@ -185,9 +185,9 @@ public class CutString extends Function
 
 ### Unary and Binary Functions
 
-Extending `Function` directly results in lots of "boilerplate" code. If your intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/UnaryFunction.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/BinaryFunction.html). These classes take care of most of the housekeeping associated to functions, and require you to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, you can write whatever Java code you want.
+Extending `Function` directly results in lots of "boilerplate" code. If the intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/UnaryFunction.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/BinaryFunction.html). These classes take care of most of the tasks associated to functions, and require the user to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, the user can write arbitrary Java code.
 
-As an example, let us rewrite our `CustomDouble` function; it is a 1:1 function, so we will create a class that extends <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->. It turns out this new object now only requires five lines of code:
+As an example, let us rewrite the `CustomDouble` function; it is a 1:1 function, which means that it can extend the <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i--> class. From then on, this new object only requires five lines of code:
 
 ``` java
 public class UnaryDouble extends UnaryFunction<Number,Number>
@@ -208,9 +208,9 @@ public class UnaryDouble extends UnaryFunction<Number,Number>
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/UnaryDouble.java#L5)
 
 
-As you can see, you must also declare the input and output type for the function; here, the function accepts a `Number` and returns a `Number`. These types must also be reflected in the function's constructor, where you must call the superclass constructor and pass it a `Class` instance of each input and output argument.
+As you can see, the input and output type for the function must also be declared; here, the function accepts a `Number` and returns a `Number`. These types must also be present in the function's constructor: the superclass constructor must be called, and be given a `Class` instance of each input and output argument.
 
-Method  <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue()}-->`getValue()`<!--/i--> is where the output of the function is computed for the input. Since the function is unary and declares its single input argument as a number, the method has a single `Number` argument. Similarly, since the function declares its output to also be a number, the return type of this method is `Number`.
+The <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue()}-->`getValue()`<!--/i--> method is the one in which the output of the function is computed from the input. Since the function is unary and discloses its single input argument as a number, the method has a single `Number` argument. Similarly, since the function declares its output to also be a number, the return type of this method is `Number`.
 
 Function `CutString` could also be simplified by defining it as a descendent of <!--\index{BinaryFunction@\texttt{BinaryFunction}} \texttt{BinaryFunction}-->`BinaryFunction`<!--/i-->:
 
@@ -232,7 +232,7 @@ public class BinaryCutString extends BinaryFunction<String,Number,String>
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/functions/custom/BinaryCutString.java#L5)
 
 
-This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, method `getValue` works according to similar principles as `UnaryFunction`.
+This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, the `getValue` method works according to similar principles as `UnaryFunction`.
 
 ### Partial Evaluation
 
@@ -315,13 +315,16 @@ b: true, 0
 
 ## Create your Own Processor
 
-In the same way as for functions, BeepBeep allows you to create new `Processor` objects, which can then be composed with existing processors. What is more, you start to do so with no more than a few lines of boilerplate codeq.
+As with functions, BeepBeep allows you to create new `Processor` objects, which can then be composed with existing processors. Again, there are multiple ways of creating a new processor:
+
+- As a descendent of `GroupProcessor`, by combining existing processors
+- As a descendent of `Processor`, using arbitrary Java code
 
 ### As a `GroupProcessor`
 
-As for functions, a first way to create a new processor is to define a class that extends `GroupProcessor`, and to put into that class' constructor the instructions that build the desired chain of processors.
+A first way to create a new processor is to define a class that extends `GroupProcessor`, and to put the instructions building the desired chain of processors into that class' constructor.
 
-Suppose we want to create a processor that counts events. A simple way to do so is to create a `GroupProcessor` like this one:
+Suppose that a user wants to create a processor that counts events. A simple way to do it is to create a `GroupProcessor` as this one:
 
 ``` java
 GroupProcessor g = new GroupProcessor(1, 1);
@@ -336,7 +339,7 @@ GroupProcessor g = new GroupProcessor(1, 1);
 }
 ```
 
-However, if we want to use this processor at multiple locations, we will again have to copy-paste this code everywhere we need a new instance of the counter. A better way is to create a new class that extends `GroupProcessor`:
+However, if the user wants to use this processor at multiple locations, he will again have to copy-paste this code everywhere a new instance of the counter is needed. A better way is to create a new class that extends `GroupProcessor`:
 
 ``` java
 public class CounterGroup extends GroupProcessor
@@ -406,9 +409,9 @@ This results in a processor that accepts no inputs, and produces no output. To m
 
 ### A Simple 1:1 Processor
 
-As a first example, let us write a processor that receives character strings as its input events, and that computes the length of each string (we know that BeepBeep's `Size` function already does this, but let us ignore it for the purpose of this example). The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
+As a first example, let us write a processor that receives character strings as its input event, and computes the length of each string (we know that BeepBeep's `Size` function already does this, but let us ignore it for the purpose of this example). The input arity of this processor is therefore 1 (it receives one string at a time), and its output arity is 1 (it outputs a number). Specifying the input and output arity is done through the call to `super()` in the processor's constructor: the first argument is the input arity, and the second argument is the output arity.
 
-The actual functionality of the processor is written in the body of method `compute`. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1). Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
+The actual functionality of the processor is written in the body of the `compute` method. This method is called whenever an input event is available, and a new output event is required. Its first argument is an array of Java objects; the size of that array is that of the input arity we declared for this processor (in our case: 1). Computing the length amounts to extracting the first (and only) event of array inputs, casting it to a String, and getting its length. The end result is this:
 
 ``` java
 public class StringLength extends SynchronousProcessor
@@ -457,7 +460,7 @@ public class StringLength extends SynchronousProcessor
 
 Note that the `compute` method has a second argument, which is a queue of object arrays. If the processor is of arity *n*, it must create an event front of size *n*, which means putting an event into each of its *n* output queues. It may also decide to output more than one such *n*-uplet for a single input event, and these events are accumulated into a queue --hence the slightly odd object type. The method puts into the `outputs` queue an array of `Object`s with a single element, which, in this case, is an integer corresponding to the input string's length.
 
-The return type of method `compute` is a `boolean`. This value is used to signal to a `Pullable` object whether the processor is expected to produce more events in the future. A processor should return `false` only if it is absolutely sure that no more events will be produced in the future; in all other situations, it must return `true`. Examples of processors whose `compute` method returns `false` are processors that read from a file; when the end of the file is reached, they return false to indicate that no more new events are expected. Except in very special situations such as these, a processor should return `true`.
+The return type of the `compute` method is a `boolean`. This value is used to signal to a `Pullable` object whether the processor is expected to produce more events in the future. A processor should return `false` only if it is absolutely sure that no more events will be produced in the future; in all other situations, it must return `true`. Examples of processors whose `compute` method returns `false` are processors that read from a file; when the end of the file is reached, they return false to indicate that no more new events are expected. Except in very special situations such as these, a processor should return `true`.
 
 The other method that needs to be implemented is `duplicate`; it works in the same way as for functions, and in general only consists of returning a new instance of the class. However, the reader should notice that for processors, `duplicate` takes a Boolean argument, <!--\index{processor!duplication} called-->called<!--/i--> `with_state`. If this argument is set to `true`, the processor should not simply create a new copy of itself; it must also transfer its current *state* to the new object. Typically, this means that if the processor has member fields that determine its behaviour, these member fields must be set to the same values in the newly created copy. This is not the case in this simple example, since the processor we create has no member field at all. Therefore, method `duplicate` simply ignores the argument and returns a new instance of `StringLength`. From then on, a user can instantiate `StringLength`, connect it to the output of any other processor that produces strings, and pipe its result to the input of any other processor that accepts numbers.
 
@@ -465,7 +468,7 @@ Optionally, a processor can declare its input and output types, as is the case f
 
 ### Greater Input and Output Arity
 
-This second example will show a processor that takes as input two traces. The events of each trace are instances of a simple user-defined class called `Point`, defined as follows:
+This second example displays a processor taking two traces as input. The events of each trace are instances of a simple user-defined class called `Point`, defined as follows:
 
 ``` java
 public class Point {
@@ -474,7 +477,7 @@ public class Point {
 }
 ```
 
-We will write a processor that takes one event (i.e. one Point) from each input trace, and return the Euclidean distance between these two points.
+We will write a processor taking one event (i.e. one Point) from each input trace, and return the Euclidean distance between these two points.
 
 ``` java
 public class EuclideanDistance extends SynchronousProcessor
@@ -544,7 +547,7 @@ This time, the processor adds to the output queue an array of size 2. One must r
 
 ### Non-Uniform Processors
 
-So far, all processors we designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that we could have passed to an `ApplyFunction` processor.) In BeepBeep's terminology, these processors are called **uniform** (or more precisely, 1-uniform). However, this needs not be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
+So far, all processors that were designed return one output event for every input event (or pair of events) they receive. (As a matter of fact, it would have been easier to implement them as `Function`s that could have been passed to an `ApplyFunction` processor.) In BeepBeep's terminology, these processors are called **uniform** (or more precisely, 1-uniform). However, this needs not to be the case. The following processor outputs an event if its value is greater than 0, and no event at all otherwise.
 
 ``` java
 public class OutIfPositive extends SynchronousProcessor {
@@ -577,7 +580,7 @@ public boolean compute(Object[] inputs, Queue<Object[]> outputs)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/Stuttering.java#L33)
 
 
-This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SynchronousProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as one wishes in the output queue, and `SynchronousProcessor` takes care of releasing them one by one through its `Pullable` object.
+This example shows why `compute`'s `outputs` argument is a *queue* of arrays of objects. In this class, a call to `compute` may result in more than one event being output. If `compute` could output only one event at a time, our processor would need to buffer the events to output somewhere, and draw events from that buffer on subsequent calls to `compute`. Fortunately, the `SynchronousProcessor` class handles this in a transparent manner. Therefore, `compute` can put as many events as one wishes in the output queue, and `SynchronousProcessor` is responsible for releasing them one by one through its `Pullable` object.
 
 This example puts in light an interesting feature of the `SynchronousProcessor` class. Notice how we inserted a `println` statement in the first line of method `compute`. This allows us to track the moments where method `compute` is being called by BeepBeep. Consider the following program:
 
@@ -621,7 +624,7 @@ Therefore, when designing a new `SynchronousProcessor`, one must keep in mind th
 
 ### Stateful Processors
 
-So far, all our processors are "memoryless": they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let us create a processor called `MyMax`, which outputs the maximum between the current event and the previous one. That is, given the following input trace:
+So far, all our processors are "memoryless": they keep no information about past events when making their computation. It is also possible to create "memoryful" processors. As an example, let us create a processor called `MyMax`, which outputs the maximum between the current event and the previous one. Given the following input trace:
 
     5, 1, 2, 3, 6, 4, ...
 
@@ -629,7 +632,7 @@ the processor should output:
 
     (nothing), 5, 2, 3, 6, 6, ...
 
-Notice how, after receiving the first event, the processor should not return anything yet, as it needs two events before being able to output something. A possible implementation could be the following:
+Notice how, after receiving the first event, the processor should not return anything yet, as two events are needed before being able to output something. A possible implementation could be the following:
 
 ``` java
 public class MyMax extends SynchronousProcessor
