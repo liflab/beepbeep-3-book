@@ -183,16 +183,112 @@ Connector.connect(ignore_beginning, to_array);
 
 ### Processing
 
-
+The next step is to perform computations on this stream of arrays. The goal is to detect rapid variations in the spacecraft's speed, and to visualize these variations in a plot. To this end, the input stream will be forked in three parts, as shown in the following diagram:
 
 ![Processing the Voyager data.](processing.png)
 
+In the first copy of the stream, we apply a `FunctionTree` which extracts the first element of the input array (a year), the second element of the array (the number of a day in the year), and passes these two values to a custom function called `ToDate`, which turns them into a single number. This number corresponds to the number of days elapsed since January 1st, 1977 (the first day in the input files). Converting the date in such a format will make it easier to plot afterwards. This date is then fed into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, and will provides values for the first column of a three-column table.
+
+In the second copy of the stream, we extract the fourth component of the input array and convert it into a number. This number corresponds to the spacecraft's distance. The third copy of the stream is trimmed from its first event, and the distance to the Sun is also extracted. The two values are then subtracted. The end result is a stream of numbers, representing the difference in distance between two successive events. Since events are spaced by exactly one week, this value makes a crude approximation of the spacecraft's weekly speed.
+
+However, since the weekly distance is very close to the measurement's precision, we "smoothen" those values by replacing them by the average of each two successive points. This is the task of the <!--\index{Smoothen@\texttt{Smoothen}} \texttt{Smoothen}-->`Smoothen`<!--/i--> processor, represented in the diagram by a piece of sandpaper.
+
+This stream is again separated in two. The first copy goes directly into the table, and provides the values for its second column. The second copy goes first into a `PeakFinder` processor from the *Signal* palette, before being sent into the table as its third column. The end result is a processor chain that populates a table containing:
+
+- The number of days since 1/1/1977
+- The smoothened weekly speed
+- The peaks extracted from the weekly speed
+
+In code, this chain of processor looks as follows:
+
+``` java
+Fork fork = new Fork(3);
+Connector.connect(to_array, fork);
+ApplyFunction format_date = new ApplyFunction(new FunctionTree(
+    FormatDate.instance, new FunctionTree(
+        new NthElement(0), StreamVariable.X),
+    new FunctionTree(new NthElement(1), StreamVariable.X)));
+Connector.connect(fork, 0, format_date, INPUT);
+ApplyFunction get_au1 = new ApplyFunction(new FunctionTree(
+    Numbers.numberCast, new FunctionTree(
+        new NthElement(3), StreamVariable.X)));
+Connector.connect(fork, 1, get_au1, INPUT);
+Trim cd_delay = new Trim(1);
+Connector.connect(fork, 2, cd_delay, INPUT);
+ApplyFunction get_au2 = new ApplyFunction(new FunctionTree(
+    Numbers.numberCast, new FunctionTree(
+        new NthElement(3), StreamVariable.X)));
+Connector.connect(cd_delay, get_au2);
+ApplyFunction distance = new ApplyFunction(new FunctionTree(
+    Numbers.maximum, Constant.ZERO, new FunctionTree(
+        Numbers.subtraction,
+        StreamVariable.X, StreamVariable.Y)));
+Connector.connect(get_au2, OUTPUT, distance, TOP);
+Connector.connect(get_au1, OUTPUT, distance, BOTTOM);
+Smoothen smooth = new Smoothen(2);
+Connector.connect(distance, smooth);
+Fork f2 = new Fork(2);
+Connector.connect(smooth, f2);
+PeakFinderLocalMaximum peak = new PeakFinderLocalMaximum(5);
+Connector.connect(f2, BOTTOM, peak, INPUT);
+Threshold th = new Threshold(0.0125f);
+Connector.connect(peak, th);
+Limit li = new Limit(5);
+Connector.connect(th, li);
+UpdateTableStream table = new UpdateTableStream("Date",
+    "Speed (AU/week)", "Peak");
+Connector.connect(format_date, OUTPUT, table, 0);
+Connector.connect(f2, OUTPUT, table, 1);
+Connector.connect(li, OUTPUT, table, 2);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L102)
+
+
 ### Visualization
+
+The last step is to display the contents of this table graphically. This can be done using the *Widgets* palette, in the following processor chain:
 
 ![Visualizing the Voyager data.](visualization.png)
 
-One can see that the last three peaks correspond precisely to the dates of Voyager's flybys of Jupiter, Saturn, and Neptune: 
+A `Pump` is asked to repeatedly pull on the `UpdateTableStream`; its output is pushed into a `KeepLast` processor; this processor discards all its input events, except when it receives the last one from its upstream source. In this case, this corresponds to a reference the `Table` object once it is fully populated. This table is then passed to a `DrawPlot` processor, and then to a `WidgetSink` in order to be displayed in a `JFrame`. The code producing this chain of processor is as follows:
 
+``` java
+Pump pump = new Pump();
+Connector.connect(table, pump);
+KeepLast last = new KeepLast(1);
+Connector.connect(pump, last);
+Scatterplot plot = new Scatterplot();
+plot.setCaption(Axis.X, "Days after 1/1/77")
+.setCaption(Axis.Y, "AU");
+DrawPlot draw = new DrawPlot(plot);
+Connector.connect(last, draw);
+BitmapJFrame window = new BitmapJFrame();
+Connector.connect(draw, window);
+window.start();
+pump.start();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L160)
+
+
+The end result of this program produces a graph, which should look like in the following figure. The blue line shows the craft's average speed, in AU/week, while the green line shows the signal produced by the peak detector. As one can see, the speed fluctuates relatively smoothly, and the line is interspersed with a few abrupt variations. We can observe that these abrupt changes are picked up by the peak detector, which otherwise outputs a stream of zeros.
+
+![A scatterplot created from the Voyager data.](voyager/voyager-plot.png)
+
+A fun fact about this plot: the last three peaks correspond precisely to the dates of Voyager's flybys of Jupiter, Saturn, and Neptune: 
+
++----------------+-----------------+-----------------------+
+| **Planet**     | **Date**        | **Days after 1/1/77** |
++================+=================+=======================+
+| Jupiter        | July 9, 1979    | 918                   |
++----------------+-----------------+-----------------------+
+| Saturn         | August 25, 1981 | 1,696                 |
++----------------+-----------------+-----------------------+
+| Neptune        | August 25, 1989 | 4,618                 |
++----------------+-----------------+-----------------------+
+
+The flyby of Uranus (January 24, 1986, or Day 3310) does not produce a speed variation large enough to be detected through this method.
+
+Creating This whole chain of processors, from the raw text files to the plot, has required exactly 100 lines of code.
 
 ## Electric Load Monitoring
 
