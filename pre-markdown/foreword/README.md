@@ -25,7 +25,7 @@ The rest is simple: I sat down and started typing. This simple process had a pos
 
 This took a considerable amount of time, but I am glad I did it. I wish all my research projects were given that much care, and that more researchers in the field of Computer Science pushed their prototypes closer to the end users.
 
-## Book toolchain
+## Book Toolchain
 
 This book exists in two versions:
 

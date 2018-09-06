@@ -512,6 +512,44 @@ As we can see, each copy of the slice processor is fed the sub-trace of all even
 
 The end result of this program is a map with two keys (`true` and `false`), associated with the cumulative sum of even numbers and odd numbers, respectively.
 
+## Keeping the Last Event
+
+In some cases, it may be desirable to take an action only when all the events from an input source have been consumed. For example, one may want to decimate a stream by keeping one event every 100, but still output the last event if the stream has, say, 560 events. When writing a processor chain that produces a plot from an input file, it can be useful to first read and process all the file, before triggering the generation of the plot; this would bring a better performance than producing a new plot upon every input event. In BeepBeep, a few processors have functionalities allowing users to deal with the "last" event of a stream.
+
+The first is called <!--\index{KeepLast@\texttt{KeepLast}} \texttt{KeepLast}-->`KeepLast`<!--/i-->. As its name implies, its task is to discard every event received from upstream, and to output only the last. This can be illustrated by the following program:
+
+{@img doc-files/basic/KeepLastPull.png}{Keeping the last event.}{.6}
+
+A `QueueSource` is connected to the `KeepLast` processor, represented by a box with a checkered flag. In code, this corresponds to the following program:
+
+{@snipm basic/KeepLastPull.java}{/}
+
+Notice how the source is instructed *not* to loop through its list of events. This means that after outputting the number 5, any subsequent calls to `hasNext` will return `false`. The program then enters a loop, and pulls events from the output of the `KeepLast` processor until none is available. Running this program produces the single number `5`, which, indeed, is the last event produced by the upstream source `src`.
+
+Once the `KeepLast` processor has output the last event received from upstream, it does not return any other event. Subsequent calls to `hasNext` on `kl` will all return `false`, which means that the loop in the program is executed only once. Conversely, `KeepLast` will keep pulling on its upstream processor until it receives the indication that the last event has been produced. This means that on a processor chain that has "no end", such as a `QueueSource` that loops through its list of events forever, the call to `hasNext` on `KeepLast` will never return.
+
+In pull mode, Identifying the last event can easily be done, precisely by looking at the return value of `hasNext` when pulling on an upstream processor. The situation is less obvious in push mode, such as in the following diagram:
+
+{@img doc-files/basic/KeepLastPush.png}{Pushing events on the `KeepLast` processor.}{.6}
+
+How can a processor push an event, and indicate that this is the last? This is illustrated by the following program:
+
+{@snipm basic/KeepLastPull.java}{/}
+
+Here, events are repeatedly pushed to the `KeepLast` processor. The first three calls to `push` have no noticeable effect: the `Print` processor does not print anything. Only the last line of the program will trigger the printing of an event. As a matter of fact, the `Pushable` interface defines a method called <!--\index{Pushable@\texttt{Pushable}!notifyEndOfTrace@\texttt{notifyEndOfTrace}} \texttt{notifyEndOfTrace}-->`notifyEndOfTrace`<!--/i-->. Calling this method is the way of telling the underlying processor: "the last event I pushed was the last event of the stream". In the case of `KeepLast`, this triggers a call to `push` on its downstream processor, containing the last event that was received. Obviously, it makes no sense to call `notifyEndOfTrace`, and push more events afterwards. As a matter of fact, the behaviour of a processor in such a situation is undefined, and it is not recommended to do so.
+
+Not all processors react to a call to `notifyEndOfTrace`. For example, `ApplyFunction` does nothing special when reaching the end of an input stream. However, the `CountDecimate` processor *can* be told to output the last event of a stream, regardeless of whether it is placed at an integer multiple of the decimation interval. To this end, it suffices to pass the Boolean value `true` as a second argument to `CountDecimate`'s constructor. To illustrate this, we revisit an earlier example using `CountDecimate` in the following program.
+
+{@snipm basic/CountDecimateLast.java}{/}
+
+The difference lies in the fact that `CountDecimate` has been instantiated with `true`; the processor behaves normally when calling `push`, and sends to the `Print` processor every third input event. However, the call to `notifyEndOfTrace` triggers the output of the last event. Therefore, the program prints at the console:
+
+```
+0,3,6,7,
+```
+
+Notice how number 7 should not have been output under normal circumstances.
+
 - - -
 
 In this chapter, we have covered the dozen or so fundamental processors provided by BeepBeep's core. These processors allow us to manipulate event streams in various ways: applying a function to each event, filtering, decimating, slicing and creating sliding windows. Most of these processors are "type agnostic": the actual type of events they handle has no influence in the way they operate. Therefore, a large number of event processing tasks can be achieved by appropriately combining these basic building blocks together. We could show many other examples of graphs that combine processors in various ways; these were rather left as exercises in the section below. A little time is required to get used to decomposing a problem in terms of streams; this is why we recommend that you try some of these exercises and develop your intuition before moving on to the next chapter.

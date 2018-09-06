@@ -36,6 +36,12 @@ For more technical information about each of these objects, the reader is referr
 
 {@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
 
+#### `ApplyFunction`
+
+@palette Core@ <!--\index{ApplyFunctionPartial@\texttt{ApplyFunctionPartial}|textsl} A-->A<!--/i--> variant of `ApplyFunction` that attempts to evaluate a function on incomplete input event fronts. It is represented graphically as:
+
+{@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
+
 #### `ApplyToAll`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}|textsl} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and returns as its output the collection that is the result of applying a predefined 1:1 `Function` *f* to each element of *c*. It is represented graphically as:

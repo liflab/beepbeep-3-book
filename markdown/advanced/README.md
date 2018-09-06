@@ -756,6 +756,58 @@ As you can see, using hard and soft pulling ultimately produces the same stream 
 
 For the same processor, mixing calls to soft and hard methods is discouraged. As a matter of fact, the `Pullable`'s behaviour in such a situation is left undefined.
 
+## Partial Evaluation
+
+We said in Chapter 2 that BeepBeep's processing is *synchronous*: a processor takes no action until a complete event front is ready to be consumed. This assertion should be modified slightly, as there exists a single situation where this is not the case.
+
+Consider a processor `m` that receives two streams of numbers, and multiplies their value. This processor has two input `Pushable` objects, `p1` and `p2`, which correspond to the pipes of its two input streams. Suppose we push value 3 into `p1`. Obviously, `m` does not have enough data to produce an output, as it is still waiting for an event from its second input pipe. This is consistent with the principle of synchronous processing we just discussed. Suppose, however, that we pushed the number 0 into `p1`. One may recall the special property of multiplication that 0 multiplied by any number equals 0. In other words, there is no need to wait for a number on `p2`, as we already know that the output will be 0. It would be useful if BeepBeep could accommodate these exceptional situations, and allow functions to be *partially evaluated*.
+
+There exists a variant of the `ApplyFunction` processor that works exactly in this way: it is called <!--\index{ApplyFunctionPartial@\texttt{ApplyFunctionPartial}} \texttt{ApplyFunctionPartial}-->`ApplyFunctionPartial`<!--/i-->. Contrary to the standard `ApplyFunction` processor, this variant can attempt to evaluate a function on incomplete input fronts, by filling the missing values with `null`. Consider the following code snippet:
+
+``` java
+ApplyFunctionPartial af =
+    new ApplyFunctionPartial(Numbers.multiplication);
+Print print = new Print();
+Connector.connect(af, print);
+Pushable p1 = af.getPushableInput(0);
+Pushable p2 = af.getPushableInput(1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PartialEvaluation.java#L30)
+
+
+This program evaluates the `Multiplication` function through an `ApplyFunctionPartial` processor, and prints the result to the console. Pushing numbers other than 0 makes the processor behave like `ApplyFunction`; therefore, the next two lines of the program result in the number `3` being printed, as expected:
+
+``` java
+p1.push(3);
+p2.push(1);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PartialEvaluation.java#L39)
+
+
+The pair of input events (3,1) corresponds to the first input front. Then, pushing 0 on `p1` results in `af` immediately pushing the number 0, which is printed at the console:
+
+``` java
+p1.push(0);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PartialEvaluation.java#L44)
+
+
+This call to `push` results in `af` receiving a first event in the second input front. Even if the matching event on `p2` is not yet available, the multiplication function can already produce the value 0. However, it is important to note that `ApplyFunctionLazy`, even if it immediately outputs an event, still keeps track of the relative position of events in each input pipe. Let us examine the remaining lines of the program:
+
+``` java
+p1.push(6);
+p2.push(9);
+p2.push(5);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PartialEvaluation.java#L48)
+
+
+The first line pushes an event on `p1`, which corresponds to the third input front. Since this value is not 0, and that the corresponding event on `p2` is not yet available, the processor outputs nothing. The second line pushes the value 9 on `p2`. This corresponds to the second event front, which is now complete: (0,9). However, since an output value has already been produced for this input front, the event is simply ignored. Finally, the third line pushes the value 5 on `p2`; this corresponds to the third event front, which is also complete: value 5 on `p2` is matched with value 6 on `p1`, and their product (30) can be computed by the processor.
+
+As one can see, given the input streams 3,0,6 on `p1` and 1,9,5 on `p2`, the output produced by `ApplyFunctionPartial` is indeed the pairwise product 3,0,30. In this respect, this processor produces the same result as `ApplyFunction`. However, it differs from it in the *moment* at which these events are output, which can, in some occasions, occur earlier.
+
+In BeepBeep's core, a handful of functions support partial evaluation: multiplication, but also the Boolean connectives `And`, `Or` and `Implies`. Using other functions inside `ApplyFunctionPartial` has no special effect; in such cases, the processor behaves like `ApplyFunction`. Notice also that partial evaluation must be explicitly enabled by encasing a function inside `ApplyFunctionPartial`; this means that, even if a function supports partial evaluation, this feature will not be used inside a regular `ApplyFunction` processor. This is done by design, since partial evaluation has a higher computational cost than regular evaluation. With a function of input arity *k*, `ApplyFunctionPartial` attempts to partially evaluate a function every time an event arrives on an input front; this may turn out to be more costly than waiting for the *k* events to be available before evaluating the function once.
+
 ## The State of a Processor
 
 We have said a couple of times that the main distinction between functions and processors is the fact that the latter are *stateful*. That is, given the same inputs, a function always returns the same output; in contrast, the output produced by a processor for an event may depend on what other events have been seen before. As a consequence, a `Processor` object must have some memory of the past --hence the term "stateful". 

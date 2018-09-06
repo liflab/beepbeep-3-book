@@ -121,7 +121,8 @@ Suppose we want to create a processor that counts events. A simple way to do so 
 GroupProcessor g = new GroupProcessor(1, 1);
 {
 	TurnInto one = new TurnInto(1);
-	Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+	Cumulate sum = new Cumulate(
+	  new CumulativeFunction<Number>(Numbers.addition));
 	Connector.connect(one, sum);
 	g.associateInput(0, one, 0);
 	g.associateOutput(0, sum, 0);

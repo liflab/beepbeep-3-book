@@ -164,20 +164,21 @@ We then perform a drastic reduction of the data stream. The input files have hou
 ``` java
 int start_year = 1977, end_year = 1992;
 ReadLines[] readers = new ReadLines[end_year - start_year + 1];
-for (int y = start_year; y <= end_year; y++)
-{
-    readers[y - start_year] = new ReadLines(
-            PlotSpeed.class.getResourceAsStream("data/vy2_" + y + ".asc"));
+for (int y = start_year; y <= end_year; y++) {
+  readers[y - start_year] = new ReadLines(
+      PlotSpeed.class.getResourceAsStream(
+          "data/vy2_" + y + ".asc"));
 }
 Splice spl = new Splice(readers);
 CountDecimate cd = new CountDecimate(24 * 7);
 Connector.connect(spl, cd);
 Trim ignore_beginning = new Trim(31);
 Connector.connect(cd, ignore_beginning);
-ApplyFunction to_array = new ApplyFunction(new Strings.SplitString("\\s+"));
+ApplyFunction to_array = new ApplyFunction(
+    new Strings.SplitString("\\s+"));
 Connector.connect(ignore_beginning, to_array);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L71)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L70)
 
 
 ### Processing

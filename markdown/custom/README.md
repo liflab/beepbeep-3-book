@@ -248,7 +248,8 @@ Suppose we want to create a processor that counts events. A simple way to do so 
 GroupProcessor g = new GroupProcessor(1, 1);
 {
 	TurnInto one = new TurnInto(1);
-	Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+	Cumulate sum = new Cumulate(
+	  new CumulativeFunction<Number>(Numbers.addition));
 	Connector.connect(one, sum);
 	g.associateInput(0, one, 0);
 	g.associateOutput(0, sum, 0);
@@ -553,37 +554,41 @@ Notice how, after receiving the first event, the processor should not return any
 ``` java
 public class MyMax extends SynchronousProcessor
 {
-    Number last = null;
+  Number last = null;
 
-    public MyMax()
+  public MyMax()
+  {
+    super(1, 1);
+  }
+
+  @Override
+  public boolean compute(Object[] inputs, Queue<Object[]> outputs)
+  {
+    Number current = (Number) inputs[0];
+    Number output;
+    if (last != null)
     {
-        super(1, 1);
+      output = Math.max(last.floatValue(), current.floatValue());
+      last = current;
+      outputs.add(new Object[]{output});
     }
-
-    public boolean compute(Object[] inputs, Queue<Object[]> outputs) {
-        Number current = (Number) inputs[0];
-        Number output;
-        if (last != null) {
-            output = Math.max(last.floatValue(), current.floatValue());
-            last = current;
-            outputs.add(new Object[]{output});
-        }
-        else {
-            last = current;
-        }
-        return true;
-    }
-
-    @Override
-    public Processor duplicate(boolean with_state)
+    else
     {
-      MyMax mm = new MyMax();
-      if (with_state)
-      {
-        mm.last = this.last;
-      }
-        return mm;
+      last = current;
     }
+    return true;
+  }
+
+  @Override
+  public Processor duplicate(boolean with_state)
+  {
+    MyMax mm = new MyMax();
+    if (with_state)
+    {
+      mm.last = this.last;
+    }
+    return mm;
+  }
 }
 
 ```
@@ -660,12 +665,6 @@ StutteringCopy s1 = new StutteringCopy();
 Connector.connect(src1, s1);
 Pullable p1 = s1.getPullableOutput();
 System.out.println("Call to pull on p1: " + p1.pull());
-QueueSource src2 = new QueueSource();
-src2.setEvents(3, 1);
-StutteringCopy s2 = s1.duplicate(true);
-Connector.connect(src2, s2);
-Pullable p2 = s2.getPullableOutput();
-System.out.println("Call to pull on p2: " + p2.pull());
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/StatefulDuplication.java#L50)
 
