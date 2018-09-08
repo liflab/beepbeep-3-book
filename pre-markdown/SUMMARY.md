@@ -40,7 +40,6 @@
   * [Lazy Evaluation](advanced/README.md#lazy-evaluation)
   * [The State of a Processor](advanced/README.md#the-state-of-a-processor)
   * [Duplicating Processors](advanced/README.md#duplicating-processors)
-  * [Using Multiple Threads](advanced/README.md#using-multiple-threads)
   * [Exercises](advanced/README.md#exercises)
 * [The Standard Palettes](palettes/README.md)
   * [Tuples](palettes/README.md#tuples)
