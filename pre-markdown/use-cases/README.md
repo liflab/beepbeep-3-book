@@ -7,19 +7,51 @@ Readers who wish to get more information about these use cases can have a look a
 
 ## Stock Ticker
 
-A recurring scenario used in CEP to illustrate the performance of various tools is taken from the stock market. One considers a stream of stock quotes, where each event contains attributes such as a stock symbol, the price of the stock at various moments (such as its minimum price and closing price), as well as a timestamp. A typical stream of events of this nature is shown in the following figure. This figure shows that events are structured as tuples, with a fixed set of attributes, each of which taking a scalar value. We shall see that many use cases have events structured as tuples, and that many event stream engines and query languages take for granted that events have a tuple structure.
+A recurring scenario used in event stream processing to illustrate the performance of various tools is taken from the stock market. One considers a stream of stock quotes, where each event contains attributes such as a stock symbol, the price of the stock at various moments (such as its minimum price and closing price), as well as a timestamp. A typical stream of events of this nature could be the following:
 
-This simple example can be used to illustrate various queries that typically arise in an event stream processing scenario. A first, simple type of query one can compute over such a trace is called a snapshot query, such as the
-following:
+```
+1  APPL  1208.4
+1  MSFT   800.3
+1  GOGL  2001.0
+2  APPL  1209.3
+2  MSFT   799.7
+2  GOGL  2001.1
+...
+```
 
-Query 1. Get the closing price of MSFT for the first five trading days.
+Events are structured as tuples, with a fixed set of attributes, each of which taking a scalar value. This simple example can be used to illustrate various queries that typically arise in an event stream processing scenario. A first, simple type of query one can compute over such a trace is called a **snapshot query**, such as the following:
 
-The result of that query is itself a trace of tuples, much in the same way the relational SELECT statement on a table returns another table. A refinement of the snapshot query is the landmark query, which returns only events that satisfy some criterion, such as:
+- Get the closing price of MSFT for the first five trading days.
 
-Query 2. Select all the days after the hundredth trading day, on which the closing price of msft has been greater than $50.
+The result of that query is itself a trace of tuples, much in the same way the relational `SELECT` statement on a table returns another table.
 
-This simple query highlights the fact that, in online processing, outputting a tuple may require waiting until more of the input trace is made available —and that waiting time is not necessarily bounded. In the worst case, MSFT may be the last stock symbol for which the price is known on a given day, and all events of that day must somehow be retained before knowing if they must be output in the result or discarded. 
-In window queries, a computation is repeatedly made on a set of successive events. The size of that set is called the width of the window; the width is specified as a number of events or as a time interval. A sliding query is a particular case of window query where, after each computation, the window moves forward into the trace and a new set of successive events is considered. Often, as is the case in this example, the computation applied to the contents of the window is an aggregate function, such as a sum or an average. Systems such as LinQ [13] propose other types of window queries, such as the hopping query (also called a tumble window by [14]), where the window moves forward by exactly its width, such that no two windows ever overlap. For example:
+To illustrate how this query can be executed, 
+
+{@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query}{.6}
+
+Blabla
+
+{@snipm stockticker/SnapshotQuery.java}{/}
+
+A refinement of the snapshot query is the landmark query, which returns only events that satisfy some criterion, such as:
+
+- Select all the days after the tenth trading day, on which the closing price of MSFT has been greater than $50.
+
+This simple query highlights the fact that, in online processing, outputting a tuple may require waiting until more of the input trace is made available —and that waiting time is not necessarily bounded. In the worst case, MSFT may be the last stock symbol for which the price is known on a given day, and all events of that day must somehow be retained before knowing if they must be output in the result or discarded.
+
+{@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.6}
+
+Blabla
+
+{@snipm stockticker/LandmarkQuery.java}{/}
+
+Blabla
+
+{@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two}{.6}
+
+Blabla
+
+{@snipm stockticker/LandmarkQuery.java}{!}
 
 Query 3. On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
 
@@ -35,13 +67,15 @@ When computing the result of such a query, a tuple is added to the output result
 
 We show how the tumble window of Query 3 can be written by combining BeepBeep processors. The result is shown below.
 
-{@img ticker/stat-moment-1.png}{A chain of function processors for computing the statistical moment of order n on a trace of numerical events.}{.6}
+{@img doc-files/stockticker/StatMoment.png}{A chain of function processors for computing the statistical moment of order *n* on a trace of numerical events.}{.6}
 
 In this figure, events flow from the left to the right. First, we calculate the statistical moment of order n of a set of values, noted E n (x). As Figure 15a shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the FunctionProcessor computing the n-th power of each value; these values are then sent to a CumulativeProcessor that calculates the sum of these values. Along the second (bottom) path, values are sent to a Mutator processor that transforms them into the constant 1; these values are then summed into another CumulativeProcessor. The corresponding values are divided by each other, which corresponds to the statistical moment of order n of all numerical values received so far. The average is the case where n = 1.
 
-{@img ticker/ticker-example.png}{The chain of processors for Query 3.}{.6}
+{@img doc-files/stockticker/WindowQuery.png}{Window query}{.6}
 
-The previous figure shows the chain that computes the average of stock symbol 1 over a window o*f*<sub>5</sub> events. Incoming tuples are first filtered according to a function, which fetches the value of the stockSymbol attribute and compares it to the value 1. The processor that is responsible for this filtering is akin to SQL’s WHERE processor. The tuples that get through this filtering are then converted into a stream of raw numbers by fetching the value of their closingPrice attribute. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query.
+The previous figure shows the chain that computes the average of stock symbol MSFT over a window of 5 events. The first part should now be familiar, and filters events based on their stock symbol. The events that get through this filtering are then converted into a stream of numbers by fetching the value of their closing price. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query. The Java code corresponding to this example is the following:
+
+TODO
 
 ## Medical Records Management
 
