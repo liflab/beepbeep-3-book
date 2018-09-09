@@ -46,7 +46,7 @@ Connector.connect(is_msft, 0, filter, 1);
 Prefix pref = new Prefix(5);
 Connector.connect(filter, pref);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/SnapshotQuery.java#L19)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/SnapshotQuery.java#L36)
 
 
 A refinement of the snapshot query is the landmark query, which returns only events that satisfy some criterion, such as:
@@ -55,9 +55,11 @@ A refinement of the snapshot query is the landmark query, which returns only eve
 
 This simple query highlights the fact that, in online processing, outputting a tuple may require waiting until more of the input trace is made available —and that waiting time is not necessarily bounded. In the worst case, MSFT may be the last stock symbol for which the price is known on a given day, and all events of that day must somehow be retained before knowing if they must be output in the result or discarded.
 
+We shall divide this query in two parts. The first part groups all events of the same day into an array, and can be illustrated as follows:
+
 ![Landmark query, part one](LandmarkQuery-1.png)
 
-Blabla
+First, events whose timestamp value is lower than 100 are filtered out from the output. 
 
 ``` java
 TickerFeed feed = new TickerFeed(10, 20);
@@ -88,7 +90,7 @@ Insert insert = new Insert(1, false);
 Connector.connect(eq, insert);
 Connector.connect(insert, 0, pack, 1);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/LandmarkQuery.java#L28)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/LandmarkQuery.java#L45)
 
 
 Blabla
@@ -127,12 +129,42 @@ Connector.connect(ro, 0, f_ms_50, 1);
 Lists.Unpack up = new Lists.Unpack();
 Connector.connect(f_ms_50, up);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/LandmarkQuery.java#L58)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/LandmarkQuery.java#L75)
 
 
-Query 3. On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
+- On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
 
-Other windows include the latch, which maintains an internal state between window calculations. This is useful for calculations that are cumulative from the beginning of the stream.
+First, we calculate the statistical moment of order n of a set of values, noted E<sup>*n*</sup>(*x*), as is shown in the next figure.
+
+![A chain of function processors for computing the statistical moment of order *n* on a trace of numerical events.](StatMoment.png)
+
+As the figure shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
+
+![Window query](WindowQuery.png)
+
+The previous figure shows the chain that computes the average of stock symbol MSFT over a window of 5 events. The first part should now be familiar, and filters events based on their stock symbol. The events that get through this filtering are then converted into a stream of numbers by fetching the value of their closing price. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query. The Java code corresponding to this example is the following:
+
+``` java
+TickerFeed feed = new TickerFeed();
+Fork fork = new Fork(2);
+Connector.connect(feed, fork);
+Filter filter = new Filter();
+Connector.connect(fork, 0, filter, 0);
+ApplyFunction is_msft = new ApplyFunction(
+    new FunctionTree(Equals.instance,
+        new Constant("MSFT"),
+        new NthElement(1)));
+Connector.connect(fork, 1, is_msft, 0);
+Connector.connect(is_msft, 0, filter, 1);
+ApplyFunction price = new ApplyFunction(new NthElement(2));
+Connector.connect(filter, price);
+Window win = new Window(new StatMoment(1), 5);
+Connector.connect(price, win);
+CountDecimate dec = new CountDecimate(5);
+Connector.connect(win, dec);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/WindowQuery.java#L38)
+
 
 A join query involves the comparison of multiple events together. In the stock ticker example, a possible join query could be:
 
@@ -140,19 +172,6 @@ Query 4. For the five most recent trading days starting today, select all stocks
 
 When computing the result of such a query, a tuple is added to the output result depending on its relationship with respect to the price of msft for the same day. In most CEP systems, this is done by an operation similar to the JOIN operator in relational databases: the input stream is joined with itself, producing pairs of tuples (t<sub>1</sub>, t<sub>2</sub>) where t<sub>1</sub> belongs to the first "copy" of the stream, and t<sub>2</sub>belongs to the second. The join condition, in our example, is that the timestamps of t<sub>1</sub> and t<sub>2</sub> must be equal. Since traces are potentially infinite, join operations require bounds of some kind to be usable in practice; for example, the join operation may only be done on events of the last minute, or on a window of n successive events.
 
-### Implementing the Queries
-
-We show how the tumble window of Query 3 can be written by combining BeepBeep processors. The result is shown below.
-
-![A chain of function processors for computing the statistical moment of order *n* on a trace of numerical events.](StatMoment.png)
-
-In this figure, events flow from the left to the right. First, we calculate the statistical moment of order n of a set of values, noted E n (x). As Figure 15a shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the FunctionProcessor computing the n-th power of each value; these values are then sent to a CumulativeProcessor that calculates the sum of these values. Along the second (bottom) path, values are sent to a Mutator processor that transforms them into the constant 1; these values are then summed into another CumulativeProcessor. The corresponding values are divided by each other, which corresponds to the statistical moment of order n of all numerical values received so far. The average is the case where n = 1.
-
-![Window query](WindowQuery.png)
-
-The previous figure shows the chain that computes the average of stock symbol MSFT over a window of 5 events. The first part should now be familiar, and filters events based on their stock symbol. The events that get through this filtering are then converted into a stream of numbers by fetching the value of their closing price. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query. The Java code corresponding to this example is the following:
-
-TODO
 
 ## Medical Records Management
 
@@ -176,25 +195,22 @@ HL7 messages can be produced from various sources: medical equipment producing t
 
 In this context, a general rule, which can apply to any numerical field, identifies whenever a data value starts to deviate from its current trend:
 
-Query 5. Notify the user when an observed data field is three standard deviations above or below its mean.
+- Notify the user when an observed data field is three standard deviations above or below its mean.
 
 We call such computations trend queries, as they relate a field in the current event to an aggregation function applied on the past values of that field. Trend queries can be made more complex, and correlate values found in multiple events, such as the following:
 
-Query 6. Notify the user when two out of three successive data points lie more than two standard deviations from the mean on the same side of the mean line.
+- Notify the user when two out of three successive data points lie more than two standard deviations from the mean on the same side of the mean line.
 
 Although our example query does not specify it, this aggregation can be computed over a window as defined in our previous use case, such as the past 100 events, or events of the past hour.
 
-A *slice* query is the application of the same computation over multiple subsets (slices) of the input stream. In the present use case, assuming that the HL7 stream contains interleaved messages about multiple patients, a possible slice query could be to perform the outlier analysis mentioned above for each patient.
-
-Let us show how Query 6 can be computed using chains of function processors. We can reuse the statistical moment processor En(x) defined above, and use it for the average (n = 1) and standard deviation (n = 2). Equipped with such processors, the desired property can be evaluated by the graph shown in the next figure.
+Let us show how this query can be computed using chains of function processors. We can reuse the statistical moment processor E<sup>*n*</sup>(*x*) defined above. Equipped with such processors, the desired property can be evaluated by the graph shown in the next figure ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/hl7/StdevExample.java)
+).
 
 ![The chain of processors for Query 6.](hl7/query-4.png)
 
 The input trace is divided into four copies. The first copy is subtracted by the statistical moment of order 1 of the second copy, corresponding to the distance of a data point to the mean of all data points that have been read so far. This distance is then divided by the standard deviation (computed form the third copy of the trace). An `ApplyFunction` processor then evaluates whether this value is greater than the constant trace with value 1.
 
-The result is a trace of Boolean values. This trace is itself forked into two copies. One of these copies is sent into a Trim processor, that removes the first event of the input trace; both paths are sent to a processor computing their logical conjunction. Hence, an output event will have the value > whenever an input value and the next one are both more than two standard deviations from the mean.
-
-Note how this chain of processors involves events of two different types: turquoise pipes carry events consisting of a single numerical value, while grey pipes contain Boolean events.
+The result is a trace of Boolean values. This trace is itself forked into two copies. One of these copies is sent into a `Trim` processor, that removes the first event of the input trace; both paths are sent to a processor computing their logical conjunction. Hence, an output event will have the value `true` whenever an input value and the next one are both more than two standard deviations from the mean.
 
 ## Online Auction System
 
@@ -218,31 +234,31 @@ Although the syntax differs, events of this scenario are similar to the HL7 form
 
 One could imagine various queries involving the windows and aggregation functions mentioned earlier. However, this scenario introduces special types of queries of its own. For example:
 
-Query 7. Check that every bid of an item is higher than the previous one, and report to the user otherwise.
+- Check that every bid of an item is higher than the previous one, and report to the user otherwise.
 
-This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item i must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on i: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price.
+This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item i must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
-Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last Price value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
+![Checking that every bid is higher than the previous ones](MonotonicBid.png)
 
 The previous query involved a simple sequential pattern of two successive bid events. However, the auction scenario warrants the expression of more intricate patterns involving multiple events and multiple possible orderings:
 
-Query 8. List the items that receive bids outside of the period of their auction.
+- List the items that receive bids outside of the period of their auction.
 
 As one can see, this query refers to the detection of a pattern that takes into account the relative positioning of multiple events in the stream: an alarm should be raised if, for example, a bid for some item i is seen before the start event for that same item i. Simiarly, an occurrence of a bid event for i is also invalid if it takes place n *endOfDay* events after its opening, with n being the Duration attribute of the corresponding start event. We call such query a lifecycle query, as the pattern it describes corresponds to a set of event sequences, akin to what a finite-state machine or a regular expression can express.
 
-Rather than simply checking that the sequencing of events for each item is followed, we will take advantage of BeepBeep’s flexibility to compute a non-Boolean query: the average number of days since the start of the auction, for all items whose auction is still open and in a valid state. The processor graph is shown below.
+Rather than simply checking that the sequencing of events for each item is followed, we will take advantage of BeepBeep's flexibility to compute a non-Boolean query: the average number of days since the start of the auction, for all items whose auction is still open and in a valid state. The processor graph is shown below.
 
-![Processor graph for the "Auction Bidding" query](auction/T2P1-modif.png)
+![Processor graph for the "Auction Bidding" query](AuctionExample.png)
 
 The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i--> will be created, as shown in the top part of the graph.
 
-Each transition in this Moore machine contains two parts: the top part is a function to evaluate on the input event, to decide whether the transition should fire. The bottom part contains instructions on how to modify the Context object of the processor. For example, the top left transition fires if the first element of the event is the string "Create Auction". If so, the transition is taken, and the processor’s context is updated with the associations Last Price 7→ 0, Days 7→ 0. The values of Min. Price and Max. Days are set with the content of the third and fourth element of the tuple, respectively. The remaining transitions take care of updating the minimum price and the number of days elapsed according to the events received.
+Each transition in this Moore machine contains two parts: the top part is a function to evaluate on the input event, to decide whether the transition should fire. The bottom part contains instructions on how to modify the Context object of the processor. For example, the top left transition fires if the first element of the event is the string "Create Auction". If so, the transition is taken, and the processor's context is updated with the associations Last Price 7→ 0, Days 7→ 0. The values of Min. Price and Max. Days are set with the content of the third and fourth element of the tuple, respectively. The remaining transitions take care of updating the minimum price and the number of days elapsed according to the events received.
 
-Each state of the Moore machine is associated with an output value. For three of these states, the value to output is the empty event, meaning that no output should be produced. For the remaining two states, the value to output is the current content of Days, as defined in the processor’s context.
+Each state of the Moore machine is associated with an output value. For three of these states, the value to output is the empty event, meaning that no output should be produced. For the remaining two states, the value to output is the current content of Days, as defined in the processor's context.
 
 According to the semantics of the `Slice` procsesor, each output event will consist of a set, formed by the last output of every instance of the Moore machine. Thus, this set will contain the number of elapsed days of all items whose auction is currently open (the Moore machine for the other items outputs no number). This set is then passed to a function processor, which computes the average of its values (sum divided by cardinality).
 
-As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream o*f*<sub>1</sub>s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where x is set to the value of the first input, and y is set to the value of the second input. The result is a tuple where x is the number of input events, and y is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (x, y) pairs, which could then be sent to a Scatterplot processor to be plotted with the help of the MTNP palette.
+As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where x is set to the value of the first input, and y is set to the value of the second input. The result is a tuple where x is the number of input events, and y is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (x, y) pairs, which could then be sent to a Scatterplot processor to be plotted with the help of the MTNP palette.
 
 ## Voyager Telemetry
 
@@ -403,7 +419,7 @@ Creating This whole chain of processors, from the raw text files to the plot, ha
 
 ## Electric Load Monitoring
 
-The next scenario touches on the concept of <!--\index{ambient intelligence} \emph{ambient intelligence}-->*ambient intelligence*<!--/i-->, which is a multidisciplinary approach that consists of enhancing an environment (room, building, car, etc.) with technology (e.g. infrared sensors, pressure mats, etc.), in order to build a system that makes decisions based on real-time information and historical data to benefit the users within this environment. A main challenge of ambient intelligence is activity recognition, which consists in raw data from sensors, filter it, and then transform that into relevant information that can be associated with a patient’s activities of daily living using Non-Intrusive Appliance Load Monitoring (<!--\index{NIALM} NIALM-->NIALM<!--/i-->). Typically, the parameters considered are the voltage, the electric current and the power (active and reactive). This produces a stream similar to the next figure. An event consists of a timestamp, and numerical readings of each of the aforementioned electrical components.
+The next scenario touches on the concept of <!--\index{ambient intelligence} \emph{ambient intelligence}-->*ambient intelligence*<!--/i-->, which is a multidisciplinary approach that consists of enhancing an environment (room, building, car, etc.) with technology (e.g. infrared sensors, pressure mats, etc.), in order to build a system that makes decisions based on real-time information and historical data to benefit the users within this environment. A main challenge of ambient intelligence is activity recognition, which consists in raw data from sensors, filter it, and then transform that into relevant information that can be associated with a patient's activities of daily living using Non-Intrusive Appliance Load Monitoring (<!--\index{NIALM} NIALM-->NIALM<!--/i-->). Typically, the parameters considered are the voltage, the electric current and the power (active and reactive). This produces a stream similar to the next figure. An event consists of a timestamp, and numerical readings of each of the aforementioned electrical components.
 
 ![The top three lines represent three components of the electrical signal when an electrical appliance is used. In orange, the output of a peak detector taking the electrical signal as its input.](electric/Blender.png)
 
@@ -423,7 +439,7 @@ The second processor picks one such parameter from the tuple, extracts its value
 
 The next step in the processing takes care of removing some of the noise in the signal. Typical appliances consume at least 100 W and generate a starting peak much higher than that. Therefore, to avoid false positives due to noise, any peak lower than 100 W should be flattened to zero.
 
-In order to do so, the output from the peak detector is replicated in two traces. The first one (top) is sent to a simple comparator, which compares the input value with the constant trace 100, and returns either true or false. This result is the first input of the dispatcher processor, represented in Figure 17 by traffic lights. The second input of the dispatcher is the output of the peak detector itself, while its third input, in this case, is the constant trace 0. The dispatcher’s task is simple: given a triplet of events (*e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub>), (one from each of its inputs), output *e*<sub>2</sub> if *e*<sub>1</sub> is true, and output *e*<sub>3</sub> otherwise. In the present case, this has indeed for effect of replacing all events of the peak detector lower than 100 W to 0.
+In order to do so, the output from the peak detector is replicated in two traces. The first one (top) is sent to a simple comparator, which compares the input value with the constant trace 100, and returns either true or false. This result is the first input of the dispatcher processor, represented in Figure 17 by traffic lights. The second input of the dispatcher is the output of the peak detector itself, while its third input, in this case, is the constant trace 0. The dispatcher's task is simple: given a triplet of events (*e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub>), (one from each of its inputs), output *e*<sub>2</sub> if *e*<sub>1</sub> is true, and output *e*<sub>3</sub> otherwise. In the present case, this has indeed for effect of replacing all events of the peak detector lower than 100 W to 0.
 
 The resulting trace requires one further cleanup task. Again due to the nature of the electrical signal, two successive peak events may sometimes be reported for the same sudden increase. The last processor takes care of keeping only the first one. This yield processor behaves like the dispatcher, but with the additional guarantee that the second input will be selected at most once in every n successive events. In the present context, this has for effect of eliminating "ghost" peaks in the signal.
 
@@ -441,11 +457,11 @@ Notice how the abstraction performed in Step 1 simplifies the problem in Step 2 
 
 Our last use case considers event streams produced by the execution of a piece of software. <!--\index{runtime verification} Runtime verification-->Runtime verification<!--/i--> is the process of observing a sequence of events generated by a running system and comparing it to some formal specification for potential violations. It was shown how the use of a runtime monitor can speed up the testing phase of a system, such as a video game under development, by automating the detection of bugs when the game is being played.
 
-We take as an example the case of a game called <!--\index{Pingus (video game)} \textit{Pingus}-->*Pingus*<!--/i-->, a clone of Psygnosis’ Lemmings game series. The game is divided into levels populated with various kinds of obstacles, walls, and gaps. Between 10 and 100 autonomous, penguin-like characters (the Pingus) progressively enter the level from a trapdoor and start walking across the area. The player can give special abilities to certain Pingus, allowing them to modify the landscape to create a walkable path to the goal. For example, some Pingus can become Bashers and dig into the ground; others can become Builders and construct a staircase to reach over a gap. The following figure shows a screenshot of the game.
+We take as an example the case of a game called <!--\index{Pingus (video game)} \textit{Pingus}-->*Pingus*<!--/i-->, a clone of Psygnosis' Lemmings game series. The game is divided into levels populated with various kinds of obstacles, walls, and gaps. Between 10 and 100 autonomous, penguin-like characters (the Pingus) progressively enter the level from a trapdoor and start walking across the area. The player can give special abilities to certain Pingus, allowing them to modify the landscape to create a walkable path to the goal. For example, some Pingus can become Bashers and dig into the ground; others can become Builders and construct a staircase to reach over a gap. The following figure shows a screenshot of the game.
 
 ![A screenshot of the Pingus video game in action.](pingus/Pingus.png)
 
-When running, the game updates the playing field about 150 times per second; each cycle of the game’s main loop produces an XML snapshot of its state similar to the one shown in Figure 5b. Hence, analyzing the execution of the game can be assimilated to processing the stream of individual XML events it generates. The abnormal execu- tion of the game can be expressed as event stream query, looking for a pattern corresponding to bugs in the game. An example of an incorrect execution pattern could be:
+When running, the game updates the playing field about 150 times per second; each cycle of the game's main loop produces an XML snapshot of its state similar to the one shown in Figure 5b. Hence, analyzing the execution of the game can be assimilated to processing the stream of individual XML events it generates. The abnormal execu- tion of the game can be expressed as event stream query, looking for a pattern corresponding to bugs in the game. An example of an incorrect execution pattern could be:
 
 Query 1. Make sure that a walking Pingu that encounters a Blocker turns around and starts walking in the other direction.
 
@@ -469,7 +485,7 @@ The following figure shows the processor graph that verifies this. Here, blue pi
 
 The XML trace is first sent into a universal quantifier. The domain function, represented by the oval at the top, is the evaluation of the XPath expression `//character[status=WALKER]/id/text()` on the current event; this fetches the value of attribute id of all characters whose status is `WALKER`. For every such value *c*, a new instance of the underlying processor will be created, and the context of this processor will be augmented with the association *p*<sub>1</sub> 7→ c. The underlying processor, in this case, is yet another quantifier. This one fetches the ID of every `BLOCKER`, and for each such value *c*<sub>0</sub>, creates one instance of the underlying processor and adds to its context the association *p*<sub>2</sub> 7→ *c*<sub>0</sub>.
 
-The underlying processor is the graph enclosed in a large box at the bottom. It creates two copies of the input trace. The first goes to the input of a function processor evaluating function *f*<sub>1</sub> (not shown), on each event. This function evaluates the conjunction of the two conditions |*x*<sub>1</sub> - *x*<sub>2</sub> | < 6 and |*y*<sub>1</sub> - *y*<sub>2</sub> | < 10, where x i and y i are the coordinates of the Pingu with ID *p*<sub>*i*</sub>. Function *f*<sub>1</sub> is the FunctionTree described in Figure 21a. Its left branch fetches the x position of characters with ID *p*<sub>1</sub> and *p*<sub>2</sub>, and checks whether their absolute difference is greater than 6. Its right branch (not shown) does a similar comparison with the y position of both characters. Note in this case how the XPath expression to evaluate refers to elements of the processor’s context (*p*<sub>1</sub> and *p*<sub>2</sub> ). The resulting function returns a Boolean value, which is true whenever character *p*<sub>1</sub> collides with *p*<sub>2</sub>.
+The underlying processor is the graph enclosed in a large box at the bottom. It creates two copies of the input trace. The first goes to the input of a function processor evaluating function *f*<sub>1</sub> (not shown), on each event. This function evaluates the conjunction of the two conditions |*x*<sub>1</sub> - *x*<sub>2</sub> | < 6 and |*y*<sub>1</sub> - *y*<sub>2</sub> | < 10, where x i and y i are the coordinates of the Pingu with ID *p*<sub>*i*</sub>. Function *f*<sub>1</sub> is the FunctionTree described in Figure 21a. Its left branch fetches the x position of characters with ID *p*<sub>1</sub> and *p*<sub>2</sub>, and checks whether their absolute difference is greater than 6. Its right branch (not shown) does a similar comparison with the y position of both characters. Note in this case how the XPath expression to evaluate refers to elements of the processor's context (*p*<sub>1</sub> and *p*<sub>2</sub> ). The resulting function returns a Boolean value, which is true whenever character *p*<sub>1</sub> collides with *p*<sub>2</sub>.
 
 The second copy of the input trace is duplicated one more time. The first is sent to a function processor evaluating *f*<sub>2</sub>, which computes the horizontal distance between *p*<sub>1</sub> and *p*<sub>2</sub>. The second is sent to the Trim processor, which is instructed to remove the first three events it receives and lets the others through. The resulting trace is also sent into a function processor evaluating *f*<sub>2</sub>. Finally, the two traces are sent as the input of a function processor evaluating the condition >. Therefore, this processor checks whether the horizontal distance between *p*<sub>1</sub> and *p*<sub>2</sub> in the current event is smaller than the same distance three events later. If this is true, then *p*<sub>1</sub> moved away from *p*<sub>2</sub> during that interval.
 

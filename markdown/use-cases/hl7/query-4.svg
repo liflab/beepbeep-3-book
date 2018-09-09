@@ -920,44 +920,6 @@
          x="683.67639"
          y="-71.663742" />
     </g>
-    <g
-       style="display:inline;fill:#008080;fill-opacity:1"
-       transform="matrix(1.0666667,0,0,1.0666667,572.82983,-179.44446)"
-       id="g17414">
-      <rect
-         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#008080;fill-opacity:1;fill-rule:nonzero;stroke:#0b280b;stroke-width:2.49583793;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;enable-background:accumulate"
-         id="rect17410"
-         width="39.971428"
-         height="77.252121"
-         x="687.36249"
-         y="97.915009"
-         transform="matrix(0,1,1,0,0,0)" />
-      <rect
-         y="166.82719"
-         x="683.67639"
-         height="22.626621"
-         width="47.343639"
-         id="rect17412"
-         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#008080;fill-opacity:1;fill-rule:nonzero;stroke:#0b280b;stroke-width:2.49583793;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;enable-background:accumulate"
-         transform="matrix(0,1,1,0,0,0)" />
-    </g>
-    <path
-       sodipodi:type="star"
-       style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke:#000000;stroke-width:7.47155905;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="path17416"
-       sodipodi:sides="3"
-       sodipodi:cx="33.57143"
-       sodipodi:cy="365.2193"
-       sodipodi:r1="27.19919"
-       sodipodi:r2="13.599595"
-       sodipodi:arg1="0.52359878"
-       sodipodi:arg2="1.5707963"
-       inkscape:flatsided="true"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 57.12662,378.81889 -47.110379,0 23.555189,-40.79878 z"
-       transform="matrix(0,0.17430557,-0.32372333,0,878.87522,569.20857)"
-       inkscape:transform-center-x="-2.063677" />
     <path
        inkscape:transform-center-x="-2.0636753"
        transform="matrix(0,0.17430557,-0.32372333,0,753.23244,569.20857)"
