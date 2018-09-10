@@ -238,7 +238,42 @@ One could imagine various queries involving the windows and aggregation function
 
 This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item i must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
-![Checking that every bid is higher than the previous ones](MonotonicBid.png)
+![Checking that every bid is higher than the previous one](MonotonicBid.png)
+
+``` java
+Fork f = new Fork(2);
+Connector.connect(split, f);
+Filter filter =  new Filter();
+Connector.connect(f, 0, filter, 0);
+ApplyFunction is_bid = new ApplyFunction(
+    new FunctionTree(Equals.instance,
+        new Constant("Bid"),
+        new NthElement(0)));
+Connector.connect(f, 1, is_bid, 0);
+Connector.connect(is_bid, 0, filter, 1);
+GroupProcessor bid_amount = new GroupProcessor(1, 1);
+{
+  ApplyFunction get_amt = new ApplyFunction(new NthElement(2));
+  Fork b_f = new Fork(2);
+  Connector.connect(get_amt, b_f);
+  ApplyFunction gt = new ApplyFunction(Numbers.isLessThan);
+  Connector.connect(b_f, 0, gt, 0);
+  Trim trim = new Trim(1);
+  Connector.connect(b_f, 1, trim, 0);
+  Connector.connect(trim, 0, gt, 1);
+  bid_amount.associateInput(0, get_amt, 0);
+  bid_amount.associateOutput(0, gt, 0);
+  bid_amount.addProcessors(get_amt, b_f, gt, trim);
+}
+Slice slice = new Slice(new NthElement(1), bid_amount);
+Connector.connect(filter, slice);
+ApplyFunction values = new ApplyFunction(Maps.values);
+Connector.connect(slice, values);
+Bags.RunOn and = new Bags.RunOn(new Cumulate(new CumulativeFunction<Boolean>(Booleans.and)));
+Connector.connect(values, and);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/auction/MonotonicBid.java#L49)
+
 
 The previous query involved a simple sequential pattern of two successive bid events. However, the auction scenario warrants the expression of more intricate patterns involving multiple events and multiple possible orderings:
 
@@ -252,7 +287,7 @@ Rather than simply checking that the sequencing of events for each item is follo
 
 The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i--> will be created, as shown in the top part of the graph.
 
-Each transition in this Moore machine contains two parts: the top part is a function to evaluate on the input event, to decide whether the transition should fire. The bottom part contains instructions on how to modify the Context object of the processor. For example, the top left transition fires if the first element of the event is the string "Create Auction". If so, the transition is taken, and the processor's context is updated with the associations Last Price 7→ 0, Days 7→ 0. The values of Min. Price and Max. Days are set with the content of the third and fourth element of the tuple, respectively. The remaining transitions take care of updating the minimum price and the number of days elapsed according to the events received.
+Each transition in this Moore machine contains two parts: the top part is a function to evaluate on the input event, to decide whether the transition should fire. The bottom part contains instructions on how to modify the Context object of the processor. For example, the top left transition fires if the first element of the event is the string "Create Auction". If so, the transition is taken, and the processor's context is updated with the associations *Last Price* → 0, *Days* → 0. The values of Min. Price and Max. Days are set with the content of the third and fourth element of the tuple, respectively. The remaining transitions take care of updating the minimum price and the number of days elapsed according to the events received.
 
 Each state of the Moore machine is associated with an output value. For three of these states, the value to output is the empty event, meaning that no output should be produced. For the remaining two states, the value to output is the current content of Days, as defined in the processor's context.
 
@@ -423,35 +458,73 @@ The next scenario touches on the concept of <!--\index{ambient intelligence} \em
 
 ![The top three lines represent three components of the electrical signal when an electrical appliance is used. In orange, the output of a peak detector taking the electrical signal as its input.](electric/Blender.png)
 
-The NIALM approach attempts to associate a device with a load signature extracted from a single power meter installed at the main electrical panel. This signature is made of abrupt variations in one or more components of the electrical signal, whose amplitude can be used to determine which appliance is being turned on or off [3]. An example of query in this context could be:
+The NIALM approach attempts to associate a device with a load signature extracted from a single power meter installed at the main electrical panel. This signature is made of abrupt variations in one or more components of the electrical signal, whose amplitude can be used to determine which appliance is being turned on or off. An example of query in this context could be:
 
-Query 9. Produce a "Toaster On" event when- ever a spike of 1,000±200 W is observed on Phase 1 and the toaster is currently off.
+- Produce a "Toaster On" event when- ever a spike of 1,000±200 W is observed on Phase 1 and the toaster is currently off.
 
 Again, this scenario brings its own peculiarities. Here, events are simple tuples of numerical values, and slicing is applied in order to evaluate each signal component sepa- rately; however, the complex, higher-level events to produce depend on the application of a peak detection algorithm over a window of successive time points. Moreover, ele- ments of a lifecycle query can also be found: the current state of each appliance has to be maintained, as the same peak or drop may be interpreted differently depending on whether a device is currently operating or not.
 
 While this scenario certainly is a case of event stream processing in the strictest sense of the term, it hardly qualifies as a typical CEP scenario, as per the available tools and their associated literature.
 
-The next figure describes the chain of basic event processors that are used to discover the peaks on the electrical signal. The signal from the electrical box is sent to a first processor, which transforms raw readings into name-value tuples, one for each time point. Each tuple contains numerical values for various components of the electrical signal; for example, parameter WL1 measures the current active power of Phase 1.
+The next figure describes the chain of basic event processors that are used to discover the peaks on the electrical signal. The signal from the electrical box is sent to a first processor, which transforms raw readings into name-value tuples, one for each time point. Each tuple contains numerical values for various components of the electrical signal; for example, parameter W1 measures the current active power of Phase 1.
 
-![The piping of processors for discovering peaks on the original electrical signal. Elements in pink indicate parameters that can be adjusted, changing the behaviour of the pipe.](electric/Piping1.png)
+![The piping of processors for discovering peaks and plateaux on the original electrical signal. Elements in pink indicate parameters that can be adjusted, changing the behaviour of the pipe.](SignalProcessing.png)
 
-The second processor picks one such parameter from the tuple, extracts its value, and discards the rest. The output trace from this processor is therefore a sequence of numbers. This sequence is then fed to the third processor, which detects sudden increases or decreases in a numerical signal. For each input event, the processor outputs the height of the peak, or the value 0 if this event is not a peak. Since an event needs to be out of the window to determine that it is a peak, the emission of output events is delayed with respect to the consumption of input events.
+The second processor picks one such parameter from the tuple (W1 in the example), extracts its value, and discards the rest. The output trace from this processor is therefore a sequence of numbers. On the top path, this sequence is then fed to the <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> processor from the *Signal* palette, which detects sudden increases or decreases in a numerical signal. As we have seen in a previous chapter, for each input event, the processor outputs the height of the peak, or the value 0 if this event is not a peak. Since an event needs to be out of the window to determine that it is a peak, the emission of output events is delayed with respect to the consumption of input events.
 
-The next step in the processing takes care of removing some of the noise in the signal. Typical appliances consume at least 100 W and generate a starting peak much higher than that. Therefore, to avoid false positives due to noise, any peak lower than 100 W should be flattened to zero.
+The next step in the processing takes care of removing some of the noise in the signal. Typical appliances consume at least 100 W and generate a starting peak much higher than that. Therefore, to avoid false positives due to noise, any peak lower than 100 W should be flattened to zero. In order to do so, the output from the peak detector is sent to the <!--\index{Threshold@\texttt{Threshold}} \texttt{Threshold}-->`Threshold`<!--/i--> processor, set to a threshold value of 100. The resulting trace requires one further cleanup task. Again due to the nature of the electrical signal, two successive peak events may sometimes be reported for the same sudden increase. The last processor takes care of keeping only the first one, using the <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i--> processor.
 
-In order to do so, the output from the peak detector is replicated in two traces. The first one (top) is sent to a simple comparator, which compares the input value with the constant trace 100, and returns either true or false. This result is the first input of the dispatcher processor, represented in Figure 17 by traffic lights. The second input of the dispatcher is the output of the peak detector itself, while its third input, in this case, is the constant trace 0. The dispatcher's task is simple: given a triplet of events (*e*<sub>1</sub>, *e*<sub>2</sub>, *e*<sub>3</sub>), (one from each of its inputs), output *e*<sub>2</sub> if *e*<sub>1</sub> is true, and output *e*<sub>3</sub> otherwise. In the present case, this has indeed for effect of replacing all events of the peak detector lower than 100 W to 0.
+Given a feed from an electrical signal, this complete chain of processors produces an output trace of numerical events; most of them should be the number 0, and a few others should indicate the occurrence of an abrupt increase or decrease in the values of the input signal, along with the magnitude of that change. Moreover, the position of these events, relative to the original signal, also indicates the exact moment this change was detected. On the lower path of the diagram, the same task is done with the <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor to detect plateaux. This corresponds to the following code snippet:
 
-The resulting trace requires one further cleanup task. Again due to the nature of the electrical signal, two successive peak events may sometimes be reported for the same sudden increase. The last processor takes care of keeping only the first one. This yield processor behaves like the dispatcher, but with the additional guarantee that the second input will be selected at most once in every n successive events. In the present context, this has for effect of eliminating "ghost" peaks in the signal.
+``` java
+Fork f = new Fork(2);
+Processor peak_finder = new PeakFinderLocalMaximum(5);
+Connector.connect(f, 0, peak_finder, 0);
+Threshold peak_th = new Threshold(100);
+Connector.connect(peak_finder, peak_th);
+Processor peak_damper = new Limit(10);
+Connector.connect(peak_th, peak_damper);
+Processor plateau_finder = new PlateauFinder().setPlateauRange(5).setRelative(true);
+Connector.connect(f, 1, plateau_finder, 0);
+Threshold plateau_th = new Threshold(100);
+Connector.connect(plateau_finder, plateau_th);
+Processor plateau_damper = new Limit(10);
+Connector.connect(plateau_th, plateau_damper);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/nialm/DetectAppliance.java#L36)
 
-Given a feed from an electrical signal, this complete chain of processors produces an output trace of numerical events; most of them should be null, and a few others should indicate the occurrence of an abrupt increase or decrease in the values of the input signal, along with the magnitude of that change. Moreover, the position of these events, relative to the original signal, also indicates the exact moment this change was detected. As an example, Figure 4 shows the realtime value of three components of the electrical signal, to which the output of the peak detector was superimposed. One can see that the detector behaves as we want, reporting exactly two changes of the appropriate magnitude at the right time.
 
-The second step is to lift peak and drop events to a yet higher level of abstraction, and to report actual appliances being turned on and off. This is best formalized through the use of a Moore machine, shown in the next figure.
+The second step is to lift peak and drop events to a yet higher level of abstraction, and to report actual appliances being turned on and off. This is best formalized through the use of a <!--\index{MooreMachine@\texttt{MooreMachine}} Moore machine-->Moore machine<!--/i-->, shown in the next diagram ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/nialm/ApplianceMooreMachine.java)
+).
 
-![The Moore machine for detecting on/off events for a single appliance.](electric/Moore.png)
+![The Moore machine for detecting on/off events for a single appliance.](ApplianceMooreMachine.png)
 
-From the initial state, the event "appliance on" (I) is output only if a peak and a plateau event of the appropriate magnitude are received in immediate succession. At this point, the event "appliance off" (O) is emitted only if a drop of the appropriate magnitude is received. All other input events processed by the machine result in no output event being produced. Apart from the actual numerical values, this Moore machine is identical for all appliances.
+From the initial state, the event "appliance on" (I) is output only if a peak and a plateau event of the appropriate magnitude are received in immediate succession. At this point, the event "appliance off" (O) is emitted only if a drop of the appropriate magnitude is received. All other input events processed by the machine result in a dummy output event, indicating "No change", being produced. Apart from the actual numerical values, this Moore machine is identical for all appliances. Notice how the abstraction performed in Step 1 simplifies the problem in Step 2 to the definition of a simple, five-state automaton.
 
-Notice how the abstraction performed in Step 1 simplifies the problem in Step 2 to the definition of a simple, five-state automaton.
+The last step is to apply this Moore machine on some electrical signal. To this end, we shall reuse the signal generator used in Chapter 5 to illustrate the operation of various processors of the *Signal* palette ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignalNoise.java)
+). In this example, we instruct the generator to produce a signal that starts at zero, increases rapidly to the value 1,000, stabilizes at the value 700 and then drop back to zero. This stream is then fed to the signal processing chain described earlier, which produces a "peak" and a "plateau" stream. The two streams then enter the Moore machine, which is instantiated with the signature (peak-plateau-drop) that should be detected. Finally, the time stream of the signal generator is merged with the output of the Moore machine to create tuples of the form (*t*,*s*), where *t* is a timestamp, and *s* is the detected state of the appliance for that timestamp. This corresponds to the following diagram:
+
+![The complete detection process.](All.png)
+
+As one can see, the signal processing chain has been encapsulated into a single box, with numbers at its edges representing the parameters given to the processors encased into it. Similarly, the Moore machine is also represented as a single box, with the numbers 1,000, 700 and -700 representing the values used in the conditions on state transitions. In code, the remaining steps can be written like this:
+
+``` java
+Fork f = new Fork(2);
+Processor peak_finder = new PeakFinderLocalMaximum(5);
+Connector.connect(f, 0, peak_finder, 0);
+Threshold peak_th = new Threshold(100);
+Connector.connect(peak_finder, peak_th);
+Processor peak_damper = new Limit(10);
+Connector.connect(peak_th, peak_damper);
+Processor plateau_finder = new PlateauFinder().setPlateauRange(5).setRelative(true);
+Connector.connect(f, 1, plateau_finder, 0);
+Threshold plateau_th = new Threshold(100);
+Connector.connect(plateau_finder, plateau_th);
+Processor plateau_damper = new Limit(10);
+Connector.connect(plateau_th, plateau_damper);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/nialm/DetectAppliance.java#L36)
+
 
 ## Video Game
 
