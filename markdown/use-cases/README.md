@@ -1,7 +1,7 @@
 A Few Use Cases
 ===============
 
-The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been crafted especially for this book.
+The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been created especially for this book.
 
 Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed at the end of this book.
 
@@ -164,13 +164,6 @@ CountDecimate dec = new CountDecimate(5);
 Connector.connect(win, dec);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/stockticker/WindowQuery.java#L38)
-
-
-A join query involves the comparison of multiple events together. In the stock ticker example, a possible join query could be:
-
-Query 4. For the five most recent trading days starting today, select all stocks that closed higher than msft on a given day.
-
-When computing the result of such a query, a tuple is added to the output result depending on its relationship with respect to the price of msft for the same day. In most CEP systems, this is done by an operation similar to the JOIN operator in relational databases: the input stream is joined with itself, producing pairs of tuples (t<sub>1</sub>, t<sub>2</sub>) where t<sub>1</sub> belongs to the first "copy" of the stream, and t<sub>2</sub>belongs to the second. The join condition, in our example, is that the timestamps of t<sub>1</sub> and t<sub>2</sub> must be equal. Since traces are potentially infinite, join operations require bounds of some kind to be usable in practice; for example, the join operation may only be done on events of the last minute, or on a window of n successive events.
 
 
 ## Medical Records Management
@@ -635,9 +628,7 @@ The expected output of this program is something that looks like the following:
 
 As one can see, each event corresponds to a multiset giving the number of Pingus of each skill, in a window of 450 successive events.
 
-Going even further, one may also divide the playing field into square cells of a given number of pixels, and count the Pingus that lie in each cell at any given moment, producing a form of "heat map": Query 1. Produce a heat map of the location of Pingus across the game field; update this map every three seconds.
-
-This last query outputs a stream of events of an unusual type, namely two-dimensional arrays of numerical values. Such arrays could then be passed to a plotting program that could display a graph in real time.
+Going even further, 
 
 
 ## Exercises
@@ -649,4 +640,7 @@ This last query outputs a stream of events of an unusual type, namely two-dimens
 - b. the plot is written to a file instead of being displayed in a window.
 - c. the plot updates after every year processed, instead of at the end.
 
+3. Modify the NIALM example to detect appliances based on a signature that involves more than one signal at a time.
+
+4. In the Pingus example, divide the playing field into square cells of a given number of pixels, and count the Pingus that lie in each cell at any given moment, producing a form of "heat map".
 <!-- :wrap=soft: -->

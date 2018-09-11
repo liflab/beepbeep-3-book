@@ -451,6 +451,10 @@ forward, padding the beginning of the trace with some dummy element.
 
 {@img images/util/Multiplication.png}{Multiplication}{.6}
 
+#### `Multiset`
+
+@palette Core@ <!--\index{Multiset@\texttt{Multiset}|textsl} A-->A<!--/i--> `Set` that preserves the multiplicity of its elements.
+
 #### `Next`
 
 @palette LTL@ <!--\index{Next@\texttt{Next}|textsl} A-->A<!--/i--> `Processor` that implements the "next" or **X** operator of Linear Temporal Logic. If *p* is an LTL expression, **X** *p* stipulates that *p* should evaluate to `true` on the suffix of the current trace starting at the next event. It is represented graphically as:

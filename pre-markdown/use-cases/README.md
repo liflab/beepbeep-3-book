@@ -1,7 +1,7 @@
 A Few Use Cases
 ===============
 
-The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been crafted especially for this book.
+The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been created especially for this book.
 
 Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed at the end of this book.
 
@@ -39,7 +39,7 @@ A refinement of the snapshot query is the landmark query, which returns only eve
 
 This simple query highlights the fact that, in online processing, outputting a tuple may require waiting until more of the input trace is made available —and that waiting time is not necessarily bounded. In the worst case, MSFT may be the last stock symbol for which the price is known on a given day, and all events of that day must somehow be retained before knowing if they must be output in the result or discarded.
 
-We shall divide this query in two parts. The first part groups all events of the same day into an array, and can be illustrated as follows:
+We shall divide this query into two parts. The first part groups all events of the same day into an array, and can be illustrated as follows:
 
 {@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.6}
 
@@ -69,16 +69,9 @@ The previous figure shows the chain that computes the average of stock symbol MS
 
 {@snipm stockticker/WindowQuery.java}{/}
 
-A join query involves the comparison of multiple events together. In the stock ticker example, a possible join query could be:
-
-Query 4. For the five most recent trading days starting today, select all stocks that closed higher than msft on a given day.
-
-When computing the result of such a query, a tuple is added to the output result depending on its relationship with respect to the price of msft for the same day. In most CEP systems, this is done by an operation similar to the JOIN operator in relational databases: the input stream is joined with itself, producing pairs of tuples (t<sub>1</sub>, t<sub>2</sub>) where t<sub>1</sub> belongs to the first "copy" of the stream, and t<sub>2</sub>belongs to the second. The join condition, in our example, is that the timestamps of t<sub>1</sub> and t<sub>2</sub> must be equal. Since traces are potentially infinite, join operations require bounds of some kind to be usable in practice; for example, the join operation may only be done on events of the last minute, or on a window of n successive events.
-
-
 ## Medical Records Management
 
-We now move to the field of medical record management, where events are messages expressed in a structured format called <!--\index{HL7} HL7-->HL7<!--/i-->. An HL7 message is a text string composed of one or more segments, each containing a number of fields separated by the pipe character (|). The possible contents and meaning of each field and each segment is defined in the HL7 specification. The following snippet shows an example of an HL7 message; despite its cryptic syntax, this messages has a well-defined, machine-readable structure. However, it slightly deviates from the fixed tuple structure of our first example: although all messages of the same type have the same fixed structure, a single HL7 stream contains events of multiple types.
+We now move to the field of medical record management, where events are messages expressed in a structured format called <!--\index{HL7} HL7-->HL7<!--/i-->. An HL7 message is a text string composed of one or more segments, each containing a number of fields separated by the pipe character (|). The possible contents and meaning of each field and each segment is defined in the HL7 specification. The following snippet shows an example of an HL7 message; despite its cryptic syntax, this message has a well-defined, machine-readable structure. However, it slightly deviates from the fixed tuple structure of our first example: although all messages of the same type have the same fixed structure, a single HL7 stream contains events of multiple types.
 
 ```
 1234567890^DOCLAST^DOCFIRST^M^
@@ -94,7 +87,7 @@ NM|2086-7^HDL^LOINC|24.000|MG/DL|
 2571-8^TRIGLYCERIDES^LOINC|324.000|
 ```
 
-HL7 messages can be produced from various sources: medical equipment producing test results, patient man- agement software where individual medical acts and pro- cedures are recorded, drug databases, etc. For a given patient, the merging of all these various sources produces a long sequence of HL7 messages that can be likened to an event stream. The analysis of HL7 event traces produced by health information systems can be used, among other things, to detect significant unexpected changes in data values that could compromise patient safety.
+HL7 messages can be produced from various sources: medical equipment producing test results, patient management software where individual medical acts and procedures are recorded, drug databases, etc. For a given patient, the merging of all these various sources produces a long sequence of HL7 messages that can be likened to an event stream. The analysis of HL7 event traces produced by health information systems can be used, among other things, to detect significant unexpected changes in data values that could compromise patient safety.
 
 In this context, a general rule, which can apply to any numerical field, identifies whenever a data value starts to deviate from its current trend:
 
@@ -138,7 +131,7 @@ One could imagine various queries involving the windows and aggregation function
 
 - Check that every bid of an item is higher than the previous one, and report to the user otherwise.
 
-This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item i must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
+This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item *i* must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
 {@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one}{.6}
 
@@ -160,7 +153,7 @@ Each transition in this Moore machine contains two parts: the top part is a func
 
 Each state of the Moore machine is associated with an output value. For three of these states, the value to output is the empty event, meaning that no output should be produced. For the remaining two states, the value to output is the current content of Days, as defined in the processor's context.
 
-According to the semantics of the `Slice` procsesor, each output event will consist of a set, formed by the last output of every instance of the Moore machine. Thus, this set will contain the number of elapsed days of all items whose auction is currently open (the Moore machine for the other items outputs no number). This set is then passed to a function processor, which computes the average of its values (sum divided by cardinality).
+According to the semantics of the `Slice` processor, each output event will consist of a set, formed by the last output of every instance of the Moore machine. Thus, this set will contain the number of elapsed days of all items whose auction is currently open (the Moore machine for the other items outputs no number). This set is then passed to a function processor, which computes the average of its values (sum divided by cardinality).
 
 As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where x is set to the value of the first input, and y is set to the value of the second input. The result is a tuple where x is the number of input events, and y is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (x, y) pairs, which could then be sent to a Scatterplot processor to be plotted with the help of the MTNP palette.
 
@@ -256,7 +249,7 @@ The NIALM approach attempts to associate a device with a load signature extracte
 
 - Produce a "Toaster On" event when- ever a spike of 1,000±200 W is observed on Phase 1 and the toaster is currently off.
 
-Again, this scenario brings its own peculiarities. Here, events are simple tuples of numerical values, and slicing is applied in order to evaluate each signal component sepa- rately; however, the complex, higher-level events to produce depend on the application of a peak detection algorithm over a window of successive time points. Moreover, ele- ments of a lifecycle query can also be found: the current state of each appliance has to be maintained, as the same peak or drop may be interpreted differently depending on whether a device is currently operating or not.
+Again, this scenario brings its own peculiarities. Here, events are simple tuples of numerical values, and slicing is applied in order to evaluate each signal component separately; however, the complex, higher-level events to produce depend on the application of a peak detection algorithm over a window of successive time points. Moreover, elements of a lifecycle query can also be found: the current state of each appliance has to be maintained, as the same peak or drop may be interpreted differently depending on whether a device is currently operating or not.
 
 While this scenario certainly is a case of event stream processing in the strictest sense of the term, it hardly qualifies as a typical CEP scenario, as per the available tools and their associated literature.
 
@@ -355,11 +348,11 @@ The second is sent to the `Trim` processor, which is instructed to remove the fi
 
 The last step is to evaluate the overall expression. The "collides" Boolean trace is combined with the "moves away" Boolean trace in the `Implies` processor. For a given event *e*, the output of this processor will be `true` when, if *p*<sub>1</sub> and *p*<sub>2</sub> collide in *e*, then *p*<sub>1</sub> will have moved away from *p*<sub>2</sub> three events later.
 
-Furthermore, various kinds of analyses can also be conducted on the execution of the game. For example, one may be interested in watching the realtime number of Pingus possessing a particular skill, leading to a query such as:
+Furthermore, various kinds of analyses can also be conducted on the execution of the game. For example, one may be interested in watching the real time number of Pingus possessing a particular skill, leading to a query such as:
 
-- Determine the realtime proportion of all active Pingus that are Blockers.
+- Determine the real time proportion of all active Pingus that are Blockers.
 
-Such a query involves, for each event, the counting of all Pingus with a given skill with respect to the total number of Pingus contained in the event. This is a much easier query than the previous one; it can be implemented as in te following diagram:
+Such a query involves, for each event, the counting of all Pingus with a given skill with respect to the total number of Pingus contained in the event. This is a much easier query than the previous one; it can be implemented as in the following diagram:
 
 {@img doc-files/pingus/SkillChart.png}{The processor chain for computing the proportion of Pingus of each skill.}{.6}
 
@@ -377,11 +370,7 @@ The expected output of this program is something that looks like the following:
 
 As one can see, each event corresponds to a multiset giving the number of Pingus of each skill, in a window of 450 successive events.
 
-Going even further, one may also divide the playing field into square cells of a given number of pixels, and count the Pingus that lie in each cell at any given moment, producing a form of "heat map":
-
-- Produce a heat map of the location of Pingus across the game field; update this map every three seconds.
-
-This last query outputs a stream of events of an unusual type, namely two-dimensional arrays of numerical values. Such arrays could then be passed to a plotting program that could display a graph in real time.
+Going even further, 
 
 
 ## Exercises
@@ -393,4 +382,7 @@ This last query outputs a stream of events of an unusual type, namely two-dimens
 - b. the plot is written to a file instead of being displayed in a window.
 - c. the plot updates after every year processed, instead of at the end.
 
+3. Modify the NIALM example to detect appliances based on a signature that involves more than one signal at a time.
+
+4. In the Pingus example, divide the playing field into square cells of a given number of pixels, and count the Pingus that lie in each cell at any given moment, producing a form of "heat map".
 <!-- :wrap=soft: -->

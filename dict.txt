@@ -2,6 +2,7 @@ arity
 associateInput
 associateOutput
 Azrael
+Bashers
 beepbeep
 BeepBeep
 Boolean
@@ -29,9 +30,12 @@ MFOTL
 MTNP
 mutator
 Mutator
+NIALM
 Passthrough
 passthrough
 Perlis
+Pingu
+Pingus
 pipelining
 Pipelining
 postfix
@@ -69,6 +73,7 @@ TCP
 Tremblay
 unary
 viewable
+walkable
 whitespace
 XPath
 XPathFunction
