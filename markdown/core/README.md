@@ -386,7 +386,8 @@ We first fork the original stream of values in two copies. The topmost copy is u
 It shall be noted that, `Cumulate` does not have to work only with addition, or even with numbers. Depending on the function *f*, cumulative processors can represent many other things. For example, in the next code snippet, a stream of Boolean values is created, and piped into a `Cumulate` processor, using <!--\index{Booleans@\texttt{Booleans}!And@\texttt{And}} logical conjunction-->logical conjunction<!--/i--> ("and") as the function, and `true` as the start value:
 
 ``` java
-QueueSource source = new QueueSource().setEvents(true, true, false, true, true);
+QueueSource source = new QueueSource()
+    .setEvents(true, true, false, true, true);
 Cumulate and = new Cumulate(
         new CumulativeFunction<Boolean>(Booleans.and));
 Connector.connect(source, and);
@@ -480,7 +481,6 @@ Coupled with `Fork`, the `Trim` processor can be useful to create two copies of 
 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SumTwo.java)
 
-
 On the first call on `pull`, the addition processor first calls `pull` on its first (top) input pipe, and receives from the source the number 1. The processor then calls `pull` on its second (bottom) input pipe. Upon being pulled, the `Trim` processor calls `pull` on its input pipe *twice*: it discards the first event it receives from the fork (1), and returns the second (2). The first addition that is computed is hence 1+2=3, resulting in the output 3.
 
 From this point on, the top and the bottom pipe of the addition processor are always offset by one event. When the top pipe receives 2, the bottom pipe receives 3, and so on. The end result is that the output stream is made of the sum of each successive pair of events: 1+2, 2+3, 3+4, etc. This type of computation is called a <!--\index{window!sliding} \textbf{sliding window}-->**sliding window**<!--/i-->. Indeed, we repeat the same operation (here, addition) to a list of two events that progressively moves down the stream.
@@ -533,7 +533,6 @@ Computing an average over a sliding window is a staple of event stream processin
 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowEven.java)
 
-
 A numerical stream is passed into an `ApplyFunction` processor; the function evaluates whether a number is even, using a built-in function called [`IsEven`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/IsEven.html). This function takes a number as input, and returns a Boolean value. This stream of *Booleans* is then piped into a `Window` processor, which will handle windows of Booleans. On each window, a `Cumulate` processor computes the disjunction (logical "or") of all events in the window. On a given window of three successive events, the output is `true` if and only if there is at least one even number. The end result of this whole chain is a stream of Booleans; it returns `false` whenever three input events in a row are odd, and `true` otherwise.
 
 As we can see, although this example makes use of a `Window` processor, its meaning is far from the numerical aggregation functions used in classical event stream processing systems. As a matter of fact, BeepBeep's very general way of handling windows is unique among existing stream processors.
@@ -550,8 +549,7 @@ But how exactly can we give this *chain* of processors as a parameter to `Window
 
 The answer to this is a special type of processor called [`GroupProcessor`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/GroupProcessor.html). The <!--\index{GroupProcessor@\texttt{GroupProcessor}} \texttt{GroupProcessor}-->`GroupProcessor`<!--/i--> allows a user to encapsulate a complete chain of processors into a composite object which can be manipulated as if it were a single `Processor`. In other words, `GroupProcessor` hides its contents into a "black box", and only exposes the input and output pipes at the very ends of the chain.
 
-Let us revisit a previous example ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SumTwo.java)
-), and use a group processor, as in the following code fragment.
+Let us revisit a previous example ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SumTwo.java)), and use a group processor, as in the following code fragment.
 
 ``` java
 QueueSource source = new QueueSource().setEvents(1, 2, 3, 4, 5, 6);
@@ -593,7 +591,6 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 ![Computing the running average over a sliding window.](WindowAverage.png)
 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowAverage.java)
-
 
 Groups can have an arbitrary input and output arity, as is shown in the example below:
 
@@ -770,7 +767,8 @@ Function slicing_fct = new IdentityFunction(1);
 GroupProcessor counter = new GroupProcessor(1, 1);
 {
     TurnInto to_one = new TurnInto(new Constant(1));
-    Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+    Cumulate sum = new Cumulate(
+        new CumulativeFunction<Number>(Numbers.addition));
     Connector.connect(to_one, sum);
     counter.addProcessors(to_one, sum);
     counter.associateInput(INPUT, to_one, INPUT);
@@ -821,7 +819,6 @@ As we can see, each copy of the slice processor is fed the sub-trace of all even
 ![Adding odd and even numbers separately.](SlicerOddEven.png)
 
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/SlicerOddEven.java)
-
 
 The end result of this program is a map with two keys (`true` and `false`), associated with the cumulative sum of even numbers and odd numbers, respectively.
 

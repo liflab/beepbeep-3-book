@@ -259,7 +259,8 @@ We are now done. We can try our Moore machine on a sequence of events, by connec
 
 ``` java
 QueueSource source = new QueueSource();
-source.setEvents("hasNext", "next", "hasNext", "hasNext", "next", "next");
+source.setEvents("hasNext", "next", "hasNext",
+    "hasNext", "next", "next");
 Connector.connect(source, machine);
 Pullable p = machine.getPullableOutput();
 for (int i = 0; i < 7; i++)
@@ -691,8 +692,7 @@ Note that `Until`, like any other synchronous processor with an arity greater th
 
 ### Nesting LTL Operators
 
-Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/Nested.java)
-).
+Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/Nested.java)).
 
 ![A more complex example involving multiple "nested" temporal operators.](Nested.png)
 
@@ -723,8 +723,7 @@ Intuitively, this processor chain can be seen as a "safeguard" mechanism. Suppos
 
 However, when the input event is an *a*, we must make sure that no *b* is immediately followed by a *c*, and moreover, that a *d* event eventually occurs. Since we do not know what future events may come, we must delay the output of event *a* until we are sure the constraint is respected --for example by putting it into a temporary buffer. When a *d* finally comes in, we can inspect the contents of the buffer, make sure that no *b* is followed by a *c*, and, if this is the case, output the whole contents of the buffer at once. In other words, our "monitor" would act as a gatekeeper, and let the input stream get through in chunks of events that are always guaranteed to comply with the constraints.
 
-This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/OpenClose.java)
-):
+This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/OpenClose.java)):
 
 ![Filtering events that follow a temporal property](OpenClose.png)
 
@@ -907,7 +906,8 @@ Connector.connect(table, draw);
 BitmapJFrame window = new BitmapJFrame();
 Connector.connect(draw, window);
 window.start();
-System.out.println("Displaying plot. Press Ctrl+C or close the window to end.");
+System.out.println("Displaying plot. Press Ctrl+C "
+    + "or close the window to end.");
 Thread th = new Thread(pump);
 th.start();
 ```
@@ -946,8 +946,7 @@ Since the `plots` palette is a simple wrapper around MTNP objects, the reader is
 
 The input of a processor chain may be a stream of numerical values obtained from physical measurements, such as temperature or power sensors. In those cases, it may be desirable to transform this "raw" signal into a higher-level stream of values, on which some preliminary clean up has been performed. The *Signal* palette provides processors suitable for some basic signal processing tasks, such as finding peaks, plateaus, etc.
 
-To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/FakeSignal.java)
-):
+To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/FakeSignal.java)):
 
 ![Producing a numerical signal that varies with time.](FakeSignal.png)
 
@@ -965,9 +964,7 @@ We shall use this simple "signal generator" to illustrate the operation of vario
 
 ![Producing a numerical signal that varies with time (grouped version).](FakeSignalGrouped.png)
 
-As one can see, the source box is parameterized by the contents of the two input queues, while the sink box is parameterized by the number and the names of each stream of numbers it receives. We use the "delta" letter in the source, since the two input queues of this processor encode a discrete form of the first derivative of the input signal to generate. The reader is encouraged to have a look at the code of `GenerateSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignal.java)
-) and `PlotSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlotSignal.java)
-), in the examples repository, to better understand how these two groups are implemented.
+As one can see, the source box is parameterized by the contents of the two input queues, while the sink box is parameterized by the number and the names of each stream of numbers it receives. We use the "delta" letter in the source, since the two input queues of this processor encode a discrete form of the first derivative of the input signal to generate. The reader is encouraged to have a look at the code of `GenerateSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignal.java)) and `PlotSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlotSignal.java)), in the examples repository, to better understand how these two groups are implemented.
 
 A first useful processor of the *Signal* palette is used to find <!--\index{peak (signal)} \textbf{peaks}-->**peaks**<!--/i--> in an input stream. A peak is informally defined as an abrupt increase in the values of the signal over a short number of values (or *samples*). One possible way of looking for a peak is to use a sliding window of a few samples, and to identify local maxima in this window. The <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> procesor does exactly that. Consider the following code snippet:
 
@@ -983,8 +980,7 @@ In this program, the "signal" stream produced by the delta box is forked in two 
 
 As one can see, the processsor outputs the value 0 if the current input event is not considered as a peak; otherwise, it outputs the height of that peak. The definition of what constitutes a peak varies, depending on the underlying algorithm that is being used; in the present case, any local maximum that exits the sliding window is considered as a peak. The current version of the *Signal* palette also provides another processor, the <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->, which uses a different algorithm for detecting peaks.
 
-The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlateauExample.java)
-). This will produce the following plot:
+The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlateauExample.java)). This will produce the following plot:
 
 ![The original signal (V) and the detected local maxima (P).](plateau-signal.png)
 
@@ -994,25 +990,21 @@ Let us now change our input signal by changing its envelope and adding some rand
 
 ![Generating a signal and adding some noise.](GenerateSignalNoise.png)
 
-The main difference lies in the presence of a new fork on the bottom branch. The output signal from the `VariableStutter` processor is forked one more time; on the first path (top), the signal is sent into a processor called <!--\index{Randomize@\texttt{Randomize}} \texttt{Randomize}-->`Randomize`<!--/i-->; this processor turns any input event into a floating-point number, which is randomly selected from an predefined interval. In the current example, the interval is from -2 to 2, as indicated by the two numbers on the processor's box. This stream of random numbers is then added to the original signal (second path). This will result in a "jagged" output signal, with the amount of variation being parameterized by the interval set on `Randomize`. The code for this modified signal generator can be found in the example repository ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignalNoise.java)
-).
+The main difference lies in the presence of a new fork on the bottom branch. The output signal from the `VariableStutter` processor is forked one more time; on the first path (top), the signal is sent into a processor called <!--\index{Randomize@\texttt{Randomize}} \texttt{Randomize}-->`Randomize`<!--/i-->; this processor turns any input event into a floating-point number, which is randomly selected from an predefined interval. In the current example, the interval is from -2 to 2, as indicated by the two numbers on the processor's box. This stream of random numbers is then added to the original signal (second path). This will result in a "jagged" output signal, with the amount of variation being parameterized by the interval set on `Randomize`. The code for this modified signal generator can be found in the example repository ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignalNoise.java)).
 
-Equipped with this new signal generator, we can illustrate a few more processors from the *Signal* palette. The first is called  <!--\index{Threshold@\texttt{Threshold}} \texttt{Threshold}-->`Threshold`<!--/i-->. Its task is to flatten to zero any input number whose absolute value lies below a predefined threshold, and to let the other numbers through. An example program showing the use of this processor produces the following plot ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/ThresholdExample.java)
-):
+Equipped with this new signal generator, we can illustrate a few more processors from the *Signal* palette. The first is called  <!--\index{Threshold@\texttt{Threshold}} \texttt{Threshold}-->`Threshold`<!--/i-->. Its task is to flatten to zero any input number whose absolute value lies below a predefined threshold, and to let the other numbers through. An example program showing the use of this processor produces the following plot ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/ThresholdExample.java)):
 
 ![The original signal (V) and the signal after the application of the `Threshold` processor (P).](threshold-signal.png)
 
 Here, the threshold has been set to 4, meaning that all values lying between -4 and 4 will be turned into 0 in the output signal. Notice how this has for effect of partly "de-noising" the input, by removing the small signal variations around the x-axis.
 
-Like `PlateauFinder`, the <!--\index{Persist@\texttt{Persist}} \texttt{Persist}-->`Persist`<!--/i--> processor also operates on a window of width *k*; it returns the maximum value of the window. This has for effect of "persisting" high values in a signal for some time after they occur, in a way similar to some graphic equalizers used in music software. The examples repository contains a program that illustrates the use of `Persist`; it produces a plot like the following ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PersistExample.java)
-):
+Like `PlateauFinder`, the <!--\index{Persist@\texttt{Persist}} \texttt{Persist}-->`Persist`<!--/i--> processor also operates on a window of width *k*; it returns the maximum value of the window. This has for effect of "persisting" high values in a signal for some time after they occur, in a way similar to some graphic equalizers used in music software. The examples repository contains a program that illustrates the use of `Persist`; it produces a plot like the following ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PersistExample.java)):
 
 ![The original signal (V) and the and the signal after the application of the `Persist` processor (P).](persist-signal.png)
 
 As one can see, the high values in a window remain in the output for a number of events after they occur, when no higher value is observed in the sliding window.
 
-The last processor contained in the *Signal* palette is called <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i-->. Instead of preserving high values, as is the case for `Persist`, this processor rather restricts the amount of non-zero events that can be output in a certain interval of time. The processor is instantitated with a window width *k*; when it receives a non-zero event, it outputs it, but will then turn into 0 the next *k*-1 events, regardless of whether they are zero or not. This is shown by the following plot, which applies the `Limit` processor to an input signal with a window width of 4 ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/LimitExample.java)
-):
+The last processor contained in the *Signal* palette is called <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i-->. Instead of preserving high values, as is the case for `Persist`, this processor rather restricts the amount of non-zero events that can be output in a certain interval of time. The processor is instantitated with a window width *k*; when it receives a non-zero event, it outputs it, but will then turn into 0 the next *k*-1 events, regardless of whether they are zero or not. This is shown by the following plot, which applies the `Limit` processor to an input signal with a window width of 4 ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/LimitExample.java)):
 
 ![The original signal (V) and the and the signal after the application of the `Limit` processor (P).](limit-signal.png)
 
@@ -1031,8 +1023,10 @@ The [`HttpDownstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac
 The following program shows a simple use of these two gateways.
 
 ``` java
-HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http://localhost:12144/push");
-HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
+HttpUpstreamGateway up_gateway =
+    new HttpUpstreamGateway("http://localhost:12144/push");
+HttpDownstreamGateway dn_gateway =
+    new HttpDownstreamGateway(12144, "/push", Method.POST);
 Print print = new Print();
 Connector.connect(dn_gateway, print);
 up_gateway.start();
@@ -1104,10 +1098,13 @@ Consider now the following code example, which is a slightly modified version of
 
 ``` java
 ApplyFunction serialize = new ApplyFunction(new JsonSerializeString());
-HttpUpstreamGateway up_gateway = new HttpUpstreamGateway("http://localhost:12144/push");
-HttpDownstreamGateway dn_gateway = new HttpDownstreamGateway(12144, "/push", Method.POST);
+HttpUpstreamGateway up_gateway =
+    new HttpUpstreamGateway("http://localhost:12144/push");
+HttpDownstreamGateway dn_gateway =
+    new HttpDownstreamGateway(12144, "/push", Method.POST);
 ApplyFunction deserialize = new ApplyFunction(
-        new JsonDeserializeString<CompoundObject>(CompoundObject.class));
+        new JsonDeserializeString<CompoundObject>(
+            CompoundObject.class));
 Print print = new Print();
 Connector.connect(serialize, up_gateway);
 Connector.connect(dn_gateway, deserialize);
@@ -1132,7 +1129,7 @@ p.push(new CompoundObject(0, "foo", null));
 Thread.sleep(1000);
 p.push(new CompoundObject(0, "foo", new CompoundObject(6, "z", null)));
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L118)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/network/httppush/PushLocalSerialize.java#L121)
 
 
 The expected output of the program should be:
@@ -1166,7 +1163,8 @@ String push_url = "http://localhost:12312/bigprime";
 QueueSource source = new QueueSource().addEvent(new BigInteger("2"));
 Pump pump = new Pump(500);
 Connector.connect(source, pump);
-Cumulate counter = new Cumulate(new CumulativeFunction<BigInteger>(BigIntegerAdd.instance));
+Cumulate counter = new Cumulate(
+    new CumulativeFunction<BigInteger>(BigIntegerAdd.instance));
 Connector.connect(pump, counter);
 Fork fork1 = new Fork(2);
 Connector.connect(counter, fork1);
@@ -1179,7 +1177,8 @@ Fork fork2 = new Fork(2);
 Connector.connect(filter, fork2);
 Print print = new Print();
 Connector.connect(fork2, LEFT, print, INPUT);
-ApplyFunction int_to_string = new ApplyFunction(BigIntegerToString.instance);
+ApplyFunction int_to_string =
+    new ApplyFunction(BigIntegerToString.instance);
 HttpUpstreamGateway up_gateway = new HttpUpstreamGateway(push_url);
 Connector.connect(fork2, RIGHT, int_to_string, INPUT);
 Connector.connect(int_to_string, up_gateway);

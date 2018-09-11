@@ -345,9 +345,9 @@ The actual colour of the oval depends on the type of events that the function re
 
 #### `Insert`
 
-@palette Core@ Inserts an event a certain number of times before letting the input events
-through. This processor can be used to shift events of an input trace
-forward, padding the beginning of the trace with some dummy element.
+@palette Core@ <!--\index{Insert@\texttt{Insert}|textsl} A-->A<!--/i--> `Processor` that inserts an event a certain number of times before letting the input events through. This processor can be used to shift events of an input trace forward, by padding the beginning of the trace with some dummy element. It is represented graphically as:
+
+{@img images/tmf/Insert.png}{Insert}{.6}
 
 #### `IsEven`
 
@@ -717,6 +717,12 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 @palette Core@  <!--\index{Slice@\texttt{Slice}|textsl} A-->A<!--/i--> `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
 
 {@img images/tmf/Slice.png}{Slice}{.6}
+
+#### `Smooth`
+
+@palette Signal@  <!--\index{Smooth@\texttt{Smooth}|textsl} A-->A<!--/i--> `Processor` that smoothes a stream of numbers by replacing a value by an average over a window of events. It is illustrated as:
+
+{@img images/signal/Smooth.png}{Smooth}{.6}
 
 #### `Source`
 

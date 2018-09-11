@@ -19,21 +19,19 @@ A recurring scenario used in event stream processing to illustrate the performan
 ...
 ```
 
-Events are structured as tuples, with a fixed set of attributes, each of which taking a scalar value. This simple example can be used to illustrate various queries that typically arise in an event stream processing scenario. A first, simple type of query one can compute over such a trace is called a **snapshot query**, such as the following:
+Events are structured as tuples, with a fixed set of attributes, each of which taking a scalar value. This simple example can be used to illustrate various queries that typically arise in an event stream processing scenario. A first, simple type of query one can compute over such a trace is called a <!--\index{snapshot query} \textbf{snapshot query}-->**snapshot query**<!--/i-->, such as the following:
 
 - Get the closing price of MSFT for the first five trading days.
 
-The result of that query is itself a trace of tuples, much in the same way the relational `SELECT` statement on a table returns another table.
-
-To illustrate how this query can be executed, 
+The result of that query is itself a trace of tuples, much in the same way the relational `SELECT` statement on a table returns another table. To illustrate how this query can be executed, we consider the following diagram:
 
 {@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query}{.6}
 
-Blabla
+The first processor box in the figure is a fictitious "ticker source", which, in the present case, generates a random stream similar to the example given above. The events from this source are replicated along two paths. The bottom path is evaluated against the condition that the value in the second column (index 1) is the string "MSFT". The top path is sent into a `Filter` processor, whose control pipe is connected to the stream of Boolean values calculated previously. This results in a stream where only events concerning the MSFT symbol are kept. Finally, the <!--\index{Prefix@\texttt{Prefix}} \texttt{Prefix}-->`Prefix`<!--/i--> processor retains the first five events from this stream, completing the implementation of the query. This chain of processors corresponds to the following code snippet:
 
 {@snipm stockticker/SnapshotQuery.java}{/}
 
-A refinement of the snapshot query is the landmark query, which returns only events that satisfy some criterion, such as:
+A refinement of the snapshot query is the  <!--\index{landmark query} \textbf{landmark query}-->**landmark query**<!--/i-->, which returns only events that satisfy some criterion, such as:
 
 - Select all the days after the tenth trading day, on which the closing price of MSFT has been greater than $50.
 
@@ -43,25 +41,29 @@ We shall divide this query into two parts. The first part groups all events of t
 
 {@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.6}
 
-First, events whose timestamp value is lower than 100 are filtered out from the output. 
+First, events whose timestamp value is lower than 100 are filtered out from the output. Then, a copy of the resulting stream is sent as into the data pipe of a `Pack` processor. Two other copies of the stream are also created; one is delayed by one event, and the timestamp in events of these two copies is then fetched and compared. The end result is a stream that contains the value `false` if an event has the same timestamp as the previous one, and `false` otherwise. A single `false` event is inserted at the beginning of this stream, using an instance of the `Insert` processor. The resulting stream is sent to the control pipe of the `Pack` processor. This corresponds to the following code snippet:
 
 {@snipm stockticker/LandmarkQuery.java}{/}
 
-Blabla
+The end result is that incoming events are accumulated into a list, until the current event has a different timestamp from the previous one. This triggers the release of the list, and the start of a new one.
+
+The next part of the processor chain checks that, in these created lists, the value of MSFT is at least 50. It can be represented as in the following diagram:
 
 {@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two}{.6}
 
-Blabla
+This processor chain uses the <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> processor, and evaluates a Boolean condition on each event of the list. This condition checks that, if the stock symbol is MSFT, then its value is greater than 50. This condition returns a distinct Boolean value for each element of the list. The list itself should be considered if the condition evaluates to `true`  on all its elements. One can evaluate this by sending the output of the `RunOn` processor into a `Cumulate` processor, which is instructed to compute the logical conjunction of the values it receives. This Boolean trace is used as the control stream of a `Filter` processor; only lists where the price for MSFT is higher than 50 will be output. These lists are then sent to an `Unpack` processor, which outputs the elements of each list one by one. In code, this chain can be implemented as in the following snippet:
 
 {@snipm stockticker/LandmarkQuery.java}{!}
 
+As one can see by examining the output of the program, what comes out of processor `up` is a subset of the original stream containing only events that belong to a day where MSFT closed at $50 or higher. Some queries can also involve aggregate statistics over multiple events:
+
 - On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
 
-First, we calculate the statistical moment of order n of a set of values, noted E<sup>*n*</sup>(*x*), as is shown in the next figure.
+As a first step to evaluate this query, we show how to calculate the statistical moment of order n of a set of values, noted E<sup>*n*</sup>(*x*), in the next diagram.
 
 {@img doc-files/stockticker/StatMoment.png}{A chain of function processors for computing the statistical moment of order *n* on a trace of numerical events.}{.6}
 
-As the figure shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
+As the diagram shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
 
 {@img doc-files/stockticker/WindowQuery.png}{Window query}{.6}
 
@@ -141,7 +143,7 @@ The previous query involved a simple sequential pattern of two successive bid ev
 
 - List the items that receive bids outside of the period of their auction.
 
-As one can see, this query refers to the detection of a pattern that takes into account the relative positioning of multiple events in the stream: an alarm should be raised if, for example, a bid for some item i is seen before the start event for that same item i. Simiarly, an occurrence of a bid event for i is also invalid if it takes place n *endOfDay* events after its opening, with n being the Duration attribute of the corresponding start event. We call such query a lifecycle query, as the pattern it describes corresponds to a set of event sequences, akin to what a finite-state machine or a regular expression can express.
+As one can see, this query refers to the detection of a pattern that takes into account the relative positioning of multiple events in the stream: an alarm should be raised if, for example, a bid for some item *i* is seen before the start event for that same item *i*. Similarly, an occurrence of a bid event for *i* is also invalid if it takes place *n* *endOfDay* events after its opening, with *n *being the *Duration* attribute of the corresponding start event. We call such query a lifecycle query, as the pattern it describes corresponds to a set of event sequences, akin to what a finite-state machine or a regular expression can express.
 
 Rather than simply checking that the sequencing of events for each item is followed, we will take advantage of BeepBeep's flexibility to compute a non-Boolean query: the average number of days since the start of the auction, for all items whose auction is still open and in a valid state. The processor graph is shown below.
 
@@ -155,7 +157,7 @@ Each state of the Moore machine is associated with an output value. For three of
 
 According to the semantics of the `Slice` processor, each output event will consist of a set, formed by the last output of every instance of the Moore machine. Thus, this set will contain the number of elapsed days of all items whose auction is currently open (the Moore machine for the other items outputs no number). This set is then passed to a function processor, which computes the average of its values (sum divided by cardinality).
 
-As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where x is set to the value of the first input, and y is set to the value of the second input. The result is a tuple where x is the number of input events, and y is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (x, y) pairs, which could then be sent to a Scatterplot processor to be plotted with the help of the MTNP palette.
+As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where *x* is set to the value of the first input, and *y* is set to the value of the second input. The result is a tuple where *x* is the number of input events, and *y* is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (*x*,*y*) pairs, which could then be sent to a `Scatterplot` processor to be plotted with the help of the MTNP palette.
 
 ## Voyager Telemetry
 
@@ -173,17 +175,17 @@ The files contained in that repository are named `vy2_YYYY.asc`, where `YYYY` co
 
 A file that accompanies the repository describes the meaning of each column. For the purpose of this example, we are only interested in the first four columns, which respectively represent the year, decimal day, hour (0-23) and spacecraft's distance to the Sun expressed in Astronomical Units (AU). From this data, let us see if we can detect the <!--\index{planetary encounter} \textbf{planetary encounters}-->**planetary encounters**<!--/i--> of Voyager 2, by looking at how its speed changes over time.
 
-Our long processor chain can be broken into three parts: pre-processing, processing, and visualization.
+Our long processor chain can be broken into three parts: preprocessing, processing, and visualization.
 
-### Pre-processing
+### Preprocessing
 
-Pre-processing is the part where we start from the raw data, and format it so that the actual computations are then possible. In a nutshell, the pre-processing step amounts to the following processor chain:
+Preprocessing is the part where we start from the raw data, and format it so that the actual computations are then possible. In a nutshell, the preprocessing step amounts to the following processor chain:
 
-{@img doc-files/voyager/pre-processing.png}{Pre-processing the Voyager data.}{.6}
+{@img doc-files/voyager/pre-processing.png}{Preprocessing the Voyager data.}{.6}
 
 Since the data is split into multiple CSV files, we shall first create one instance of the <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor for each file, and put these `Source`s into an array. We can then pass this to a processor called <!--\index{Splice@\texttt{Splice}} \texttt{Splice}-->`Splice`<!--/i-->, which is the first processor box shown in the previous picture. The splice pulls events from the first source it is given, until that source does not yield any new event. It then starts pulling events from the second one, and so on. This way, the contents of the multiple text files we have can be used as an uninterrupted stream of events. This is why the pictogram for `Splice` is a small bottle of glue.
 
-We then perform a drastic reduction of the data stream. The input files have hourly readings, which is a degree of precision that is not necessary for our purpose. We keep only one reading per week, by applying a `CountDecimate` that keeps one event every 168 (there are 168 hours in a week). Moreover, the file corresponding to year 1977 has no meaningful data before week 31 or so (the launch date); we ignore the first 31 events of the resulting stream by using a `Trim`. Finally, as a last pre-processing step, we convert plain text events into arrays by splitting each string on spaces. This is done by applying the <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}} \texttt{SplitString}-->`SplitString`<!--/i--> function. The Java code of this first pre-processing step looks like this:
+We then perform a drastic reduction of the data stream. The input files have hourly readings, which is a degree of precision that is not necessary for our purpose. We keep only one reading per week, by applying a `CountDecimate` that keeps one event every 168 (there are 168 hours in a week). Moreover, the file corresponding to year 1977 has no meaningful data before week 31 or so (the launch date); we ignore the first 31 events of the resulting stream by using a `Trim`. Finally, as a last preprocessing step, we convert plain text events into arrays by splitting each string on spaces. This is done by applying the <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}} \texttt{SplitString}-->`SplitString`<!--/i--> function. The Java code of this first preprocessing step looks like this:
 
 {@snipm voyager/PlotSpeed.java}{/}
 
@@ -193,16 +195,16 @@ The next step is to perform computations on this stream of arrays. The goal is t
 
 {@img doc-files/voyager/processing.png}{Processing the Voyager data.}{.6}
 
-In the first copy of the stream, we apply a `FunctionTree` which extracts the first element of the input array (a year), the second element of the array (the number of a day in the year), and passes these two values to a custom function called `ToDate`, which turns them into a single number. This number corresponds to the number of days elapsed since January 1st, 1977 (the first day in the input files). Converting the date in such a format will make it easier to plot afterwards. This date is then fed into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, and will provides values for the first column of a three-column table.
+In the first copy of the stream, we apply a `FunctionTree` which extracts the first element of the input array (a year), the second element of the array (the number of a day in the year), and passes these two values to a custom function called `ToDate`, which turns them into a single number. This number corresponds to the number of days elapsed since January 1st, 1977 (the first day in the input files). Converting the date in such a format will make it easier to plot afterwards. This date is then fed into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, and will provide values for the first column of a three-column table.
 
 In the second copy of the stream, we extract the fourth component of the input array and convert it into a number. This number corresponds to the spacecraft's distance. The third copy of the stream is trimmed from its first event, and the distance to the Sun is also extracted. The two values are then subtracted. The end result is a stream of numbers, representing the difference in distance between two successive events. Since events are spaced by exactly one week, this value makes a crude approximation of the spacecraft's weekly speed.
 
-However, since the weekly distance is very close to the measurement's precision, we "smoothen" those values by replacing them by the average of each two successive points. This is the task of the <!--\index{Smoothen@\texttt{Smoothen}} \texttt{Smoothen}-->`Smoothen`<!--/i--> processor, represented in the diagram by a piece of sandpaper.
+However, since the weekly distance is very close to the measurement's precision, we "smooth" those values by replacing them by the average of each two successive points. This is the task of the <!--\index{Smooth@\texttt{Smooth}} \texttt{Smooth}-->`Smooth`<!--/i--> processor, represented in the diagram by a piece of sandpaper.
 
 This stream is again separated in two. The first copy goes directly into the table, and provides the values for its second column. The second copy goes first into a `PeakFinder` processor from the *Signal* palette, before being sent into the table as its third column. The end result is a processor chain that populates a table containing:
 
 - The number of days since 1/1/1977
-- The smoothened weekly speed
+- The smoothed weekly speed
 - The peaks extracted from the weekly speed
 
 In code, this chain of processor looks as follows:
@@ -277,7 +279,7 @@ The last step is to apply this Moore machine on some electrical signal. To this 
 
 As one can see, the signal processing chain has been encapsulated into a single box, with numbers at its edges representing the parameters given to the processors encased into it. Similarly, the Moore machine is also represented as a single box, with the numbers 1,000, 700 and -700 representing the values used in the conditions on state transitions. In code, the remaining steps can be written like this:
 
-{@snipm nialm/DetectAppliance.java}{/}
+{@snipm nialm/DetectAppliance.java}{!}
 
 Running this program will print at the console:
 
@@ -334,15 +336,15 @@ The following diagram shows the processor graph that verifies this. Here, blue p
 
 The XML trace is first sent into a universal quantifier. The domain function, represented by the oval at the top, is the evaluation of the XPath expression `//character[status=Walker]/id/text()` on the current event; this fetches the value of attribute id of all characters whose status is `Walker`. For every such value *c*, a new instance of the underlying processor will be created, and the context of this processor will be augmented with the association *p*<sub>1</sub> → *c*. The underlying processor, in this case, is yet another quantifier. This one fetches the ID of every `Blocker`, and for each such value *c*<sub>0</sub>, creates one instance of the underlying processor and adds to its context the association *p*<sub>2</sub> → *c*<sub>0</sub>.
 
-The underlying processor is the graph enclosed in a large box at the bottom. It creates two copies of the input trace. The first goes to the input of a function processor evaluating function *f*<sub>1</sub> on each event. This function evaluates the conjunction of the two conditions |*x*<sub>1</sub> - *x*<sub>2</sub> | < 6 and |*y*<sub>1</sub> - *y*<sub>2</sub> | < 10, where x i and y i are the coordinates of the Pingu with ID *p*<sub>*i*</sub>. Function *f*<sub>1</sub> is the FunctionTree described in the following diagram {@snipi pingus/Collides.java}{/}:
+The underlying processor is the graph enclosed in a large box at the bottom. It creates two copies of the input trace. The first goes to the input of a function processor evaluating function *f*<sub>1</sub> on each event. This function evaluates the conjunction of the two conditions |*x*<sub>1</sub> - *x*<sub>2</sub> | < 6 and |*y*<sub>1</sub> - *y*<sub>2</sub> | < 10, where *x*<sub>*i*</sub> and *y*<sub>*i*</sub> are the coordinates of the Pingu with ID *p*<sub>*i*</sub>. Function *f*<sub>1</sub> is the `FunctionTree` described in the following diagram ({@snipi pingus/Collides.java}{/}):
 
 {@img doc-files/pingus/TurnAround-f1.png}{Function *f*<sub>1</sub> expresses a condition on the x-y distance between two Pingus with IDs $p1 and $p2.}{.6}
 
-Its left branch fetches the x position of characters with ID *p*<sub>1</sub> and *p*<sub>2</sub>, and checks whether their absolute difference is greater than 6. Its right branch (not shown) does a similar comparison with the y position of both characters. Note in this case how the XPath expression to evaluate refers to elements of the processor's context (*p*<sub>1</sub> and *p*<sub>2</sub> ). The resulting function returns a Boolean value, which is true whenever character *p*<sub>1</sub> collides with *p*<sub>2</sub>.
+Its left branch fetches the x position of characters with ID *p*<sub>1</sub> and *p*<sub>2</sub>, and checks whether their absolute difference is greater than 6. Its right branch (not shown) does a similar comparison with the y position of both characters. Note in this case how the XPath expression to evaluate refers to elements of the processor's context (*p*<sub>1</sub> and *p*<sub>2</sub>). The resulting function returns a Boolean value, which is true whenever character *p*<sub>1</sub> collides with *p*<sub>2</sub>.
 
 The second copy of the input trace is duplicated one more time. The first is sent to a function processor evaluating *f*<sub>2</sub>, which computes the horizontal distance between *p*<sub>1</sub> and *p*<sub>2</sub>, as is shown in the following diagram ({@snipi pingus/DistanceX.java}{/}):
 
-{@img doc-files/pingus/TurnAround-f2.png}{Function *f*<sub>1</sub> computes the horizontal distance between two Pingus with IDs $p1 and $p2.}{.6}
+{@img doc-files/pingus/TurnAround-f2.png}{Function *f*<sub>2</sub> computes the horizontal distance between two Pingus with IDs $p1 and $p2.}{.6}
 
 The second is sent to the `Trim` processor, which is instructed to remove the first three events it receives and lets the others through. The resulting trace is also sent into a function processor evaluating *f*<sub>2</sub>. Finally, the two traces are sent as the input of a function processor evaluating the condition `>`. Therefore, this processor checks whether the horizontal distance between *p*<sub>1</sub> and *p*<sub>2</sub> in the current event is smaller than the same distance three events later. If this is true, then *p*<sub>1</sub> moved away from *p*<sub>2</sub> during that interval.
 
@@ -369,9 +371,6 @@ The expected output of this program is something that looks like the following:
 ```
 
 As one can see, each event corresponds to a multiset giving the number of Pingus of each skill, in a window of 450 successive events.
-
-Going even further, 
-
 
 ## Exercises
 

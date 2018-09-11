@@ -161,7 +161,7 @@ function resolve_snipi($s)
     $filename = $source_location.$match[1];
     if (file_exists($filename))
     {
-      $contents .= "[⚓](".$github_source_location.$match[1].")\n";
+      $contents .= "[⚓](".$github_source_location.$match[1].")";
       $s = str_replace($match[0], $contents, $s);
     }
     else

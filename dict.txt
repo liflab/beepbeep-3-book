@@ -10,7 +10,9 @@ Booleans
 CLASSPATH
 CountDecimate
 Cumulate
+dataset
 deserialization
+endOfDay
 forkInput
 getPullableOutput
 getPushableInput
@@ -25,9 +27,12 @@ Iterable
 JFrame
 Jonquière
 JPathFunction
+lifecycle
 localhost
 MFOTL
 MTNP
+multiset
+Multiset
 mutator
 Mutator
 NIALM
@@ -43,6 +48,7 @@ prenex
 primality
 Programmatically
 programmatically
+Psygnosis
 pullable
 pullables
 Pullable

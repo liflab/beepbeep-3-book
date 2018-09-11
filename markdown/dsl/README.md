@@ -77,12 +77,14 @@ A BNF grammar can also be *recursive*; that is, a rule `<A>` can contain a case 
     <exp> := <add> | <sbt> | <num> ;
     <add> := ( <exp> ) + ( <exp> ) ;
     <sbt> := ( <exp> ) - ( <exp> ) ;
-    <num> := ^[0-9]+;
+    <num> := ^[0-9]+;                                                                               
 
 Note how the operands for `<add>` and `<sbt>` involve the non-terminal `<exp>`. Using such a grammar, an expression like `(3)+((4)-(5))` is valid. However, according to the rules, the use of parentheses is mandatory, even around single numbers. This can be relaxed by adding further cases to `<add>` and `<sbt>`, which become:
 
-    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
-    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+    <add> := <num> + <num> | <num> + ( <exp> )
+              | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> )
+              | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
 
 In this new grammar, it is now possible to write a more natural expression such as `3+(4-5)`.
 
@@ -91,7 +93,8 @@ The Bullwinkle parser offers many more features, which shall not be discussed he
 From a grammar defined as above, one can create an instance of an object called a `BnfParser`. For example, suppose that the grammar for arithmetical expressions is contained in a text file called `arithmetic.bnf`. Obtaining a parser for that object can be done as follows:
 
 ``` java
-InputStream is = ParserExample.class.getResourceAsStream("arithmetic.bnf");
+InputStream is = ParserExample.class
+    .getResourceAsStream("arithmetic.bnf");
 BnfParser parser = new BnfParser(is);
 ParseNode root = parser.parse("3 + (4 - 5)");
 ```
@@ -274,12 +277,12 @@ The last two calls to `pop` are simply swapped, implying that the second object 
 
 ```
 Exception in thread "main" 
-	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.build(ParseTreeObjectBuilder.java:92)
-	at ca.uqac.lif.cep.dsl.GrammarObjectBuilder.build(GrammarObjectBuilder.java:64)
-	at dsl.ArithmeticBuilderIncorrect.main(ArithmeticBuilderIncorrect.java:44)
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.build
+	at ca.uqac.lif.cep.dsl.GrammarObjectBuilder.build
+	at dsl.ArithmeticBuilderIncorrect.main
 Caused by: 
-	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.visit(ParseTreeObjectBuilder.java:161)
-	at ca.uqac.lif.bullwinkle.ParseNode.postfixAccept(ParseNode.java:176)
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.visit
+	at ca.uqac.lif.bullwinkle.ParseNode.postfixAccept
 	...
 ```
 
@@ -329,8 +332,10 @@ The rule for `<add>` has three tokens. Based on that rule, the contents of `part
 Now, consider a more complex grammar, this time defining arithmetic operations using the more natural *infix* notation.
 
     <exp> := <add> | <sbt> | <num> ;
-    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
-    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+    <add> := <num> + <num> | <num> + ( <exp> ) 
+               | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> ) 
+               | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
     <num> := ^[0-9]+
 
 This time, the rules for each operator must take into account whether any of their operands is a number or a compound expression. Writing an object builder for this grammar is slightly more complex. The handler methods for `<add>` and `<sbt>` now have multiple cases; these cases do not have the same number of operands, and the position of the `<exp>` operands among the tokens for each case is not always the same. Therefore, one would have to carefully pop an element, check if it is a parenthesis, and if so, take care of popping the matching parenthesis later on, and so on. This is perfectly possible, although a little tedious:
@@ -486,14 +491,15 @@ As we can see on the right-hand side of the figure, a branch of the fork for inp
 Done! We have written so far 6 lines of text for the grammar, and less than 40 lines of Java code to implement all the handler methods. The end result is an interpreter that can read expressions in a simple language and produce stream processors from them. Equipped with this builder, we are now ready to parse expressions and use the resulting processors. This works as previously, with the exception that the output of `build`, this time, is a `Processor` object. Here is an example:
 
 ``` java
-Processor proc = builder.build("KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))");
+Processor proc = builder.build(
+    "KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))");
 QueueSource src = new QueueSource().setEvents(0, 1, 2, 3, 4, 5, 6, 8);
 Connector.connect(src, proc);
 Pullable pul1 = proc.getPullableOutput();
 for (int i = 0; i < 5; i++)
     System.out.println(pul1.pull());
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L122)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L123)
 
 
 The process is similar to what was done earlier with functions. An instance of the builder is used to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; then create a `QueueSource` is created, and connected to the processor obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If the building rules defined earlier were to be applied, step by step, one would discover that the `Processor` returned by `build` is actually this one:
@@ -566,7 +572,8 @@ public void handleProcList(ArrayDeque<Object> stack)
     stack.pop();
     list.add((Processor) stack.pop());
     stack.pop();
-    if (stack.peek() instanceof String && ((String) stack.peek()).compareTo("AND") == 0)
+    if (stack.peek() instanceof String &&
+        ((String) stack.peek()).compareTo("AND") == 0)
     {
         stack.pop();
         stack.pop();

@@ -150,7 +150,8 @@ As you might expect, a `Function` may have more than one input or output argumen
 public class CutString extends Function
 {
     public void evaluate(Object[] inputs, Object[] outputs) {
-        outputs[0] = ((String) inputs[0]).substring(0, (Integer) inputs[1]);
+        outputs[0] = ((String) inputs[0]).substring(0,
+            (Integer) inputs[1]);
     }
 
     public int getInputArity() {
@@ -215,7 +216,8 @@ The <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} 
 Function `CutString` could also be simplified by defining it as a descendent of <!--\index{BinaryFunction@\texttt{BinaryFunction}} \texttt{BinaryFunction}-->`BinaryFunction`<!--/i-->:
 
 ``` java
-public class BinaryCutString extends BinaryFunction<String,Number,String>
+public class BinaryCutString extends
+  BinaryFunction<String,Number,String>
 {
     public BinaryCutString()
     {
@@ -255,7 +257,8 @@ public void evaluate(Object[] inputs, Object[] outputs)
 However, a few shortcuts can be made when evaluating this function. For example, as soon as one of the sides is 0, the shape cannot be a triangle, and we can set the area to 0. To implement this functionality, a `Function` object must override a method called <!--\index{Function@\texttt{Function}!evaluatePartial@\texttt{evaluatePartial}} \texttt{evaluatePartial}-->`evaluatePartial`<!--/i-->, as follows:
 
 ``` java
-public boolean evaluatePartial(Object[] inputs, Object[] outputs, Context c)
+public boolean evaluatePartial(Object[] inputs,
+    Object[] outputs, Context c)
 {
   if (inputs[0] != null && ((Number) inputs[0]).floatValue() == 0)
   {
@@ -302,7 +305,7 @@ System.out.println("b: " + b + ", " + out[0]);
 b = ta.evaluatePartial(new Object[] {3, null, 0}, out, null);
 System.out.println("b: " + b + ", " + out[0]);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/TriangleArea.java#L83)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/TriangleArea.java#L84)
 
 
 The first case corresponds to regular evaluation; the method returns `true` and puts the area 6 in the `out` array. The second case corresponds to partial evaluation, but where no output value can be computed; consequently, the method returns `false`. Finally, the third case also corresponds to partial evaluation, but where an output value can be produced. Therefore, the output of this program is:
@@ -482,7 +485,8 @@ We will write a processor taking one event (i.e. one Point) from each input trac
 ``` java
 public class EuclideanDistance extends SynchronousProcessor
 {
-  public static final EuclideanDistance instance = new EuclideanDistance();
+  public static final EuclideanDistance instance =
+      new EuclideanDistance();
 
   EuclideanDistance()
   {

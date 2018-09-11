@@ -77,12 +77,14 @@ A BNF grammar can also be *recursive*; that is, a rule `<A>` can contain a case 
     <exp> := <add> | <sbt> | <num> ;
     <add> := ( <exp> ) + ( <exp> ) ;
     <sbt> := ( <exp> ) - ( <exp> ) ;
-    <num> := ^[0-9]+;
+    <num> := ^[0-9]+;                                                                               
 
 Note how the operands for `<add>` and `<sbt>` involve the non-terminal `<exp>`. Using such a grammar, an expression like `(3)+((4)-(5))` is valid. However, according to the rules, the use of parentheses is mandatory, even around single numbers. This can be relaxed by adding further cases to `<add>` and `<sbt>`, which become:
 
-    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
-    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+    <add> := <num> + <num> | <num> + ( <exp> )
+              | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> )
+              | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
 
 In this new grammar, it is now possible to write a more natural expression such as `3+(4-5)`.
 
@@ -183,12 +185,12 @@ The last two calls to `pop` are simply swapped, implying that the second object 
 
 ```
 Exception in thread "main" 
-	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.build(ParseTreeObjectBuilder.java:92)
-	at ca.uqac.lif.cep.dsl.GrammarObjectBuilder.build(GrammarObjectBuilder.java:64)
-	at dsl.ArithmeticBuilderIncorrect.main(ArithmeticBuilderIncorrect.java:44)
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.build
+	at ca.uqac.lif.cep.dsl.GrammarObjectBuilder.build
+	at dsl.ArithmeticBuilderIncorrect.main
 Caused by: 
-	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.visit(ParseTreeObjectBuilder.java:161)
-	at ca.uqac.lif.bullwinkle.ParseNode.postfixAccept(ParseNode.java:176)
+	at ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.visit
+	at ca.uqac.lif.bullwinkle.ParseNode.postfixAccept
 	...
 ```
 
@@ -221,8 +223,10 @@ The rule for `<add>` has three tokens. Based on that rule, the contents of `part
 Now, consider a more complex grammar, this time defining arithmetic operations using the more natural *infix* notation.
 
     <exp> := <add> | <sbt> | <num> ;
-    <add> := <num> + <num> | <num> + ( <exp> ) | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
-    <sbt> := <num> - <num> | <num> - ( <exp> ) | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
+    <add> := <num> + <num> | <num> + ( <exp> ) 
+               | ( <exp> ) + <num> | ( <exp> ) + ( <exp> );
+    <sbt> := <num> - <num> | <num> - ( <exp> ) 
+               | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
     <num> := ^[0-9]+
 
 This time, the rules for each operator must take into account whether any of their operands is a number or a compound expression. Writing an object builder for this grammar is slightly more complex. The handler methods for `<add>` and `<sbt>` now have multiple cases; these cases do not have the same number of operands, and the position of the `<exp>` operands among the tokens for each case is not always the same. Therefore, one would have to carefully pop an element, check if it is a parenthesis, and if so, take care of popping the matching parenthesis later on, and so on. This is perfectly possible, although a little tedious:

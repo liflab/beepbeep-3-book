@@ -29,7 +29,8 @@ QueueSource src2 = new QueueSource();
 src2.setEvents(1);
 ApplyFunction contains = new ApplyFunction(Bags.contains);
 Connector.connect(src1, 0, contains, 0);
-Cumulate counter = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+Cumulate counter = new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition));
 Connector.connect(src2, counter);
 Connector.connect(counter, 0, contains, 1);
 Pullable p = contains.getPullableOutput();
@@ -137,8 +138,8 @@ src1.addEvent(UtilityMethods.createList(1f, 3f, 5f));
 src1.addEvent(UtilityMethods.createList(4f, 2f));
 src1.addEvent(UtilityMethods.createList(4f, 4f, 8f));
 src1.addEvent(UtilityMethods.createList(6f, 4f));
-Bags.RunOn run = new Bags.RunOn(
-        new Cumulate(new CumulativeFunction<Number>(Numbers.addition)));
+Bags.RunOn run = new Bags.RunOn(new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition)));
 Connector.connect(src1, run);
 Pullable p = run.getPullableOutput();
 for (int i = 0; i < 4; i++)
@@ -311,8 +312,10 @@ get.evaluate(new Object[]{map}, out);
 The `Maps` class also defines a processor <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}} maps-->`PutInto`<!--/i--> that works in the same way as the one we have seen in `Sets` and `Lists`. It receives two input streams: the first one is made of the "keys", and the second one is made of the "values". When receiving an event front, it creates a key-value pair from the two events and uses it to update the map, which it then returns. For example, the following program:
 
 ``` java
-QueueSource keys = new QueueSource().setEvents("foo", "bar", "foo", "baz");
-QueueSource values = new QueueSource().setEvents(1, "abc", "def", 6);
+QueueSource keys = new QueueSource()
+    .setEvents("foo", "bar", "foo", "baz");
+QueueSource values = new QueueSource()
+    .setEvents(1, "abc", "def", 6);
 Maps.PutInto put = new Maps.PutInto();
 Connector.connect(keys, 0, put, 0);
 Connector.connect(values, 0, put, 1);
@@ -392,7 +395,8 @@ Consider the following program:
 ``` java
 ApplyFunction to_number = new ApplyFunction(Numbers.numberCast);
 Tank tank = new Tank();
-Cumulate sum = new Cumulate(new CumulativeFunction<Number>(Numbers.addition));
+Cumulate sum = new Cumulate(
+    new CumulativeFunction<Number>(Numbers.addition));
 Connector.connect(to_number, tank, sum);
 ```
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithTank.java#L33)
@@ -413,7 +417,7 @@ System.out.println(pl.pull());
 System.out.println(pl.pull());
 System.out.println(pl.pull());
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithTank.java#L39)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WithTank.java#L40)
 
 
 However, events cannot be pulled from the tank more than were pushed to it beforehand. On the last call to `pull` in our example, the tank is empty; this will throw an exception, as if the processor were connected to nothing. Therefore, the program outputs:

@@ -30,7 +30,9 @@ This took a considerable amount of time, but I am glad I did it. I wish all my r
 This book exists in two versions:
 
 - An "e-book" (or PDF) version, published by the Presses de l'Université du Québec (PUQ) and accessible through their website: `https://www.puq.ca`. This book is published under an *open access* policy; it has been given an ISBN and has all the features of a "real" paper book: reviewing, editing, copyright registration. However, it is only accessible electronically --free of charge. **If you want to cite BeepBeep's book in your work, please cite this version.**
-- An online, interactive version, accessible on <!--\index{GitBook} GitBook-->GitBook<!--/i-->: `https://liflab.gitbook.io`. This version is viewable in a web browser; contrary to the PUQ book, it *will* be updated in the future to match the evolution of the library. However, I shall stress that the PUQ have nothing to do with the contents of that version.
+- An online, interactive version, accessible on <!--\index{GitBook} GitBook-->GitBook<!--/i-->:  
+`https://liflab.gitbook.io`  
+This version is viewable in a web browser; contrary to the PUQ book, it *will* be updated in the future to match the evolution of the library. However, I shall stress that the PUQ have nothing to do with the contents of that version.
 
 For those who are curious, both the PDF and the GitBook versions, although they look different, are generated from the same source files, written in the Markdown format. (Maintaining two versions in parallel would be a nightmare.) To this end, I set up a simple toolchain, made of a bunch of PHP scripts and Java programs, that can convert the original files into a directory structure suitable for GitBook. What is more, all the source code examples are not hard-coded into the text, but are rather dynamically inserted from references to markers in the actual source code repository --making it much easier to keep the code and the book in sync.
 
