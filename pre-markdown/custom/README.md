@@ -23,7 +23,7 @@ FunctionTree tree = new FunctionTree(Numbers.multiplication,
 				StreamVariable.Z);
 ```
 
-However, ifthis function needs to be reused in various programs, the previous instruction has to be copy-pasted multiple times --which creates all the problems associated with copy-pasting. A better practice would be to create a `CustomFunctionTree` that encapsulates the creation of the function inside its constructor. This can be done by creating a new class that extends `FunctionTree`, like this:
+However, if this function needs to be reused in various programs, the previous instruction has to be copy-pasted multiple times --which creates all the problems associated with copy-pasting. A better practice would be to create a `CustomFunctionTree` that encapsulates the creation of the function inside its constructor. This can be done by creating a new class that extends `FunctionTree`, like this:
 
 {@snipm functions/custom/CustomFunctionTree.java}{/}
 
@@ -56,7 +56,7 @@ public class CustomDouble extends Function
 }
 ```
 
-A few methods are easy to implement. The case of <!--\index{Function@\texttt{Function}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Function@\texttt{Function}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> can be solved quickly: here, the function is expected to receive one argument, and to produce one output value; hence both methods should return 1. The <!--\index{Function@\texttt{Function}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> method is also straightfoward: we simply need to return a new instance of `CustomDouble`. This yields the following code:
+A few methods are easy to implement. The case of <!--\index{Function@\texttt{Function}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Function@\texttt{Function}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> can be solved quickly: here, the function is expected to receive one argument, and to produce one output value; hence both methods should return 1. The <!--\index{Function@\texttt{Function}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> method is also straightforward: we simply need to return a new instance of `CustomDouble`. This yields the following code:
 
 {@snipm functions/custom/CustomDouble.java}{!}
 
@@ -105,7 +105,7 @@ Function `CutString` could also be simplified by defining it as a descendent of 
 
 {@snips functions/custom/BinaryCutString.java}{public class BinaryCutString}
 
-This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last rerpesents the type of the return value. Otherwise, the `getValue` method works according to similar principles as `UnaryFunction`.
+This time, the class has three type arguments: the first two represent the type of the first and second argument, and the last represents the type of the return value. Otherwise, the `getValue` method works according to similar principles as `UnaryFunction`.
 
 ### Partial Evaluation
 
@@ -117,7 +117,7 @@ However, a few shortcuts can be made when evaluating this function. For example,
 
 {@snips customprocessors/TriangleArea.java}{public boolean evaluatePartial}
 
-The signature of this method contains an array of input arguments, an array of output values, and a `Context` object (which may be null). Since this method is called during partial evaluation, any of the elements of the `inputs` array may be null. Therefore the method checks, for each of the three elements of the array, whether it is non-null, and if so, whether it is equal to zero. If this is the case, value 0 is put into the `outputs` array, and the method returns `true`. This is meant to indicate that the function was successfully evaluated and produced an output value.
+The signature of this method contains an array of input arguments, an array of output values, and a `Context` object (which may be null). Since this method is called during partial evaluation, any of the elements of the `inputs` array may be null. Therefore, the method checks, for each of the three elements of the array, whether it is non-null, and if so, whether it is equal to zero. If this is the case, value 0 is put into the `outputs` array, and the method returns `true`. This is meant to indicate that the function was successfully evaluated and produced an output value.
 
 If none of the elements is equal to zero, the method then checks if all the elements are non-null; if so, the method calls `evaluate` to compute its output value using the formula. Finally, when none of these conditions apply, the method returns `false`, indicating that no output value could be computed.
 
@@ -171,8 +171,8 @@ Using a group works only if your custom processor can be expressed by piping oth
 
 - methods <!--\index{Processor@\texttt{Processor}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> declare the input and output arity of the processor
 - based on these arities, the `Processor` class takes care of creating the appropriate number of input and output queues for storing events
-- method <!--\index{Processor@\texttt{Processor}!setPullableInput@\texttt{setPullableInput}} \texttt{setPullableInput}-->`setPullableInput`<!--/i--> associates one of the the processor's input pipes to the `Pullable` object of an upstream processor
-- method <!--\index{Processor@\texttt{Processor}!setPushableOutput@\texttt{setPushableOutput}} \texttt{setPushableOutput}-->`setPushableOutput`<!--/i--> associates one of the the processor's output pipes to the `Pushable` object of a downstream processor
+- method <!--\index{Processor@\texttt{Processor}!setPullableInput@\texttt{setPullableInput}} \texttt{setPullableInput}-->`setPullableInput`<!--/i--> associates one of the processor's input pipes to the `Pullable` object of an upstream processor
+- method <!--\index{Processor@\texttt{Processor}!setPushableOutput@\texttt{setPushableOutput}} \texttt{setPushableOutput}-->`setPushableOutput`<!--/i--> associates one of the processor's output pipes to the `Pushable` object of a downstream processor
 - methods <!--\index{Processor@\texttt{Processor}!getContext@\texttt{getContext}} \texttt{getContext}-->`getContext`<!--/i--> and <!--\index{Processor@\texttt{Processor}!setContext@\texttt{setContext}} \texttt{setContext}-->`setContext`<!--/i--> handle the interaction with the processor's internal `Context` object
 - finally, the `Processor` class also handles the unique ID given to each instance, which can be queried with <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId}-->`getId`<!--/i-->.
 
@@ -310,7 +310,7 @@ This processor is the first in this chapter to have a member field, called `last
 
 The presence of a member field changes the way of implementing method `duplicate`. Remember that a processor has the option of being copied *along with its state*, by setting the value of argument `with_state` to `true`. Therefore, the code for `duplicate` must take into account this additional possibility. Notice how a new instance of `MyMax`, called `mm`, is created; if the duplication is stateful, an extra step is taken to copy the current value of `last` into `mm`. This has for effect of putting `mm` into the same state as the current object.
 
-The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforseen and hard-to-debug behaviours. As an example, let us go back to the `Stuttering` processor we created previously. Consider the following program:
+The implementation of `duplicate` is probably the most delicate part in the creation of a new stateful `SynchronousProcessor`. Failing to create a faithful copy of the original object (for example, by failing to transfer the values of all the appropriate member fields) may result in unforeseen and hard-to-debug behaviours. As an example, let us go back to the `Stuttering` processor we created previously. Consider the following program:
 
 {@snipm customprocessors/StatefulDuplication.java}{/}
 
@@ -332,7 +332,7 @@ Call to pull on p2: 3
 
 However, this is not the expected output. As we have seen in a previous example, the next event that should be output by processor `s1` is the second instance of number 2. Processor `s2` should be a *stateful* copy of `s1`, and hence, produce the same output event. Instead, the call to `pull` on `s2` resulted in `s2` pulling number 3 from `src2` and sending it to its output. The reason for this strange behaviour is the fact that, when `s1` was duplicated, the contents of its input and output queues was not transferred to `s2`. It turns out that the events present in these queues, most of the time, are also part of a processor's state.
 
-Technically, a descendent of `SynchronousProcessor` does not have a direct access to these queues. Rather than copying their contents manually in every implementation of `duplicate`, a shortcut consists of calling a method called <!--\index{Processor@\texttt{Processor}!duplicateInto@\texttt{duplicateInto}} \texttt{duplicateInto}-->`duplicateInto`<!--/i-->, provided by the `Processor` class. This method receives as an argument the target copy of the `Processor`; it is responsible for copying the contents of the input and output queues into this object. We can hence create a new version of `Stutter`, called `StutteringCopy`, containing a "corrected" version of method `duplicate`. The method now looks as follows:
+Technically, a descendent of `SynchronousProcessor` does not have direct access to these queues. Rather than copying their contents manually in every implementation of `duplicate`, a shortcut consists of calling a method called <!--\index{Processor@\texttt{Processor}!duplicateInto@\texttt{duplicateInto}} \texttt{duplicateInto}-->`duplicateInto`<!--/i-->, provided by the `Processor` class. This method receives as an argument the target copy of the `Processor`; it is responsible for copying the contents of the input and output queues into this object. We can hence create a new version of `Stutter`, called `StutteringCopy`, containing a "corrected" version of method `duplicate`. The method now looks as follows:
 
 {@snips customprocessors/StutteringCopy.java}{public StutteringCopy duplicate}
 
@@ -350,6 +350,6 @@ Call to pull on p2: 2
 
 - - -
 
-In this chapter, we have seen how BeepBeep's functionalities can be extended by letting users invent their own `Processor` and `Function` objects. All of BeepBeep's palettes are created in this way: a palette is just a pre-compiled JAR bundle of classes that depend on BeepBeep's core (and possibly other external libraries). We strongly encourage the reader to experiment with creating new processors specfic to the use cases they may encounter. It is hoped that BeepBeep's palette architecture, combined with its simple extension mechanisms, will help third-party users contribute to the BeepBeep ecosystem by developing and distributing extensions suited to their own needs.
+In this chapter, we have seen how BeepBeep's functionalities can be extended by letting users invent their own `Processor` and `Function` objects. All of BeepBeep's palettes are created in this way: a palette is just a pre-compiled JAR bundle of classes that depend on BeepBeep's core (and possibly other external libraries). We strongly encourage the reader to experiment with creating new processors specific to the use cases they may encounter. It is hoped that BeepBeep's palette architecture, combined with its simple extension mechanisms, will help third-party users contribute to the BeepBeep ecosystem by developing and distributing extensions suited to their own needs.
 
 <!-- :wrap=soft: -->

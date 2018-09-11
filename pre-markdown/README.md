@@ -29,7 +29,7 @@ It was observed in earlier work by the author of this book that these two classe
 
 An organization may have multiple log repositories at its disposition: execution logs, server logs, and possibly other real-time sources of events. Useful information can be extracted from these logs, which often lies dormant, dispersed across file servers and databases.
 
-A first, natural step to extract and process data consists of writing a bunch of quick crunching scripts in some mainstream programming language. To this end, <!--\index{Python} Python-->Python<!--/i-->, <!--\index{PHP} PHP-->PHP<!--/i--> or <!--\index{Perl} Perl-->Perl<!--/i--> can come in handy. However, as time goes by, a a tiny script becomes two, which together grow from a few tens of lines to a few hundreds. More often than not, their content is so specific to the current data-crunching task that hardly anything they contain is worth reusing. Since every script is essentially single-use, not much time is spent on testing or documentation. The end result is a situation similar to the next figure, which shows a proliferation of hack-together, use-once, throw-away scripts.
+A first, natural step to extract and process data consists of writing a bunch of quick crunching scripts in some mainstream programming language. To this end, <!--\index{Python} Python-->Python<!--/i-->, <!--\index{PHP} PHP-->PHP<!--/i--> or <!--\index{Perl} Perl-->Perl<!--/i--> can come in handy. However, as time goes by, a tiny script becomes two, which together grow from a few tens of lines to a few hundreds. More often than not, their content is so specific to the current data-crunching task that hardly anything they contain is worth reusing. Since every script is essentially single-use, not much time is spent on testing or documentation. The end result is a situation similar to the next figure, which shows a proliferation of hack-together, use-once, throw-away scripts.
 
 {@img Scripts.png}{Processing logs with user-defined scripts.}{.6}
 
@@ -117,7 +117,7 @@ When a code snippet is followed by the ⚓ symbol, this indicates that this piec
 
 We can also notice that the online version of the code is sometimes interspersed with comment lines that are absent from the book examples. This is done to improve the legibility of the examples, given that they are already discussed at length in the text itself.
 
-At the end of each main section, a few coding exercises are also suggested. These exercises require the creation of chains of processors performing specific tasks. Writing an exercise all by yourself, and moving on to the next one, would be a bit pointless. It is possible to determine whether or not exercises have been done correctly by testing them into a self-grading program called the **tutor**.
+At the end of each main section, a few coding exercises are also suggested. These exercises require the creation of chains of processors performing specific tasks. Writing an exercise all by yourself, and moving on to the next one, would be a bit pointless. It is possible to determine whether exercises have been done correctly by testing them into a self-grading program called the **tutor**.
 
 The program can be downloaded from [https://github.com/liflab/beepbeep-3-tutor](https://github.com/liflab/beepbeep-3-tutor). It comes in the form of a single file, called `beepbeep-3-tutor.jar`, which can be integrated in a project like all the other JARs mentioned earlier. This library exposes an object called <!--\index{tutor} \texttt{Tutor}-->`Tutor`<!--/i-->. All exercises in the book have a unique name; for example, exercise number 2 of Chapter 2 is called `C2E2`. There exist tutor instances for many exercises; you can get the instance of your choice through `Tutor`'s static method `get()`. If a tutor does not exist for an exercise, an exception will be thrown. (At the time of this writing, the tutor is still a work in progress.)
 
@@ -134,7 +134,7 @@ Passthrough pt = new Passthrough();
 tutor.setInput(pt).setOutput(pt);
 ```
 
-The tutor feeds events through the input of the chain of processors, and observes what comes out of the output. The tutor can the be asked to check the solution through method `check`:
+The tutor feeds events through the input of the chain of processors, and observes what comes out of the output. The tutor can then be asked to check the solution through method `check`:
 
 ``` java
 tutor.check();
@@ -190,8 +190,12 @@ Unit tests are run with [jUnit](http://junit.org); a detailed report of these te
 
 For the sake of clarity, we give below the hashes of the latest commits on the various GitHub repositories containing BeepBeep code and examples. All the examples in this book are based on the software in the state it was when these commits were pushed:
 
-- BeepBeep core: `001d9579098cfe3e7b65fb571e24bf4043593b6b`
-- BeepBeep palettes: `0b8e589deae626ff2ed7cfba9d751b3104b1b5f8`
-- Code examples: `9dd840abf4983e16b51526f205d034cef19c8246`
+- BeepBeep core: `4686bca5d7d165f6287b0aec209e582171f7f67e`
+- BeepBeep palettes: `f443afa16ac19858f251484324cb69a50d28b0f1`
+- Code examples: `07f79a03aded9802074ba92982c381cddb690444`
+
+## Acknowledgements
+
+This work was done thanks to the financial support of the Natural Sciences and Engineering Research Council of Canada (NSERC) and the Canada Research Chair on Software Specification, Testing and Validation.
 
 <!-- :wrap=soft: -->

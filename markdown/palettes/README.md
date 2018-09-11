@@ -966,9 +966,24 @@ We shall use this simple "signal generator" to illustrate the operation of vario
 
 As one can see, the source box is parameterized by the contents of the two input queues, while the sink box is parameterized by the number and the names of each stream of numbers it receives. We use the "delta" letter in the source, since the two input queues of this processor encode a discrete form of the first derivative of the input signal to generate. The reader is encouraged to have a look at the code of `GenerateSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/GenerateSignal.java)) and `PlotSignal` ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlotSignal.java)), in the examples repository, to better understand how these two groups are implemented.
 
-A first useful processor of the *Signal* palette is used to find <!--\index{peak (signal)} \textbf{peaks}-->**peaks**<!--/i--> in an input stream. A peak is informally defined as an abrupt increase in the values of the signal over a short number of values (or *samples*). One possible way of looking for a peak is to use a sliding window of a few samples, and to identify local maxima in this window. The <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> procesor does exactly that. Consider the following code snippet:
+A first useful processor of the *Signal* palette is used to find <!--\index{peak (signal)} \textbf{peaks}-->**peaks**<!--/i--> in an input stream. A peak is informally defined as an abrupt increase in the values of the signal over a short number of values (or *samples*). One possible way of looking for a peak is to use a sliding window of a few samples, and to identify local maxima in this window. The <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> processor does exactly that. Consider the following code snippet:
 
-<pre><code>Source code not found: ../examples/Source/src/signal/PeakFinderExample.java</code></pre>
+``` java
+GenerateSignal gs = new GenerateSignal(
+    new Object[] {0, 20, -10, 0, -7, 0},
+    new Object[] {5, 5, 3, 5, 5, 5});
+Fork fork = new Fork(2);
+Connector.connect(gs, 1, fork, 0);
+PeakFinderLocalMaximum peak = new PeakFinderLocalMaximum(5);
+Connector.connect(fork, 1, peak, 0);
+PlotSignal ps = new PlotSignal("T", "V", "P");
+Connector.connect(gs, 0, ps, 0);
+Connector.connect(fork, 0, ps, 1);
+Connector.connect(peak, 0, ps, 2);
+ps.start();
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PeakExample.java#L28)
+
 
 Using the graphical conventions we just established, this chain of processors can be represented as in the following diagram:
 
@@ -978,7 +993,7 @@ In this program, the "signal" stream produced by the delta box is forked in two 
 
 ![The original signal (V) and the detected local maxima (P).](peak-signal.png)
 
-As one can see, the processsor outputs the value 0 if the current input event is not considered as a peak; otherwise, it outputs the height of that peak. The definition of what constitutes a peak varies, depending on the underlying algorithm that is being used; in the present case, any local maximum that exits the sliding window is considered as a peak. The current version of the *Signal* palette also provides another processor, the <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->, which uses a different algorithm for detecting peaks.
+As one can see, the processor outputs the value 0 if the current input event is not considered as a peak; otherwise, it outputs the height of that peak. The definition of what constitutes a peak varies, depending on the underlying algorithm that is being used; in the present case, any local maximum that exits the sliding window is considered as a peak. The current version of the *Signal* palette also provides another processor, the <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->, which uses a different algorithm for detecting peaks.
 
 The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/signal/PlateauExample.java)). This will produce the following plot:
 
@@ -1073,7 +1088,7 @@ Luckily, there is something called *serialization libraries* that can automate p
 - The <!--\index{JsonSerializeString@\texttt{JsonSerializeString}} \texttt{JsonSerializeString}-->`JsonSerializeString`<!--/i--> function converts an object into a character string in the <!--\index{JSON} \textbf{JSON}-->**JSON**<!--/i--> format.
 - The <!--\index{JsonDeserializeString@\texttt{JsonDeserializeString}} \texttt{JsonDeserializeString}-->`JsonDeserializeString`<!--/i--> function works in reverse: it takes a JSON string and recreates an object from its contents.
 
-These two functions can be sent to an `ApplyFunction` processor, and be used as a pre-processing step before and after passing strings to the HTTP gateways.
+These two functions can be sent to an `ApplyFunction` processor, and be used as a preprocessing step before and after passing strings to the HTTP gateways.
 
 Let us add a constructor and a `toString` method to our `CompoundObject` class:
 
@@ -1196,7 +1211,7 @@ Let us now move to Machine B. Only the processor chain is shown below:
 
 ![The chain of processors for Machine B.](MachineB.png)
 
-An `ttpDownstreamGateway` is first created to receive strings from Machine A. The next step is to convert the string received from the gateway back into a `BigInteger`. This number is then incremented by 2 using the addition function for `BigInteger`s. The rest of the chain is similar to Machine A: a filter is used to only let prime numbers through, and these numbers are then printd at the console.
+An `HttpDownstreamGateway` is first created to receive strings from Machine A. The next step is to convert the string received from the gateway back into a `BigInteger`. This number is then incremented by 2 using the addition function for `BigInteger`s. The rest of the chain is similar to Machine A: a filter is used to only let prime numbers through, and these numbers are then printed at the console.
 
 All in all, in this example less than 50 lines of code were written. This results in a distributed, streaming algorithm for finding twin prime numbers. Note that this chain of processors is only meant to illustrate a possible use of the HTTP gateways. As such, it is not a very efficient way to find twin primes: when *n* and *n*+2 are both prime, three primality checks will be conducted: Machine A will first discover that *n* is prime, which will trigger Machine B to check if *n*+2 also is. However, since Machine A checks all odd numbers, it will also check for *n*+2 in its next computation step.
 
@@ -1452,7 +1467,7 @@ This last example was slightly more involved. However, it gives a foretaste of t
 
 3. Create a processor chain whose input events are sets of strings. The chain should return `true` if an event has at least one string of the same length as another one in the previous event, and `false` otherwise.
 
-4. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the programs of Machine A and Mchine B on two different computers. What do you need to change for the communication to succeed?
+4. Modify the first example in the *Networking* section, so that the upstream and downstream gateways are in two separate programs. Run the programs of Machine A and Machine B on two different computers. What do you need to change for the communication to succeed?
 
 5. Modify the twin primes example: instead of Machine A pushing numbers to Machine B, make it so that Machine B pulls numbers from Machine A.
 

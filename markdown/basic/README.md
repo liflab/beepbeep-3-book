@@ -42,7 +42,7 @@ The <!--\index{QueueSource@\texttt{QueueSource}} \texttt{QueueSource}-->`QueueSo
 
 As one can see, the `QueueSource` object is a special type of processor that has an output pipe, but no input pipe (that is, its input arity is zero). This means that it does not produce events based on the output produced by other processors; in other words, it is impossible to connect another processor into a `QueueSource` (or into any other processor of input arity zero, for that matter). Rather, output events are produced "out of thin air" --or more accurately, from a list of values that is given to the source when it instantiated. In the diagram, this list is shown in the white rectangle overlapping the source's box.
 
-To collect events from a processor's output, one uses a special object called a [`Pullable`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pullable.html). The third instruction takes care of obtaining an instance of <!--\index{Pullable@\texttt{Pullable}} \texttt{Pullable}-->`Pullable`<!--/i--> corresponding to `QueueSource`'s output, using a method called <!--\index{Processor@\texttt{Processor}!getPullableOutput@\texttt{getPullableOutput}} A-->`getPullableOutput()`<!--/i-->.
+To collect events from a processor's output, one uses a special object called a [`Pullable`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pullable.html). The third instruction takes care of obtaining an instance of <!--\index{Pullable@\texttt{Pullable}} \texttt{Pullable}-->`Pullable`<!--/i--> corresponding to `QueueSource`'s output, using a method called <!--\index{Processor@\texttt{Processor}!getPullableOutput@\texttt{getPullableOutput}} \texttt{getPullableOutput()}-->`getPullableOutput()`<!--/i-->.
 
 A `Pullable` can be seen as a form of iterator over an output trace. It provides a method, called <!--\index{Pullable@\texttt{Pullable}!pull@\texttt{pull}} \texttt{pull()}-->`pull()`<!--/i-->; each call to `pull()` asks the corresponding processor to produce one more output event. The loop in the previous code snippet amounts to calling `pull()` eight times. Since events handled by processors can be anything (Booleans, numbers, strings, sets, etc.), the method returns an object of the most generic type, i.e. `Object`. It is up to the user of a processor to know what precise type of event this return value can be cast into. In our case, we know that the `QueueSource` we created returns integers, and so we manually cast the output of `pull()` into objects of this type.
 
@@ -126,7 +126,7 @@ Notice how we obtained a hold of `doubler`'s output Pullable, and made our `pull
 
 This simple example of processor piping brings us to talk about two common mistakes one can make when creating processors and connecting them.
 
-The first mistake is to **forget to connect two processors**. Suppose that in the original `Doubler` example, we omit the call to `connect`, resulting in a diagram that looks like this:
+The first mistake is to **forget to connect two processors**. Suppose that in the original `Doubler` example, we omit the call to `connect`, resulting in a diagram that looks like the following:
 
 ![Forgetting to pipe two processors.](PipingUnaryMissing.png)
 
@@ -134,7 +134,7 @@ Notice how the pipe between the source and the Doubler processor is missing. Att
 
     Exception in thread "main" ca.uqac.lif.cep.Pullable$PullableException:
     Input 0 of this processor is connected to nothing
-	  at ca.uqac.lif.cep.SingleProcessor$OutputPullable.hasNext...
+	  at ca.uqac.lif.cep.SynchronousProcessor$OutputPullable.hasNext...
 
 What happens concretely is that, when a call to `doubler`'s `Pullable` object is made, it turns around to ask for an input event from upstream, and realizes that it has never been told whom to ask (this is what the call to `connect` does). Consequently, it throws a <!--\index{PullableException@\texttt{PullableException}} \texttt{PullableException}-->`PullableException`<!--/i--> alerting the user of that issue. Notice that this is a *runtime* error; the program still compiles perfectly.
 
@@ -184,7 +184,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinary.java#L42)
 
 
-This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [`connect()`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(ca.uqac.lif.cep.Processor, int, ca.uqac.lif.cep.Processor, int)), which now includes a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
+This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [`connect()`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Connector.html#connect(ca.uqac.lif.cep.Processor, int, ca.uqac.lif.cep.Processor, int)), which now include a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
 
 ![A processor with an input arity of two.](PipingBinary.png)
 
@@ -198,9 +198,9 @@ The rest of our program is done as usual: a `Pullable` is obtained from `add`, a
 	The event is: 9.0
 	...
 
-The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. This is, in fact, exactly the case: 2+3=5, 7+1=8, 1+4=5, and so on. This is indeed exactly the case. When a processor has an input arity of 2 or more, it processes its inputs in batches called <!--\index{front} \textbf{fronts}-->**fronts**<!--/i-->. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
+The previous example shows that the output of `add` seems to be the pairwise sum of events from `source1` and `source2`. This is, in fact, exactly the case: 2+3=5, 7+1=8, 1+4=5, and so on. When a processor has an input arity of 2 or more, it processes its inputs in batches called <!--\index{front} \textbf{fronts}-->**fronts**<!--/i-->. A *front* is a set of events in identical positions in each input trace. Hence, the pair of events 2 and 3 corresponds to the front at position 0; the pair 7 and 1 corresponds to the front at position 1, and so on.
 
-When a processor has an arity of 2 or more, the processing of its input is done *synchronously*. This means that a computation step will be performed if and only if a new event can be consumed from each input stream. It this is not the case, the processor **waits** (and the call to `pull` blocks) until a complete front is ready to be processed. This can be exemplified in the following code example:
+When a processor has an arity of 2 or more, the processing of its input is generally done *synchronously*. This means that a computation step will be performed if and only if a new event can be consumed from each input stream. It this is not the case, the processor **waits** (and the call to `pull` blocks) until a complete front is ready to be processed. This can be exemplified in the following code example:
 
 ``` java
 SlowQueueSource source1 = new SlowQueueSource();
@@ -224,7 +224,7 @@ The chain of processors in this example is almost identical to the previous exam
 
 ![A fast source and a slow source.](PipingBinaryWait.png)
 
-The difference is that the first queue source has been replaced by a "slow" queue source, which waits 5 seconds before outputting each event. This is represented by the little "clock" in the topmost source box. The output of this program is identical:
+The difference is that the first queue source has been replaced by a "slow" queue source, which waits 5 seconds before outputting each event. This is represented by the little "clock" in the topmost source box. The output of this program is identical to the previous one:
 
 	The event is: 5.0
 	The event is: 8.0
@@ -233,8 +233,6 @@ The difference is that the first queue source has been replaced by a "slow" queu
 However, a new line is only printed every five seconds. This can be explained as follows: when a call to `pull` is made on `add`'s `Pullable` object, the processor checks whether a complete front can be consumed. It asks both `source1` and `source2` for a new event; `source2` responds immediately, but `source1` takes five seconds before producing an event. In the meantime, `add` can do nothing but wait. The whole process repeats itself upon every subsequent call to `pull`. Note that `add` only asks for *one* new event at a time from each source; that is, it does not keep pulling on `source2` while it waits for an answer from `source1`.
 
 Synchronous processing is a strong assumption; many other stream processing engines allow events to be processed asynchronously, meaning that the output of a query may depend on what input stream produced an event first. One can easily imagine situations where synchronous processing is not appropriate. However, in use cases where it is suitable, assuming synchronous processing greatly simplifies the definition and implementation of processors. The output result is no longer sensitive to the order in which events arrive at each input, or to the time it takes for an upstream processor to compute an output (the order of arrival of events from the same input trace, obviously, is preserved). Since the timing of arrival of events is irrelevant to the result of a computation, this means that one can perform a "pen and paper" calculation of a chain of processors, and arrive at the same output as the real one, given knowledge of the contents of each input stream.
-
-We shall discuss synchronous processing in more detail in a later chapter.
 
 ## When Types do not Match
 
@@ -266,7 +264,7 @@ Since numbers cannot be converted into Booleans, the call to `connect()` will th
 		at ca.uqac.lif.cep.Connector.checkForException(Connector.java:268)
 		...
 
-Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively. As with the `PullableException` discussed earlier, this is a *runtime* error. Processor inputs and outputs are not statically typed, so the above program compiles without problem. The error is only detected when the program is being executed, and the `Connector` object realizes that it is being asked to link processors of incorrect types.
+Here "ABS" and "!" are the symbols defined for `av` and `neg`, respectively. As with the `PullableException` discussed earlier, this is a *runtime* error. Processor inputs and outputs are not statically typed, so the above program compiles without problem. The error is only detected when the program is being executed, and the `Connector` object realizes that it is being asked to link processors of incompatible types.
 
 A processor can be queried for the types it accepts for input number *n* by using the method [`getInputType()`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getInputType(int)); likewise for the type produced at output number *n* with [`getOutputType()`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Processor.html#getOutputType(int)).
 
@@ -294,7 +292,7 @@ The <!--\index{QueueSink@\texttt{QueueSink}} \texttt{QueueSink}-->`QueueSink`<!-
 
 ![Pushing events to a `QueueSink`.](QueueSinkUsage.png)
 
-In order to push events to this processor, we need to get a reference to its input pipe; this is done with method <!--\index{Processor@\texttt{Processor}!getPushableInput@\texttt{getPushableInput}} \texttt{getPushableInput()}-->`getPushableInput()`<!--/i-->, which gives us an instance of a [`Pushable`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pushable.html) object. A <!--\index{Pushable@\texttt{Pushable}} \texttt{Pushable}-->`Pushable`<!--/i--> defines one important method, called !--\index{Pushable@\texttt{Pushable}!push@\texttt{push}} \texttt{push()}-->`push()`<!--/i-->, allowing us to give events to its associated processor. In the previous code snippet, we see two calls to method `push`, sending the strings "foo" and "bar".
+In order to push events to this processor, we need to get a reference to its input pipe; this is done with method <!--\index{Processor@\texttt{Processor}!getPushableInput@\texttt{getPushableInput}} \texttt{getPushableInput()}-->`getPushableInput()`<!--/i-->, which gives us an instance of a [`Pushable`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Pushable.html) object. A <!--\index{Pushable@\texttt{Pushable}} \texttt{Pushable}-->`Pushable`<!--/i--> defines one important method, called <!--\index{Pushable@\texttt{Pushable}!push@\texttt{push}} \texttt{push()}-->`push()`<!--/i-->, allowing us to give events to its associated processor. In the previous code snippet, we see two calls to method `push`, sending the strings "foo" and "bar".
 
 As we said, `QueueSink` simply accumulates the pushed events into a queue. It is possible to access that queue by calling a method called `getQueue()` on the processor, as is done on line 5. The contents of that queue are then printed; at this point in the program, the queue contains the strings "foo" and "bar", resulting in the first line printed at the console:
 
@@ -396,7 +394,7 @@ p0.push(3);
 
 The next question that generally comes to one's mind is: what happens if we keep pushing events on only one of the pushables, and nothing on the other? Since no computation can be made, won't this fill the first Pushable's queue endlessly? The answer to this question is simple: yes. If we keep pushing events on only one pushable (or more likely, if one of the upstream sources pushes events much faster than the other), we may end up filling one of the event queues and run out of memory.
 
-Fortunately, there are many use cases (especially realistic ones) where such a catastrophic scenario never occurs. Notice also that this is not a limitation on BeepBeep's side: if the goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, those excess numbers *must* be stored somewhere, and that storage *must* to increase linearly with time. There is no escaping it, whether using BeepBeep or not!
+Fortunately, there are many use cases (especially realistic ones) where such a catastrophic scenario never occurs. Notice also that this is not a limitation on BeepBeep's side: if the goal is to add numbers from two input streams, and the first generates them at twice the speed of the second, those excess numbers *must* be stored somewhere, and that storage *must* increase linearly with time. There is no escaping it, whether using BeepBeep or not!
 
 ## Closing Processor Chains
 
@@ -424,7 +422,7 @@ p.push("foo");
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PushWithoutSink.java#L55)
 
 
-This time, we attempt to push a string ("foo") into `passthrough` --but this, agin, will throw a `ConnectorException`. Indeed: passthrough is requested to relay an event downstream, but nothing is connected to its output pipe. In the same way events cannot be created out of thin air (in pull mode), they cannot vanish into thin air either (in push mode). In other words, a chain of processors must always be **closed**:
+This time, we attempt to push a string ("foo") into `passthrough` --but this, again, will throw a `ConnectorException`. Indeed: passthrough is requested to relay an event downstream, but nothing is connected to its output pipe. In the same way events cannot be created out of thin air (in pull mode), they cannot vanish into thin air either (in push mode). In other words, a chain of processors must always be **closed**:
 
 - In pull mode, all upstream endpoints must be connected to a source
 - In push mode, all downstream endpoints must be connected to a sink
