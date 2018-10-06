@@ -50,7 +50,7 @@ For more technical information about each of these objects, the reader is referr
 
 #### Arity
 
-<!--\index{arity|textsl} For-->For<!--/i--> a `Processor` object, refers to the number of pipes it has. The *input arity* is the number of input streams accepted by the processor, and the *output arity* is the number of output streams it produces.
+For <!--\index{arity|textsl} a-->a<!--/i--> `Processor` object, refers to the number of pipes it has. The *input arity* is the number of input streams accepted by the processor, and the *output arity* is the number of output streams it produces.
 
 For a `Function` object, refers to the number of arguments it accepts or the number of values it produces.
 
@@ -92,7 +92,7 @@ See also `PutInto`.
 
 #### Closed (chain)
 
-<!--\index{closed (chain)|textsl} A-->A<!--/i--> property of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
+A <!--\index{closed (chain)|textsl} property-->property<!--/i--> of a chain of processors, when either all its downstream processors are `Sink`s, or all its upstream processors are `Source`s. A chain of processors that is not closed will generally throw Java exceptions when events pass through it.
 
 #### `Concat`
 
@@ -225,7 +225,7 @@ There also exists a variant that uses an auxiliary function to compute the set o
 
 #### `FindPattern`
 
-<!--\index{FindPattern@\texttt{FindPattern}|textsl} A-->A<!--/i--> `Processor` that extracts chunks of an input stream based on a regular expression. It is represented graphically as:
+A `Processor` <!--\index{FindPattern@\texttt{FindPattern}|textsl} that-->that<!--/i--> extracts chunks of an input stream based on a regular expression. It is represented graphically as:
 
 {@img images/tmf/FindPattern.png}{FindPattern}{.6}
 
@@ -902,7 +902,7 @@ The opposite of `Unpack` is `Pack`.
 
 #### `Variant`
 
-<!--\index{Variant@\texttt{Variant}|textsl} A-->A<!--/i--> special class that can be returned by a call to a processor's `getInputTypesFor` or `getOutputType` methods. The occurrence of such a type in an input or output pipe disables the type checking step that the `Connector` class normally performs before connecting two processors together.
+A <!--\index{Variant@\texttt{Variant}|textsl} special-->special<!--/i--> class that can be returned by a call to a processor's `getInputTypesFor` or `getOutputType` methods. The occurrence of such a type in an input or output pipe disables the type checking step that the `Connector` class normally performs before connecting two processors together.
 
 #### `Window`
 
