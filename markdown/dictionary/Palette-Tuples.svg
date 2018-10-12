@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="122.29234mm"
+   height="26.370531mm"
+   viewBox="0 0 122.29235 26.370531"
+   version="1.1"
+   id="svg21652"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="Palette-Tuples.svg">
+  <defs
+     id="defs21646" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="348.48934"
+     inkscape:cy="428.41089"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="1"
+     fit-margin-left="1"
+     fit-margin-right="1"
+     fit-margin-bottom="1"
+     inkscape:window-width="1920"
+     inkscape:window-height="1052"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata21649">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(281.19256,-205.57508)">
+    <g
+       transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
+       id="g21321"
+       style="stroke-width:1.74490952">
+      <path
+         inkscape:connector-curvature="0"
+         id="path21323"
+         style="fill:#ffdd55;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:5.58371067;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 153.031,219.449 c -7.804,-0.113 -15.504,0.879 -22.66,2.973 -25.933,7.582 -58.336,30.504 -55.309,59.258 5.926,56.297 154.075,71.109 124.446,27.652 -29.629,-43.457 39.492,-33.137 7.898,-67.16 -13.844,-14.906 -34.437,-22.434 -54.375,-22.723 z m 11.66,55.809 c 4.332,0 8.637,1.012 11.7,2.75 3.062,1.738 4.843,4.18 4.843,6.633 0,2.457 -1.781,4.898 -4.843,6.636 -3.063,1.739 -7.368,2.746 -11.7,2.746 -4.332,0 -8.636,-1.007 -11.699,-2.746 -3.062,-1.738 -4.844,-4.179 -4.844,-6.636 0,-2.453 1.782,-4.895 4.844,-6.633 3.063,-1.738 7.367,-2.75 11.699,-2.75 z" />
+    </g>
+    <g
+       transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
+       id="g21325"
+       style="stroke-width:1.74490952">
+      <path
+         inkscape:connector-curvature="0"
+         id="path21327"
+         style="fill:#00ff00;fill-opacity:1;fill-rule:nonzero;stroke:#24221c;stroke-width:5.58371067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 174.32,235.754 c 0,3.543 -7.183,6.418 -16.047,6.418 -8.867,0 -16.05,-2.875 -16.05,-6.418 0,-3.547 7.183,-6.422 16.05,-6.422 8.864,0 16.047,2.875 16.047,6.422 z" />
+    </g>
+    <g
+       transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
+       id="g21329"
+       style="stroke-width:1.74490952">
+      <path
+         inkscape:connector-curvature="0"
+         id="path21331"
+         style="fill:#ff00ff;fill-opacity:1;fill-rule:nonzero;stroke:#24221c;stroke-width:5.58371067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 136.297,255.754 c 0,6.137 -7.188,11.109 -16.051,11.109 -8.863,0 -16.047,-4.972 -16.047,-11.109 0,-6.137 7.184,-11.113 16.047,-11.113 8.863,0 16.051,4.976 16.051,11.113 z" />
+    </g>
+    <g
+       transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
+       id="g21333"
+       style="stroke-width:1.74490952">
+      <path
+         inkscape:connector-curvature="0"
+         id="path21335"
+         style="fill:#0000ff;fill-opacity:1;fill-rule:nonzero;stroke:#24221c;stroke-width:5.58371067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 118.52,286.371 c 0,6.137 -5.969,11.109 -13.336,11.109 -7.364,0 -13.332,-4.972 -13.332,-11.109 0,-6.137 5.968,-11.113 13.332,-11.113 7.367,0 13.336,4.976 13.336,11.113 z" />
+    </g>
+    <g
+       transform="matrix(0.20255018,0,0,0.2018013,-294.79097,162.85514)"
+       id="g21337"
+       style="stroke-width:1.74490952">
+      <path
+         inkscape:connector-curvature="0"
+         id="path21339"
+         style="fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:#24221c;stroke-width:5.58371067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 167.902,311.555 c 0,5.047 -7.738,9.136 -17.285,9.136 -9.547,0 -17.285,-4.089 -17.285,-9.136 0,-5.043 7.738,-9.137 17.285,-9.137 9.547,0 17.285,4.094 17.285,9.137 z" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:20.13870239px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.50346756"
+       x="-216.98906"
+       y="253.40022"
+       id="text22675"
+       transform="scale(1.1248122,0.88903729)"><tspan
+         sodipodi:role="line"
+         id="tspan22673"
+         x="-216.98906"
+         y="253.40022"
+         style="stroke-width:0.50346756">TUPLES</tspan></text>
+  </g>
+</svg>
