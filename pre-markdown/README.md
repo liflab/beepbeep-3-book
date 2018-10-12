@@ -72,15 +72,7 @@ BeepBeep is made of a single Java archive (JAR) file, called `beepbeep-3.jar`. T
 
 To make sure that everything works, create a new Java class with a `main()` method, and type the following:
 
-``` java
-import ca.uqac.lif.cep.*;
-public class Test {
-  public static void main(String[] args) {
-    Source q = new QueueSource("foo");
-    System.out.println(q.getPullableOutput().pull());
-  }
-}
-```
+{@snipm basic/HelloWorld.java}{/}
 
 This program creates a new instance of a <!--\index{QueueSource@\texttt{QueueSource}} \texttt{QueueSource}-->`QueueSource`<!--/i--> object, and pulls one event from its output. If everything compiles, and running the program prints a single line with the text `foo`, then the environment is correctly setup to use BeepBeep.
 

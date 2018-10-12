@@ -73,14 +73,17 @@ BeepBeep is made of a single Java archive (JAR) file, called `beepbeep-3.jar`. T
 To make sure that everything works, create a new Java class with a `main()` method, and type the following:
 
 ``` java
-import ca.uqac.lif.cep.*;
-public class Test {
+import ca.uqac.lif.cep.tmf.*;
+public class HelloWorld {
   public static void main(String[] args) {
-    Source q = new QueueSource("foo");
+    QueueSource q = new QueueSource();
+    q.setEvents("foo");
     System.out.println(q.getPullableOutput().pull());
   }
 }
 ```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/HelloWorld.java#L20)
+
 
 This program creates a new instance of a <!--\index{QueueSource@\texttt{QueueSource}} \texttt{QueueSource}-->`QueueSource`<!--/i--> object, and pulls one event from its output. If everything compiles, and running the program prints a single line with the text `foo`, then the environment is correctly setup to use BeepBeep.
 
