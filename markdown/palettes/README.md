@@ -1033,7 +1033,7 @@ In line with BeepBeep's general design principles, these functionalities are acc
 
 The `HttpUpstreamGateway` is a sink processor that works in push mode only. It receives character strings, and is instructed to send them over the network as the payload of an HTTP request directed to a specific address. Thus, when instantiating the gateway, we must specify the URL where the request is expected to be sent.
 
-The [`HttpDownstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/http/HttpDownstreamGateway.html) works in reverse. It continually listens for incoming HTTP requests on a specific TCP port; when a request matches the URL that was specified to its constructor, its contents are pushed to its output pipe in the form of a character string.
+The [`HttpDownstreamGateway`](http://liflab.github.io/beepbeep-3/javadoc/#) works in reverse. It continually listens for incoming HTTP requests on a specific TCP port; when a request matches the URL that was specified to its constructor, its contents are pushed to its output pipe in the form of a character string.
 
 The following program shows a simple use of these two gateways.
 

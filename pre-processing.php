@@ -30,6 +30,9 @@ $source_location = "../examples/Source/src/";
 // The root of BeepBeep's Javadoc. 
 $javadoc_root = "http://liflab.github.io/beepbeep-3/javadoc/";
 
+// The location of the Doxygen tag file
+$tag_filename = "../website/beepbeep-3.tag";
+
 // The online URL to the root of BeepBeep's examples on GitHub
 $github_source_location = "https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/";
 
@@ -39,6 +42,13 @@ $incremental = false;
 if (count($argv) > 1 && $argv[1] === "--incremental")
 {
 	$incremental = true;
+}
+
+// Read and parse Doxygen tag file
+$tagfile_xml = simplexml_load_file($tag_filename);
+if (!$tagfile_xml)
+{
+		echo "Could not parse Doxygen tag file $tag_filename\n";
 }
 
 // Iterate recursively over files in the source folder
@@ -357,21 +367,74 @@ function get_javadoc_url($string)
     case "jdc:":
     case "jdi:":
       // Class or interface
-      $parts = explode(".", $right_part);
-      $path = implode("/", $parts);
-      $url = $javadoc_root.$path.".html";
+      $url = $javadoc_root.find_class_filename($right_part);
       break;
     case "jdm:":
       // Method
       $big_parts = explode("#", $right_part);
-      $parts = explode(".", $big_parts[0]);
-      $last_part = $parts[count($parts) - 1];
-      unset($parts[count($parts) - 1]);
-      $path = implode("/", $parts);
-      $url = $javadoc_root.$path."/".$last_part.".html#".$big_parts[1];
+      $class_name = $big_parts[0];
+      $method_name = $big_parts[1];
+      $url = $javadoc_root.find_method_filename($right_part);
       break;
   }
   return $url;
+}
+
+/**
+ * Finds the XML element corresponding to a class name in the
+ * Doxygen tag file
+ * @param $c The name of the class to find
+ * @return The Doxygen filename
+ */
+function find_class_filename($c)
+{
+		global $tagfile_xml;
+		$class_name = str_replace(".", "::", $c);
+		$elem = $tagfile_xml->xpath("//compound[@kind='class'][name/text()=\"$class_name\"]");
+		if (empty($elem))
+		{
+				return "#";
+		}
+		$e = $elem[0]->xpath("filename/text()")[0]->__toString();
+		return $e;
+}
+
+/**
+ * Finds the XML element corresponding to a method name in the
+ * Doxygen tag file
+ * @param $c The name of the method to find
+ * @return The Doxygen filename
+ */
+function find_method_filename($c)
+{
+		global $tagfile_xml;
+		$class_name = str_replace(".", "::", $c);
+		$elem = $tagfile_xml->xpath("//compound[@kind='class'][name/text()=\"$class_name\"]");
+		if (empty($elem))
+		{
+				return "#";
+		}
+		$e = $elem[0]->xpath("filename/text()")[0]->__toString();
+		return $e;
+}
+
+/**
+ * Finds the XML element corresponding to a class name in the
+ * Doxygen tag file
+ * @param $c The name of the class to find
+ * @return The Doxygen filename
+ */
+function find_package_filename($c)
+{
+		global $tagfile_xml;
+		$class_name = str_replace(".", "::", $c);
+		echo $class_name;
+		$elem = $tagfile_xml->xpath("//compound[@kind='file'][namespace/text()=\"$class_name\"]");
+		if (empty($elem))
+		{
+				return "#";
+		}
+		return $elem[0]->xpath("filename/text()")[0]->__toString();
 }
 
 /**

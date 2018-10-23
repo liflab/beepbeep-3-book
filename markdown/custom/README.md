@@ -14,7 +14,7 @@ Let us start with the simple case of functions. A custom function is any object 
 
 ### As a Function Tree
 
-A first way of creating a function is to create a new class that extends [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions.html). Remember the function tree that was created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
+A first way of creating a function is to create a new class that extends [`FunctionTree`](http://liflab.github.io/beepbeep-3/javadoc/#). Remember the function tree that was created in Chapter 3, which computed the function *f*(*x*,*y*,*z*) = (*x*+*y*)×*z*. We used to build this function tree as follows:
 
 ``` java
 FunctionTree tree = new FunctionTree(Numbers.multiplication,
@@ -186,7 +186,7 @@ public class CutString extends Function
 
 ### Unary and Binary Functions
 
-Extending `Function` directly results in lots of "boilerplate" code. If the intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/UnaryFunction.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/functions/BinaryFunction.html). These classes take care of most of the tasks associated to functions, and require the user to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, the user can write arbitrary Java code.
+Extending `Function` directly results in lots of "boilerplate" code. If the intended function is 1:1 or 2:1 (that is, it has an input arity of 1 or 2, and an output arity of 1), a shorter way to create a new `Function` object is to create a new class that extends either [`UnaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1functions_1_1_unary_function.html) or [`BinaryFunction`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1functions_1_1_binary_function.html). These classes take care of most of the tasks associated to functions, and require the user to simply implement a method called `getValue()`, responsible for computing the output, given some input(s). In this method, the user can write arbitrary Java code.
 
 As an example, let us rewrite the `CustomDouble` function; it is a 1:1 function, which means that it can extend the <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i--> class. From then on, this new object only requires five lines of code:
 

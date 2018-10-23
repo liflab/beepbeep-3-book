@@ -7,9 +7,9 @@ The previous chapters have shown the fundamental concepts around BeepBeep and th
 
 Up to this point, all the examples we have seen use event streams that are one of Java's primitive types: numbers (`int`s or `float`s), `Strings` and `Booleans`. However, we mentioned at the very beginning that one of BeepBeep's design principles is that everything (that is, any Java object) can be used as an event. To this end, the `util` package provides functions and processors to manipulate a few common data structures, especially lists, sets and maps.
 
-A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
+A few of these functions are grouped under the [`Bags`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1util_1_1_bags.html) utility class. It contains references to functions that can be used to query arbitrary <!--\index{Bags@\texttt{Bags}} collections-->collections<!--/i--> of objects.
 
-[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/getSize.html) refers to a function <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object containing a few elements, one could use `GetSize` like any other function:
+[`Bags.getSize`](http://liflab.github.io/beepbeep-3/javadoc/#) refers to a function <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}} \texttt{GetSize}-->`GetSize`<!--/i--> that takes a Java `Collection` object for input, and returns the size of this collection. For example, if `list` is a `List` object containing a few elements, one could use `GetSize` like any other function:
 
 ``` java
 Object[] outs = new Object[1];
@@ -17,7 +17,7 @@ Bags.getSize.evaluate(new Object[]{list}, outs);
 // outs[0] contains the size of list
 ```
 
-[`Bags.contains`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/contains.html) refers to a function <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}} \texttt{Contains}-->`Contains`<!--/i--> that takes as input a Java `Collection` and an object *o*, and returns a Boolean value indicating whether the collection contains *o*. Its usage can be illustrated in the following code example:
+[`Bags.contains`](http://liflab.github.io/beepbeep-3/javadoc/#) refers to a function <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}} \texttt{Contains}-->`Contains`<!--/i--> that takes as input a Java `Collection` and an object *o*, and returns a Boolean value indicating whether the collection contains *o*. Its usage can be illustrated in the following code example:
 
 ``` java
 QueueSource src1 = new QueueSource();
@@ -75,7 +75,7 @@ The output of this code snippet is indeed a new list with the absolute value of 
 [3.0, 6.0, 1.0, 2.0]
 ```
 
-The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/FilterElements.html) function can be used to remove elements from a collection. Like `ApplyToAll`, <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and must return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
+The [`FilterElements`](http://liflab.github.io/beepbeep-3/javadoc/#) function can be used to remove elements from a collection. Like `ApplyToAll`, <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}} \texttt{FilterElements}-->`FilterElements`<!--/i--> is instantiated by passing a `Function` object *f* to its constructor. This function must be 1:1 and must return a Boolean value. Given a set/list/array, `FilterElements` will return a new set/list/array containing only elements for which *f* returns `true`. Using the same list as above, the following code:
 
 ``` java
 Function filter = new Bags.FilterElements(Numbers.isEven);
@@ -128,7 +128,7 @@ When run, this program will take each front of events from the sources, and crea
 
 The functions <!--\index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}} \texttt{ToSet}-->`ToSet`<!--/i--> and <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}} \texttt{ToArray}-->`ToArray`<!--/i--> operate in a similar way, but respectively create a `Set` object and an array instead of a list.
 
-Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Bags/RunOn.html). When instantiated, <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} A-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
+Finally, the `Bags` class also defines a `Processor` object called [`RunOn`](http://liflab.github.io/beepbeep-3/javadoc/#). When instantiated, <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} A-->`RunOn`<!--/i--> must be given a 1:1 processor P. When it receives a collection as its input, `RunOn` takes each element of the collection, pushes it into P, and collects its last output.
 
 Consider the following code example:
 
@@ -165,7 +165,7 @@ The following picture shows how to depict the `RunOn` processor graphically. Lik
 
 ### Set-specific Objects
 
-The `util` package also provides a few functions and processors specific to some particular types of collections. The [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets.html) class has a member field <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}} \texttt{Sets.isSubsetOrEqual}-->`Sets.isSubsetOrEqual`<!--/i--> which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor [`PutInto`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutInto.html) which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
+The `util` package also provides a few functions and processors specific to some particular types of collections. The [`Sets`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1util_1_1_sets.html) class has a member field <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}} \texttt{Sets.isSubsetOrEqual}-->`Sets.isSubsetOrEqual`<!--/i--> which refers to a function `IsSubsetOrEqual` that compares two `Set` objects. It also defines a processor [`PutInto`](http://liflab.github.io/beepbeep-3/javadoc/#) which receives arbitrary objects as input, and accumulates them into a set, which it returns as its output.
 
 The following program shows the basic usage of <!--\index{Sets@\texttt{Sets}!PutInto@\texttt{PutInto}} \texttt{PutInto}-->`PutInto`<!--/i-->.
 
@@ -196,13 +196,13 @@ Set 1: [A, B, C, D]
 
 Note how after the second call to `pull`, the variable `set1` is a set that contains the first two events, "A" and "B". Two calls to `pull` later, variable `set2` contains, as expected, the first four events. The last call to `println` is more surprising. It reveals that `set1` now also contains the first four events! This is because the variables `set1` and `set2` are actually two references to the same object. In other words, processor `PutInto` keeps returning the same `Set`, each time with a new element added to it. We say that `PutInto` is a <!--\index{mutator processor} \textbf{mutator}-->**mutator**<!--/i--> processor: it modifies the state of the objects it returns.
 
-If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Sets/PutIntoNew.html). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
+If we want to have a different set for every output event, we must rather use [`PutIntoNew`](http://liflab.github.io/beepbeep-3/javadoc/#). Upon each input event, this processor creates a new set, copies the content of the previous one, and adds the <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}}  new-->new<!--/i--> event into it. Since this processor performs a copy every time, it runs much slower than `PutInto`.
 
 ### List-specific objects
 
-Functions and processors that work on arbitrary collections obviously also work on lists. BeepBeep provides a few more of these for collections that are *ordered*, such as lists and arrays. For example, [`NthElement`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/NthElement.html) is a function that returns the <!--\index{NthElement@\texttt{NthElement}} element-->element<!--/i--> at the *n*-th position in an ordered collection.
+Functions and processors that work on arbitrary collections obviously also work on lists. BeepBeep provides a few more of these for collections that are *ordered*, such as lists and arrays. For example, [`NthElement`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1util_1_1_nth_element.html) is a function that returns the <!--\index{NthElement@\texttt{NthElement}} element-->element<!--/i--> at the *n*-th position in an ordered collection.
 
-The [`Lists`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists.html) class defines two processors that work on lists in a special way. The first is called [`Pack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Pack.html) and has two input pipes. The first, called the *data* pipe, is a stream of arbitrary events. The second, called the *control* pipe, is a stream of Boolean values. You may remember that the `Filter` processor seen in the previous chapter had two similarly-named input pipes.
+The [`Lists`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1util_1_1_lists.html) class defines two processors that work on lists in a special way. The first is called [`Pack`](http://liflab.github.io/beepbeep-3/javadoc/#) and has two input pipes. The first, called the *data* pipe, is a stream of arbitrary events. The second, called the *control* pipe, is a stream of Boolean values. You may remember that the `Filter` processor seen in the previous chapter had two similarly-named input pipes.
 
 Processor <!--\index{Lists@\texttt{Lists}!Pack@\texttt{Pack}} \texttt{Pack}-->`Pack`<!--/i--> accumulates events received from the input pipe, as long as the corresponding event in the control pipe is the Boolean value `false`. When the value in the control pipe is `true`, `Pack` outputs the list of events accumulated so far, instantiates a new empty list, and puts the incoming event into it. Consider the following example:
 
@@ -236,7 +236,7 @@ We create a data and a control stream, connect them to a `Pack` processor and pu
 
 One can see how the control stream acts as a "trigger" telling the `Pack` processor when to release a list of events.
 
-The [`Unpack`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Lists/Unpack.html) processor is the exact opposite of `Pack`. It receives a stream of lists, and outputs the event of each list one by one:
+The [`Unpack`](http://liflab.github.io/beepbeep-3/javadoc/#) processor is the exact opposite of `Pack`. It receives a stream of lists, and outputs the event of each list one by one:
 
 ``` java
 QueueSource src1 = new QueueSource();
@@ -299,7 +299,7 @@ We have already seen other non-uniform processors before: the `Filter`, `CountDe
 
 ### Map-specific objects
 
-There is one last Java collection we haven't talked about: <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i-->. As you know, a map is a data structure that associates arbitrary *keys* to arbitrary *values*. A map can be queried for the value corresponding to a key using a method called `get()`. BeepBeep provides a [`Maps`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Maps.html) class that defines a few functions and processors specific to the manipulation of such <!--\index{Maps@\texttt{Maps}} maps-->maps<!--/i-->. The first one is [`Get`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Get.html), which, as you may guess, fetches a <!--\index{Maps@\texttt{Maps}!Get@\texttt{Get}} value-->value<!--/i--> from a map given the name of a key. A simple usage would be the following:
+There is one last Java collection we haven't talked about: <!--\index{Map@\texttt{Map} (interface)} \texttt{Map}-->`Map`<!--/i-->. As you know, a map is a data structure that associates arbitrary *keys* to arbitrary *values*. A map can be queried for the value corresponding to a key using a method called `get()`. BeepBeep provides a [`Maps`](http://liflab.github.io/beepbeep-3/javadoc/#) class that defines a few functions and processors specific to the manipulation of such <!--\index{Maps@\texttt{Maps}} maps-->maps<!--/i-->. The first one is [`Get`](http://liflab.github.io/beepbeep-3/javadoc/#), which, as you may guess, fetches a <!--\index{Maps@\texttt{Maps}!Get@\texttt{Get}} value-->value<!--/i--> from a map given the name of a key. A simple usage would be the following:
 
 ``` java
 Map map = ...
@@ -339,7 +339,7 @@ for (int i = 0; i < 4; i++)
 
 Note how the map is *updated*: if a key already exists in the map, its corresponding value is replaced by the new one. Also note how types can be mixed in the map: the value for key "foo" is first a number, and is replaced later by string. A variant of `PutInto` is called <!--\index{Maps@\texttt{Maps}!ArrayPutInto@\texttt{ArrayPutInto}} \texttt{ArrayPutInto}-->`ArrayPutInto`<!--/i-->, which takes a single input stream, whose events are *arrays*. The first element of the array contains the key, and the second contains the value.
 
-One last function of interest is called [`Values`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Maps/Values.html). This function takes a map as input, and returns the collection made of all the <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
+One last function of interest is called [`Values`](http://liflab.github.io/beepbeep-3/javadoc/#). This function takes a map as input, and returns the collection made of all the <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}} values-->values<!--/i--> occurring in the key-value pairs it contains. This function performs the equivalent of the `values()` method in Java's `Map` interface.
 
 ## Pumps and Tanks
 
@@ -369,7 +369,7 @@ While the loop works well in this example, the fact that the link between `print
 - The connection between `source` and `print` is not done through `Connector`'s `connect` method; this bypasses a few sanity checks, such as the verification of input and output types compatibility.
 - There is no easy way to start/stop this process upon request, or to ask this chain to process one event at a time. The control flow of the program must stay in the `while` loop as long as events need to be processed.
 
-Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the [`Pump`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/tmf/Pump.html). Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, the previous program can be replaced by this one:
+Fortunately, BeepBeep has a processor that can do the equivalent of our manual pull/push loop. This processor is appropriately called the [`Pump`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1tmf_1_1_pump.html). Using a <!--\index{Pump@\texttt{Pump}} \texttt{Pump}-->`Pump`<!--/i-->, the previous program can be replaced by this one:
 
 ``` java
 QueueSource source = new QueueSource().setEvents(1, 2, 3, 4);
@@ -444,7 +444,7 @@ Consider for example a text <!--\index{file!reading from} files-->file<!--/i--> 
     9
     2.2
 
-The [`ReadLines`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/ReadLines.html) processor takes a Java <!--\index{InputStream@\texttt{InputStream}} \texttt{InputStream}-->`InputStream`<!--/i-->, and returns as its output events each text line that can be extracted from that stream. Pulling from a <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor is then straightforward:
+The [`ReadLines`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1io_1_1_read_lines.html) processor takes a Java <!--\index{InputStream@\texttt{InputStream}} \texttt{InputStream}-->`InputStream`<!--/i-->, and returns as its output events each text line that can be extracted from that stream. Pulling from a <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor is then straightforward:
 
 ``` java
 InputStream is = LineReaderExample.class.getResourceAsStream("pi.txt");
@@ -466,7 +466,7 @@ A few important observations must be made from this code sample. The first is th
 
 Note also that instead of using the `pull` method, we use method <!--\index{Pullable@\texttt{Pullable}!next@\texttt{next}} \texttt{next}-->`next()`<!--/i--> to get a new event. Methods `pull` and `next` are in fact *synonyms*: they do exactly the same thing. However, the pair of methods `hasNext`/`next` makes a `Pullable` look like a plain old Java <!--\index{Iterator@\texttt{Iterator}} \texttt{Iterator}-->`Iterator`<!--/i-->. As a matter of fact, this is precisely the case: although we did not mention it earlier, a `Pullable` does implement Java's `Iterator` interface, meaning that it can be used in a program wherever an `Iterator` is expected. This makes BeepBeep objects very handy to use inside an existing program, without even being aware that they actually refer to processor chains.
 
-One last remark: the output events of `ReadLines` are *strings*. This implies that, if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/Numbers/NumberCast.html), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In the code example, the output of `reader` is piped into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
+One last remark: the output events of `ReadLines` are *strings*. This implies that, if we want to pipe them into arithmetical functions, they must be converted into `Number` objects beforehand; forgetting to do so is a common programming mistake. A special function of utility class <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers}-->`Numbers`<!--/i-->, called [`NumberCast`](http://liflab.github.io/beepbeep-3/javadoc/#), is designed especially for that. This function takes as input any Java `Object`, and does its best to turn it into a `Number`. In particular, if the object is a `String`, it tries to parse that string into either an `int` or, if that fails, into a `float`. In the code example, the output of `reader` is piped into an `ApplyFunction` processor that invokes this function on each event; the function is referred to by the static member field <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}} \texttt{Numbers.numberCast}-->`Numbers.numberCast`<!--/i-->.
 
 The expected output of the program is:
 
@@ -494,7 +494,7 @@ This diagram introduces two new elements. First, the `ReadLines` processor is a 
 
 As we have seen earlier, we can read lines from a source of text by passing an `InputStream` to a `ReadLines` processor. However, it is possible to read from arbitrary streams of bytes, and in particular from the special system stream called the <!--\index{standard input} \textbf{standard input}-->**standard input**<!--/i-->. The standard input is an implicit stream present in every running program; external processes can connect to this stream and send bytes that can then be read by the program.
 
-In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. It could be sent to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read arbitrary chunks of characters. This can be done by using another processor called [`ReadStringStream`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/ReadStringStream.html). The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
+In Java, the standard input can be manipulated like any `InputStream`, using the static member field `System.in`. It could be sent to a `ReadLines` processor as we have done before; however, instead of complete lines of text ending with the newline character (`\n`), let us read arbitrary chunks of characters. This can be done by using another processor called [`ReadStringStream`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1io_1_1_read_string_stream.html). The following program reads characters from the standard input and, using a `Print` processor, prints them back onto the standard output.
 
 ``` java
 ReadStringStream reader = new ReadStringStream(System.in);
@@ -517,7 +517,7 @@ Since <!--\index{ReadStreamString@\texttt{ReadStreamString}} it-->`ReadStringStr
 
 ![Reading characters from the standard input.](ReadStdin.png)
 
-In this picture, the leftmost processor is the [`StreamReader`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/StreamReader.html). As you can see, <!--\index{StreamReader@\texttt{StreamReader}} it-->it<!--/i--> takes its input from the standard input; note how its left-hand side input has the "funnel" shape that represents system streams (and not BeepBeep pipes). A similar comment can be made for the <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, which was seen earlier. It receives input events, but as far as BeepBeep is concerned, does not produce any output events. Rather, it sends whatever it receives to the "outside world", this time through the `stdout` system stream. This is also what the `Print` processor does in examples from the previous chapters; however, the "stdout" output which was implicit in those examples is explicitly written here, in the diagram. 
+In this picture, the leftmost processor is the [`StreamReader`](http://liflab.github.io/beepbeep-3/javadoc/#). As you can see, <!--\index{StreamReader@\texttt{StreamReader}} it-->it<!--/i--> takes its input from the standard input; note how its left-hand side input has the "funnel" shape that represents system streams (and not BeepBeep pipes). A similar comment can be made for the <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, which was seen earlier. It receives input events, but as far as BeepBeep is concerned, does not produce any output events. Rather, it sends whatever it receives to the "outside world", this time through the `stdout` system stream. This is also what the `Print` processor does in examples from the previous chapters; however, the "stdout" output which was implicit in those examples is explicitly written here, in the diagram. 
 
 This program can be compiled as a runnable JAR file (e.g. `read-stdin.jar`) and tried out on the command line. Suppose you type:
 
@@ -571,7 +571,7 @@ A `StreamReader` processor connected to this file will output events in the form
 
 As you can see, words can be cut across two successive chunks, and a single chunk may contain more than one word. Extra work must be done in order to reconstruct words out of these events: this involves gluing together some events, and cutting the strings to re-align them with the comma delimiters. In other words, we need to re-create "tokens" out of the sequence of strings, through a process that we call <!--\index{tokenization} \textbf{tokenization}-->**tokenization**<!--/i-->.
 
-BeepBeep's [`FindPattern`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/util/FindPattern.html) can be used for this purpose. The <!--\index{FindPattern@\texttt{FindPattern}} \texttt{FindPattern}-->`FindPattern`<!--/i--> processor receives pieces of text as its input, and produces for its output the portions of the text that match a specific <!--\index{regular expression} \emph{regular expression}-->*regular expression*<!--/i--> as individual events. (A regular expression --"regex" for short-- is a way of specifying a pattern of characters that is commonly used in programming.)
+BeepBeep's [`FindPattern`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1util_1_1_find_pattern.html) can be used for this purpose. The <!--\index{FindPattern@\texttt{FindPattern}} \texttt{FindPattern}-->`FindPattern`<!--/i--> processor receives pieces of text as its input, and produces for its output the portions of the text that match a specific <!--\index{regular expression} \emph{regular expression}-->*regular expression*<!--/i--> as individual events. (A regular expression --"regex" for short-- is a way of specifying a pattern of characters that is commonly used in programming.)
 
 The following program shows a simple use of `FindPattern`:
 
@@ -629,7 +629,7 @@ jkl
 
 ### Reading from an HTTP request
 
-Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The [`HttpGet`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/io/HttpGet.html) processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls a URL every 10 seconds and prints the response to the console.
+Instead of reading local files, it is also possible to obtain text from a remote source using the  <!--\index{HTTP} HTTP-->HTTP<!--/i--> protocol. The [`HttpGet`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1io_1_1_http_get.html) processor is a source which, when pulled, sends an HTTP GET request to a predefined URL, and returns as its output the contents of the response to the request. For example, the following <!--\index{HttpGet@\texttt{HttpGet}} program-->program<!--/i--> polls a URL every 10 seconds and prints the response to the console.
 
 ``` java
 HttpGet get = new HttpGet("http://example.com/some-url");
@@ -964,7 +964,7 @@ An `ApplyFunction` processor is created, and an association between the key "foo
 10,13,
 ```
 
-Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence, the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`Context`](http://liflab.github.io/beepbeep-3/javadoc/ca/uqac/lif/cep/Context.html) object.
+Note how the context can be modified by further calls to `setContext`. If a processor requires the evaluation of a function, the current context of the processor is passed to the function. Hence, the function's arguments may contain references to names of context elements, which are replaced with their concrete values before evaluation. Basic processors, such as those described so far, do not use context. However, some special processors defined in extensions to BeepBeep's core (the Moore machine and the first-order quantifiers, among others) manipulate their [`Context`](http://liflab.github.io/beepbeep-3/javadoc/classca_1_1uqac_1_1lif_1_1cep_1_1_context.html) object.
 
 ## Duplicating Processors
 
