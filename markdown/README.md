@@ -41,9 +41,9 @@ In contrast, an event stream processing system (such as BeepBeep) concentrates m
 
 In this book, you will learn how to use an event stream query engine called BeepBeep to perform various tasks over event streams of different nature. BeepBeep began as an academic research tool developed by the author of this book while he was a PhD student at Université du Québec à Montréal, Canada. Version 1 of the system was developed from 2008 to 2013 and has been the subject of numerous papers and case studies (see the *Further Reading* section at the end of this book). It was much more limited than the BeepBeep we are talking about in this book, and could only perform a specific kind of stream processing called *runtime verification*. The main distinguishing point of this first version was the handling of complex events with a nested structure (such as XML documents), and an input language that borrowed from a mathematical language called <!--\index{Linear Temporal Logic (LTL)} Linear Temporal Logic-->Linear Temporal Logic<!--/i-->. BeepBeep 1 is no longer under active development and is considered obsolete for all practical purposes. 
 
-Version 2 was an attempt, in 2013-2014, at implementing the same concepts as BeepBeep 3. It has been cancelled at an early stage of development and was never officially released. One can hence consider BeepBeep 3 as the second "real" incarnation of BeepBeep. It benefits from a complete redesign of the platform, which includes and significantly extends most of the 1.x features.
+In 2013-2014, the version 2 was an attempt at implementing the same concepts as BeepBeep 3. It was cancelled at an early stage of development and was never officially released. One can hence consider BeepBeep 3 as the second "real" incarnation of BeepBeep. It benefits from a complete redesign of the platform, which includes and significantly extends most of the 1.x features.
 
-BeepBeep has a few interesting features that distinguish it from other software systems based on events.
+BeepBeep has a few interesting features distinguishing it from other software systems based on events.
 
 - It is **intuitive**. Virtually every computation in BeepBeep can be expressed in a totally graphical way, using a vast set of pictograms (most of which are detailed in an appendix at the end of this book). Therefore, one does not need to read through Java code to understand a program that uses BeepBeep.
 - It is **lightweight**. The core of BeepBeep is a stand-alone Java library that weighs less than 200 kilobytes (yes, that's *kilobytes*). BeepBeep also has low memory requirements; typically, as long as a Java virtual machine is available on a platform, BeepBeep can be made to run on it. It has been used in various environments, ranging from server clusters to smartphones and small devices such as the Raspberry Pi.
@@ -62,7 +62,7 @@ However, if these limitations are not restrictive, BeepBeep can prove an easy an
 
 ## Getting Started
 
-BeepBeep is free and open source software, distributed under the Lesser General Public License (LGPL). Accordingly, its use is free of charge, and the tool may even be included as a library inside commercial software.
+BeepBeep is a free and open source software, distributed under the Lesser General Public License (LGPL). Accordingly, its use is free of charge, and the tool may even be included as a library inside commercial software.
 
 In this chapter, you will learn to set up a programming environment using BeepBeep to run the code examples found throughout this book. The set-up instructions use the [Eclipse](https://eclipse.org) integrated development environment (IDE), but they can easily transfer to other IDEs, or even to a command line-only installation. BeepBeep has very low system requirements, so anything from a Raspberry Pi to a supercomputer should be able to run all the code examples from this book.
 
@@ -101,7 +101,7 @@ The first part of this book (chapters 2 to 5) is organized in a roughly linear f
 The second part of the book (chapters 6 to 8) is made of independent chapters covering other aspects of BeepBeep.
 
 - Chapter 6 mixes all the content of the previous chapters together, and shows a number of more complex use cases that illustrate the capabilities of BeepBeep and its standard palettes. You will learn how BeepBeep can be used to perform runtime monitoring in a video game, process telemetry from a space probe, or analyze the power consumption of home appliances, among other things.
-- Chapter 7 is intended for developers of BeepBeep. It shows how Java programmers can easily create their own `Processor` and `Function` objects, package them into their own palette, and make them interact with other BeepBeep objects.
+- Chapter 7 is intended for BeepBeep developers. It shows how Java programmers can easily create their own `Processor` and `Function` objects, package them into their own palette, and make them interact with other BeepBeep objects.
 - Chapter 8 concentrates on one particular BeepBeep palette, called *DSL*. Rather than piping processors directly using Java, this palette makes it possible for end-users to define the syntax of a custom language, and to write an *interpreter* that builds processor chains automatically from expressions of that language.
 
 Finally, the book ends with a few appendices that are meant as a reference.

@@ -1,11 +1,9 @@
 Glossary
 ========
 
-This book has introduced many concepts revolving around the concept of event streams. In particular, the BeepBeep library provides a little "zoo" of dozens of `Processor` and `Function` objects. In this appendix, you will find a non-exhaustive list of the various objects and notions that have been discussed. Processors and objects with a standardized graphical representation are also accompanied by the corresponding picture.
+This book has introduced many concepts revolving around the concept of event streams. In particular, the BeepBeep library provides a little "zoo" of dozens of `Processor` and `Function` objects. In this appendix, you will find a list of the various objects and notions that have been discussed. For entries referring to Java objects (such as processors and functions), a note next to the entry indicates whether these objects are part of BeepBeep's core, or can be found in one of its auxiliary palettes.
 
-For entries that refer to Java objects (such as processors and functions), a note beside the entry indicates whether these objects are part of BeepBeep's core, or can be found in one of its auxiliary palettes.
-
-For more technical information about each of these objects, the reader is referred to the online API documentation, which is provides in-depth and up-to-date information.
+For more technical information about each of these objects, the reader is referred to the online API documentation, which provides in-depth and up-to-date information.
 
 #### `AbsoluteValue`
 
@@ -139,7 +137,7 @@ A <!--\index{closed (chain)|textsl} property-->property<!--/i--> of a chain of p
 
 ![ContextVariable](images/functions/ContextVariable.png)
 
-By convention, context variables are prefixed with a dollar sign in drawings, to differentiate them from constants.
+By convention, context variables are prefixed with a dollar sign in diagrams, to differentiate them from constants.
 
 #### `CountDecimate`
 
@@ -196,7 +194,7 @@ By convention, context variables are prefixed with a dollar sign in drawings, to
 
 ![Exists](images/fol/Exists.png)
 
-There also exists a variant that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
+There is also a variant that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
 
 ![ExistsFunction](images/fol/ExistsFunction.png)
 
@@ -208,7 +206,7 @@ There also exists a variant that uses an auxiliary function to compute the set o
 
 #### `Explode`
 
-![Core](Palette-Core.png) <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}|textsl} A-->A<!--/i--> 1:*m* `Function` provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the oppsite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
+![Core](Palette-Core.png) <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}|textsl} A-->A<!--/i--> 1:*m* `Function` provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the opposite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
 
 ![Explode](images/util/Explode.png)
 
@@ -242,7 +240,7 @@ A `Processor` <!--\index{FindPattern@\texttt{FindPattern}|textsl} that-->that<!-
 
 ![ForAll](images/fol/ForAll.png)
 
-There exists a variant of `ForAll` that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
+There is a variant of `ForAll` that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
 
 ![ForAllFunction](images/fol/ForAllFunction.png)
 
@@ -280,7 +278,7 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 #### `FunctionTree`
 
-![Core](Palette-Core.png) <!--\index{FunctionTree@\texttt{FunctionTree}|textsl} A-->A<!--/i--> `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The drawing below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
+![Core](Palette-Core.png) <!--\index{FunctionTree@\texttt{FunctionTree}|textsl} A-->A<!--/i--> `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The diagram below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
 
 ![FunctionTree](images/functions/FunctionTree.png)
 
@@ -316,7 +314,7 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 To create a `GroupProcessor`, one must first instantiate and connect the processors to be encapsulated. Each processor must then be added to the group through a method called `add`. Finally, the endpoints of the chain must be associated to the inputs and outputs of the group. From then on, the processor can be moved around, connected and duplicated as if it were a single processor.
 
-In a graphical representation of a `GroupProcessor`, the processor chain inside the group can be drawn for illustrative purposes.
+In a graphical representation of a `GroupProcessor`, the processor chain inside the group can also be drawn.
 
 #### HttpGet
 
@@ -496,7 +494,7 @@ The actual colour of the oval depends on the type of events that the function re
 
 ![Pack](images/util/Pack.png)
 
-The oppositve of `Pack` in `Unpack`. See also `TimePack`.
+The opposite of `Pack` in `Unpack`. See also `TimePack`.
 
 #### `ParseJson`
 
@@ -573,7 +571,7 @@ as containing instances of `Object`, Java's most generic type.
 
 #### `Pullable`
 
-![Core](Palette-Core.png) <!--\index{Pullable@\texttt{Pullable}|textsl} A-->A<!--/i--> object that queries events on one of a processor's outputs. For a processor with an output arity *n*, there exists *n* distinct pullables, namely one for
+![Core](Palette-Core.png) <!--\index{Pullable@\texttt{Pullable}|textsl} An-->An<!--/i--> object that queries events on one of a processor's outputs. For a processor with an output arity *n*, there exists *n* distinct pullables, namely one for
 each output trace. Every pullable works roughly like a classical `Iterator`:
 it is possible to check whether new output events are available, and get one
 new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors. Graphically, a `Pullable` is represented by a pipe connected to a processor, with an outward pointing triangle:
@@ -613,7 +611,7 @@ One of the two operating modes of a chain of processors. In <!--\index{push mode
 
 #### `PutInto` (`Maps`)
 
-![Core](Palette-Core.png) <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}|textsl} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
+![Core](Palette-Core.png) <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}|textsl} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. It updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
 
 ![PutInto](images/util/PutInto.png)
 
@@ -761,7 +759,7 @@ The comma in the figure is to be replaced by the actual character used to separa
 
 ![StreamVariable](images/functions/StreamVariable.png)
 
-The number inside the diamond represents the stream number. By convention, stream numbers start at 1 in drawings.
+The number inside the diamond represents the stream number. By convention, stream numbers start at 1 in diagrams.
 
 #### `Strings`
 
@@ -813,11 +811,11 @@ Note that this processor uses `System.currentTimeMillis()` as its clock. Moreove
 
 ![TimePack](images/util/TimePack.png)
 
-The oppositve of `TimePack` in `Unpack`. See also `Pack`.
+The opposite of `TimePack` in `Unpack`. See also `Pack`.
 
 #### `ToArray`, `ToList`, `ToSet`
 
-![Core](Palette-Core.png) <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}|textsl} \index{Bags@\texttt{Bags}!ToList@\texttt{ToList}|textsl} \index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}|textsl} Three-->Three<!--/i--> *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
+![Core](Palette-Core.png) <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}|textsl} \index{Bags@\texttt{Bags}!ToList@\texttt{ToList}|textsl} \index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}|textsl} Three-->Three<!--/i--> *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
 
 ![ToArray, ToList, ToSet](images/util/ToArrayListSet.png)
 

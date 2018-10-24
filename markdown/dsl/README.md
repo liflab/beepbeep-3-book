@@ -51,7 +51,7 @@ The first step in creating a language is therefore to define its **grammar**, i.
     <sbt> := <num> - <num> ;
     <num> := 0 | 1 | 2 ;
 
-The definition of the grammar must follow a well-known notation called [Backus-Naur Form](http://en.wikipedia.org/wiki/Backus-Naur_form) (<!--\index{Backus-Naur Form (BNF)}BNF-->BNF<!--/i-->)). In this notation, the grammar is defined as a series of **rules** (one rule per line). The part of the rule at the left of the `:=` character contains exactly one **non-terminal symbol**. The right-hand side of the rule contains one or more **cases**, separated by the pipe (`|`) character. Each case is a sequence made of literals (character strings to be interpreted literally) and non-terminal symbols. The first non-terminal appearing in the grammar has a special meaning, and is called the **start symbol**.
+The definition of the grammar must follow a well-known notation called [Backus-Naur Form](http://en.wikipedia.org/wiki/Backus-Naur_form) (<!--\index{Backus-Naur Form (BNF)}BNF-->BNF<!--/i-->). In this notation, the grammar is defined as a series of **rules** (one rule per line). The part of the rule at the left of the `:=` character contains exactly one **non-terminal symbol**. The right-hand side of the rule contains one or more **cases**, separated by the pipe (`|`) character. Each case is a sequence made of literals (character strings to be interpreted literally) and non-terminal symbols. The first non-terminal appearing in the grammar has a special meaning, and is called the **start symbol**.
 
 Taken together, the rules define a set of expressions called *valid* expressions. In the above example, this specific grammar defines a simple subset of arithmetical expressions, involving only addition, subtraction, and three numbers. An expression is valid if there exists a way to begin at the start symbol, and successively apply rules from the grammar to ultimately produce that expression.
 
@@ -86,7 +86,7 @@ Note how the operands for `<add>` and `<sbt>` involve the non-terminal `<exp>`. 
     <sbt> := <num> - <num> | <num> - ( <exp> )
               | ( <exp> ) - <num> | ( <exp> ) - ( <exp> );
 
-In this new grammar, it is now possible to write a more natural expression such as `3+(4-5)`.
+With this new grammar, it is now possible to write a more natural expression such as `3+(4-5)`.
 
 The Bullwinkle parser offers many more features, which shall not be discussed here. For example, it accepts a second way of defining a grammar by assembling rules and creating instances of objects programmatically; we refer the reader to the online documentation for more details. A final remark regarding grammars is that they must belong to a special family called [LL(k)](http://en.wikipedia.org/wiki/LL_parser). Roughly, this means that they must not contain a production rules of the form `<S> := <S> something`. Trying to parse such a rule by recursive descent (the algorithm used by Bullwinkle) causes an infinite recursion (which will throw a `ParseException` when the maximum recursion depth is reached).
 
@@ -141,7 +141,7 @@ public ArithmeticBuilder()
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilder.java#L49)
 
 
-The `GrammarObjectBuilder` class defines a method called `build()`, which takes a character string as input. It first parses that string, and then performs a *postfix* traversal of the resulting parsing tree, maintaining  in its memory a stack of arbitrary objects along the way. A postfix traversal implies that the nodes of the tree are visited one by one; furthermore, before a parent node is visited, all its children are visited first. Hence, in the tree shown above, the first node to be visited will be the leftmost number `3`, followed by its parent `<num>`, and so on.
+The `GrammarObjectBuilder` class defines a method called `build()`, which takes a character string as input. It first parses that string, and then performs a *postfix* traversal of the resulting parsing tree, maintaining in its memory a stack of arbitrary objects along the way. A postfix traversal implies that the nodes of the tree are visited one by one; furthermore, before a parent node is visited, all its children are visited first. Hence, in the tree shown above, the first node to be visited will be the leftmost number `3`, followed by its parent `<num>`, and so on.
 
 The `GrammarObjectBuilder` treats any terminal symbol as a character string. Therefore, when visiting a leaf of the parsing tree, `GrammarObjectBuilder` puts on its stack a `String` object whose value is the contents of that specific literal. When visiting a parse node corresponding to a non-terminal token, such as `<add>`, the builder seeks a method that handles this symbol. "Handling" a symbol generally amounts to popping objects from the stack, creating one or more new objects, and pushing these objects back onto the stack. Therefore, to build a `FunctionTree` from an expression, the `ArithmeticBuilder` class must define methods that take care of each non-terminal symbol in the grammar we defined.
 
@@ -289,8 +289,8 @@ Caused by:
 As a result, one has to be very careful when interacting with the object stack. However, it turns out that in many cases, a user does not need to manipulate this stack directly. Looking back at the `ArithmeticBuilder` written earlier, one notices that every method actually does the same thing:
 
 - It pops as many objects from the stack as there are tokens in the corresponding grammar rule, in reverse from the order they appear in the rule.
-- It instantiates a new object by using elements that were popped from the stack
-- It puts that new object back onto the stack
+- It instantiates a new object by using elements that were popped from the stack.
+- It puts that new object back onto the stack.
 
 It is possible to instruct the object builder to automate this repetitive process, using an additional argument to the `@Builds` annotation called <!--\index{pop@\texttt{pop} (annotation)} \texttt{pop}-->`pop`<!--/i-->. For example, the annotation for the `<num>` symbol would now read:
 
@@ -327,7 +327,7 @@ public FunctionTree handleAdd(Object ... parts)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/ArithmeticBuilderPop.java#L73)
 
 
-The rule for `<add>` has three tokens. Based on that rule, the contents of `parts` will be made of three objects: the first is the "+" string, and the other two are the `Function` objects that are the operands of the addition. We know that, by the time this method is called, these two functions have already been created by the previous building steps and placed on the stack. Again, notice how the five lines of the original method have been replaced by a single instruction.
+The rule for `<add>` has three tokens. Based on that rule, the contents of `parts` will be made of three objects: the first is the "+" string; the other two are the `Function` objects that are the operands of the addition. We know that, by the time this method is called, these two functions have already been created by the previous building steps and placed on the stack. Again, notice how the five lines of the original method have been replaced by a single instruction.
 
 Now, consider a more complex grammar, this time defining arithmetic operations using the more natural *infix* notation.
 
@@ -365,7 +365,7 @@ Notice how one must first check if the first object in `parts` is a string (corr
 
 ![A graphical representation of the stack manipulations for rule `<add>` in infix notation.](Rule-add-infix.png)
 
-However, one can see that each case of the rule has exactly two non-terminal tokens, and that both are `FunctionTrees`. As a further refinement to the object builder, the <!--\index{clean@\texttt{clean} (annotation)} \texttt{clean}-->`clean`<!--/i--> annotation can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Using the `clean` option in conjunction with `pop`, the code for handling `add`; becomes identical as before:
+However, one can see that each case of the rule has exactly two non-terminal tokens, and that both are `FunctionTrees`. As a further refinement to the object builder, the <!--\index{clean@\texttt{clean} (annotation)} \texttt{clean}-->`clean`<!--/i--> annotation can remove from the arguments all the objects that match terminal symbols in the corresponding rule. Using the `clean` option in conjunction with `pop`, the code for handling `add` becomes identical as before:
 
 ``` java
 @Builds(rule="<add>", pop=true, clean=true)
@@ -417,11 +417,11 @@ According to the grammar rule for `<trim>`, the contents of the `parts` array sh
 
 The second-last instruction warrants an explanation. The goal of the `GroupProcessorBuilder` is to ultimately return a `GroupProcessor` whose contents are made of the processors instantiated and connected during the building process. However, in order for these objects to be added to the resulting `GroupProcessor`, the `GroupProcessorBuilder` needs to be notified that these objects are created. This is the purpose of the call to the `add` method.
 
-This whole process can can be represented as follows:
+This whole process can be represented as follows:
 
 ![A graphical representation of the stack manipulations for rule `<trim>`.](Rule-trim.png)
 
-This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this drawing, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; the reference to processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other. To illustrate this, P is drawn outside of the stack, but shown piped to the processor that is on the stack.
+This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this diagram, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; the reference to processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other. To illustrate this, P is drawn outside of the stack, but shown piped to the processor that is on the stack.
 
 Once this is understood, the code for rule `<decim>` is straightforward, and almost identical to `<trim>`:
 
@@ -502,7 +502,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/dsl/SimpleProcessorBuilder.java#L123)
 
 
-The process is similar to what was done earlier with functions. An instance of the builder is used to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; then create a `QueueSource` is created, and connected to the processor obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If the building rules defined earlier were to be applied, step by step, one would discover that the `Processor` returned by `build` is actually this one:
+The process is similar to what was done earlier with functions. An instance of the builder is used to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; then, a `QueueSource` is created, and connected to the processor obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If the building rules defined earlier were to be applied, step by step, one would discover that the `Processor` returned by `build` is actually this one:
 
 ![The `GroupProcessor` returned by our builder on the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`.](Example-Query2.png)
 
@@ -516,9 +516,9 @@ In our code example, we pull five events from it and print them to the console; 
     1
     3
 
-## Mixing Types {#mix}
+## Mixing Types
 
-Nothing prevents an object builder to create objects of various types. As more involved example, let us add new rules to the previous builder, which will allow us to create `Function` objects and `ApplyFunction` processors. The grammar could look appear this:
+Nothing prevents an object builder to create objects of various types. As a more involved example, let us add new rules to the previous builder, which will allow us to create `Function` objects and `ApplyFunction` processors. The grammar could look appear this:
 
 ```
 <proc>      := <trim> | <decim> | <filter> | <apply> | <stream> ;
@@ -641,12 +641,12 @@ AND (
 
 ![The `GroupProcessor` created by a complex query mixing functions and various other types of processors.](Example-QueryBig.png)
 
-The complete object builder for this grammar requires 15 rules, and roughly 130 lines of code for the interpreter.
+The complete object builder for this grammar requires 15 rules and roughly 130 lines of code for the interpreter.
 
 - - -
 
 In this chapter, we have seen why BeepBeep does not provide a single built-in query language to write processor chains. Rather, using a palette called `dsl`, it provides facilities that allow users to design and use their own domain-specific language. The `dsl` palette makes it possible to quickly write the *grammar* for a language, and provides a *parser* called Bullwinkle that can read and parse strings from any grammar at runtime. Moreover, thanks to a special object called a `GrammarObjectBuilder`, one can easily walk through a parsing tree, and progressively construct an object such as a chain of processors by defining methods specific to each rule of the grammar. The end result is that, through a few lines of grammar and a few lines of building code, it is possible to have a working interpreter for a custom query language with very little effort.
 
-Remember that the languages shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language users can create themselves: as we seen at the beginning of the chapter, this is actually the whole point. The syntax for the languages created does not have to look even remotely like the examples provided. Although this might sound a little tacky, the limit here truly is one's imagination!
+Remember that the languages shown in this chapter are only *examples* meant to illustrate the usage of the Bullwinkle parser and its various `ObjectBuilder`s. They are no more "BeepBeep's language" than any language users can create themselves: as we have seen at the beginning of the chapter, this is actually the whole point. The syntax for the languages created does not have to look even remotely like the examples provided. Although this might sound a little tacky, the limit here truly is one's imagination!
 
 <!-- :wrap=soft: -->

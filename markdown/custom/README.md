@@ -238,7 +238,7 @@ This time, the class has three type arguments: the first two represent the type 
 
 ### Partial Evaluation
 
-We have seen in Chapter 4 that functions can also be partially evaluated. As an example, let us create a function that calculates the area of a triangle based on the length of its three sides, by using <!--\index{Heron's formula} Heron's formula-->Heron's formula<!--/i-->: if *A* is the area of the triangle, and *a*, *b*, and *c* are the lengths of its sides, then *A*² = *s*(*s*-*a*)(*s*-*b*)(*s*-*c*), where *s* is the *semiperimeter*, or half of the triangle's perimeter. Writing method `evaluate` is relatively straightforward:
+In Chapter 4, we saw that functions can also be partially evaluated. As an example, let us create a function that calculates the area of a triangle based on the length of its three sides, by using <!--\index{Heron's formula} Heron's formula-->Heron's formula<!--/i-->: if *A* is the area of the triangle, and *a*, *b*, and *c* are the lengths of its sides, then *A*² = *s*(*s*-*a*)(*s*-*b*)(*s*-*c*), where *s* is the *semiperimeter*, or half of the triangle's perimeter. Writing method `evaluate` for this function is relatively straightforward:
 
 ``` java
 public void evaluate(Object[] inputs, Object[] outputs)
@@ -366,47 +366,58 @@ public class CounterGroup extends GroupProcessor
 
 From then on, it is possible to write `new CounterGroup()` to get a fresh instance of this processor.
 
-### As a Descendant of `Processor`
+### As a Descendent of `Processor`
 
 Using a group works only if your custom processor can be expressed by piping other existing processors. If this is not the case, you have to resort to extending one of BeepBeep's `Processor` descendents. The most generic way to do so is to extend the `Processor` class directly. This class defines many functionalities that the user does not need to implement:
 
-- methods <!--\index{Processor@\texttt{Processor}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> declare the input and output arity of the processor
-- based on these arities, the `Processor` class takes care of creating the appropriate number of input and output queues for storing events
-- method <!--\index{Processor@\texttt{Processor}!setPullableInput@\texttt{setPullableInput}} \texttt{setPullableInput}-->`setPullableInput`<!--/i--> associates one of the processor's input pipes to the `Pullable` object of an upstream processor
-- method <!--\index{Processor@\texttt{Processor}!setPushableOutput@\texttt{setPushableOutput}} \texttt{setPushableOutput}-->`setPushableOutput`<!--/i--> associates one of the processor's output pipes to the `Pushable` object of a downstream processor
-- methods <!--\index{Processor@\texttt{Processor}!getContext@\texttt{getContext}} \texttt{getContext}-->`getContext`<!--/i--> and <!--\index{Processor@\texttt{Processor}!setContext@\texttt{setContext}} \texttt{setContext}-->`setContext`<!--/i--> handle the interaction with the processor's internal `Context` object
-- finally, the `Processor` class also handles the unique ID given to each instance, which can be queried with <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId}-->`getId`<!--/i-->.
+- Methods <!--\index{Processor@\texttt{Processor}!getInputArity@\texttt{getInputArity}} \texttt{getInputArity}-->`getInputArity`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputArity@\texttt{getOutputArity}} \texttt{getOutputArity}-->`getOutputArity`<!--/i--> declare the input and output arity of the processor.
+- Based on these arities, the `Processor` class takes care of creating the appropriate number of input and output queues for storing events.
+- Method <!--\index{Processor@\texttt{Processor}!setPullableInput@\texttt{setPullableInput}} \texttt{setPullableInput}-->`setPullableInput`<!--/i--> associates one of the processor's input pipes to the `Pullable` object of an upstream processor.
+- Method <!--\index{Processor@\texttt{Processor}!setPushableOutput@\texttt{setPushableOutput}} \texttt{setPushableOutput}-->`setPushableOutput`<!--/i--> associates one of the processor's output pipes to the `Pushable` object of a downstream processor.
+- Methods <!--\index{Processor@\texttt{Processor}!getContext@\texttt{getContext}} \texttt{getContext}-->`getContext`<!--/i--> and <!--\index{Processor@\texttt{Processor}!setContext@\texttt{setContext}} \texttt{setContext}-->`setContext`<!--/i--> handle the interaction with the processor's internal `Context` object.
+- Finally, the `Processor` class also handles the unique ID given to each instance, which can be queried with <!--\index{Processor@\texttt{Processor}!getId@\texttt{getId}} \texttt{getId}-->`getId`<!--/i-->.
 
 These methods correspond to the very basic functionalities of a BeepBeep processor. As the reader may observe, almost none of these methods need to be called by an end-user creating processor chains (as a matter of fact, none of the code examples we have seen so far use these methods, except for `getId`). They are mostly used by the `Connector` utility class, which, as we have seen, is responsible for piping processor objects together. Many of these methods are declared `final`, which means that their behaviour cannot be changed by descendents of this class. However, since `Processor` itself is abstract, a number of important methods are left to the user to be implemented:
 
-- <!--\index{Processor@\texttt{Processor}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> must create a copy of the current processor object
-- <!--\index{Processor@\texttt{Processor}!getPushableInput@\texttt{getPushableInput}} \texttt{getPushableInput}-->`getPushableInput`<!--/i--> must provide an instance of an object implementing the `Pushable` interface to feed input values when the processor is used in push mode
-- <!--\index{Processor@\texttt{Processor}!getPullableOutput@\texttt{getPullableOutput}} \texttt{getPullableOutput}-->`getPullableOutput`<!--/i--> must provide an instance of an object implementing the `Pullable` interface to fetch output values when the processor is used in pull mode
+- Method <!--\index{Processor@\texttt{Processor}!duplicate@\texttt{duplicate}} \texttt{duplicate}-->`duplicate`<!--/i--> must create a copy of the current processor object.
+- Method <!--\index{Processor@\texttt{Processor}!getPushableInput@\texttt{getPushableInput}} \texttt{getPushableInput}-->`getPushableInput`<!--/i--> must provide an instance of an object implementing the `Pushable` interface to feed input values when the processor is used in push mode.
+- Method <!--\index{Processor@\texttt{Processor}!getPullableOutput@\texttt{getPullableOutput}} \texttt{getPullableOutput}-->`getPullableOutput`<!--/i--> must provide an instance of an object implementing the `Pullable` interface to fetch output values when the processor is used in pull mode.
 
 All the event handling functionalities must, of course, be implemented by the user. Typically, this means that the `Pullable` and `Pushable` objects keep a reference to the underlying processor they are associated with; calls to `pull` or `push` trigger some computation inside the processor and manipulate events in the input and output queues. For synchronous processing (which corresponds to almost every processor found in this book), this task is tedious, especially for processors with an input arity greater than 1. For example, a call to `push` may not trigger the computation of an output event if a complete input front cannot be consumed; in push mode, one must also carefully implement the subtle behaviour of the `pull` and `pullSoft` methods, and so on. We do not recommend users to extend this class directly, except perhaps in very specific situations.
 
-Thankfully, BeepBeep provides a descendent of `Processor` that takes care of even more functionalities for the user; this class is called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}} \texttt{SynchronousProcessor}-->`SynchronousProcessor`<!--/i-->.  This class defines its own `Pushable` and `Pullable` objects, and therefore, already implements the `getPushableInput` and `getPullableInput` methods. All the user has left to do is to:
+Fortunately, BeepBeep provides a descendent of `Processor` that takes care of even more functionalities for the user; this class is called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}} \texttt{SynchronousProcessor}-->`SynchronousProcessor`<!--/i-->.  This class defines its own `Pushable` and `Pullable` objects, and therefore, already implements the `getPushableInput` and `getPullableInput` methods. All the user has left to do is to:
 
-- decide the input and output arity of the processor; this is done by passing these two numbers to `SynchronousProcessor`'s constructor, typically in a call to `super()` in the new class's constructor
-- write the actual computation that should occur when a *complete* input front becomes available, i.e. what output event(s) to produce (if any), given an input event; this is done by implementing a method called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}!compute@\texttt{compute}} \texttt{compute}-->`compute`<!--/i-->.
-- optionally, override the methods `duplicate` (to allow the creation of copies of the processor), as well as  <!--\index{Processor@\texttt{Processor}!getInputTypesFor@\texttt{getInputTypesFor}} \texttt{getInputTypesFor}-->`getInputTypesFor`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputTypeFor@\texttt{getOutputTypeFor}} \texttt{getOutputTypeFor}-->`getOutputTypeFor`<!--/i--> (to declare the input and output type for each of the processor's pipes)
+- Decide the input and output arity of the processor; this is done by passing these two numbers to `SynchronousProcessor`'s constructor, typically in a call to `super()` in the new class's constructor.
+- Write the actual computation that should occur when a *complete* input front becomes available, i.e. what output event(s) to produce (if any), given an input event; this is done by implementing a method called <!--\index{SynchronousProcessor@\texttt{SynchronousProcessor}!compute@\texttt{compute}} \texttt{compute}-->`compute`<!--/i-->.
+- Override the method `duplicate` to produce a copy of the processor. (If the processor is stateless, it is recommended to simply return `this`.)
+- Optionally, override the methods  <!--\index{Processor@\texttt{Processor}!getInputTypesFor@\texttt{getInputTypesFor}} \texttt{getInputTypesFor}-->`getInputTypesFor`<!--/i--> and <!--\index{Processor@\texttt{Processor}!getOutputTypeFor@\texttt{getOutputTypeFor}} \texttt{getOutputTypeFor}-->`getOutputTypeFor`<!--/i--> (to declare the input and output type for each of the processor's pipes).
 
-Using `SynchronousProcessor`, the minimal working example for a custom processor is made of six lines of code:
+Using `SynchronousProcessor`, the minimal working example for a custom processor is made of half-a-dozen lines of code:
 
 ``` java
-import ca.uqac.lif.cep.*;
-
-public class MyProcessor extends SynchronousProcessor {
-
-  public MyProcessor() {
-	super(0, 0);
+public class MyProcessor extends SynchronousProcessor
+{
+  public MyProcessor()
+  {
+    super(0, 0);
   }
 
-  public boolean compute(Object[] inputs, Queue<Object[]> outputs) {
-	return true;
+  @Override
+  public boolean compute(Object[] inputs, Queue<Object[]> outputs)
+  {
+    return true;
+  }
+
+  @Override
+  public Processor duplicate(boolean with_state)
+  {
+    return this;
   }
 }
+
 ```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/customprocessors/MyProcessor.java#L28)
+
 
 This results in a processor that accepts no inputs, and produces no output. To make things more interesting, we will study a couple of examples.
 
@@ -632,7 +643,7 @@ So far, all our processors are "memoryless": they keep no information about past
 
     5, 1, 2, 3, 6, 4, ...
 
-the processor should output:
+...the processor should output:
 
     (nothing), 5, 2, 3, 6, 6, ...
 

@@ -184,7 +184,7 @@ for (int i = 0; i < 5; i++)
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PipingBinary.java#L42)
 
 
-This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to [`connect()`](http://liflab.github.io/beepbeep-3/javadoc/#), which now include a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
+This time, we create *two* sources of numbers. We intend to connect these two sources of numbers to a processor called `add`, which, incidentally, has two input pipes. The interesting bit comes in the calls to `connect()`, which now include a few more arguments. The first call connects the output of `source1` to the *first* input of a processor called `add`. The second call connects the output of `source2` to the *second* input of `add`. Graphically, this is represented as follows:
 
 ![A processor with an input arity of two.](PipingBinary.png)
 
@@ -422,18 +422,16 @@ p.push("foo");
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/PushWithoutSink.java#L55)
 
 
-This time, we attempt to push a string ("foo") into `passthrough` --but this, again, will throw a `ConnectorException`. Indeed: passthrough is requested to relay an event downstream, but nothing is connected to its output pipe. In the same way events cannot be created out of thin air (in pull mode), they cannot vanish into thin air either (in push mode). In other words, a chain of processors must always be **closed**:
+This time, we attempt to push a string ("foo") into `passthrough` --but again, this will throw a `ConnectorException`. Indeed: passthrough is requested to relay an event downstream, but nothing is connected to its output pipe. In the same way events cannot be created out of thin air (in pull mode), they cannot vanish into thin air either (in push mode). In other words, a chain of processors must always be **closed**:
 
 - In pull mode, all upstream endpoints must be connected to a source
 - In push mode, all downstream endpoints must be connected to a sink
 
-If, for whatever reason, you want to discard events from a downstream processor, you still must connect it to a sink. However, there is a special sink, called <!--\index{BlackHole@\texttt{BlackHole}} \texttt{BlackHole}-->`BlackHole`<!--/i-->, which does exactly that.
+If, for whatever reason, you want to discard events from a downstream processor, you must still connect it to a sink. However, there is a special sink, called <!--\index{BlackHole@\texttt{BlackHole}} \texttt{BlackHole}-->`BlackHole`<!--/i-->, which does exactly that.
 
 - - -
 
 With these code examples, you know almost everything there is to know about processors in BeepBeep. We have seen how a few simple processor objects can be instantiated and piped together by means of the `Connector` object. We have also explored the two modes by which events can be passed around: *pull* mode where output events are queried by the user, and *push* mode where input events are produced by the user. We also studied the principles of synchronous processing, and the fact that processors manage internal queues to make sure they always process events at matching positions in their input streams.
-
-The rest of this book can be seen, informally, as merely playing around with these basic concepts.
 
 ## Exercises {#ex-basic}
 
