@@ -23,7 +23,7 @@ Bags.getSize.evaluate(new Object[]{list}, outs);
 
 First, a `QueueSource` is created, as usual; note that this time, each event in the source is itself a *list* (method `createList` is a small utility method that creates a `List` object out of its arguments). Then, this source is piped as the first argument of an `ApplyFunction` processor that evaluates `Bags.contains`; its second argument comes from a stream of numbers that increments by one. The end result is a stream where the *n*-th output event is the value `true` if and only if the *n*-th input list in `src1` contains the value *n*. This can be illustrated as such:
 
-{@img doc-files/util/BagsContains.png}{A first event stream with a more complex data structure.}{.6}
+{@img doc-files/util/BagsContains.png}{A first event stream with a more complex data structure.}{.45}
 
 This drawing introduces the "polka dot" pattern. The base colour to represent collections (sets, lists or arrays) is pink; the dots on the pipes are used to indicate the type of the elements inside the collection (here, numbers). When the type of the elements inside the collection is unknown or varies, the pipes will be represented in flat pink without the dots. Note also the symbol used to depict the `Contains` function.
 
@@ -310,7 +310,7 @@ In Java, the standard input can be manipulated like any `InputStream`, using the
 
 Since <!--\index{ReadStreamString@\texttt{ReadStreamString}} it-->`ReadStringStream`<!--/i--> works only in pull mode, and `Print` works only in `Push` mode, a `Pump` must be placed in between to repeatedly pull bytes from the input and push them to the output. This can be represented graphically as follows:
 
-{@img doc-files/io/ReadStdin.png}{Reading characters from the standard input.}{.6}
+{@img doc-files/io/ReadStdin.png}{Reading characters from the standard input.}{.45}
 
 In this picture, the leftmost processor is the {@link jdc:ca.uqac.lif.cep.io.StreamReader StreamReader}. As you can see, <!--\index{StreamReader@\texttt{StreamReader}} it-->it<!--/i--> takes its input from the standard input; note how its left-hand side input has the "funnel" shape that represents system streams (and not BeepBeep pipes). A similar comment can be made for the <!--\index{Print@\texttt{Print}} \texttt{Print}-->`Print`<!--/i--> processor, which was seen earlier. It receives input events, but as far as BeepBeep is concerned, does not produce any output events. Rather, it sends whatever it receives to the "outside world", this time through the `stdout` system stream. This is also what the `Print` processor does in examples from the previous chapters; however, the "stdout" output which was implicit in those examples is explicitly written here, in the diagram. 
 

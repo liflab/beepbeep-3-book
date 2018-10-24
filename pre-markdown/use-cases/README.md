@@ -25,7 +25,7 @@ Events are structured as tuples, with a fixed set of attributes, each of which t
 
 The result of that query is itself a trace of tuples, much in the same way the relational `SELECT` statement on a table returns another table. To illustrate how this query can be executed, we consider the following diagram:
 
-{@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query}{.6}
+{@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query}{.45}
 
 The first processor box in the figure is a fictitious "ticker source", which, in the present case, generates a random stream similar to the example given above. The events from this source are replicated along two paths. The bottom path is evaluated against the condition that the value in the second column (index 1) is the string "MSFT". The top path is sent into a `Filter` processor, whose control pipe is connected to the stream of Boolean values calculated previously. This results in a stream where only events concerning the MSFT symbol are kept. Finally, the <!--\index{Prefix@\texttt{Prefix}} \texttt{Prefix}-->`Prefix`<!--/i--> processor retains the first five events from this stream, completing the implementation of the query. This chain of processors corresponds to the following code snippet:
 
@@ -39,7 +39,7 @@ This simple query highlights the fact that, in online processing, outputting a t
 
 We shall divide this query into two parts. The first part groups all events of the same day into an array, and can be illustrated as follows:
 
-{@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.6}
+{@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.2}
 
 First, events whose timestamp value is lower than 100 are filtered out from the output. Then, a copy of the resulting stream is sent as into the data pipe of a `Pack` processor. Two other copies of the stream are also created; one is delayed by one event, and the timestamp in events of these two copies is then fetched and compared. The end result is a stream that contains the value `false` if an event has the same timestamp as the previous one, and `false` otherwise. A single `false` event is inserted at the beginning of this stream, using an instance of the `Insert` processor. The resulting stream is sent to the control pipe of the `Pack` processor. This corresponds to the following code snippet:
 
@@ -49,7 +49,7 @@ The end result is that incoming events are accumulated into a list, until the cu
 
 The next part of the processor chain checks that, in these created lists, the value of MSFT is at least 50. It can be represented as in the following diagram:
 
-{@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two}{.6}
+{@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two}{.45}
 
 This processor chain uses the <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> processor, and evaluates a Boolean condition on each event of the list. This condition checks that, if the stock symbol is MSFT, then its value is greater than 50. This condition returns a distinct Boolean value for each element of the list. The list itself should be considered if the condition evaluates to `true`  on all its elements. One can evaluate this by sending the output of the `RunOn` processor into a `Cumulate` processor, which is instructed to compute the logical conjunction of the values it receives. This Boolean trace is used as the control stream of a `Filter` processor; only lists where the price for MSFT is higher than 50 will be output. These lists are then sent to an `Unpack` processor, which outputs the elements of each list one by one. In code, this chain can be implemented as in the following snippet:
 
@@ -65,7 +65,7 @@ As a first step to evaluate this query, we show how to calculate the statistical
 
 As the diagram shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
 
-{@img doc-files/stockticker/WindowQuery.png}{Window query}{.6}
+{@img doc-files/stockticker/WindowQuery.png}{Window query}{.3}
 
 The previous figure shows the chain that computes the average of stock symbol MSFT over a window of 5 events. The first part should now be familiar, and filters events based on their stock symbol. The events that get through this filtering are then converted into a stream of numbers by fetching the value of their closing price. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query. The Java code corresponding to this example is the following:
 
@@ -103,7 +103,7 @@ Although our example query does not specify it, this aggregation can be computed
 
 Let us show how this query can be computed using chains of function processors. We can reuse the statistical moment processor E<sup>*n*</sup>(*x*) defined above. Equipped with such processors, the desired property can be evaluated by the graph shown in the next figure ({@snipi hl7/StdevExample.java}{/}).
 
-{@img hl7/query-4.png}{The chain of processors for Query 6.}{.6}
+{@img hl7/query-4.png}{The chain of processors for Query 6.}{.3}
 
 The input trace is divided into four copies. The first copy is subtracted by the statistical moment of order 1 of the second copy, corresponding to the distance of a data point to the mean of all data points that have been read so far. This distance is then divided by the standard deviation (computed form the third copy of the trace). An `ApplyFunction` processor then evaluates whether this value is greater than the constant trace with value 1.
 
@@ -135,7 +135,7 @@ One could imagine various queries involving the windows and aggregation function
 
 This query expresses a pattern correlating values in pairs of successive bid events: namely, the price value in any two bid events for the same item *i* must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
-{@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one}{.6}
+{@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one}{.3}
 
 {@snipm auction/MonotonicBid.java}{/}
 
@@ -147,7 +147,7 @@ As one can see, this query refers to the detection of a pattern that takes into 
 
 Rather than simply checking that the sequencing of events for each item is followed, we will take advantage of BeepBeep's flexibility to compute a non-Boolean query: the average number of days since the start of the auction, for all items whose auction is still open and in a valid state. The processor graph is shown below.
 
-{@img doc-files/auction/AuctionExample.png}{Processor graph for the "Auction Bidding" query}{.6}
+{@img doc-files/auction/AuctionExample.png}{Processor graph for the "Auction Bidding" query}{.3}
 
 The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i--> will be created, as shown in the top part of the graph.
 
@@ -181,7 +181,7 @@ Our long processor chain can be broken into three parts: preprocessing, processi
 
 Preprocessing starts from the raw data, and formats it so that the actual computations are then possible. In a nutshell, the preprocessing step amounts to the following processor chain:
 
-{@img doc-files/voyager/pre-processing.png}{Preprocessing the Voyager data.}{.6}
+{@img doc-files/voyager/pre-processing.png}{Preprocessing the Voyager data.}{.45}
 
 Since the data is split into multiple CSV files, we shall first create one instance of the <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor for each file, and put these `Source`s into an array. We can then pass this to a processor called <!--\index{Splice@\texttt{Splice}} \texttt{Splice}-->`Splice`<!--/i-->, which is the first processor box shown in the previous picture. The splice pulls events from the first source it is given, until that source does not yield any new event. It then starts pulling events from the second one, and so on. This way, the contents of the multiple text files we have can be used as an uninterrupted stream of events. This is why the `Splice` pictogram is a small bottle of glue.
 
@@ -193,7 +193,7 @@ We then perform a drastic reduction of the data stream. The input files have hou
 
 The next step is to perform computations on this stream of arrays. The goal is to detect rapid variations in the spacecraft's speed, and to visualize these variations in a plot. To this end, the input stream will be forked in three parts, as shown in the following diagram:
 
-{@img doc-files/voyager/processing.png}{Processing the Voyager data.}{.6}
+{@img doc-files/voyager/processing.png}{Processing the Voyager data.}{.3}
 
 In the first copy of the stream, we apply a `FunctionTree` which extracts the first element of the input array (a year), the second element of the array (the number of a day in the year), and passes these two values to a custom function called `ToDate`, which turns them into a single number. This number corresponds to the number of days elapsed since January 1st, 1977 (the first day in the input files). Converting the date in such a format will make it easier to plot afterwards. This date is then fed into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, and will provide values for the first column of a three-column table.
 
@@ -215,7 +215,7 @@ In code, this chain of processor looks as follows:
 
 The last step is to display the contents of this table graphically. This can be done using the *Widgets* palette, in the following processor chain:
 
-{@img doc-files/voyager/visualization.png}{Visualizing the Voyager data.}{.6}
+{@img doc-files/voyager/visualization.png}{Visualizing the Voyager data.}{.45}
 
 A `Pump` is asked to repeatedly pull on the `UpdateTableStream`; its output is pushed into a `KeepLast` processor; this processor discards all its input events, except when it receives the last one from its upstream source. In this case, this corresponds to a reference the `Table` object once it is fully populated. This table is then passed to a `DrawPlot` processor, and then to a `WidgetSink` in order to be displayed in a `JFrame`. The code producing this chain of processor is as follows:
 
@@ -257,7 +257,7 @@ While this scenario certainly is a case of event stream processing in the strict
 
 The next figure describes the chain of basic event processors that are used to discover the peaks on the electrical signal. The signal from the electrical box is sent to a first processor, which transforms raw readings into name-value tuples, one for each time point. Each tuple contains numerical values for various components of the electrical signal; for example, parameter W1 measures the current active power of Phase 1.
 
-{@img doc-files/nialm/SignalProcessing.png}{The piping of processors for discovering peaks and plateaux on the original electrical signal. Elements in pink indicate parameters that can be adjusted, changing the behaviour of the pipe.}{.6}
+{@img doc-files/nialm/SignalProcessing.png}{The piping of processors for discovering peaks and plateaux on the original electrical signal. Elements in pink indicate parameters that can be adjusted, changing the behaviour of the pipe.}{.45}
 
 The second processor picks one such parameter from the tuple (W1 in the example), extracts its value, and discards the rest. The output trace from this processor is therefore a sequence of numbers. On the top path, this sequence is then fed to the <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> processor from the *Signal* palette, which detects sudden increases or decreases in a numerical signal. As we have seen in a previous chapter, for each input event, the processor outputs the height of the peak, or the value 0 if this event is not a peak. Since an event needs to be out of the window to determine that it is a peak, the emission of output events is delayed with respect to the consumption of input events.
 
@@ -275,7 +275,7 @@ From the initial state, the event "appliance on" (I) is output only if a peak an
 
 The last step is to apply this Moore machine on some electrical signal. To this end, we shall reuse the signal generator used in Chapter 5 to illustrate the operation of various processors of the *Signal* palette ({@snipi signal/GenerateSignalNoise.java}{/}). In this example, we instruct the generator to produce a signal that starts at zero, increases rapidly to the value 1,000, stabilizes at the value 700 and then drop back to zero. This stream is then fed to the signal processing chain described earlier, which produces a "peak" and a "plateau" stream. The two streams then enter the Moore machine, which is instantiated with the signature (peak-plateau-drop) that should be detected. Finally, the time stream of the signal generator is merged with the output of the Moore machine to create tuples of the form (*t*,*s*), where *t* is a timestamp, and *s* is the detected state of the appliance for that timestamp. This corresponds to the following diagram:
 
-{@img doc-files/nialm/All.png}{The complete detection process.}{.6}
+{@img doc-files/nialm/All.png}{The complete detection process.}{.3}
 
 As one can see, the signal processing chain has been encapsulated into a single box, with numbers at its edges representing the parameters given to the processors encased into it. Similarly, the Moore machine is also represented as a single box, with the numbers 1,000, 700 and -700 representing the values used in the conditions on state transitions. In code, the remaining steps can be written like this:
 
@@ -298,7 +298,7 @@ Our last use case considers event streams produced by the execution of a piece o
 
 We take as an example the case of a game called <!--\index{Pingus (video game)} \textit{Pingus}-->*Pingus*<!--/i-->, a clone of Psygnosis' Lemmings game series. The game is divided into levels populated with various kinds of obstacles, walls, and gaps. Between 10 and 100 autonomous, penguin-like characters (the Pingus) progressively enter the level from a trapdoor and start walking across the area. The player can give special abilities to certain Pingus, allowing them to modify the landscape to create a walkable path to the goal. For example, some Pingus can become Bashers and dig into the ground; others can become Builders and construct a staircase to reach over a gap. The following figure shows a screenshot of the game.
 
-{@img pingus/Pingus.png}{A screenshot of the Pingus video game in action.}{.6}
+{@img pingus/Pingus.png}{A screenshot of the Pingus video game in action.}{.3}
 
 When running, the game updates the playing field about 150 times per second; each cycle of the game's main loop produces an XML snapshot of its state similar to the one shown below:
 
@@ -332,7 +332,7 @@ Second, in order to detect this pattern of events, one must correlate the x-y po
 
 The following diagram shows the processor graph that verifies this. Here, blue pipes carry XML events, turquoise pipes carry events that are scalar numbers, and grey pipes contain Boolean events.
 
-{@img doc-files/pingus/TurnAround.png}{The processor chain for processing a stream of events for the Pingus video game.}{.6}
+{@img doc-files/pingus/TurnAround.png}{The processor chain for processing a stream of events for the Pingus video game.}{.45}
 
 The XML trace is first sent into a universal quantifier. The domain function, represented by the oval at the top, is the evaluation of the XPath expression `//character[status=Walker]/id/text()` on the current event; this fetches the value of attribute id of all characters whose status is `Walker`. For every such value *c*, a new instance of the underlying processor will be created, and the context of this processor will be augmented with the association *p*<sub>1</sub> → *c*. The underlying processor, in this case, is yet another quantifier. This one fetches the ID of every `Blocker`, and for each such value *c*<sub>0</sub>, creates one instance of the underlying processor and adds to its context the association *p*<sub>2</sub> → *c*<sub>0</sub>.
 

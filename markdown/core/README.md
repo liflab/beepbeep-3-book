@@ -590,6 +590,8 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 
 ![Computing the running average over a sliding window.](WindowAverage.png)
 
+The code corresponding to this picture is shown below:
+
 [⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowAverage.java)
 
 Groups can have an arbitrary input and output arity, as is shown in the example below:
@@ -620,9 +622,7 @@ A common task in event stream processing is to discard events from an input stre
 - based on a fixed number of events (*count decimation*), and
 - based on a fixed interval of time (*time decimation*).
 
-In this section, we concentrate on the former; time decimation will be discussed in the next chapter.
-
-To perform count decimation, BeepBeep provides a processor called <!--\index{CountDecimate@\texttt{CountDecimate}} \texttt{CountDecimate}-->`CountDecimate`<!--/i-->. Let us push events to such a processor, as in the following code fragment.
+In this section, we concentrate on the former. To perform count decimation, BeepBeep provides a processor called <!--\index{CountDecimate@\texttt{CountDecimate}} \texttt{CountDecimate}-->`CountDecimate`<!--/i-->. Let us push events to such a processor, as in the following code fragment.
 
 ``` java
 CountDecimate dec = new CountDecimate(3);

@@ -101,6 +101,7 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 								echo "    Copying $filename to ".$out_png_filename."\n";
 								copy($filename, $out_png_filename);
 						}
+						$latex_contents = preg_replace("/\\\\includegraphics\\{(.*?)".str_replace("/", "\\/", preg_quote($basename))."\\}/", "\\scalebox{".$match[3]."}{\\includegraphics{\\1".$basename."}}", $latex_contents);
 				}
 				else
 				{

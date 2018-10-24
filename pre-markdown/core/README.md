@@ -223,7 +223,7 @@ Consider for example the stream of numbers 2, 7, 1, 8, etc. After reading the fi
 
 This example, however, requires a second queue just to count events received. Our chain of processors can be refined by creating a counter out of the original stream of values, as shown here:
 
-{@img doc-files/basic/AverageFork.png}{Running average not relying on an external counter.}{.6}
+{@img doc-files/basic/AverageFork.png}{Running average not relying on an external counter.}{.45}
 
 We first fork the original stream of values in two copies. The topmost copy is used for the cumulative sum of values, as before. The bottom copy is sent into a processor called {@link jdc:ca.uqac.lif.cep.functions.TurnInto TurnInto}; this processor replaces whatever input event it receives by the same predefined object. Here, it is instructed to <!--\index{TurnInto@\texttt{TurnInto}} turn-->turn<!--/i--> every event into the number 1. This stream of 1s is then summed, effectively creating a counter that produces the stream 1, 2, 3, etc. The two streams are then divided as in the previous example.
 
@@ -285,7 +285,7 @@ The `Trim` processor introduces an important point: from now on, the number of c
 
 Coupled with `Fork`, the `Trim` processor can be useful to create two copies of a stream, offset by a fixed number of events. This makes it possible to output events whose value depends on multiple input events of the same stream. The following example shows how a source of numbers is forked in two; on one of the copies, the first event is discarded. Both streams are then sent to a processor that performs an addition.
 
-{@img doc-files/basic/SumTwo.png}{Computing the sum of two successive events.}{.6}
+{@img doc-files/basic/SumTwo.png}{Computing the sum of two successive events.}{.45}
 
 {@snipi basic/SumTwo.java}{/}
 
@@ -355,19 +355,21 @@ However, merely putting processors inside a group is not sufficient. The `GroupP
 
 It is now possible to use `group` as if it were a single processor box. The remaining lines connect `source` to `group`, and fetch a `Pullable` object from `group`'s output pipe. Graphically, this is illustrated as follows:
 
-{@img doc-files/basic/GroupSimple.png}{Simple usage of a `GroupProcessor`.}{.6}
+{@img doc-files/basic/GroupSimple.png}{Simple usage of a `GroupProcessor`.}{.45}
 
 Note how the chain of processors is enclosed in a large rectangle, which has one input and one output pipe. The calls to `associateInput()` and `associateOutput()` correspond to the dashed lines that link the group's input pipe to the input pipe of the enclosed chain, and similarly for the output pipe.
 
 Equipped with a `GroupProcessor`, it now becomes easy to compute the average over a sliding window we started this section with. This can be illustrated as follows:
 
-{@img doc-files/basic/WindowAverage.png}{Computing the running average over a sliding window.}{.6}
+{@img doc-files/basic/WindowAverage.png}{Computing the running average over a sliding window.}{FOOO}
+
+The code corresponding to this picture is shown below:
 
 {@snipi basic/WindowAverage.java}{/}
 
 Groups can have an arbitrary input and output arity, as is shown in the example below:
 
-{@img doc-files/basic/GroupBinary.png}{A group processor with more than one output pipe.}{.6}
+{@img doc-files/basic/GroupBinary.png}{A group processor with more than one output pipe.}{.45}
 
 Here, we create two copies of the input stream offset by one event. These two streams are sent to an `ApplyFunction` processor that evaluates function <!--\index{IntegerDivision@\texttt{IntegerDivision}} \texttt{IntegerDivision}-->`IntegerDivision`<!--/i-->, which we encountered earlier in this chapter. This function has an input and output arity of 2. We want the group processor to output both the quotient and the remainder of the division as two output streams. Since the group has two output pipes, two calls to `associateOutput` must be made. The first associates output 0 of the function processor to output 0 of the group, and the second associates output 1 of the function processor to output 1 of the group. The code creating the group is hence written as follows:
 
@@ -380,9 +382,7 @@ A common task in event stream processing is to discard events from an input stre
 - based on a fixed number of events (*count decimation*), and
 - based on a fixed interval of time (*time decimation*).
 
-In this section, we concentrate on the former; time decimation will be discussed in the next chapter.
-
-To perform count decimation, BeepBeep provides a processor called <!--\index{CountDecimate@\texttt{CountDecimate}} \texttt{CountDecimate}-->`CountDecimate`<!--/i-->. Let us push events to such a processor, as in the following code fragment.
+In this section, we concentrate on the former. To perform count decimation, BeepBeep provides a processor called <!--\index{CountDecimate@\texttt{CountDecimate}} \texttt{CountDecimate}-->`CountDecimate`<!--/i-->. Let us push events to such a processor, as in the following code fragment.
 
 {@snipm basic/CountDecimateSimple.java}{/}
 
@@ -457,7 +457,7 @@ As we can see, the bottom part of the chain passes the input stream through an `
 
 The `Filter` is a powerful processor in our toolbox. Using a filter, we can take a larger stream and create a "sub-stream" --that is, a stream that contains a subset of the events of the original stream. Using forks, we can even create *multiple* different sub-streams from the same input stream. For example, we can separate a stream of numbers into a sub-stream of even numbers on one side, and a sub-stream of odd numbers on the other. This is perfectly possible, as the picture below shows.
 
-{@img doc-files/basic/OddEvenSubstreams.png}{Creating two sub-streams of events: a stream of odd numbers, and a stream of even numbers.}{.6}
+{@img doc-files/basic/OddEvenSubstreams.png}{Creating two sub-streams of events: a stream of odd numbers, and a stream of even numbers.}{.45}
 
 However, we can see that this drawing contains lots of repetitions. The chains of processors at both ends of the first fork are almost identical; the only difference is the function passed to each instance of `ApplyFunction`: in the top chain, even numbers are kept, while in the bottom chain, a negation is added to the condition, so that odd numbers are kept. The two output pipes at the far right of the diagram hence produce a stream of even numbers (at the top) and a stream of odd numbers (at the bottom).
 

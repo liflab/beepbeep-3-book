@@ -31,11 +31,11 @@ An organization may have multiple log repositories at its disposition: execution
 
 A first, natural step to extract and process data consists of writing a bunch of quick crunching scripts in some mainstream programming language. To this end, <!--\index{Python} Python-->Python<!--/i-->, <!--\index{PHP} PHP-->PHP<!--/i--> or <!--\index{Perl} Perl-->Perl<!--/i--> can come in handy. However, as time goes by, a tiny script becomes two, which together grow from a few tens of lines to a few hundreds. More often than not, their content is so specific to the current data-crunching task that hardly anything they contain is worth reusing. Since every script is essentially single-use, not much time is spent on testing or documentation. The end result is a situation similar to the next figure, which shows a proliferation of hack-together, use-once, throw-away scripts.
 
-{@img Scripts.png}{Processing logs with user-defined scripts.}{.6}
+{@img Scripts.png}{Processing logs with user-defined scripts.}{.3}
 
 In contrast, an event stream processing system (such as BeepBeep) concentrates many recurring log processing tasks in a single location. Users still need to write scripts; however, these scripts can be expressed at a higher level of abstraction, by combining lower-level functions provided by the underlying system. This has for effect of improving their readability, but also of reducing their size. Most importantly, since the functionalities provided by the event stream processing system are intended to be generic and reusable, they are worth spending time to be well documented and tested. As a consequence, the same processing tasks can be accomplished in fewer lines of custom user code. This is what is illustrated in the next figure.
 
-{@img Queries.png}{Processing logs with an event stream processing system.}{.6}
+{@img Queries.png}{Processing logs with an event stream processing system.}{.3}
 
 ## What is BeepBeep?
 

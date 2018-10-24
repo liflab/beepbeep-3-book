@@ -297,7 +297,7 @@ The second-last instruction warrants an explanation. The goal of the `GroupProce
 
 This whole process can be represented as follows:
 
-{@img doc-files/dsl/Rule-trim.png}{A graphical representation of the stack manipulations for rule `<trim>`.}{.6}
+{@img doc-files/dsl/Rule-trim.png}{A graphical representation of the stack manipulations for rule `<trim>`.}{.4}
 
 This illustration stipulates that an arbitrary processor P and a string "n" are popped from the stack; a new `Trim(n)` processor is created and connected to the end of P; finally, this `Trim` processor is pushed back on the stack. Notice how, in this diagram, processor P seems to hang outside of the stack on the right-hand side of the picture. This is due to the fact that at the end of the operation, only the `Trim` processor is at the top of the stack; the reference to processor P is no longer present there. Yes, P is *connected* to `Trim`, but this only means that the respective pullables and pushables of both processors are made aware of each other. To illustrate this, P is drawn outside of the stack, but shown piped to the processor that is on the stack.
 
@@ -305,13 +305,13 @@ Once this is understood, the code for rule `<decim>` is straightforward, and alm
 
 {@snipm dsl/SimpleProcessorBuilder.java}{\*}
 
-{@img doc-files/dsl/Rule-decim.png}{A graphical representation of the stack manipulations for rule `<decim>`.}{.6}
+{@img doc-files/dsl/Rule-decim.png}{A graphical representation of the stack manipulations for rule `<decim>`.}{.4}
 
 The `<filter>` rule introduces a new element. A `Filter` has two input streams; therefore, one must pop *two* processors from the stack, and connect them in the proper way. This can be done as follows:
 
 {@snipm dsl/SimpleProcessorBuilder.java}{@}
 
-{@img doc-files/dsl/Rule-filter.png}{A graphical representation of the stack manipulations for rule `<filter>`.}{.6}
+{@img doc-files/dsl/Rule-filter.png}{A graphical representation of the stack manipulations for rule `<filter>`.}{.4}
 
 Notice how P1 and P2 are popped from the stack; the output of P1 is connected to the data pipe of a new `Filter` processor, while the output of P2 is connected to its control pipe. Finally, the filter is placed on top of the stack. Remember that objects are popped in the reverse order in which they appear in a rule; however, as per the use of the `pop` annotation, these objects are already popped and given to the method in the correct order by the `GroupProcessorBuilder`. Moreover, because of the `clean` annotation, only the objects corresponding to non-terminal symbols in the grammar rule (underlined) are present in the `parts` array.
 
@@ -323,7 +323,7 @@ Internally, the `GroupProcessorBuilder` maintains a set of `Fork` objects for ea
 
 Graphically, this can be illustrated as follows:
 
-{@img doc-files/dsl/Rule-stream.png}{A graphical representation of the stack manipulations for rule `<stream>`.}{.6}
+{@img doc-files/dsl/Rule-stream.png}{A graphical representation of the stack manipulations for rule `<stream>`.}{.4}
 
 As we can see on the right-hand side of the figure, a branch of the fork for input *n* is connected to a `Passthrough` processor and placed on top of the stack.
 
@@ -333,7 +333,7 @@ Done! We have written so far 6 lines of text for the grammar, and less than 40 l
 
 The process is similar to what was done earlier with functions. An instance of the builder is used to parse the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`; then, a `QueueSource` is created, and connected to the processor obtained from the builder. From then on, the resulting `Processor` object can be used like any other processor. If the building rules defined earlier were to be applied, step by step, one would discover that the `Processor` returned by `build` is actually this one:
 
-{@img doc-files/dsl/Example-Query2.png}{The `GroupProcessor` returned by our builder on the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`.}{.6}
+{@img doc-files/dsl/Example-Query2.png}{The `GroupProcessor` returned by our builder on the expression `KEEP ONE EVERY 2 FROM (TRIM 3 FROM (INPUT 0))`.}{.3}
 
 The innermost `INPUT 0` corresponds to the `Fork` and the `Passthrough` to the left of the box. The `TRIM 3 FROM` part produces the following `Trim` processor, and the `KEEP ONE EVERY 2 FROM` part produces the `CountDecimate` processor that follows. Finally, the `GroupProcessorBuilder` takes this whole chain and encapsulates it into a `GroupProcessor` of input and output arity 1, connecting input 0 of the box to fork 0, and the output of the chain to output 0 of the box. Note that in this example, since we refer to input pipe 0 only once, the fork and the passthrough are somewhat redundant; further refinements to the `GroupProcessorBuilder` could discover this and connect the input of the group directly to the `Trim` processor *a posteriori*. However, they make the handling of connecting processors to inputs much easier.
 
@@ -371,7 +371,7 @@ A new case has been added to rule `<proc>` to accommodate the `ApplyFunction` pr
 
 Stream variables are handled very easily by popping either the string "X" or "Y", and by putting the corresponding `StreamVariable` object back onto the stack. This can be done, graphically and in code, as follows:
 
-{@img doc-files/dsl/Rule-svar.png}{A graphical representation of the stack manipulations for rule `<svar>`.}{.6}
+{@img doc-files/dsl/Rule-svar.png}{A graphical representation of the stack manipulations for rule `<svar>`.}{.4}
 
 {@snipm dsl/ComplexProcessorBuilder.java}{s}
 
@@ -385,7 +385,7 @@ The method handling `<proclist>` is written as follows:
 
 The method first creates an empty `List` of `Processor` objects. It then pops three objects; the second is a `Processor` that is put into the list, and the other two are discarded. This is due to the fact that both cases of rule `<proclist>` end with the same three tokens: `( <proc> )`. The method then *peeks* (but does not pop) the next element on the stack. If this element is the string "AND", we are in the first case of the rule, and four more tokens are popped. This corresponds to the first half of the case, `( <proc> ) AND`. A second processor is extracted from this piece of code and added to the list. The method then pushes back onto the stack the `List` object, which contains either one or two processors. Graphically, this can be represented as follows:
 
-{@img doc-files/dsl/Rule-proclist.png}{A graphical representation of the stack manipulations for the two cases of rule `<proclist>`.}{.6}
+{@img doc-files/dsl/Rule-proclist.png}{A graphical representation of the stack manipulations for the two cases of rule `<proclist>`.}{.4}
 
 The case for `ApplyFunction` now becomes easy. The method simply pops a `Function` object and a `List` object. Depending on the size of the list, it connects either one or two processors from that list to `ApplyFunction`, and puts it back on the stack.
 
@@ -393,11 +393,11 @@ The case for `ApplyFunction` now becomes easy. The method simply pops a `Functio
 
 Graphically, this is represented in two different ways, depending on the size of the list:
 
-{@img doc-files/dsl/Rule-apply.png}{A graphical representation of the stack manipulations for rule `<apply>`.}{.6}
+{@img doc-files/dsl/Rule-apply.png}{A graphical representation of the stack manipulations for rule `<apply>`.}{.4}
 
 The last case in our grammar is `<avg>`. This is meant to compute the <!--\index{running average} running average-->running average<!--/i--> of a stream. In Chapter 3, we have already seen how this can be done by a chain of processors. Therefore, the code handling this rule simply builds this whole chain:
 
-{@img doc-files/dsl/Rule-avg.png}{A graphical representation of the stack manipulations for the rule `<avg>`.}{.6}
+{@img doc-files/dsl/Rule-avg.png}{A graphical representation of the stack manipulations for the rule `<avg>`.}{.3}
 
 As one can see, the processor from the stack is connected to the very beginning of the chain, and the very end of the chain is put back onto the stack. This is to show that a grammar construct does not need to instantiate a single `Processor` object. A single grammar rule can result in the creation of multiple objects at once.
 
@@ -415,7 +415,7 @@ AND (
 
 ...the object builder will create the following `GroupProcessor`:
 
-{@img doc-files/dsl/Example-QueryBig.png}{The `GroupProcessor` created by a complex query mixing functions and various other types of processors.}{.6}
+{@img doc-files/dsl/Example-QueryBig.png}{The `GroupProcessor` created by a complex query mixing functions and various other types of processors.}{.3}
 
 The complete object builder for this grammar requires 15 rules and roughly 130 lines of code for the interpreter.
 

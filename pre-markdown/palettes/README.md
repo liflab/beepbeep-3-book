@@ -62,7 +62,7 @@ The previous example has shown us how to read tuples, but not how to manipulate 
 
 This program is probably better explained through its graphical representation, as the following:
 
-{@img doc-files/tuples/SumAttributes.png}{Adding two attributes in each tuple.}{.6}
+{@img doc-files/tuples/SumAttributes.png}{Adding two attributes in each tuple.}{.3}
 
 From a `ReadLines` processor, a `TupleFeeder` is instantiated. The stream of tuples is then forked along two branches. In the first branch, the value of attribute "A" for each tuple is extracted. This is done by using an `ApplyFunction` processor, and giving an instance of a new function called <!--\index{FetchAttribute@\texttt{FetchAttribute}} \texttt{FetchAttribute}-->`FetchAttribute`<!--/i--> to this processor. When instantiated, function `FetchAttribute` is given the name of the attribute to fetch in the tuple. This value (a String) is converted into a number and sent into an `ApplyFunction` processor that computes a sum. The same thing is done along the bottom branch for attribute "B". From the same input file as above, the output of this program is:
 
@@ -148,7 +148,7 @@ reset
 
 The proper use of an iterator stipulates that one should never call method `next()` before first calling method `hasNext()`. The correct ordering of these calls can be expressed by a finite-state machine with three states, as in the following picture.
 
-{@img HasNextFSM.png}{A finite-state machine representing the constraint that `next()` cannot be called before calling `hasNext()` first.}{.6}
+{@img HasNextFSM.png}{A finite-state machine representing the constraint that `next()` cannot be called before calling `hasNext()` first.}{.45}
 
 In this FSM, states are numbered 0, 1 and 2; transitions between states are labelled with the method name they represent; for example, when the machine is in State 1, receiving a `next` event will make it move to State 0. One of these states is called the *initial state*, and is identified by an arrow that is unattached to any source state. In the present case, the initial state is 0. The "star" label on State 2's arrow indicates that this transition matches any incoming event.
 
@@ -191,7 +191,7 @@ false
 
 A complete graphical representation of the chain of processors in this program would be the following. Note how the transitions that were simply labelled with a method name in the original picture are replaced by a `Function` tree that checks for equality. Note also that the state numbers have been omitted, but that the output event associated to each state is shown instead.
 
-{@img doc-files/finitestatemachines/SimpleMooreMachine.png}{A complete representation of the `MooreMachine` example.}{.6}
+{@img doc-files/finitestatemachines/SimpleMooreMachine.png}{A complete representation of the `MooreMachine` example.}{.45}
 
 ### Using the Machine's Context
 
@@ -250,7 +250,7 @@ The remaining step is to associate output symbols to each state of the machine. 
 
 Whenever it reaches State 0, the Moore machine will query the current value of its local variable *c* and send it as its output event. This machine can be illustrated graphically as in the following figure.
 
-{@img doc-files/finitestatemachines/ExtendedMooreMachine.png}{The `MooreMachine` for the second example.}{.6}
+{@img doc-files/finitestatemachines/ExtendedMooreMachine.png}{The `MooreMachine` for the second example.}{.3}
 
 We can now try this machine on a feed of events, by connecting it to a queue source as before. If the source is made of the following sequence of strings:
 
@@ -340,7 +340,7 @@ LTL adds four new *operators* that can be used in a logical expression; these ar
 
 Operator **G** means "globally"; this operator is represented by a processor called (unsurprisingly) <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Its purpose is to make sure that the input stream remains `true` indefinitely. 
 
-{@img LTLOperators.png}{The intuitive meaning of the four LTL temporal operators.}{.6}
+{@img LTLOperators.png}{The intuitive meaning of the four LTL temporal operators.}{.45}
 
 The next figure illustrates this fact graphically. Its topmost section shows a timeline of events, represented by circles. Time flows from left to right, and the larger circle represents the current event. The colour of each circle indicates whether the input stream *p* is true (green) or false (red) in a particular event. As can be seen, for **G** *p* to return `true` on the current event, *p* itself must be true in the current event, but also in all subsequent events.
 
@@ -441,7 +441,7 @@ Note that `Until`, like any other synchronous processor with an arity greater th
 
 Like quantifiers, temporal operators can be *nested*: the output of an LTL processor can be fed to the input of another one. Consider a stream of basic events called *a*, *b*, *c* and *d*, and the constraint: "between an *a* and a *d*, there cannot be a *b* immediately followed by a *c*". For example, the stream *baccbbd* satisfies this constraint, while *accbcbd* would not. In LTL parlance, this would correspond to the formula: *a* → (¬ (*b* ∧ **X** *c*) **U** *d*). A processor chain that checks this constraint is shown in the next figure ({@snipi ltl/Nested.java}{}).
 
-{@img doc-files/ltl/Nested.png}{A more complex example involving multiple "nested" temporal operators.}{.6}
+{@img doc-files/ltl/Nested.png}{A more complex example involving multiple "nested" temporal operators.}{.3}
 
 Although this chain looks a little more complex than the previous examples, one can follow the construction of the LTL formula by reading the figure from right to left. The rightmost `ApplyFunction` implements the implication *a* → *P*, where *P* is a Boolean trace of events created upstream. *P* itself corresponds to the stream coming out of the `Until` processor, which implements the sub-expression *Q* **U** *d*. In turn, *Q* corresponds the output of the `ApplyFunction` processor that evaluates ¬ (*b* ∧ *R*), while *R* is the output of a processor evaluating **X** *c*. One can observe that, by replacing each sub-expression in succession, the resulting LTL formula we obtain is indeed *a* → (¬ (*b* ∧ **X** *c*) **U** *d*).
 
@@ -472,7 +472,7 @@ However, when the input event is an *a*, we must make sure that no *b* is immedi
 
 This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ({@snipi ltl/OpenClose.java}{}):
 
-{@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property}{.6}
+{@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property}{.3}
 
 The bottom part of the chain corresponds to the monitoring of the LTL formula. This output is then sent to the control pipe of a `Filter` processor, which receives on its data pipe a fork of the original stream. Pushing events on the fork produces an output like this:
 
@@ -591,14 +591,14 @@ The next step is to create a plot out of the table's content. The `DrawPlot` pro
 
 Graphically, this chain of processors can be illustrated as follows:
 
-{@img doc-files/plots/CumulativeScatterplot.png}{Producing a scatterplot from a source of random values.}{.6}
+{@img doc-files/plots/CumulativeScatterplot.png}{Producing a scatterplot from a source of random values.}{.45}
 
 This drawing introduces a few new boxes. The one at the far right is the `BitmapJFrame`; its input pipe is coloured in light green, which represents byte arrays. The box at its left is the `DrawPlot` processor. This processor is depicted with an icon indicating the type of plot that must be produced (here, a two-dimensional scatterplot). Still more to the left is the `TableUpdateStream` processor. Next to each of its input pipes, a label indicates the name of the column that will be populated by values from that stream. The output pipe of this processor is coloured in dark blue, representing `Table` objects.
 
 A window containing a plot, whose contents are updated once every second (due to the action of an intermediate `Pump` object) will appear by running this program.The window should look like this one:
 
-{@img doc-files/plots/window-plot.png}{The window produced by the `BitmapJFrame` processor.}{.6}
-
+{@img doc-files/plots/window-plot.png}{The window produced by the `BitmapJFrame` processor.}{.3}
+                                               
 Each new table entry increments the value of *x* by one; the value of *y* is randomly chosen. The end result is a dynamic plot created from event streams; the whole chain, from source to the actual bitmaps being displayed, amounts to only 12 lines of code. Obviously, sending the images into a bland `JFrame` is only done for the sake of providing an example. In a real-world situation, one would be more likely to divert the stream of byte arrays somewhere else, such as a file, or as a component of the user interface of some other software.
 
 Besides scatterplots, any other plot type supported by the MTNP library can be sent to `DrawPlot`'s constructor. It includes histograms, pie charts, heat maps, and so on. The only important point is that each plot is expected to receive tables structured in a particular way; for instance, a heat map requires a table with three columns, corresponding to the *x*-coordinate, *y*-coordinate, and "temperature" value, in this specific order. The upstream processor chain is responsible to produce a `Table` object with the appropriate structure.
@@ -619,7 +619,7 @@ The input of a processor chain may be a stream of numerical values obtained from
 
 To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ({@snipi signal/FakeSignal.java}{}):
 
-{@img doc-files/signal/FakeSignal.png}{Producing a numerical signal that varies with time.}{.6}
+{@img doc-files/signal/FakeSignal.png}{Producing a numerical signal that varies with time.}{.3}
 
 This example is one of the firsts using the <!--\index{VariableStutter@\texttt{VariableStutter}} \texttt{VariableStutter}-->`VariableStutter`<!--/i--> processor. In the previous processor chain, it is represented by the box connected into the `Fork`. Its first input (top) is a stream of values, while its second input (bottom) indicates how many times each value should be repeated in the output. With the numbers contained in the two sources, the processor is expected to output the value 0 five times, followed by the value 10 five times, and so on.
 
@@ -627,7 +627,7 @@ This stream is then forked in two copies. The topmost path should be familiar to
 
 This chain of seven processors gives us a crude way of producing a numerical signal whose behaviour is somewhat controlled by the contents of the two `QueueSource`s. In our example, in order to better see the end result, the pairs of values from "T" and "V" are sent into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, transformed into a plot and displayed in a window. Running this program should show a plot like the following:
 
-{@img doc-files/signal/plot-envelope.png}{Plotting the numerical signal produced by the previous chain of processors.}{.6}
+{@img doc-files/signal/plot-envelope.png}{Plotting the numerical signal produced by the previous chain of processors.}{.45}
 
 As an exercise, try changing the contents of the two sources to see the effect they have on the resulting plot.
 
@@ -643,41 +643,41 @@ A first useful processor of the *Signal* palette is used to find <!--\index{peak
 
 Using the graphical conventions we just established, this chain of processors can be represented as in the following diagram:
 
-{@img doc-files/signal/PeakFinderExample.png}{Finding peaks in a numerical signal.}{.6}
+{@img doc-files/signal/PeakFinderExample.png}{Finding peaks in a numerical signal.}{.45}
 
 In this program, the "signal" stream produced by the delta box is forked in two parts. One of them goes directly to the `PlotSignal` processor as before. The other is first passed through the `PeakFinderLocalMaximum` processor. This processor is parameterized by the length of the window, which, in this case, is of five events. This processed signal is also fed to the `PlotSignal` box, and given the name *P*. Therefore, the resulting plot will be made of *two* lines: one joining points from the pairs of numbers (*T*,*V*), and another joining points from the pairs (*T*,*P*). This makes it possible to visualize the effect of the `PeakFinderLocalMaximum` processor on the same plot as the original signal. The result should be a graph like the following:
 
-{@img doc-files/signal/peak-signal.png}{The original signal (V) and the detected local maxima (P).}{.6}
+{@img doc-files/signal/peak-signal.png}{The original signal (V) and the detected local maxima (P).}{.45}
 
 As one can see, the processor outputs the value 0 if the current input event is not considered as a peak; otherwise, it outputs the height of that peak. The definition of what constitutes a peak varies, depending on the underlying algorithm that is being used; in the present case, any local maximum that exits the sliding window is considered as a peak. The current version of the *Signal* palette also provides another processor, the <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->, which uses a different algorithm for detecting peaks.
 
 The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ({@snipi signal/PlateauExample.java}{}). This will produce the following plot:
 
-{@img doc-files/signal/plateau-signal.png}{The original signal (V) and the detected plateaux (P).}{.6}
+{@img doc-files/signal/plateau-signal.png}{The original signal (V) and the detected plateaux (P).}{.45}
 
 We can observe that the processor outputs the value 0 when no plateau is detected; otherwise, it outputs the height of the plateau at the position of the event that corresponds to the start of a plateau. Obviously, for this processor to detect a plateau, a delay in the output is required: the start of a plateau can only be ascertained until a few events later, when enough values in the same interval have been observed. This interval is called the *window width*, and it can be configured by passing this width to the object's constructor.
 
 Let us now change our input signal by changing its envelope and adding some random noise to its values. The processor chain to generate the signal is modified to look as follows:
 
-{@img doc-files/signal/GenerateSignalNoise.png}{Generating a signal and adding some noise.}{.6}
+{@img doc-files/signal/GenerateSignalNoise.png}{Generating a signal and adding some noise.}{.3}
 
 The main difference lies in the presence of a new fork on the bottom branch. The output signal from the `VariableStutter` processor is forked one more time; on the first path (top), the signal is sent into a processor called <!--\index{Randomize@\texttt{Randomize}} \texttt{Randomize}-->`Randomize`<!--/i-->; this processor turns any input event into a floating-point number, which is randomly selected from an predefined interval. In the current example, the interval is from -2 to 2, as indicated by the two numbers on the processor's box. This stream of random numbers is then added to the original signal (second path). This will result in a "jagged" output signal, with the amount of variation being parameterized by the interval set on `Randomize`. The code for this modified signal generator can be found in the example repository ({@snipi signal/GenerateSignalNoise.java}{}).
 
 Equipped with this new signal generator, we can illustrate a few more processors from the *Signal* palette. The first is called  <!--\index{Threshold@\texttt{Threshold}} \texttt{Threshold}-->`Threshold`<!--/i-->. Its task is to flatten to zero any input number whose absolute value lies below a predefined threshold, and to let the other numbers through. An example program showing the use of this processor produces the following plot ({@snipi signal/ThresholdExample.java}{}):
 
-{@img doc-files/signal/threshold-signal.png}{The original signal (V) and the signal after the application of the `Threshold` processor (P).}{.6}
+{@img doc-files/signal/threshold-signal.png}{The original signal (V) and the signal after the application of the `Threshold` processor (P).}{.45}
 
 Here, the threshold has been set to 4, meaning that all values lying between -4 and 4 will be turned into 0 in the output signal. Notice how this has for effect of partly "de-noising" the input, by removing the small signal variations around the x-axis.
 
 Like `PlateauFinder`, the <!--\index{Persist@\texttt{Persist}} \texttt{Persist}-->`Persist`<!--/i--> processor also operates on a window of width *k*; it returns the maximum value of the window. This has for effect of "persisting" high values in a signal for some time after they occur, in a way similar to some graphic equalizers used in music software. The examples repository contains a program that illustrates the use of `Persist`; it produces a plot like the following ({@snipi signal/PersistExample.java}{}):
 
-{@img doc-files/signal/persist-signal.png}{The original signal (V) and the signal after the application of the `Persist` processor (P).}{.6}
+{@img doc-files/signal/persist-signal.png}{The original signal (V) and the signal after the application of the `Persist` processor (P).}{.45}
 
 As one can see, the high values in a window remain in the output for a number of events after they occur, when no higher value is observed in the sliding window.
 
 The last processor contained in the *Signal* palette is called <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i-->. Instead of preserving high values, as is the case for `Persist`, this processor rather restricts the amount of non-zero events that can be output in a certain interval of time. The processor is instantitated with a window width *k*; when it receives a non-zero event, it outputs it, but will then turn into 0 the next *k*-1 events, regardless of whether they are zero or not. This is shown by the following plot, which applies the `Limit` processor to an input signal with a window width of 4 ({@snipi signal/LimitExample.java}{}):
 
-{@img doc-files/signal/limit-signal.png}{The original signal (V) and the signal after the application of the `Limit` processor (P).}{.6}
+{@img doc-files/signal/limit-signal.png}{The original signal (V) and the signal after the application of the `Limit` processor (P).}{.45}
 
 The *Signal* palette is still under development; it currently only provides basic processors for manipulating raw streams of numerical values. In particular, all the processors contained in the palette operate on the *time* domain; the addition of processors working on the *frequency* domain (such as Fourier transforms) is planned in future development steps. Nevertheless, the next chapter will show an example of an actual use case that uses processors from the *Signal* palette in its current state.
 
@@ -701,7 +701,7 @@ Both upstream and downstream gateways must be started in order to work; method `
 
 So far, it seems that events were merely pushed and printed at the console. What actually happened is a bit more complex: note how the upstream and the downstream gateways have never been linked using a call to `connect`. Rather, an HTTP request was used to pass the strings around. Therefore, this program is structured as if there were two "machines" running in parallel; Machine A pushes strings through HTTP requests, and Machine B receives and prints them. This could be illustrated as follows:
 
-{@img doc-files/network/httppush/PushLocalSimple.png}{Using gateways to send events through HTTP.}{.6}
+{@img doc-files/network/httppush/PushLocalSimple.png}{Using gateways to send events through HTTP.}{.45}
 
 It just happens that in this simple program, the HTTP requests are sent to `localhost`; therefore, they never leave the computer. However, the whole process would be identical if the character strings were sent over an actual network: `localhost` would simply be replaced by the IP address of some other computer.
 
@@ -739,7 +739,7 @@ Now, consider the following code example, which is a slightly modified version o
 
 The main difference is that a processor applying `JsonSerializeString` has been inserted before the upstream gateway, and another processor applying `JsonDeserializeString` has been inserted after the downstream gateway; the rest is identical. The serialization/deserialization functions must be passed the class of the objects to be manipulated. Here, we decide to use instances of `CompoundObject`s, as defined earlier. Graphically, our processor chain becomes:
 
-{@img doc-files/network/httppush/PushLocal.png}{Serializing objects before using HTTP gateways.}{.6}
+{@img doc-files/network/httppush/PushLocal.png}{Serializing objects before using HTTP gateways.}{.3}
 
 Note the pictogram used to illustrate the serialization processor: the picture represents an event that is "packed" into a box with a bar code, representing its serialized form. The deserialization processor conversely represents an event that is "unpacked" from a box with a bar code. Although these processors are actually plain `ApplyFunction` processors, we represent them with these special pictograms to improve the legibility of the drawings.
 
@@ -779,11 +779,11 @@ First, the URL where prime numbers will be pushed downstream is specified. The f
 
 Graphically, the chain of processors for Machine A can be represented as follows:
 
-{@img doc-files/network/httppush/twinprimes/MachineA.png}{The chain of processors for Machine A.}{.6}
+{@img doc-files/network/httppush/twinprimes/MachineA.png}{The chain of processors for Machine A.}{.2}
 
 Let us now move to Machine B. Only the processor chain is shown below:
 
-{@img doc-files/network/httppush/twinprimes/MachineB.png}{The chain of processors for Machine B.}{.6}
+{@img doc-files/network/httppush/twinprimes/MachineB.png}{The chain of processors for Machine B.}{.3}
 
 An `HttpDownstreamGateway` is first created to receive strings from Machine A. The next step is to convert the string received from the gateway back into a `BigInteger`. This number is then incremented by 2 using the addition function for `BigInteger`s. The rest of the chain is similar to Machine A: a filter is used to only let prime numbers through, and these numbers are then printed at the console.
 

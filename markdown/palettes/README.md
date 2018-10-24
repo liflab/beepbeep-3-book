@@ -927,7 +927,7 @@ This drawing introduces a few new boxes. The one at the far right is the `Bitmap
 A window containing a plot, whose contents are updated once every second (due to the action of an intermediate `Pump` object) will appear by running this program.The window should look like this one:
 
 ![The window produced by the `BitmapJFrame` processor.](window-plot.png)
-
+                                               
 Each new table entry increments the value of *x* by one; the value of *y* is randomly chosen. The end result is a dynamic plot created from event streams; the whole chain, from source to the actual bitmaps being displayed, amounts to only 12 lines of code. Obviously, sending the images into a bland `JFrame` is only done for the sake of providing an example. In a real-world situation, one would be more likely to divert the stream of byte arrays somewhere else, such as a file, or as a component of the user interface of some other software.
 
 Besides scatterplots, any other plot type supported by the MTNP library can be sent to `DrawPlot`'s constructor. It includes histograms, pie charts, heat maps, and so on. The only important point is that each plot is expected to receive tables structured in a particular way; for instance, a heat map requires a table with three columns, corresponding to the *x*-coordinate, *y*-coordinate, and "temperature" value, in this specific order. The upstream processor chain is responsible to produce a `Table` object with the appropriate structure.
