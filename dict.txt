@@ -110,6 +110,7 @@ stdout
 stylesheet
 superclass
 Sébastien
+StreamVariable
 SingleProcessor
 Sylvain
 SynchronousProcessor

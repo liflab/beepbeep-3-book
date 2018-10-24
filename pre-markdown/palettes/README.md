@@ -52,7 +52,7 @@ Graphically, this program can be represented as follows:
 
 {@img doc-files/tuples/CsvReaderExample.png}{Converting strings into tuples.}{.6}
 
-This drawing introduces the symbol for the `TupleFeeder`, a pictogram on the box representing a tuple. It also shows the colour used to represent tuple feeds (brown/orange).
+This diagram introduces the symbol for the `TupleFeeder`, a pictogram on the box representing a tuple. It also shows the colour used to represent tuple feeds (brown/orange).
 
 ### Querying Tuples
 
@@ -146,34 +146,34 @@ reset
 ...
 ```
 
-The proper use of an iterator stipulates that one should never call method `next()` before first calling method `hasNext()`. The correct ordering of these calls can be expressed by a finite-state machine with three states like in the following picture.
+The proper use of an iterator stipulates that one should never call method `next()` before first calling method `hasNext()`. The correct ordering of these calls can be expressed by a finite-state machine with three states, as in the following picture.
 
 {@img HasNextFSM.png}{A finite-state machine representing the constraint that `next()` cannot be called before calling `hasNext()` first.}{.6}
 
-In this FSM, states are numbered 0, 1 and 2; transitions between states are labelled with the method name they represent; for example, when the machine is in state 1, receiving a `next` event will make it move to state 0. One of these states is called the *initial state*, and is identified by an arrow that is not attached to any source state. In our case, the initial state is 0. The "star" label on state 2's arrow indicates that this transition matches any incoming event.
+In this FSM, states are numbered 0, 1 and 2; transitions between states are labelled with the method name they represent; for example, when the machine is in state 1, receiving a `next` event will make it move to state 0. One of these states is called the *initial state*, and is identified by an arrow that is unattached to any source state. In the present case, the initial state is 0. The "star" label on state 2's arrow indicates that this transition matches any incoming event.
 
-In BeepBeep's FSM palette, finite-state machines are materialized by an object called <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i-->; the origin of that name will be explained a little later. The creation of the machine is made by the following code example:
+In BeepBeep's FSM palette, finite-state machines are materialized by an object called <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i-->; the origin of that name will be explained subsequently. The creation of the machine is made by the following code example:
 
 {@snipm finitestatemachines/SimpleMooreMachine.java}{/}
 
 The first step is to create an empty `MooreMachine`; this machine receives one stream of events as its input, and produces one stream of events as its output --hence the two `1` in the object's constructor. In a `MooreMachine`, each state must be given a unique numerical identifier. Rather than hard-coding these numbers, we adopt a cleaner approach, and define symbolic constants for the three states of the Moore machine. It is recommended that the actual numbers for each state form a contiguous interval of integers starting at 0. Here, we associate numbers 0, 1 and 2 to the constants `UNSAFE`, `SAFE` and `ERROR`, respectively.
 
-We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide the number of the "source" state *n*<sub>*s*</sub>, and a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There exist multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
+We are now ready to define the transitions (i.e. the "arrows" between states) for this machine. This is just a tedious enumeration of all the arrows that are present in the graphical representation of the FSM. Adding a transition to the machine is done through a method called `addTransition()`. This method must provide the number of the "source" state *n*<sub>*s*</sub>, and a <!--\index{Transition@\texttt{Transition}} \texttt{Transition}-->`Transition`<!--/i--> object. There are multiple types of such objects, but a frequent subclass is the <!--\index{FunctionTransition@\texttt{FunctionTransition}} \texttt{FunctionTransition}-->`FunctionTransition`<!--/i-->. This object specifies:
 
-- a `Function` *f* that determines when the transition should fire. This function must have the same input arity as the machine itself, and return a Boolean value;
-- the number of the "destination" state *n*<sub>*d*</sub>.
+- A `Function` *f* that determines when the transition should fire. This function must have the same input arity as the machine itself, and return a Boolean value.
+- The number of the "destination" state *n*<sub>*d*</sub>.
 
-Intuitively, a `FunctionTransition` transition stipulates that when the machine is currently in state *n*<sub>*s*</sub> and receives an event *e*, if *f*(*e*) returns `true`, the machine shall move to state *n*<sub>*d*</sub>. For example, the first line states that in state 0 (`UNSAFE`), if the incoming event is "hasNext", go to state 1 (`SAFE`). The condition itself is expressed by creating a `FunctionTree` that checks if the incoming event (which is put into the `StreamVarible`) is equal to the `Constant` "hasNext". By default, the first state number that is ever given to the `MooreMachine` object is taken as the initial state of that machine. So here, `UNSAFE` will be the initial state. In BeepBeep's implementation of FSMs, there can be only one initial state.
+Intuitively, a `FunctionTransition` transition stipulates that when the machine is currently in state *n*<sub>*s*</sub> and receives an event *e*, if *f*(*e*) returns `true`, the machine shall move to state *n*<sub>*d*</sub>. For example, the first line states that in state 0 (`UNSAFE`), if the incoming event is "hasNext", go to state 1 (`SAFE`). The condition itself is expressed by creating a `FunctionTree` that checks if the incoming event (which is put into the `StreamVariable`) is equal to the `Constant` "hasNext". By default, the first state number that is ever given to the `MooreMachine` object is taken as the initial state of that machine. So here, `UNSAFE` will be the initial state. In BeepBeep's implementation of FSMs, there can only be one initial state.
 
-The remaining instructions simply add the other transitions to the machine. A special remark must be made about state 2, which is a *sink state*; in other words, once you reach this state, you stay there forever. These states are typically used to indicate that the system has entered into an irrecoverable error condition. A possible way to say so is to define the condition on its only transition as the `Constant` true; it will fire whatever the incoming event may be.
+The remaining instructions simply add the other transitions to the machine. A special remark must be made about state 2, which is a *sink state*; in other words, once you reach this state, you remain there forever. These states are typically used to indicate that the system has entered into an irrecoverable error condition. A possible way to say so is to define the condition on its only transition as the `Constant` true; it will fire whatever the incoming event may be.
 
-These seven lines of code completely define our FSM. However, as it is, `machine` is not instructed to output any event at any time. We said earlier that this FSM is of a particular kind, called a *Moore machine*. Such a machine outputs a symbol when jumping into a new state. This means that we can associate arbitrary events to each state of the machine. In our case, let us simply associate the Boolean values `true` to states `UNSAFE` and `SAFE`, and the value `false` to state `ERROR`. This is done using a method called `addSymbol()`:
+These seven lines of code completely define our FSM. However, as it is, the machine is not instructed to output any event at any time. We mentioned earlier that this FSM is of a particular kind, called a *Moore machine*. Such a machine outputs a symbol when jumping into a new state. This means that arbitrary events can be associated to each state of the machine. In the present case, let us simply associate the Boolean values `true` to states `UNSAFE` and `SAFE`, and the value `false` to state `ERROR`. This is done using a method called `addSymbol()`:
 
 {@snipm finitestatemachines/SimpleMooreMachine.java}{\*}
 
-Method `addSymbol` takes as arguments the number of a state, and a `Function` object that is expected to return the desired symbol. This function is expected to ignore its input arguments, and to have the same output arity as the Moore machine itself. In the present case, the function is a simple `Constant` that returns a `Boolean` object. We stress that the machine does not need to return a Boolean, and that any Java object can be associated to a state.
+The `addSymbol` method takes as arguments the number of a state, and a `Function` object that is expected to return the desired symbol. This function is expected to ignore its input arguments, and to have the same output arity as the Moore machine itself. In the present case, the function is a simple `Constant` that returns a `Boolean` object. We stress that the machine does not need to return a Boolean, and that any Java object can be associated to a state.
 
-We are now done. We can try our Moore machine on a sequence of events, by connecting it upstream to a `QueueSource` as usual, and by pulling the events that come out of it.
+The Moore machine is now ready. It can be applied on a sequence of events, by connecting it upstream to a `QueueSource` as usual, and by pulling the events it produces.
 
 {@snipm finitestatemachines/SimpleMooreMachine.java}{!}
 
@@ -195,11 +195,11 @@ A complete graphical representation of the chain of processors in this program w
 
 ### Using the Machine's Context
 
-We have seen in the previous chapter how each `Processor` object carries an associative map called the <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i-->. A `MooreMachine` is one example of a processor that can put this `Context` object to good use, by employing it as a storage location for local variables. These variables can be initialized by the `MooreMachine` when it is created, modified when a transition is taken, and their value can be used in the conditions that determine which transition should fire. In this respect, such variables work in a very similar way to the same kind of local variables one can find in UML state machines.
+We have seen in the previous chapter how each `Processor` object carries an associative map called a <!--\index{processor!context} \texttt{Context}-->`Context`<!--/i-->. A `MooreMachine` is one example of a processor that can put this `Context` object to good use, by employing it as a storage location for local variables. These variables can be initialized by the `MooreMachine` when it is created, modified when a transition is taken, and their value can be used in the conditions that determine which transition should fire. In this respect, such variables work in a very similar way to the same kind of local variables one can find in UML state machines.
 
 Let us modify the previous example to illustrate the use of variables. We shall tweak the state machine, and impose the (arguably bizarre) constraint that the number of calls to `hasNext()` between each call to `next()` should increase by 1 every time. Since this constraint involves counting, and we impose no upper bound on the count, it cannot be represented by a classical finite-state machine. However, this becomes possible using additional variables. The principle is to update two variables: *c* keeps the number of calls to `hasNext()` since the last call to `next()`, and *n* keeps the expected number of calls to `hasNext()` in the current "cycle". Every time `hasNext()` is called, *c* should be incremented. Every time `next` is called, *c* should be reset to zero and *n* should be incremented. An error occurs whenever `hasNext` is called and *c* is greater than *n*, or when `next` is called and *c* is not equal to *n*. This could be illustrated as follows:
 
-{@img HasNextFSMContext.png}{A finite-state machine representing the constraint our our second example.}{.6}
+{@img HasNextFSMContext.png}{A finite-state machine representing the constraint our second example.}{.6}
 
 This FSM looks very different as the previous one. As you can see, transitions now have conditions attached to them: these conditions are called *guards*. For example, the loop transition on the left-hand side of state 0 can be fired only if the incoming event is `hasNext` *and* the current value of local variable *c* is less than the current value of local variable *n*. In addition, transitions now also have *side effects* --that is, actions that change the processor's internal configuration other than simply moving it from one state to another. These side effects, in the figure, are separated from the guard by a slash, and consist of assignments to the local variables. When a state has multiple outgoing transitions, the `*` is interpreted as the transition that fires when no other does.
 
@@ -209,8 +209,8 @@ Take two minutes to convince yourself that this "extended" Moore machine indeed 
 
 The next step is to define transitions, as before. Let us first consider the case of the loop on state 0 located on the left-hand side of the figure. The guard on this transition should express the condition that:
 
-- the current event is the string `hasNext` **and**
-- the current value of *c* in the processor's context is less than the current value of *n*
+- The current event is the string `hasNext`, **and**
+- the current value of *c* in the processor's context is less than the current value of *n*.
 
 Such a Boolean function can be created with the help of a `FunctionTree`, as is shown by the code below:
 
@@ -222,35 +222,35 @@ The transition has a guard, but also a side effect, which in this case is to inc
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{\*}
 
-In our case, the function we pass is a `FunctionTree` that adds the constant 1 to the current value of *c* in the processor's context. This has indeed for effect of incrementing the processor's variable *c* by one.
+In the present case, the function passed is a `FunctionTree` adding the constant 1 to the current value of *c* in the processor's context. This has indeed the effect of incrementing the processor's variable *c* by one.
 
 We are now ready to add the transition to the Moore machine. This is done, as before, by using method `addTransition`:
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{%}
 
-Note that, this time, method `addTransition` takes three arguments: the `Function` corresponding to the guard, the number of the destination state, and the `ContextAssignment` corresponding to the side effect to apply on that transition. As a matter of fact, `addTransition` accepts any number of `ContextAssignment`s after its first two arguments; this makes it possible to change the value of multiple context keys in the same transition.
+Note that, this time, the `addTransition` methods takes three arguments: the `Function` corresponding to the guard, the number of the destination state, and the `ContextAssignment` corresponding to the side effect to apply on that transition. As a matter of fact, `addTransition` accepts any number of `ContextAssignment`s after its first two arguments; this makes it possible to change the value of multiple context keys in the same transition.
 
 Once we understand these concepts, defining the other self-loop on state 0 becomes straightforward. Instead of creating separate `guard` and `asg` objects, we put everything into the same method call:
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{#}
 
-We agree that this notation tends to be a bit verbose, but in counterpart, it makes the definition of transitions and side effects very flexible.
+Obviously, this notation tends to be a bit verbose, but in counterpart, it makes the definition of transitions and side effects very flexible.
 
-A last remark must be made about the definition of the "star" transitions. In our previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, because there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. 
+A last comment must be made about the definition of the "star" transitions. In the previous example, we used the constant `true` as the condition for the sole star transition there was in the Moore machine. This worked, since there was no other outgoing transition on state 2. However, the order in which a Moore machine evaluates the guard on each of the outgoing transitions is non-deterministic. Setting `true` as the condition on the transition from state 0 to state 1 could lead to strange results: the FSM could move from 0 to 1 even if the condition on the other transition is true, just because it is the first one to be evaluated. 
 
-To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state fires first. This is the object we use to define the transition from state 0 to state 1, and also the self-loop on state 1:
+To alleviate this problem, we must use a different kind of transition, called <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}} \texttt{TransitionOtherwise}-->`TransitionOtherwise`<!--/i-->. This transition fires *if and only if* none of the other outgoing transitions from the same source state can fire. This is the object used to define the transition from state 0 to state 1, and also the self-loop on state 1:
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{@}
 
 The single argument of `TransitionOtherwise`'s constructor is the destination state of the transition.
 
-We are almost done. The remaining step is to associate output symbols to each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the method `addSymbol()` requires a `Function` object; our previous example was just the particular case where this function was a `Constant`. Here, we pass a `ContextVariable` fetching the value of *c* in the processor's context, and associate it to state 0:
+The remaining step is to associate output symbols to each state of the machine. We shall illustrate another feature of BeepBeep's `MooreMachine` object: instead of giving fixed symbols to states, we make the machine output values of their local variables. This is possible since the `addSymbol()` method requires a `Function` object; in the previous example, this function was a `Constant`. Here, a `ContextVariable` is passed, fetching the value of *c* in the processor's context, and associating it to state 0:
 
 {@snipm finitestatemachines/ExtendedMooreMachine.java}{\(}
 
-Whenever it reaches state 0, our Moore machine will query the current value of its local variable *c* and send it as its output event. This machine can be illustrated graphically as in the following figure.
+Whenever it reaches state 0, the Moore machine will query the current value of its local variable *c* and send it as its output event. This machine can be illustrated graphically as in the following figure.
 
-{@img doc-files/finitestatemachines/ExtendedMooreMachine.png}{The `MooreMachine` of our second example.}{.6}
+{@img doc-files/finitestatemachines/ExtendedMooreMachine.png}{The `MooreMachine` for the second example.}{.6}
 
 We can now try this machine on a feed of events, by connecting it to a queue source as before. If the source is made of the following sequence of strings:
 
@@ -292,7 +292,7 @@ In BeepBeep's FOL palette, universal and existential quantifiers are implemented
 
 {@snipm fol/ForAllFunctionSimple.java}{/}
 
-The first line creates a new `FunctionTree` `f` that simply checks if the current value of context variable *x* is an even number. The next line creates a `ForAll` called `fa`, with *x* as its quantification variable and *f* as its function. We then create a list containing two «numbers. We proceed to evaluate `fa` on this list (you may want to go back to the beginning of chapter 3 to recall the syntax to evaluate `Function` objects). This has for effect of evaluating *f* twice: the first time by setting *x* to 2 in the context, and the second time by setting *x* to 6. Both calls return `true`; the conjunction of these values is also `true`, which is the value returned by `fa` and printed at the console. This corresponds to the intuition that `fa` verifies that "all the numbers in its input set are even".
+The first line creates a new `FunctionTree` `f` that simply checks if the current value of context variable *x* is an even number. The next line creates a `ForAll` called `fa`, with *x* as its quantification variable and *f* as its function. We then create a list containing two numbers. We proceed to evaluate `fa` on this list (you may want to go back to the beginning of chapter 3 to recall the syntax to evaluate `Function` objects). This has for effect of evaluating *f* twice: the first time by setting *x* to 2 in the context, and the second time by setting *x* to 6. Both calls return `true`; the conjunction of these values is also `true`, which is the value returned by `fa` and printed at the console. This corresponds to the intuition that `fa` verifies that "all the numbers in its input set are even".
 
 We then modify the list `nums` by appending number 7 at its tail. Re-evaluating `fa` on this list this time yields the value `false`. Three calls to *f* occur in the background, and the last one (corresponding to the context where *x*=7) returns `false`. This indeed matches the fact that not all numbers in the input set are even.
 
@@ -300,10 +300,10 @@ Graphically, `fa` can be represented as in the following picture:
 
 {@img doc-files/fol/ForAllFunctionSimple.png}{A graphical representation of the `ForAll` processor.}{.6}
 
-We can identify in this drawing the quantified variable (in the grey box), as well as the `FunctionTree` that is used as the quantifier's function (made of the application of function `IsEven` on context variable *x*). In addition, note the consistency of the colour coding:
+One can identify in this drawing the quantified variable (in the grey box), as well as the `FunctionTree` that is used as the quantifier's function (made of the application of function `IsEven` on context variable *x*). In addition, note the consistency of the colour coding:
 
-- the quantifier accepts a collection (pink) of numbers (teal), represented by the polka dot pattern; it also returns a Boolean value (grey-blue)
-- function `IsEven` accepts a number (teal) and returns a Boolean value (grey-blue).
+- The quantifier accepts a collection (pink) of numbers (teal), represented by the polka dot pattern; it also returns a Boolean value (grey-blue).
+- Function `IsEven` accepts a number (teal) and returns a Boolean value (grey-blue).
 
 Quantifier `Exists` performs what is called the *dual* of the universal quantifier. It returns `true` when at least one call to the underlying function *f* returns `true`. In our example, replacing `ForAll` with `Exists` would check that at least one number in the input list is even.
 
@@ -311,9 +311,9 @@ Quantifiers can also be *nested*. That is, the underlying function given to a qu
 
 {@img doc-files/fol/NestedQuantifiers.png}{Nesting two quantifiers.}{.6}
 
-In this case, a first quantifier `fa1` creates a context object by setting the quantification variable *x* successively to each of the strings in the input collection. It then evaluates its underlying function using each context. This function turns out to be another quantifier, which is given the same input collection. Given a context and an input collection, this second quantifier (`fa2`) creates yet more context objects by taking the incoming context, and setting the quantification variable *y* successively to each of the strings in the input collection. It, too, evaluates its underlying function `f`, which checks the equality between the length of the string associated to context variable *x* and the length of the string associated to context variable *y*.
+In this case, a first quantifier `fa1` creates a context object by setting the quantification variable *x* successively to each of the strings in the input collection. It then evaluates its underlying function using each context. This function turns out to be another quantifier, which is given the same input collection. Given a context and an input collection, this second quantifier (`fa2`) creates yet more context objects by taking the incoming context, and setting the quantification variable *y* successively to each of the strings in the input collection. This quantifier also evaluates an underlying function `f`, which checks the equality between the length of the string associated to context variable *x* and the length of the string associated to context variable *y*.
 
-Programmatically, the previous picture is represented by the following program; note how `fa2` is given as the `Function` argument to the constructor of `fa1`:
+Programmatically, the previous figure is represented by the following program; note how `fa2` is given as the `Function` argument to the constructor of `fa1`:
 
 {@snipm fol/NestedQuantifiers.java}{/}
 
@@ -336,7 +336,7 @@ Each quantifier also exists in a variant which, instead of taking a set as its i
 
 While first-order logic provides quantifiers that allow us to repeat a condition on each element of a collection, another branch of logic concentrates on ordering relationships between events in a sequence. This is called *temporal logic*, and we shall concentrate in this section on <!--\index{Linear Temporal Logic (LTL)} \emph{linear temporal logic}-->*linear temporal logic*<!--/i-->, also called LTL.
 
-LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the traditional Boolean connectives (negation, conjunction, disjunction, implication). Le us examine the meaning of each of these operators successively. There already exists ample documentation on LTL as a logical language. In this section, we take a slightly different approach, and describe each operator by viewing it as a `Processor` on Boolean streams.
+LTL adds four new *operators* that can be used in a logical expression; these are called **G**, **F**, **X** and **U**. An LTL expression is a mix of these four operators with the traditional Boolean connectives (negation, conjunction, disjunction, implication). Let us examine the meaning of each of these operators successively. There already exists ample documentation on LTL as a logical language. In this section, we take a slightly different approach, and describe each operator by viewing it as a `Processor` on Boolean streams.
 
 Operator **G** means "globally"; this operator is represented by a processor called... <!--\index{Globally@\texttt{Globally}} \texttt{Globally}-->`Globally`<!--/i-->. Its purpose is to check that the input stream remains `true` indefinitely. 
 
@@ -385,7 +385,7 @@ Once you grasp the meaning of `Globally`, other operators are easier to understa
 
 {@snipm ltl/EventuallySimple.java}{/}
 
-We perform similar operations to what we did with `Globally` in the previous example. You shall note that the behaviour of `Eventually` can be explained in the same way, with values `true` and `false` swapped. That is, `e` outputs a burst of `true` events as soon as it receives a `true` event, and delays its output as long as it receives `false` events. Thus, the program above outputs the following lines:
+We perform similar operations to what we did with `Globally` in the previous example. Note that the behaviour of `Eventually` can be explained in the same way, with values `true` and `false` swapped. That is, `e` outputs a burst of `true` events as soon as it receives a `true` event, and delays its output as long as it receives `false` events. Thus, the program above outputs the following lines:
 
 ```
 Pushing false
@@ -497,7 +497,7 @@ Up until now, none of the examples we have shown involve interaction with a user
 
 In a nutshell, building a GUI in Java involves creating what are called *components*, such as windows (`JFrame`), buttons (`JButton`), sliders (`JSlider`), and defining the placement and properties of these various elements. Some of these components are sensitive to user input and other actions, and generate various kinds of objects called *events*: for example, pressing a button generates an instance of an <!--\index{ActionEvent@\texttt{ActionEvent}} \texttt{ActionEvent}-->`ActionEvent`<!--/i--> containing information about the click (the position of the mouse, a reference to the button that was clicked, etc.). Similarly, moving the cursor of a slider generates an instance of a `ChangeEvent`.
 
-In order for a program to react to user input, one must *register* an object implementing the `EventListener` interface (or one of its descendants). Hence, to react to a click on some `JButton` instance `b`, one would call `b.addActionListener(a)`, where `a` is an arbitrary object that implements the `ActionListener` interface. Such an object must have a method called `actionPerformed`, which receives an `ActionEvent` as its argument. It is up to the code of this method to perform the actions required by the program for this specific button click.
+In order for a program to react to user input, one must *register* an object implementing the `EventListener` interface (or one of its descendents). Hence, to react to a click on some `JButton` instance `b`, one would call `b.addActionListener(a)`, where `a` is an arbitrary object that implements the `ActionListener` interface. Such an object must have a method called `actionPerformed`, which receives an `ActionEvent` as its argument. It is up to the code of this method to perform the actions required by the program for this specific button click.
 
 You may notice that the terminology used by the Swing library is very close to some core BeepBeep concepts. GUI components generate *events* at various moments in the execution of a program, depending on the interaction with the user. It would be natural to see such components as `Source`s, and to try and connect them to other BeepBeep processors. This is precisely the purpose of the *Widgets* palette, which provides an object called <!--\index{ListenerSource@\texttt{ListenerSource}} \texttt{ListenerSource}-->`ListenerSource`<!--/i--> allowing the user to turn a Swing UI component into a BeepBeep event source. 
 
@@ -615,7 +615,7 @@ Since the `plots` palette is a simple wrapper around MTNP objects, the reader is
 
 ## Signal Processing
 
-The input of a processor chain may be a stream of numerical values obtained from physical measurements, such as temperature or power sensors. In those cases, it may be desirable to transform this "raw" signal into a higher-level stream of values, on which some preliminary clean up has been performed. The *Signal* palette provides processors suitable for some basic signal processing tasks, such as finding peaks, plateaus, etc.
+The input of a processor chain may be a stream of numerical values obtained from physical measurements, such as temperature or power sensors. In those cases, it may be desirable to transform this "raw" signal into a higher-level stream of values, on which some preliminary clean-up has been performed. The *Signal* palette provides processors suitable for some basic signal processing tasks, such as finding peaks, plateaus, etc.
 
 To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ({@snipi signal/FakeSignal.java}{}):
 
@@ -671,13 +671,13 @@ Here, the threshold has been set to 4, meaning that all values lying between -4 
 
 Like `PlateauFinder`, the <!--\index{Persist@\texttt{Persist}} \texttt{Persist}-->`Persist`<!--/i--> processor also operates on a window of width *k*; it returns the maximum value of the window. This has for effect of "persisting" high values in a signal for some time after they occur, in a way similar to some graphic equalizers used in music software. The examples repository contains a program that illustrates the use of `Persist`; it produces a plot like the following ({@snipi signal/PersistExample.java}{}):
 
-{@img doc-files/signal/persist-signal.png}{The original signal (V) and the and the signal after the application of the `Persist` processor (P).}{.6}
+{@img doc-files/signal/persist-signal.png}{The original signal (V) and the signal after the application of the `Persist` processor (P).}{.6}
 
 As one can see, the high values in a window remain in the output for a number of events after they occur, when no higher value is observed in the sliding window.
 
 The last processor contained in the *Signal* palette is called <!--\index{Limit@\texttt{Limit}} \texttt{Limit}-->`Limit`<!--/i-->. Instead of preserving high values, as is the case for `Persist`, this processor rather restricts the amount of non-zero events that can be output in a certain interval of time. The processor is instantitated with a window width *k*; when it receives a non-zero event, it outputs it, but will then turn into 0 the next *k*-1 events, regardless of whether they are zero or not. This is shown by the following plot, which applies the `Limit` processor to an input signal with a window width of 4 ({@snipi signal/LimitExample.java}{}):
 
-{@img doc-files/signal/limit-signal.png}{The original signal (V) and the and the signal after the application of the `Limit` processor (P).}{.6}
+{@img doc-files/signal/limit-signal.png}{The original signal (V) and the signal after the application of the `Limit` processor (P).}{.6}
 
 The *Signal* palette is still under development; it currently only provides basic processors for manipulating raw streams of numerical values. In particular, all the processors contained in the palette operate on the *time* domain; the addition of processors working on the *frequency* domain (such as Fourier transforms) is planned in future development steps. Nevertheless, the next chapter will show an example of an actual use case that uses processors from the *Signal* palette in its current state.
 
@@ -834,7 +834,7 @@ class ca.uqac.lif.json.JsonNull
 
 If the parsing fails, such as when the input string is not properly formatted, the function outputs a special `JsonElement` called `JsonNull`, as can be observed in the second line of output.
 
-`JsonElement` is actually an umbrella class to designate a generic JSON object. In reality, the object returned by the parsing function will belong to one of the descendants of this class, namely:
+`JsonElement` is actually an umbrella class to designate a generic JSON object. In reality, the object returned by the parsing function will belong to one of the descendents of this class, namely:
 
 - `JsonMap` if the parsed string corresponds to an associative map
 - `JsonList` if the parsed string corresponds to a list
@@ -860,7 +860,7 @@ By convention, a period is used to designate a value inside a `JsonMap`, while b
 
 ### XML Parsing
 
-**XML** parsing and processing works in the same way. As you may probably know, <!--\index{XML} XML-->XML<!--/i--> (the *eXtensible Markup Language*) is another popular notation for storing and exchanging data. An XML document is made of a set of nested "tags" and looks like this:
+**XML** parsing and processing works in the same way. As you probably know, <!--\index{XML} XML-->XML<!--/i--> (the *eXtensible Markup Language*) is another popular notation for storing and exchanging data. An XML document is made of a set of nested "tags" and looks like this:
 
 ``` xml
 <doc>
@@ -896,7 +896,7 @@ However, there may be multiple elements of the same name; for example, the path 
 
 {@snipm xml/XPathExample.java}{/}
 
-We take a few shortcuts in this excerpt: since `XPathFunction` is a descendant of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
+In this excerpt, a few shortcuts are taken: since `XPathFunction` is a descendent of <!--\index{UnaryFunction@\texttt{UnaryFunction}} \texttt{UnaryFunction}-->`UnaryFunction`<!--/i-->, is has an additional method called <!--\index{UnaryFunction@\texttt{UnaryFunction}!getValue@\texttt{getValue}} \texttt{getValue}-->`getValue()`<!--/i-->`getValue()`<!--/i--> that does away with the usual input/output arrays, and makes for a shorter program. The output of the program is:
 
 ```
 [123]
