@@ -172,7 +172,7 @@ By convention, context variables are prefixed with a dollar sign in diagrams, to
 
 #### `EndsWith`
 
-![Core](Palette-Core.png) <!--\index{Strings@\texttt{Strings}!EndsWith@\texttt{EndsWith}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. TODO
+![Core](Palette-Core.png) <!--\index{Strings@\texttt{Strings}!EndsWith@\texttt{EndsWith}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as arguments, and returns `true` if the former ends with the latter.
 
 ![EndsWith](images/util/EndsWith.png)
 
