@@ -3,7 +3,7 @@ A Few Use Cases
 
 The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been created especially for this book.
 
-Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep, whose references are listed at the end of this book.
+Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep; references are listed at the end of this book.
 
 ## Stock Ticker
 
@@ -57,7 +57,7 @@ This processor chain uses the <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}
 
 As one can see by examining the output of the program, what comes out of processor `up` is a subset of the original stream containing only events that belong to a day where MSFT closed at $50 or higher. Some queries can also involve aggregate statistics over multiple events:
 
-- On every fifth trading day starting today, calculate the average closing price of msft for the five most recent trading days.
+- On every fifth trading day starting today, calculate the average closing price of MSFT for the five most recent trading days.
 
 As a first step to evaluate this query, we show how to calculate the statistical moment of order n of a set of values, noted E<sup>*n*</sup>(*x*), in the next diagram.
 
@@ -107,7 +107,7 @@ Let us show how this query can be computed using chains of function processors. 
 
 The input trace is divided into four copies. The first copy is subtracted by the statistical moment of order 1 of the second copy, corresponding to the distance of a data point to the mean of all data points that have been read so far. This distance is then divided by the standard deviation (computed form the third copy of the trace). An `ApplyFunction` processor then evaluates whether this value is greater than the constant trace with value 1.
 
-The result is a trace of Boolean values. This trace is itself forked into two copies. One of these copies is sent into a `Trim` processor, that removes the first event of the input trace; both paths are sent to a processor computing their logical conjunction. Hence, an output event will have the value `true` whenever an input value and the next one are both more than two standard deviations from the mean.
+The result is a trace of Boolean values. This trace is itself forked into two copies. One of these copies is sent into a `Trim` processor, which removes the first event of the input trace; both paths are sent to a processor computing their logical conjunction. Hence, an output event will have the value `true` whenever an input value and the next one are both more than two standard deviations from the mean.
 
 ## Online Auction System
 
@@ -161,9 +161,9 @@ As a bonus, we show how to plot a graph of the evolution of this average over ti
 
 ## Voyager Telemetry
 
-In this section, we study the data produced by the *Voyager 2* space probe. This automatic probe was launched by NASA in 1977 on a trajectory that allowed it to fly close to four planets of the solar system: Jupiter, Saturn, Uranus and Neptune. On this "Grand Tour" of the solar system, Voyager 2 (along with its twin, Voyager 1) collected scientific data and snapped pictures that greatly expanded our knowledge of the gas giants and their moons.
+In this section, we study the data produced by the *Voyager 2* space probe. This automatic probe was launched by NASA in 1977 on a trajectory that allowed it to fly close to four planets of the solar system: Jupiter, Saturn, Uranus and Neptune. On this "Grand Tour" of the solar system, Voyager 2 (along with its twin, Voyager 1) collected scientific data and took pictures that greatly expanded our knowledge of the gas giants and their moons.
 
-At the time of this writing, both Voyagers are still operational, and currently explore the outer edge of the solar system. The telemetry sent back by these probes, going all the way back to 1977, is publicly available in the form of various text files on a NASA FTP archive. In our example, we shall use a simple, collated dataset that can be downloaded from the following URL:
+As of the time of the writing of this book, both Voyagers are still operational, and currently explore the outer edge of the solar system. The telemetry sent back by these probes, going all the way back to 1977, is publicly available in the form of various text files on a NASA FTP archive. In our example, we shall use a simple, collated dataset that can be downloaded from the following URL:
 
     ftp://spdf.gsfc.nasa.gov/pub/data/voyager/voyager2/merged/ 
 
@@ -183,7 +183,7 @@ Preprocessing is the part where we start from the raw data, and format it so tha
 
 {@img doc-files/voyager/pre-processing.png}{Preprocessing the Voyager data.}{.6}
 
-Since the data is split into multiple CSV files, we shall first create one instance of the <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor for each file, and put these `Source`s into an array. We can then pass this to a processor called <!--\index{Splice@\texttt{Splice}} \texttt{Splice}-->`Splice`<!--/i-->, which is the first processor box shown in the previous picture. The splice pulls events from the first source it is given, until that source does not yield any new event. It then starts pulling events from the second one, and so on. This way, the contents of the multiple text files we have can be used as an uninterrupted stream of events. This is why the pictogram for `Splice` is a small bottle of glue.
+Since the data is split into multiple CSV files, we shall first create one instance of the <!--\index{ReadLines@\texttt{ReadLines}} \texttt{ReadLines}-->`ReadLines`<!--/i--> processor for each file, and put these `Source`s into an array. We can then pass this to a processor called <!--\index{Splice@\texttt{Splice}} \texttt{Splice}-->`Splice`<!--/i-->, which is the first processor box shown in the previous picture. The splice pulls events from the first source it is given, until that source does not yield any new event. It then starts pulling events from the second one, and so on. This way, the contents of the multiple text files we have can be used as an uninterrupted stream of events. This is why the `Splice` pictogram is a small bottle of glue.
 
 We then perform a drastic reduction of the data stream. The input files have hourly readings, which is a degree of precision that is not necessary for our purpose. We keep only one reading per week, by applying a `CountDecimate` that keeps one event every 168 (there are 168 hours in a week). Moreover, the file corresponding to year 1977 has no meaningful data before week 31 or so (the launch date); we ignore the first 31 events of the resulting stream by using a `Trim`. Finally, as a last preprocessing step, we convert plain text events into arrays by splitting each string on spaces. This is done by applying the <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}} \texttt{SplitString}-->`SplitString`<!--/i--> function. The Java code of this first preprocessing step looks like this:
 
@@ -201,7 +201,7 @@ In the second copy of the stream, we extract the fourth component of the input a
 
 However, since the weekly distance is very close to the measurement's precision, we "smooth" those values by replacing them by the average of each two successive points. This is the task of the <!--\index{Smooth@\texttt{Smooth}} \texttt{Smooth}-->`Smooth`<!--/i--> processor, represented in the diagram by a piece of sandpaper.
 
-This stream is again separated in two. The first copy goes directly into the table, and provides the values for its second column. The second copy goes first into a `PeakFinder` processor from the *Signal* palette, before being sent into the table as its third column. The end result is a processor chain that populates a table containing:
+This stream is again separated in two. The first copy goes directly into the table, and provides the values for its second column. The second copy first goes into a `PeakFinder` processor from the *Signal* palette, before being sent into the table as its third column. The end result is a processor chain that populates a table containing:
 
 - The number of days since 1/1/1977
 - The smoothed weekly speed
@@ -239,11 +239,11 @@ A fun fact about this plot: the last three peaks correspond precisely to the dat
 
 The flyby of Uranus (January 24, 1986, or Day 3310) does not produce a speed variation large enough to be detected through this method.
 
-Creating This whole chain of processors, from the raw text files to the plot, has required exactly 100 lines of code.
+Creating this whole chain of processors, from the raw text files to the plot, has required exactly 100 lines of code.
 
 ## Electric Load Monitoring
 
-The next scenario touches on the concept of <!--\index{ambient intelligence} \emph{ambient intelligence}-->*ambient intelligence*<!--/i-->, which is a multidisciplinary approach that consists of enhancing an environment (room, building, car, etc.) with technology (e.g. infrared sensors, pressure mats, etc.), in order to build a system that makes decisions based on real-time information and historical data to benefit the users within this environment. A main challenge of ambient intelligence is activity recognition, which consists in raw data from sensors, filter it, and then transform that into relevant information that can be associated with a patient's activities of daily living using Non-Intrusive Appliance Load Monitoring (<!--\index{NIALM} NIALM-->NIALM<!--/i-->). Typically, the parameters considered are the voltage, the electric current and the power (active and reactive). This produces a stream similar to the next figure. An event consists of a timestamp, and numerical readings of each of the aforementioned electrical components.
+The next scenario concerns the concept of <!--\index{ambient intelligence} \emph{ambient intelligence}-->*ambient intelligence*<!--/i-->, a multidisciplinary approach that consists of enhancing an environment (room, building, car, etc.) with technology (e.g. infrared sensors, pressure mats, etc.), in order to build a system that makes decisions based on real-time information and historical data to benefit the users within this environment. A main challenge of ambient intelligence is activity recognition; it consists in obtaining raw data from sensors, filtering it, and then transforming that data into relevant information that can be associated with a patient's activities of daily living using Non-Intrusive Appliance Load Monitoring (<!--\index{NIALM} NIALM-->NIALM<!--/i-->). Typically, the parameters considered are the voltage, the electric current and the power (active and reactive). This produces a stream similar to the next figure. An event consists of a timestamp, and numerical readings of each of the aforementioned electrical components.
 
 {@img electric/Blender.png}{The top three lines represent three components of the electrical signal when an electrical appliance is used. In orange, the output of a peak detector taking the electrical signal as its input.}{.6}
 
