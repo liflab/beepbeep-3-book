@@ -23,7 +23,7 @@
 %% Déclarations
 %% ------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{lifmanual}[2018/08/16 LIF manual, V1.5.3 par Sylvain Hallé]
+\ProvidesClass{lifmanual}[2018/10/24 LIF manual, V1.5.4 par Sylvain Hallé]
 
 %% ------------------------
 %% Passing options to book class
@@ -63,9 +63,12 @@
 \RequirePackage{imakeidx}
 \RequirePackage{enumitem}
 \RequirePackage{multicol}
-\RequirePackage[font=sl]{caption}
 
+%% The single non-black color used in the book
 \definecolor{Highlight}{RGB}{173,73,106}
+
+\RequirePackage[font={sf,small},labelfont={bf,color=Highlight},format=hang,justification=RaggedRight]{caption}
+
 \renewcommand{\baselinestretch}{1.1}
 
 %% ------------------------
