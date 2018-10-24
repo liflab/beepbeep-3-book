@@ -1,17 +1,17 @@
 Drawing Guide
 =============
 
-As you may have realized, in many cases the best way of understading a chain of processors is to represent it graphically.
+As you may have noticed, in many cases the best way of understanding a chain of processors is to represent it graphically.
 
 A straightforward way of showing processor chains would be to depict processors as shapes, perhaps with a text label indicating what they do, and to use straight lines and arrows to illustrate their interlinking. Indeed, this is what is often done to represent composition in other systems, such as this example using Apache Storm Trident:
 
 {@img Trident.png}{The composition of "spouts" and "bolts" in Apache Storm Trident.}{.6}
 
-However, we found early on that BeepBeep processor chains illustrated in such a way are neither particularly intuitive (all processor chains look alike until you start reading what's in the boxes) nor very pleasing to the eye (after all, we can produce color and graphics on computer monitors since at least thirty years). Therefore, we decided to develop a more colorful, intuitive, yet standardized way of drawing chains of processors.
+However, we found early on that BeepBeep processor chains illustrated in such a way are neither particularly intuitive (all processor chains look alike until you start reading what's in the boxes) nor very pleasing to the eye (after all, we have been producing color and graphics on computer monitors for at least thirty years). Therefore, we decided to develop a more colorful, intuitive, yet standardized way of drawing chains of processors.
 
-In this appendix, we describe the basic "rules" defining how to draw pipes, processors and functions; these conventions have been followed throughout this book, in all the online documentation, as well as in all presentations about BeepBeep we made at scientific conferences in the past couple of years.
+In this appendix, the basic "rules" defining how to draw pipes, processors and functions are described; these conventions have been followed throughout this book, in the online documentation, as well as in all BeepBeep presentations given at scientific conferences in current years.
 
-You don't need to be an artist to create your own processor chains. Using a vector drawing program such as [Inkscape](https://inkscape.org) (freely available for all operating systems), it is easy to copy-paste the symbols from this book and include them in other drawings. A PDF document containing multiple pages of predefined symbols can also be obtained from the BeepBeep GitHub repository (look for a file called `Drawing Guide`).
+No need to be an artist to create your own processor chains. Using a vector drawing program such as [Inkscape](https://inkscape.org) (freely available for all operating systems), it is easy to copy-paste the symbols from this book and include them in other drawings. A PDF document containing multiple pages of predefined symbols can also be obtained from the BeepBeep GitHub repository (look for a file called `Drawing Guide`).
 
 ## Pipes
 
@@ -32,7 +32,7 @@ vertical or  horizontal. Orientation
 changes are done through
 rounded right-angle turns.
 
-{@img Corner.png}{A pipe turing at a 90-degree angle.}{.6}
+{@img Corner.png}{A pipe with a 90-degree angle.}{.6}
 
 Pipe segments can be joined by vertically or horizontally centering them, overlapping them slightly, and using the *Path/Union* command in Inkscape.
 

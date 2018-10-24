@@ -1,7 +1,7 @@
 A Few Use Cases
 ===============
 
-The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects work in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been created especially for this book.
+The previous chapters have introduced a large set of functions and processors, often with very simple code examples illustrating how each of these objects works in isolation. In this chapter, we take a step back and show a "bigger picture". We shall present more complex examples of what can be done when one starts to mix all these objects together. Some of these examples are taken from actual research and development projects where BeepBeep was used, while others have been created especially for this book.
 
 Readers who wish to get more information about these use cases can have a look at some of the research papers on BeepBeep; references are listed at the end of this book.
 
@@ -61,7 +61,7 @@ As one can see by examining the output of the program, what comes out of process
 
 As a first step to evaluate this query, we show how to calculate the statistical moment of order n of a set of values, noted E<sup>*n*</sup>(*x*), in the next diagram.
 
-{@img doc-files/stockticker/StatMoment.png}{A chain of function processors for computing the statistical moment of order *n* on a trace of numerical events.}{.6}
+{@img doc-files/stockticker/StatMoment.png}{A chain of function processors to compute the statistical moment of order *n* on a trace of numerical events.}{.6}
 
 As the diagram shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
 
@@ -133,7 +133,7 @@ One could imagine various queries involving the windows and aggregation function
 
 - Check that every bid of an item is higher than the previous one, and report to the user otherwise.
 
-This query expresses a pattern that correlates values in pairs of successive bid events: namely, the price value in any two bid events for the same item *i* must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
+This query expresses a pattern correlating values in pairs of successive bid events: namely, the price value in any two bid events for the same item *i* must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
 {@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one}{.6}
 
@@ -157,7 +157,7 @@ Each state of the Moore machine is associated with an output value. For three of
 
 According to the semantics of the `Slice` processor, each output event will consist of a set, formed by the last output of every instance of the Moore machine. Thus, this set will contain the number of elapsed days of all items whose auction is currently open (the Moore machine for the other items outputs no number). This set is then passed to a function processor, which computes the average of its values (sum divided by cardinality).
 
-As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, that creates a named tuple where *x* is set to the value of the first input, and *y* is set to the value of the second input. The result is a tuple where *x* is the number of input events, and *y* is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (*x*,*y*) pairs, which could then be sent to a `Scatterplot` processor to be plotted with the help of the MTNP palette.
+As a bonus, we show how to plot a graph of the evolution of this average over time. We fork the previous output; one branch of this fork goes into a Mutator, which turns the set into the value 1; this stream of 1s is then sent to a `Cumulate` processor that computes their sum. Both this and the second branch of the fork are fed into a function processor, which creates a named tuple where *x* is set to the value of the first input, and *y* is set to the value of the second input. The result is a tuple where *x* is the number of input events, and *y* is the average computed earlier. These tuples are then accumulated into a set with the means of another cumulative function processor, this time performing the set addition operation. The end result is a stream of sets of (*x*,*y*) pairs, which could then be sent to a `Scatterplot` processor to be plotted with the help of the MTNP palette.
 
 ## Voyager Telemetry
 
@@ -179,7 +179,7 @@ Our long processor chain can be broken into three parts: preprocessing, processi
 
 ### Preprocessing
 
-Preprocessing is the part where we start from the raw data, and format it so that the actual computations are then possible. In a nutshell, the preprocessing step amounts to the following processor chain:
+Preprocessing starts from the raw data, and formats it so that the actual computations are then possible. In a nutshell, the preprocessing step amounts to the following processor chain:
 
 {@img doc-files/voyager/pre-processing.png}{Preprocessing the Voyager data.}{.6}
 
@@ -356,7 +356,7 @@ Furthermore, various kinds of analyses can also be conducted on the execution of
 
 Such a query involves, for each event, the counting of all Pingus with a given skill with respect to the total number of Pingus contained in the event. This is a much easier query than the previous one; it can be implemented as in the following diagram:
 
-{@img doc-files/pingus/SkillChart.png}{The processor chain for computing the proportion of Pingus of each skill.}{.6}
+{@img doc-files/pingus/SkillChart.png}{The processor chain to compute the proportion of Pingus of each skill.}{.6}
 
 First, an XPath function retrieves the list of all distinct values of the `<status>` element inside each event. This list of values is then sent into a `Window` processor, which accumulates them into a <!--\index{Multiset@\texttt{Multiset}} \texttt{Multiset}-->`Multiset`<!--/i-->. This object behaves in a way similar to a set, except that the multiplicity of the elements inside the set is preserved. Once a window of 450 events is complete, this multiset is output by the processor. In code, this corresponds to the following chain:
 
@@ -377,9 +377,9 @@ As one can see, each event corresponds to a multiset giving the number of Pingus
 1. Implement the queries that are mentioned in this chapter but not shown in detail.
 
 2. In the Voyager example, modify the processor chain so that:
-- a. the files are read directly from the FTP site.
-- b. the plot is written to a file instead of being displayed in a window.
-- c. the plot updates after every year processed, instead of at the end.
+- a. The files are read directly from the FTP site.
+- b. The plot is written to a file instead of being displayed in a window.
+- c. The plot updates after every year processed, instead of at the end.
 
 3. Modify the NIALM example to detect appliances based on a signature that involves more than one signal at a time.
 

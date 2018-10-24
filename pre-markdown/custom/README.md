@@ -286,7 +286,7 @@ So far, all our processors are "memoryless": they keep no information about past
 
     5, 1, 2, 3, 6, 4, ...
 
-the processor should output:
+...the processor should output:
 
     (nothing), 5, 2, 3, 6, 6, ...
 
