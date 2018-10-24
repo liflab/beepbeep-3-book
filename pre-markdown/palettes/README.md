@@ -653,7 +653,7 @@ As one can see, the processor outputs the value 0 if the current input event is 
 
 The <!--\index{PlateauFinder@\texttt{PlateauFinder}} \texttt{PlateauFinder}-->`PlateauFinder`<!--/i--> processor identifies "plateaux" in an input signal; a *plateau* is a sequence of successive values that lie within the same (narrow) range. In the previous program, we can replace the peak processor with `PlateauFinder` and plot the results again ({@snipi signal/PlateauExample.java}{}). This will produce the following plot:
 
-{@img doc-files/signal/plateau-signal.png}{The original signal (V) and the detected local maxima (P).}{.6}
+{@img doc-files/signal/plateau-signal.png}{The original signal (V) and the detected plateaux (P).}{.6}
 
 We can observe that the processor outputs the value 0 when no plateau is detected; otherwise, it outputs the height of the plateau at the position of the event that corresponds to the start of a plateau. Obviously, for this processor to detect a plateau, a delay in the output is required: the start of a plateau can only be ascertained until a few events later, when enough values in the same interval have been observed. This interval is called the *window width*, and it can be configured by passing this width to the object's constructor.
 

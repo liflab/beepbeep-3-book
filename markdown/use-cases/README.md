@@ -335,7 +335,7 @@ ApplyFunction to_array = new ApplyFunction(
     new Strings.SplitString("\\s+"));
 Connector.connect(ignore_beginning, to_array);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L70)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L74)
 
 
 ### Processing
@@ -398,7 +398,7 @@ Connector.connect(format_date, OUTPUT, table, 0);
 Connector.connect(f2, OUTPUT, table, 1);
 Connector.connect(li, OUTPUT, table, 2);
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L102)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L106)
 
 
 ### Visualization
@@ -410,21 +410,8 @@ The last step is to display the contents of this table graphically. This can be 
 A `Pump` is asked to repeatedly pull on the `UpdateTableStream`; its output is pushed into a `KeepLast` processor; this processor discards all its input events, except when it receives the last one from its upstream source. In this case, this corresponds to a reference the `Table` object once it is fully populated. This table is then passed to a `DrawPlot` processor, and then to a `WidgetSink` in order to be displayed in a `JFrame`. The code producing this chain of processor is as follows:
 
 ``` java
-Pump pump = new Pump();
-Connector.connect(table, pump);
-KeepLast last = new KeepLast(1);
-Connector.connect(pump, last);
-Scatterplot plot = new Scatterplot();
-plot.setCaption(Axis.X, "Days after 1/1/77")
-.setCaption(Axis.Y, "AU");
-DrawPlot draw = new DrawPlot(plot);
-Connector.connect(last, draw);
-BitmapJFrame window = new BitmapJFrame();
-Connector.connect(draw, window);
-window.start();
-pump.start();
 ```
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L160)
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/voyager/PlotSpeed.java#L175)
 
 
 The end result of this program produces a graph, which should look like in the following figure. The blue line shows the craft's average speed, in AU/week, while the green line shows the signal produced by the peak detector. As one can see, the speed fluctuates relatively smoothly, and the line is interspersed with a few abrupt variations. We can observe that these abrupt changes are picked up by the peak detector, which otherwise outputs a stream of zeros.
