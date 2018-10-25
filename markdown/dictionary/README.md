@@ -316,7 +316,7 @@ To create a `GroupProcessor`, one must first instantiate and connect the process
 
 In a graphical representation of a `GroupProcessor`, the processor chain inside the group can also be drawn.
 
-#### HttpGet
+#### `HttpGet`
 
 ![Core](Palette-Core.png) <!--\index{HttpGet@\texttt{HttpGet}|textsl} A-->A<!--/i--> `Source` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings. It is represented as:
 
