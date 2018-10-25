@@ -30,6 +30,9 @@ php post-processing-latex.php
 # This is done after LaTeX on purpose; keep it there
 php post-processing-markdown.php
 
+# Last-minute regex replacements on the LaTeX file
+php latex-hacks.php
+
 # Compile LaTeX. The script itself will exit with the same return code
 # as the call to LaTeX (used to discover if compilation failed).
 pushd latex

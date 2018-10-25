@@ -592,7 +592,33 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 
 The code corresponding to this picture is shown below:
 
-[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowAverage.java)
+``` java
+QueueSource numbers = new QueueSource(1);
+numbers.setEvents(new Object[]{2, 7, 1, 8, 2, 8, 1, 8, 2, 8,
+        4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0, 2, 8, 7});
+GroupProcessor group = new GroupProcessor(1, 1);
+{
+    Fork fork = new Fork(2);
+    Cumulate sum_proc = new Cumulate(
+            new CumulativeFunction<Number>(Numbers.addition));
+    Connector.connect(fork, TOP, sum_proc, INPUT);
+    TurnInto ones = new TurnInto(1);
+    Connector.connect(fork, BOTTOM, ones, INPUT);
+    Cumulate counter = new Cumulate(
+            new CumulativeFunction<Number>(Numbers.addition));
+    Connector.connect(ones, OUTPUT, counter, INPUT);
+    ApplyFunction division = new ApplyFunction(Numbers.division);
+    Connector.connect(sum_proc, OUTPUT, division, LEFT);
+    Connector.connect(counter, OUTPUT, division, RIGHT);
+    group.addProcessors(fork, sum_proc, ones, counter, division);
+    group.associateInput(0, fork, 0);
+    group.associateOutput(0, division, 0);
+}
+Window win = new Window(group, 3);
+Connector.connect(numbers, win);
+```
+[⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/basic/WindowAverage.java#L55)
+
 
 Groups can have an arbitrary input and output arity, as is shown in the example below:
 

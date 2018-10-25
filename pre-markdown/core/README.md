@@ -365,7 +365,7 @@ Equipped with a `GroupProcessor`, it now becomes easy to compute the average ove
 
 The code corresponding to this picture is shown below:
 
-{@snipi basic/WindowAverage.java}{/}
+{@snipm basic/WindowAverage.java}{/}
 
 Groups can have an arbitrary input and output arity, as is shown in the example below:
 

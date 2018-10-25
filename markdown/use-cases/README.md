@@ -503,14 +503,16 @@ The last step is to apply this Moore machine on some electrical signal. To this 
 As one can see, the signal processing chain has been encapsulated into a single box, with numbers at its edges representing the parameters given to the processors encased into it. Similarly, the Moore machine is also represented as a single box, with the numbers 1,000, 700 and -700 representing the values used in the conditions on state transitions. In code, the remaining steps can be written like this:
 
 ``` java
-ApplianceMooreMachine amm = new ApplianceMooreMachine(1000, 700, -700, 150);
+ApplianceMooreMachine amm =
+    new ApplianceMooreMachine(1000, 700, -700, 150);
 Connector.connect(peak_damper, 0, amm, 0);
 Connector.connect(plateau_damper, 0, amm, 1);
 GenerateSignalNoise signal = new GenerateSignalNoise(10f,
     new Object[] {0, 333, -150, 0, -175, 0},
     new Object[] {70, 3, 2, 100, 4, 60});
 Connector.connect(signal, 1, f, 0);
-ApplyFunction to_list = new ApplyFunction(new Bags.ToList(Number.class, Number.class));
+ApplyFunction to_list = new ApplyFunction(
+    new Bags.ToList(Number.class, Number.class));
 Connector.connect(signal, 0, to_list, 0);
 Connector.connect(amm, 0, to_list, 1);
 ```
@@ -597,7 +599,8 @@ Such a query involves, for each event, the counting of all Pingus with a given s
 First, an XPath function retrieves the list of all distinct values of the `<status>` element inside each event. This list of values is then sent into a `Window` processor, which accumulates them into a <!--\index{Multiset@\texttt{Multiset}} \texttt{Multiset}-->`Multiset`<!--/i-->. This object behaves in a way similar to a set, except that the multiplicity of the elements inside the set is preserved. Once a window of 450 events is complete, this multiset is output by the processor. In code, this corresponds to the following chain:
 
 ``` java
-ApplyFunction skill = new ApplyFunction(new XPathFunction("message/characters/character/status/text()"));
+ApplyFunction skill = new ApplyFunction(
+    new XPathFunction("message/characters/character/status/text()"));
 Connector.connect(x_reader, skill);
 GroupProcessor gp = new GroupProcessor(1, 1);
 {
