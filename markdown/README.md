@@ -204,9 +204,9 @@ Unit tests are run with [jUnit](http://junit.org); a detailed report of these te
 
 For the sake of clarity, we give below the hashes of the latest commits on the various GitHub repositories containing BeepBeep code and examples. All the examples in this book are based on the software in the state it was when these commits were pushed:
 
-- BeepBeep core: `4686bca5d7d165f6287b0aec209e582171f7f67e`
-- BeepBeep palettes: `f443afa16ac19858f251484324cb69a50d28b0f1`
-- Code examples: `07f79a03aded9802074ba92982c381cddb690444`
+- BeepBeep core: `14bb8359fabd507642235e81e88e546e0669f7d5`
+- BeepBeep palettes: `b99ca2f8c6b897821a1e54b73b5bae0fa2dc3214`
+- Code examples: `27043f6175b54b06bf6d17064bcabecc22c9e9ec`
 
 ## Acknowledgements
 
