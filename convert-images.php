@@ -44,6 +44,11 @@ foreach (new RecursiveIteratorIterator($it) as $file)
 		$gitbook_out_filename = $gitbook_output_directory.substr($file, strlen($input_directory), strlen($file) - strlen($input_directory));
 		if (substr($file, strlen($file) - 3, 3) !== ".md")
 				continue;
+		/*if (!strpos($file, "dictionary"))
+		{
+				// Just to debug
+				continue;
+		}*/
 		echo " - ".$file."\n";
 		$out_filename = str_replace(".md", ".tex", $out_filename);
 		$original_contents = file_get_contents($file);
@@ -59,6 +64,7 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 		global $source_location, $inkscape_command, $input_directory, $output_directory;
 		$latex_contents = file_get_contents($out_filename);
 		preg_match_all("/\\{@img (.*?)\\}\\{(.*?)\\}\\{(.*?)\\}/", $s, $matches, PREG_SET_ORDER);
+		print_r($matches);
 		$path_from_root = substr($out_dir, strlen($output_directory) + 1);
 		foreach($matches as $match)
 		{
@@ -76,11 +82,11 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 				$svg_filename = str_replace(".png", ".svg", $filename);
 				
 				// Is there an SVG file with the same name?
-				//echo "Looking for $svg_filename...";
+				echo "Looking for $svg_filename...\n";
 				if (!file_exists($svg_filename))
 				{
 						// No: copy the PNG to both `markdown` and `latex` folders
-						//echo "not found\n";
+						echo "not found\n";
 						if (starts_with("doc-files", $match[1]))
 						{
 								$out_pdf_filename = $out_dir.$basename;
@@ -106,7 +112,7 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 				else
 				{
 						// Yes: convert SVG to PDF and put in the `latex` folder
-						//echo "found\n";
+						echo "found\n";
 						if (starts_with("doc-files", $match[1]))
 						{
 								$out_pdf_filename = $out_dir.str_replace(".png", ".pdf", $basename);
@@ -124,6 +130,7 @@ function convert_images($s, $gitbook_out_dir, $out_dir, $out_filename)
 								echo "    Converting $svg_filename to $out_pdf_filename\n";
 								exec($command);
 						}
+						echo "Replacing...\n";
 						$latex_contents = preg_replace("/\\\\includegraphics\\{(.*?)".str_replace("/", "\\/", preg_quote($basename))."\\}/", "\\scalebox{".$match[3]."}{\\includegraphics{\\1".str_replace(".png", ".pdf", $basename)."}}", $latex_contents);
 						// Convert SVG to PNG and put in the `markdown` folder
 						if (!file_exists($out_png_filename) || filemtime($out_png_filename) < $svg_filemtime)

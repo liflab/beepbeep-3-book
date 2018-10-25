@@ -25,7 +25,7 @@ Events are structured as tuples, with a fixed set of attributes, each of which t
 
 The result of that query is itself a trace of tuples, much in the same way the relational `SELECT` statement on a table returns another table. To illustrate how this query can be executed, we consider the following diagram:
 
-{@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query}{.45}
+{@img doc-files/stockticker/SnapshotQuery.png}{Snapshot query.}{.45}
 
 The first processor box in the figure is a fictitious "ticker source", which, in the present case, generates a random stream similar to the example given above. The events from this source are replicated along two paths. The bottom path is evaluated against the condition that the value in the second column (index 1) is the string "MSFT". The top path is sent into a `Filter` processor, whose control pipe is connected to the stream of Boolean values calculated previously. This results in a stream where only events concerning the MSFT symbol are kept. Finally, the <!--\index{Prefix@\texttt{Prefix}} \texttt{Prefix}-->`Prefix`<!--/i--> processor retains the first five events from this stream, completing the implementation of the query. This chain of processors corresponds to the following code snippet:
 
@@ -39,7 +39,7 @@ This simple query highlights the fact that, in online processing, outputting a t
 
 We shall divide this query into two parts. The first part groups all events of the same day into an array, and can be illustrated as follows:
 
-{@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one}{.2}
+{@img doc-files/stockticker/LandmarkQuery-1.png}{Landmark query, part one.}{.2}
 
 First, events whose timestamp value is lower than 100 are filtered out from the output. Then, a copy of the resulting stream is sent as into the data pipe of a `Pack` processor. Two other copies of the stream are also created; one is delayed by one event, and the timestamp in events of these two copies is then fetched and compared. The end result is a stream that contains the value `false` if an event has the same timestamp as the previous one, and `false` otherwise. A single `false` event is inserted at the beginning of this stream, using an instance of the `Insert` processor. The resulting stream is sent to the control pipe of the `Pack` processor. This corresponds to the following code snippet:
 
@@ -49,7 +49,7 @@ The end result is that incoming events are accumulated into a list, until the cu
 
 The next part of the processor chain checks that, in these created lists, the value of MSFT is at least 50. It can be represented as in the following diagram:
 
-{@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two}{.45}
+{@img doc-files/stockticker/LandmarkQuery-2.png}{Landmark query, part two.}{.45}
 
 This processor chain uses the <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}} \texttt{RunOn}-->`RunOn`<!--/i--> processor, and evaluates a Boolean condition on each event of the list. This condition checks that, if the stock symbol is MSFT, then its value is greater than 50. This condition returns a distinct Boolean value for each element of the list. The list itself should be considered if the condition evaluates to `true`  on all its elements. One can evaluate this by sending the output of the `RunOn` processor into a `Cumulate` processor, which is instructed to compute the logical conjunction of the values it receives. This Boolean trace is used as the control stream of a `Filter` processor; only lists where the price for MSFT is higher than 50 will be output. These lists are then sent to an `Unpack` processor, which outputs the elements of each list one by one. In code, this chain can be implemented as in the following snippet:
 
@@ -65,7 +65,7 @@ As a first step to evaluate this query, we show how to calculate the statistical
 
 As the diagram shows, the input trace is duplicated into two paths. Along the first (top) path, the sequence of numerical values is sent to the `ApplyFunction` processor computing the *n*-th power of each value; these values are then sent to a `Cumulate` processor that calculates the sum of these values. Along the second (bottom) path, values are sent to a `TurnInto` processor that transforms them into the constant 1; these values are then summed into another `Cumulative`. The corresponding values are divided by each other, which corresponds to the statistical moment of order *n* of all numerical values received so far. The average is the case where *n*=1.
 
-{@img doc-files/stockticker/WindowQuery.png}{Window query}{.3}
+{@img doc-files/stockticker/WindowQuery.png}{Window query.}{.3}
 
 The previous figure shows the chain that computes the average of stock symbol MSFT over a window of 5 events. The first part should now be familiar, and filters events based on their stock symbol. The events that get through this filtering are then converted into a stream of numbers by fetching the value of their closing price. The statistical moment of order 1 is then computed over successive windows of width 5, and one out of every five such windows is then allowed to proceed through the last processor, producing the desired hopping window query. The Java code corresponding to this example is the following:
 
@@ -135,7 +135,7 @@ One could imagine various queries involving the windows and aggregation function
 
 This query expresses a pattern correlating values in pairs of successive bid events: namely, the price value in any two bid events for the same item *i* must increase monotonically. Some form of slicing, as shown earlier, is obviously involved, as the constraint applies separately for each item; however, the condition to evaluate does not correspond to any of the query types seen so far. A possible workaround would be to add artificial timestamps to each event, and then to perform a join of the stream with itself on *i*: for any pair of bid events, one must then check that an increasing timestamp entails an increasing price. Unfortunately, in addition to being costly to evaluate in practice, stream joins are flatly impossible if the interval between two bid events is unbounded. A much simpler —and more practical— solution would be to simply "freeze" the last *Price* value of each item, and to compare it to the next value. For this reason, queries of that type are called freeze queries.
 
-{@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one}{.3}
+{@img doc-files/auction/MonotonicBid.png}{Checking that every bid is higher than the previous one.}{.3}
 
 {@snipm auction/MonotonicBid.java}{/}
 
@@ -147,7 +147,7 @@ As one can see, this query refers to the detection of a pattern that takes into 
 
 Rather than simply checking that the sequencing of events for each item is followed, we will take advantage of BeepBeep's flexibility to compute a non-Boolean query: the average number of days since the start of the auction, for all items whose auction is still open and in a valid state. The processor graph is shown below.
 
-{@img doc-files/auction/AuctionExample.png}{Processor graph for the "Auction Bidding" query}{.3}
+{@img doc-files/auction/AuctionExample.png}{Processor graph for the "Auction Bidding" query.}{.3}
 
 The flow of events starts at the bottom left, with a `Slice` processor that takes as input tuples of values. The slicing function is defined in the oval: if the event is *endOfDay*, it must be sent to all slices; otherwise, the slice is identified by the element at position 1 in the tuple (this corresponds to the name of the item in all other events). For each slice, an instance of a <!--\index{MooreMachine@\texttt{MooreMachine}} \texttt{MooreMachine}-->`MooreMachine`<!--/i--> will be created, as shown in the top part of the graph.
 

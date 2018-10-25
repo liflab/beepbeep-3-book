@@ -25,7 +25,7 @@ In longer pipes, only the main body is longer; the head is not stretched.
 
 The <!--\index{pipe!colour coding} \textbf{colour}-->**colour**<!--/i--> of a pipe should indicate the type of the events it contains. For the sake of consistency, we try to use the same colour for the same type across a diagram. At the very least, frequent event types should have the same colour across a common set of examples. Here are the colours that have been used for frequent event types in this book:
 
-![Colour coding for pipes](Colors.png)
+![Colour coding for pipes.](Colors.png)
 
 Pipe segments should be either
 vertical or  horizontal. Orientation

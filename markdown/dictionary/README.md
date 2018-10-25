@@ -647,7 +647,7 @@ See also `PutInto` (`Sets`).
 
 #### `RaiseArity`
 
-![Core](Palette-Core.png) <!--\index{RaiseArity@\texttt{RaiseArity}|textsl} A-->A<!--/i--> `Function` that raises the arity of another function. Given an *m*:*n* function *f*, an instance of *r* `RaiseArity` makes *f* behave like an *m'*:*n* function, with *m'* > *m*. The extra arguments given to *r* are simply ignored. It is represented as:
+![Core](Palette-Core.png) <!--\index{RaiseArity@\texttt{RaiseArity}|textsl} A-->A<!--/i--> `Function` that raises the arity of another function. Given an *m*:*n* function *f*, an instance of `RaiseArity` *r* makes *f* behave like an *m'*:*n* function, with *m'* > *m*. The extra arguments given to *r* are simply ignored. It is represented as:
 
 ![RaiseArity](images/functions/RaiseArity.png)
 
@@ -924,7 +924,7 @@ A <!--\index{Variant@\texttt{Variant}|textsl} special-->special<!--/i--> class t
 
 #### `XmlElement`
 
-![XML](Palette-XML.png) <!--\index{XmlElement@\texttt{XmlElement}|textsl} An-->An<!--/i--> object representing an element of an XML document.«
+![XML](Palette-XML.png) <!--\index{XmlElement@\texttt{XmlElement}|textsl} An-->An<!--/i--> object representing an element of an XML document.
 
 #### `XPathFunction`
 

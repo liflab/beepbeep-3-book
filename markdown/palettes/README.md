@@ -725,7 +725,7 @@ However, when the input event is an *a*, we must make sure that no *b* is immedi
 
 This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ([⚓](https://github.com/liflab/beepbeep-3-examples/blob/master/Source/src/ltl/OpenClose.java)):
 
-![Filtering events that follow a temporal property](OpenClose.png)
+![Filtering events that follow a temporal property.](OpenClose.png)
 
 The bottom part of the chain corresponds to the monitoring of the LTL formula. This output is then sent to the control pipe of a `Filter` processor, which receives on its data pipe a fork of the original stream. Pushing events on the fork produces an output like this:
 
@@ -1428,7 +1428,7 @@ Let us assume that the input documents always have a single `<c>` element inside
 
 Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> quantifier. Graphically, this can be represented in the following figure; the parts of the image that correspond to functions *d* and *f* have been identified.
 
-![Using an XPath expression inside a quantifier](ContextExample.png)
+![Using an XPath expression inside a quantifier.](ContextExample.png)
 
 Given an XML document *x* as input, the quantifier:
 

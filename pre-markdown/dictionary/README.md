@@ -9,43 +9,43 @@ For more technical information about each of these objects, the reader is referr
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!AbsoluteValue@\texttt{AbsoluteValue}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It computes the absolute value of a number. It is represented as:
 
-{@img images/util/AbsoluteValue.png}{AbsoluteValue}{.6}
+{@img images/util/AbsoluteValue.png}{AbsoluteValue}{.8}
 
 #### `Addition`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Addition@\texttt{Addition}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It adds two numbers. It is represented as:
 
-{@img images/util/Addition.png}{Addition}{.6}
+{@img images/util/Addition.png}{Addition}{.8}
 
 #### `And`
 
 @palette Core@ <!--\index{Booleans@\texttt{Booleans}!And@\texttt{And}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical conjunction of its two Boolean arguments, and is represented graphically as:
 
-{@img images/util/And.png}{And}{.6}
+{@img images/util/And.png}{And}{.8}
 
 #### `AnyElement`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!AnyElement@\texttt{AnyElement}|textsl} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c*, and returns as its output an arbitrary element of *c*. It is represented graphically as:
 
-{@img images/util/AnyElement.png}{AnyElement}{.6}
+{@img images/util/AnyElement.png}{AnyElement}{.8}
 
 #### `ApplyFunction`
 
 @palette Core@ <!--\index{ApplyFunction@\texttt{ApplyFunction}|textsl} A-->A<!--/i--> `Processor` that applies a specific function *f* to every event *front* it receives, and returns the output of that function. The input and output *arity* of this processor are equal to the input and output arity of the underlying function. It is represented graphically as:
 
-{@img images/functions/ApplyFunction.png}{ApplyFunction}{.6}
+{@img images/functions/ApplyFunction.png}{ApplyFunction}{.8}
 
 #### `ApplyFunctionPartial`
 
 @palette Core@ <!--\index{ApplyFunctionPartial@\texttt{ApplyFunctionPartial}|textsl} A-->A<!--/i--> variant of `ApplyFunction` that attempts to evaluate a function on incomplete input event fronts. It is represented graphically as:
 
-{@img images/functions/ApplyFunctionPartial.png}{ApplyFunctionPartial}{.6}
+{@img images/functions/ApplyFunctionPartial.png}{ApplyFunctionPartial}{.8}
 
 #### `ApplyToAll`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!ApplyToAll@\texttt{ApplyToAll}|textsl} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and returns as its output the collection that is the result of applying a predefined 1:1 `Function` *f* to each element of *c*. It is represented graphically as:
 
-{@img images/util/ApplyToAll.png}{ApplyToAll}{.6}
+{@img images/util/ApplyToAll.png}{ApplyToAll}{.8}
 
 #### Arity
 
@@ -57,7 +57,7 @@ For a `Function` object, refers to the number of arguments it accepts or the num
 
 @palette Core@ <!--\index{Maps@\texttt{Maps}!ArrayPutInto@\texttt{ArrayPutInto}|textsl} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. Updates a map by putting key-value pairs into it. The processor takes a single input stream, whose events are *arrays* of size 2, and repeatedly outputs a reference to the same internal `Map` object. The first element of the array contains the key, and the second contains the value that will be put into the array. Upon each input array, the processor outputs the map, updated accordingly. The processor is represented graphically as:
 
-{@img images/util/ArrayPutInto.png}{ArrayPutInto}{.6}
+{@img images/util/ArrayPutInto.png}{ArrayPutInto}{.8}
 
 See also `PutInto`.
 
@@ -73,7 +73,7 @@ See also `PutInto`.
 
 @palette Core@ <!--\index{BlackHole@\texttt{BlackHole}|textsl} A-->A<!--/i--> special type of `Sink` that discards everything it receives. It is represented graphically as follows:
 
-{@img images/tmf/BlackHole.png}{BlackHole}{.6}
+{@img images/tmf/BlackHole.png}{BlackHole}{.8}
 
 #### `Booleans`
 
@@ -83,7 +83,7 @@ See also `PutInto`.
 
 @palette Core@ <!--\index{Call@\texttt{Call}|textsl} A-->A<!--/i--> `Processor` object calling an external command upon receiving an event, and returning the output of that command as its output stream.
 
-{@img images/io/Call.png}{Call}{.6}
+{@img images/io/Call.png}{Call}{.8}
 
 #### `CallbackSink`
 
@@ -97,7 +97,7 @@ A <!--\index{closed (chain)|textsl} property-->property<!--/i--> of a chain of p
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!Concat@\texttt{Concat}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as arguments, and returns the concatenation of both strings as its output value. It is represented as:
 
-{@img images/util/Concat.png}{Concat}{.6}
+{@img images/util/Concat.png}{Concat}{.8}
 
 #### `Connector`
 
@@ -107,19 +107,19 @@ A <!--\index{closed (chain)|textsl} property-->property<!--/i--> of a chain of p
 
 @palette Core@ <!--\index{Constant@\texttt{Constant}|textsl} A-->A<!--/i--> `Function` object that takes no input argument, and returns a single output value. Constants are used in `FunctionTree`s to refer to fixed values. A `Constant` instance can be created out of any Java object, and returns this object as its value. When depicted in a `FunctionTree`, they are generally represented as values inside a rounded rectangle, as follows:
 
-{@img images/functions/Constant.png}{Constant}{.6}
+{@img images/functions/Constant.png}{Constant}{.8}
 
 #### `Contains` (`Bags`)
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!Contains@\texttt{Contains}|textsl} A-->A<!--/i--> 2:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and an object *o*, and returns the Boolean value `true` as its output if and only if *o* is an element of *c*. It is represented graphically as:
 
-{@img images/util/Contains.png}{Contains}{.6}
+{@img images/util/Contains.png}{Contains}{.8}
 
 #### `Contains` (`Strings`)
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!Contains@\texttt{Contains}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as input, and returns the Boolean value `true` if the first contains the second. It is represented as:
 
-{@img images/util/StringContains.png}{StringContains}{.6}
+{@img images/util/StringContains.png}{StringContains}{.8}
 
 #### `Context`
 
@@ -129,13 +129,13 @@ A <!--\index{closed (chain)|textsl} property-->property<!--/i--> of a chain of p
 
 @palette Core@ <!--\index{ContextAssignment@\texttt{ContextAssignment}|textsl} An-->An<!--/i--> object that defines the value associated to a key in a `Processor`'s `Context` object. It is represented graphically as:
 
-{@img images/other/ContextAssignment.png}{ContextAssignment}{.6}
+{@img images/other/ContextAssignment.png}{ContextAssignment}{.8}
 
 #### `ContextVariable`
 
 @palette Core@ <!--\index{ContextVariable@\texttt{ContextVariable}|textsl} A-->A<!--/i--> `Function` object that acts as a placeholder for the value associated to a key in a the `Context` of a `Processor`. When a `ContextVariable` occurs inside the `FunctionTree` assigned to an `ApplyFunction` processor, it queries that processor's `Context` object to get the current value associated to the key. It is represented graphically as:
 
-{@img images/functions/ContextVariable.png}{ContextVariable}{.6}
+{@img images/functions/ContextVariable.png}{ContextVariable}{.8}
 
 By convention, context variables are prefixed with a dollar sign in diagrams, to differentiate them from constants.
 
@@ -143,14 +143,14 @@ By convention, context variables are prefixed with a dollar sign in diagrams, to
 
 @palette Core@ <!--\index{CountDecimate@\texttt{CountDecimate}|textsl} A-->A<!--/i--> `Processor` that returns every *n*-th input event (starting with the first). The value *n* is called the **decimation interval**. However, a mode can be specified in order to output the *n*-th input event if it is the last event of the trace and it has not been output already. It is represented graphically as:
 
-{@img images/tmf/CountDecimate.png}{CountDecimate}{.6}
+{@img images/tmf/CountDecimate.png}{CountDecimate}{.8}
 
 #### `Cumulate`
 
 @palette Core@ <!--\index{Cumulate@\texttt{Cumulate}|textsl} A-->A<!--/i--> `Processor` that creates a cumulative processor out of a cumulative function. This is simply an instance of `ApplyFunction` whose function is of a specific type (a
 `CumulativeFunction`). It is represented graphically as:
 
-{@img images/functions/Cumulate.png}{Cumulate}{.6}
+{@img images/functions/Cumulate.png}{Cumulate}{.8}
 
 #### `CumulativeFunction`
 
@@ -160,7 +160,7 @@ By convention, context variables are prefixed with a dollar sign in diagrams, to
 
 @palette Serialization@ <!--\index{Deserialize@\texttt{Deserialize}|textsl} A-->A<!--/i--> `Processor` that takes structured character strings as its inputs, and turns each of them into Java objects with the corresponding content. It is represented graphically as follows:
 
-{@img images/other/Deserialize.png}{Deserialize}{.6}
+{@img images/other/Deserialize.png}{Deserialize}{.8}
 
 *Deserialization* can be used to restore the state of objects previously saved on a persistent medium, or to receive non-primitive data types over a communication medium such as a network. The opposite operation is called *serialization*.
 
@@ -168,93 +168,93 @@ By convention, context variables are prefixed with a dollar sign in diagrams, to
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Division@\texttt{Division}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the quotient of two numbers. It is represented as:
 
-{@img images/util/Division.png}{Division}{.6}
+{@img images/util/Division.png}{Division}{.8}
 
 #### `EndsWith`
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!EndsWith@\texttt{EndsWith}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as arguments, and returns `true` if the former ends with the latter.
 
-{@img images/util/EndsWith.png}{EndsWith}{.6}
+{@img images/util/EndsWith.png}{EndsWith}{.8}
 
 #### `Equals`
 
 @palette Core@ <!--\index{Equals@\texttt{Equals}|textsl} A-->A<!--/i--> `Function` that checks for the equality between two objects. It is represented graphically as follows:
 
-{@img images/functions/Equals.png}{Equals}{.6}
+{@img images/functions/Equals.png}{Equals}{.8}
 
 #### `Eventually`
 
 @palette LTL@ <!--\index{Eventually@\texttt{Eventually}|textsl} A-->A<!--/i--> `Processor` that implements the "eventually" or **F** operator of Linear Temporal Logic. If *p* is an LTL expression, **F** *p* stipulates that *p* should evaluate to `true` on at least one suffix of the current trace. It is represented graphically as:
 
-{@img images/ltl/Eventually.png}{Eventually}{.6}
+{@img images/ltl/Eventually.png}{Eventually}{.8}
 
 #### `Exists`
 
 @palette FOL@ <!--\index{Exists@\texttt{Exists}|textsl} A-->A<!--/i--> `Function` that acts as an existential quantifier in first-order logic. It is represented as:
 
-{@img images/fol/Exists.png}{Exists}{.6}
+{@img images/fol/Exists.png}{Exists}{.8}
 
 There is also a variant that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
 
-{@img images/fol/ExistsFunction.png}{ExistsFunction}{.6}
+{@img images/fol/ExistsFunction.png}{ExistsFunction}{.8}
 
 #### `ExpandAsColumns`
 
 @palette Tuples@ <!--\index{ExpandAsColumns@\texttt{ExpandAsColumns}|textsl} A-->A<!--/i--> `Function` that transforms a tuple by replacing two key-value pairs by a single new key-value pair. The new pair is created by taking the value of a column as the key, and the value of another column as the value. It is represented as:
 
-{@img images/tuples/ExpandAsColumns.png}{ExpandAsColumns}{.6}
+{@img images/tuples/ExpandAsColumns.png}{ExpandAsColumns}{.8}
 
 #### `Explode`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!Explode@\texttt{Explode}|textsl} A-->A<!--/i--> 1:*m* `Function` provided by the `Bags` utility class. Given a collection of size *m*, it returns as its *m* outputs the elements of the collection. It can be seen as the opposite of `ToArray`, `ToList` and `ToSet`. The ordering of the arguments is ensured when the input collection is itself ordered. The pictogram used to represent the function depends on the type of collection used for the input, in order to match the pictograph of the inverse function.
 
-{@img images/util/Explode.png}{Explode}{.6}
+{@img images/util/Explode.png}{Explode}{.8}
 
 #### `Filter`
 
 @palette Core@ <!--\index{Filter@\texttt{Filter}|textsl} A-->A<!--/i--> `Processor` that discards events from an input trace based on a selection criterion. The processor takes as input two events simultaneously; it outputs the first if the second is true. Graphically, this processor is represented as:
 
-{@img images/tmf/Filter.png}{Filter}{.6}
+{@img images/tmf/Filter.png}{Filter}{.8}
 
 #### `FilterElements`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!FilterElements@\texttt{FilterElements}|textsl} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function is parameterized by a 1:1 `Function` *f* that must return a Boolean. The `FilterElements` function takes as input a Java `Collection` *c* and returns as its output the collection consisting of only the elements of *c* for which *f*(*c*) returns `true`. It is represented graphically as:
 
-{@img images/util/FilterElements.png}{FilterElements}{.6}
+{@img images/util/FilterElements.png}{FilterElements}{.8}
 
 #### `FindPattern`
 
 A `Processor` <!--\index{FindPattern@\texttt{FindPattern}|textsl} that-->that<!--/i--> extracts chunks of an input stream based on a regular expression. It is represented graphically as:
 
-{@img images/tmf/FindPattern.png}{FindPattern}{.6}
+{@img images/tmf/FindPattern.png}{FindPattern}{.8}
 
 #### `FindRegex`
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!FindRegex@\texttt{FindRegex}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It receives a string *s* as its argument, and returns an *array* of strings, corresponding to all the matches of a given regular expression *exp* on *s*. It is represented as:
 
-{@img images/util/FindRegex.png}{FindRegex}{.6}
+{@img images/util/FindRegex.png}{FindRegex}{.8}
 
 #### `ForAll`
 
 @palette FOL@ <!--\index{ForAll@\texttt{ForAll}|textsl} A-->A<!--/i--> `Function` that acts as a universal quantifier in first-order logic. It is represented as:
 
-{@img images/fol/ForAll.png}{ForAll}{.6}
+{@img images/fol/ForAll.png}{ForAll}{.8}
 
 There is a variant of `ForAll` that uses an auxiliary function to compute the set of values to quantify over. It is represented as:
 
-{@img images/fol/ForAllFunction.png}{ForAllFunction}{.6}
+{@img images/fol/ForAllFunction.png}{ForAllFunction}{.8}
 
 #### `Fork`
 
 @palette Core@ <!--\index{Fork@\texttt{Fork}|textsl} A-->A<!--/i--> `Processor` that duplicates a single input stream into two or more output streams. A `Fork` is used when the contents of the same stream must be processed by multiple processors in parallel. It is represented graphically as:
 
-{@img images/tmf/Fork.png}{Fork}{.6}
+{@img images/tmf/Fork.png}{Fork}{.8}
 
 #### `Freeze`
 
 @palette Core@ <!--\index{Freeze@\texttt{Freeze}|textsl} A-->A<!--/i--> `Processor` that repeatedly outputs the first event it has received. It is represented graphically as:
 
-{@img images/tmf/Freeze.png}{Freeze}{.6}
+{@img images/tmf/Freeze.png}{Freeze}{.8}
 
 #### Front
 
@@ -266,7 +266,7 @@ Given *n* streams, the <!--\index{front|textsl} front-->front<!--/i--> at positi
 
 Functions are represented graphically as rounded rectangles, with a pictogram describing the computation they perform, such as this:
 
-{@img images/functions/Function.png}{Function}{.6}
+{@img images/functions/Function.png}{Function}{.8}
 
 A function with an input arity of *m* and an output arity of *n* is often referred to as an *m*:*n* function.
 
@@ -274,43 +274,43 @@ A function with an input arity of *m* and an output arity of *n* is often referr
 
 @palette FSM@ <!--\index{FunctionTransition@\texttt{FunctionTransition}|textsl} A-->A<!--/i--> `Transition` of a `MooreMachine` whose firing conditions is determined by evaluating a function *f* on the incoming event front. It is represented as:
 
-{@img images/fsm/FunctionTransition.png}{FunctionTransition}{.6}
+{@img images/fsm/FunctionTransition.png}{FunctionTransition}{.8}
 
 #### `FunctionTree`
 
 @palette Core@ <!--\index{FunctionTree@\texttt{FunctionTree}|textsl} A-->A<!--/i--> `Function` object representing the composition of multiple functions together to form a "compound" function. A function tree has a *root*, which consists of an *m*:*n* function. This function is connected to *n* children, which can be functions or function trees themselves. The diagram below depicts a function tree that composes multiplication and addition to form a more complex function of two arguments.
 
-{@img images/functions/FunctionTree.png}{FunctionTree}{.6}
+{@img images/functions/FunctionTree.png}{FunctionTree}{.8}
 
 #### `Get`
 
 @palette Core@ <!--\index{Maps@\texttt{Maps}!Get@\texttt{Get}|textsl} A-->A<!--/i--> `UnaryFunction` provided by the `Maps` utility class; it is parameterized by a key *k*. Given a `Map` *m* as its input, it retrieves the value associated to *k* in *m*. It is represented graphically as:
 
-{@img images/util/Get.png}{Get}{.6}
+{@img images/util/Get.png}{Get}{.8}
 
 #### `GetSize`
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!GetSize@\texttt{GetSize}|textsl} A-->A<!--/i--> 1:1 `Function` provided by the `Bags` utility class. This function takes as input a Java `Collection` *c* and returns as its output the number of elements in that collection. It is represented graphically as:
 
-{@img images/util/GetSize.png}{GetSize}{.6}
+{@img images/util/GetSize.png}{GetSize}{.8}
 
 #### `GetWidgetValue`
 
 @palette Widgets@ <!--\index{GetWidgetValue@\texttt{GetWidgetValue}|textsl} A-->A<!--/i--> `Function` that takes a Swing component as input, and returns the current "value" of this component. It is represented graphically as:
 
-{@img images/widgets/GetWidgetValue.png}{GetWidgetValue}{.6}
+{@img images/widgets/GetWidgetValue.png}{GetWidgetValue}{.8}
 
 #### `Globally`
 
 @palette LTL@ <!--\index{Globally@\texttt{Globally}|textsl} A-->A<!--/i--> `Processor` that implements the "globally" or **G** operator of Linear Temporal Logic. If *p* is an LTL expression, **G** *p* stipulates that *p* should evaluate to `true` on every suffix of the current trace. It is represented graphically as:
 
-{@img images/ltl/Globally.png}{Globally}{.6}
+{@img images/ltl/Globally.png}{Globally}{.8}
 
 #### `GroupProcessor`
 
 @palette Core@ <!--\index{GroupProcessor@\texttt{GroupProcessor}|textsl} A-->A<!--/i--> `Processor` that encapsulates a chain of processors as if it were a single object. It is represented as follows:
 
-{@img images/tmf/GroupProcessor.png}{GroupProcessor}{.6}
+{@img images/tmf/GroupProcessor.png}{GroupProcessor}{.45}
 
 To create a `GroupProcessor`, one must first instantiate and connect the processors to be encapsulated. Each processor must then be added to the group through a method called `add`. Finally, the endpoints of the chain must be associated to the inputs and outputs of the group. From then on, the processor can be moved around, connected and duplicated as if it were a single processor.
 
@@ -320,13 +320,13 @@ In a graphical representation of a `GroupProcessor`, the processor chain inside 
 
 @palette Core@ <!--\index{HttpGet@\texttt{HttpGet}|textsl} A-->A<!--/i--> `Source` that reads chunks of data from an URL, using an HTTP request. These chunks are returned as events in the form of strings. It is represented as:
 
-{@img images/io/HttpGet.png}{HttpGet}{.6}
+{@img images/io/HttpGet.png}{HttpGet}{.8}
 
 #### `IdentityFunction`
 
 @palette Core@ <!--\index{IdentityFunction@\texttt{IdentityFunction}|textsl} A-->A<!--/i--> `Function` that returns its input for its output. It is represented as follows:
 
-{@img images/functions/IdentityFunction.png}{IdentityFunction}{.6}
+{@img images/functions/IdentityFunction.png}{IdentityFunction}{.8}
 
 The actual colour of the oval depends on the type of events that the function relays.
 
@@ -334,43 +334,43 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette Core@ <!--\index{IfThenElse@\texttt{IfThenElse}|textsl} A-->A<!--/i--> 3:1 `Function` that acts as an if-then-else. If its first input is true, it returns its second input; otherwise it returns its third input. It is represented as follows:
 
-{@img images/functions/IfThenElse.png}{IfThenElse}{.6}
+{@img images/functions/IfThenElse.png}{IfThenElse}{.8}
 
 #### `Implies`
 
 @palette Core@ <!--\index{Booleans@\texttt{Booleans}!Implies@\texttt{Implies}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical implication of its two Boolean arguments, and is represented graphically as:
 
-{@img images/util/Implies.png}{Implies}{.6}
+{@img images/util/Implies.png}{Implies}{.8}
 
 #### `Insert`
 
 @palette Core@ <!--\index{Insert@\texttt{Insert}|textsl} A-->A<!--/i--> `Processor` that inserts an event a certain number of times before letting the input events through. This processor can be used to shift events of an input trace forward, by padding the beginning of the trace with some dummy element. It is represented graphically as:
 
-{@img images/tmf/Insert.png}{Insert}{.6}
+{@img images/tmf/Insert.png}{Insert}{.8}
 
 #### `IsEven`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsEven@\texttt{IsEven}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It returns the Boolean value `true` if and only if its argument is an even number. It is represented as:
 
-{@img images/util/IsEven.png}{IsEven}{.6}
+{@img images/util/IsEven.png}{IsEven}{.8}
 
 #### `IsGreaterOrEqual`, `IsGreaterThan`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsGreaterThan@\texttt{IsGreaterThan}|textsl} Two-->Two<!--/i--> `BinaryFunction`s provided by the `Numbers` utility class. They return the Boolean value `true` if their first argument is greater than (or equal to) the second argument. They are represented as:
 
-{@img images/util/IsGreaterThan.png}{IsGreaterThan}{.6}
+{@img images/util/IsGreaterThan.png}{IsGreaterThan}{.8}
 
 #### `IsLessOrEqual`, `IsLessThan`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!IsGreaterThan@\texttt{IsGreaterThan}|textsl} Two-->Two<!--/i--> `BinaryFunction`s provided by the `Numbers` utility class. They return the Boolean value `true` if their first argument is less than (or equal to) the second argument. They are represented as:
 
-{@img images/util/IsLessThan.png}{IsLessThan}{.6}
+{@img images/util/IsLessThan.png}{IsLessThan}{.8}
 
 #### `IsSubsetOrEqual`
 
 @palette Core@ <!--\index{Sets@\texttt{Sets}!IsSubsetOrEqual@\texttt{IsSubsetOrEqual}|textsl} A-->A<!--/i--> `BinaryFunction` that receives two sets as arguments, and returns `true` if the first is a subset of the second. It is represented as:
 
-{@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.6}
+{@img images/util/IsSubsetOrEqual.png}{IsSubsetOrEqual}{.8}
 
 #### `JdbcSource`
 
@@ -382,7 +382,7 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette JSON@ <!--\index{JPathFunction@\texttt{JPathFunction}|textsl} A-->A<!--/i--> 1:1 `Function` that receives a `JsonElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:
 
-{@img images/json/JPathFunction.png}{JPathFunction}{.6}
+{@img images/json/JPathFunction.png}{JPathFunction}{.8}
 
 #### `JsonElement`
 
@@ -392,19 +392,19 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette Core@ <!--\index{KeepLast@\texttt{KeepLast}|textsl} A-->A<!--/i--> `Processor` that returns only the very last event of its input stream, and discards all the previous ones. It is represented graphically as:
 
-{@img images/tmf/KeepLast.png}{KeepLast}{.6}
+{@img images/tmf/KeepLast.png}{KeepLast}{.8}
 
 #### `Limit`
 
 @palette Signal@ <!--\index{Limit@\texttt{Limit}|textsl} A-->A<!--/i--> 1:1 `Processor` that receives a stream of numerical values; if the processor receives a non-zero value, it outputs this value, but will turn the *k* following ones into 0, whether they are null or not. Graphically, this processor is represented as:
 
-{@img images/signal/Limit.png}{Limit}{.6}
+{@img images/signal/Limit.png}{Limit}{.8}
 
 #### `ListenerSource`
 
 @palette Widgets@ <!--\index{ListenerSource@\texttt{ListenerSource}|textsl} A-->A<!--/i--> `Source` processor that wraps around a Swing component, and pushes `ActionEvent`s or `ChangeEvent`s when user actions are performed on the component. It is represented as a box illustrating the widget that is being wrapped, such as follows:
 
-{@img images/widgets/ListenerSource.png}{ListenerSource}{.6}
+{@img images/widgets/ListenerSource.png}{ListenerSource}{.8}
 
 #### `Lists`
 
@@ -418,37 +418,37 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!Matches@\texttt{Matches}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as its arguments, and returns the Boolean value `true` if the first matches the regular expression defined in the second. It is represented as:
 
-{@img images/util/Matches.png}{Matches}{.6}
+{@img images/util/Matches.png}{Matches}{.8}
 
 #### `Maximum`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Maximum@\texttt{Maximum}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It returns the maximum of its two arguments. It is represented as:
 
-{@img images/util/Maximum.png}{Maximum}{.6}
+{@img images/util/Maximum.png}{Maximum}{.8}
 
 #### `Minimum`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Minimum@\texttt{Minimum}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It returns the minimum of its two arguments. It is represented as:
 
-{@img images/util/Minimum.png}{Minimum}{.6}
+{@img images/util/Minimum.png}{Minimum}{.8}
 
 #### `MooreMachine`
 
 @palette FSM@ <!--\index{MooreMachine@\texttt{MooreMachine}|textsl} A-->A<!--/i--> `Processor` that receives an event stream and which, upon each input event, updates its internal state according to a deterministic finite state machine. Each state can be associated with an event to output, corresponding to the formal definition of a Moore machine in theoretical computer science. The `MooreMachine` is depicted by the graph of the FSM it implements; if the graph is too cumbersome, a generic box can be used instead:
 
-{@img images/fsm/MooreMachine.png}{MooreMachine}{.6}
+{@img images/fsm/MooreMachine.png}{MooreMachine}{.8}
 
 #### `Multiplex`
 
 @palette Core@ <!--\index{Multiplex@\texttt{Multiplex}|textsl} A-->A<!--/i--> `Processor` that merges the contents of multiple streams into a single stream. It is an *m*:1 processor that outputs an event as soon as one is available on one of its input pipes. It is represented graphically as:
 
-{@img images/tmf/Multiplex.png}{Multiplex}{.6}
+{@img images/tmf/Multiplex.png}{Multiplex}{.8}
 
 #### `Multiplication`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Multiplication@\texttt{Multiplication}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the product of two numbers. It is represented as:
 
-{@img images/util/Multiplication.png}{Multiplication}{.6}
+{@img images/util/Multiplication.png}{Multiplication}{.8}
 
 #### `Multiset`
 
@@ -458,19 +458,19 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette LTL@ <!--\index{Next@\texttt{Next}|textsl} A-->A<!--/i--> `Processor` that implements the "next" or **X** operator of Linear Temporal Logic. If *p* is an LTL expression, **X** *p* stipulates that *p* should evaluate to `true` on the suffix of the current trace starting at the next event. It is represented graphically as:
 
-{@img images/ltl/Next.png}{Next}{.6}
+{@img images/ltl/Next.png}{Next}{.8}
 
 #### `Not`
 
 @palette Core@ <!--\index{Booleans@\texttt{Booleans}!Not@\texttt{Not}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Booleans` utility class. It computes the logical negation of its Boolean argument, and is represented graphically as:
 
-{@img images/util/Not.png}{Not}{.6}
+{@img images/util/Not.png}{Not}{.8}
 
 #### `NumberCast`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!NumberCast@\texttt{NumberCast}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It attempts to convert an arbitrary Java `Object` into a number. It is represented as:
 
-{@img images/util/NumberCast.png}{NumberCast}{.6}
+{@img images/util/NumberCast.png}{NumberCast}{.8}
 
 #### `Numbers`
 
@@ -480,19 +480,19 @@ The actual colour of the oval depends on the type of events that the function re
 
 @palette Core@ An `UnaryFunction` that returns the *n*-th element of an ordered collection (array or list). It is represented graphically as:
 
-{@img images/util/NthElement.png}{NthElement}{.6}
+{@img images/util/NthElement.png}{NthElement}{.8}
 
 #### `Or`
 
 @palette Core@ <!--\index{Booleans@\texttt{Booleans}!Or@\texttt{Or}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Booleans` utility class. It computes the logical disjunction of its two Boolean arguments, and is represented graphically as:
 
-{@img images/util/Or.png}{Or}{.6}
+{@img images/util/Or.png}{Or}{.8}
 
 #### `Pack`
 
 @palette Core@ <!--\index{Lists@\texttt{Lists}!Pack@\texttt{Pack}|textsl} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It accumulates events from a first input pipe, and sends them in a burst into a list based on the Boolean value received on its second input pipe. A value of `true` triggers the output of a list, while a value of `false` accumulates the event into the existing list. This processor is represented graphically as follows:
 
-{@img images/util/Pack.png}{Pack}{.6}
+{@img images/util/Pack.png}{Pack}{.8}
 
 The opposite of `Pack` in `Unpack`. See also `TimePack`.
 
@@ -500,25 +500,25 @@ The opposite of `Pack` in `Unpack`. See also `TimePack`.
 
 @palette JSON@ <!--\index{ParseJson@\texttt{ParseJson}|textsl} A-->A<!--/i--> `Function` that turns a character string into a structured object called a `JsonElement`. The function is represented graphically as:
 
-{@img images/json/ParseJson.png}{ParseJson}{.6}
+{@img images/json/ParseJson.png}{ParseJson}{.8}
 
 #### `ParseXml`
 
 @palette XML@ <!--\index{ParseXml@\texttt{ParseXml}|textsl} A-->A<!--/i--> `Function` that turns a character string into a structured object called an `XmlElement`. The function is represented graphically as:
 
-{@img images/xml/ParseXml.png}{ParseXml}{.6}
+{@img images/xml/ParseXml.png}{ParseXml}{.8}
 
 #### `Passthrough`
 
 @palette Core@ A `Processor` object that lets every input event through as its output. This processor can be used as a placeholder when a piece of code needs to be passed a `Processor` object, but that in some cases, no processing on the events is necessary. Graphically, this processor is represented as:
 
-{@img images/tmf/Passthrough.png}{Passthrough}{.6}
+{@img images/tmf/Passthrough.png}{Passthrough}{.8}
 
 #### `PeakFinder`
 
 @palette Signal@ <!--\index{PeakFinder@\texttt{PeakFinder}|textsl} A-->A<!--/i--> 1:1 `Processor` object receives as input a stream of numerical values, and identifies the "peaks" (sudden increases) in that signal. It outputs the value 0 if no peak is detected at the current input position, and otherwise, the height of the detected peak. Graphically, this processor is represented as:
 
-{@img images/signal/PeakFinder.png}{PeakFinder}{.6}
+{@img images/signal/PeakFinder.png}{PeakFinder}{.8}
 
 The *Signal* palette implements two variants of `PeakFinder` called <!--\index{PeakFinderLocalMaximum@\texttt{PeakFinderLocalMaximum}} \texttt{PeakFinderLocalMaximum}-->`PeakFinderLocalMaximum`<!--/i--> and <!--\index{PeakFinderTravelRise@\texttt{PeakFinderTravelRise}} \texttt{PeakFinderTravelRise}-->`PeakFinderTravelRise`<!--/i-->.
 
@@ -526,38 +526,38 @@ The *Signal* palette implements two variants of `PeakFinder` called <!--\index{P
 
 @palette Signal@ <!--\index{Persist@\texttt{Persist}|textsl} A-->A<!--/i--> 1:1 `Processor` that receives a stream of numerical values; when a processor receives a non-zero value, it outputs it for the next *k* events, unless a subsequent input value is greater (in which case this new value is output for the next *k* events). Graphically, this processor is represented as:
 
-{@img images/signal/Persist.png}{Persist}{.6}
+{@img images/signal/Persist.png}{Persist}{.8}
 
 #### `PlateauFinder`
 
 @palette Signal@ <!--\index{PlateauFinder@\texttt{PlateauFinder}|textsl} A-->A<!--/i--> 1:1 `Processor` object receives as input a stream of numerical values, and identifies the "plateaus" (successive events with similar values) in that signal. It outputs the value 0 if no plateau is detected at the current input position, and otherwise, the height of the detected plateau. Graphically, this processor is represented as:
 
-{@img images/signal/PlateauFinder.png}{PlateauFinder}{.6}
+{@img images/signal/PlateauFinder.png}{PlateauFinder}{.8}
 
 #### `Power`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Power@\texttt{Power}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the first argument, elevated to the power of the second. It is represented as:
 
-{@img images/util/Power.png}{Power}{.6}
+{@img images/util/Power.png}{Power}{.8}
 
 #### `Prefix`
 
 @palette Core@ <!--\index{Prefix@\texttt{Prefix}|textsl} A-->A<!--/i--> `Processor` that returns the first <i>n</i> input events and discards the following ones. It is represented graphically as:
 
-{@img images/tmf/Prefix.png}{Prefix}{.6}
+{@img images/tmf/Prefix.png}{Prefix}{.8}
 
 #### `Print`
 
 @palette Core@ <!--\index{Print@\texttt{Print}|textsl} A-->A<!--/i--> `Processor` that sends its input events to a Java `PrintStream` (such as the standard output). This processor takes whatever event it receives (i.e. any Java `Object`), calls its {@link Object#toString() toString()} method, and pushes the resulting output to a print stream. Graphically, it is represented as:
 
-{@img images/cli/Print.png}{Print}{.6}
+{@img images/cli/Print.png}{Print}{.8}
 
 #### `Processor`
 
 @palette Core@ <!--\index{Processor@\texttt{Processor}|textsl} A-->A<!--/i--> processing unit that receives zero or more input streams, and produces zero or more output streams. The `Processor` is the fundamental class where all stream computation occurs. All of BeepBeep's processors are descendants of this class. A processor is depicted graphically as a "box", with "pipes" representing its
 input and output streams.
 
-{@img images/Processor-generic.png}{Processor}{.6}
+{@img images/Processor-generic.png}{Processor}{.8}
 
 This class itself is abstract; nevertheless, it provides important methods for handling input/output event queues, connecting processors together, etc. However, if you write your own processor, you will most likely want to inherit from its child, `SynchronousProcessor`, which does some additional work. The `Processor` class does not assume anything about the type of events
 being input or output. All its input and output queues are therefore declared
@@ -567,7 +567,7 @@ as containing instances of `Object`, Java's most generic type.
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!Product@\texttt{Product}|textsl} A-->A<!--/i--> 2:1 `Function` provided by the `Bags` utility class. This function takes as input two Java `Collection`, *c1* and *c2*, and returns as its output a set of arrays of size 2, corresponding to the Cartesian product of *c1* and *c2*. It is represented graphically as:
 
-{@img images/util/Product.png}{Product}{.6}
+{@img images/util/Product.png}{Product}{.8}
 
 #### `Pullable`
 
@@ -576,7 +576,7 @@ each output trace. Every pullable works roughly like a classical `Iterator`:
 it is possible to check whether new output events are available, and get one
 new output event. However, contrarily to iterators, `Pullable`s have two versions of each method: a *soft* and a *hard* version. The opposite of `Pullable`s are `Pushable`s --objects that allow users to feed input events to processors. Graphically, a `Pullable` is represented by a pipe connected to a processor, with an outward pointing triangle:
 
-{@img images/Pullable.png}{Pullable}{.6}
+{@img images/Pullable.png}{Pullable}{.8}
 
 #### Pull mode
 
@@ -588,7 +588,7 @@ One of the two operating modes of a chain of processors. In <!--\index{pull mode
 
 Graphically, this processor is represented as:
 
-{@img images/tmf/Pump.png}{Pump}{.6}
+{@img images/tmf/Pump.png}{Pump}{.8}
 
 The repeated pulling of events from its input is started by calling this
 processor's `#start()` method. In the background, this will instantiate
@@ -603,7 +603,7 @@ The opposite of the `Pump` is the `Tank`.
 @palette Core@ <!--\index{Pushable@\texttt{Pushable}|textsl} An-->An<!--/i--> object that gives events to some of a processor's input. Interface `Pushable` is the opposite of `Pullable`: rather than querying events form a processor's output (i.e. "pulling"), it gives events to a processor's input. This has for effect of triggering the processor's computation and "pushing" results (if any) to the processor's output. If a processor is of input arity *n*, there exist *n* distinct
 `Pullable`s: one for each input pipe. Graphically, a `Pushable` is represented by a pipe connected to a processor, with an inward pointing triangle:
 
-{@img images/Pushable.png}{Pushable}{.6}
+{@img images/Pushable.png}{Pushable}{.8}
 
 #### Push mode
 
@@ -613,7 +613,7 @@ One of the two operating modes of a chain of processors. In <!--\index{push mode
 
 @palette Core@ <!--\index{Maps@\texttt{Maps}!PutInto@\texttt{PutInto}|textsl} A-->A<!--/i--> `Processor` provided by the `Maps` utility class. It updates a map by putting key-value pairs into it. The processor takes two input streams; the first contains the key, and the second contains the value that will be put into the array.  Upon each input front, it repeatedly outputs a reference to the same internal `Map` object, updated accordingly. The processor is represented graphically as:
 
-{@img images/util/PutInto.png}{PutInto}{.6}
+{@img images/util/PutInto.png}{PutInto}{.8}
 
 See also `ArrayPutInto`.
 
@@ -621,7 +621,7 @@ See also `ArrayPutInto`.
 
 @palette Core@ <!--\index{Sets@\texttt{Sets}!PutInto@\texttt{PutInto}|textsl} A-->A<!--/i--> `Processor` provided by the `Sets` utility class. Updates a set by putting the elements it receives into it. Upon each input event, it repeatedly outputs a reference to the same internal `Set` object, updated accordingly. The processor is represented graphically as:
 
-{@img images/util/SetPutInto.png}{SetPutInto}{.6}
+{@img images/util/SetPutInto.png}{SetPutInto}{.8}
 
 See also `PutIntoNew`.
 
@@ -629,7 +629,7 @@ See also `PutIntoNew`.
 
 @palette Core@ <!--\index{Sets@\texttt{Sets}!PutIntoNew@\texttt{PutIntoNew}|textsl} A-->A<!--/i--> `Processor` provided by the `Sets` utility class. Updates a set by putting the elements it receives into it. Upon each input event, it creates a new instance of `Set` and adds to it all the events received so far; it then outputs a reference to this new set. The processor is represented graphically as:
 
-{@img images/util/SetPutIntoNew.png}{SetPutIntoNew}{.6}
+{@img images/util/SetPutIntoNew.png}{SetPutIntoNew}{.8}
 
 See also `PutInto` (`Sets`).
 
@@ -637,7 +637,7 @@ See also `PutInto` (`Sets`).
 
 @palette Core@ <!--\index{QueueSink@\texttt{QueueSink}|textsl} A-->A<!--/i--> `Sink` that accumulates events into queues, one for each input pipe. It is represented graphically as:
 
-{@img images/tmf/QueueSink.png}{QueueSink}{.6}
+{@img images/tmf/QueueSink.png}{QueueSink}{.8}
 
 #### `QueueSource`
 
@@ -647,15 +647,15 @@ See also `PutInto` (`Sets`).
 
 #### `RaiseArity`
 
-@palette Core@ <!--\index{RaiseArity@\texttt{RaiseArity}|textsl} A-->A<!--/i--> `Function` that raises the arity of another function. Given an *m*:*n* function *f*, an instance of *r* `RaiseArity` makes *f* behave like an *m'*:*n* function, with *m'* > *m*. The extra arguments given to *r* are simply ignored. It is represented as:
+@palette Core@ <!--\index{RaiseArity@\texttt{RaiseArity}|textsl} A-->A<!--/i--> `Function` that raises the arity of another function. Given an *m*:*n* function *f*, an instance of `RaiseArity` *r* makes *f* behave like an *m'*:*n* function, with *m'* > *m*. The extra arguments given to *r* are simply ignored. It is represented as:
 
-{@img images/functions/RaiseArity.png}{RaiseArity}{.6}
+{@img images/functions/RaiseArity.png}{RaiseArity}{.8}
 
 #### `Randomize`
 
 @palette Core@ <!--\index{Randomize@\texttt{Randomize}|textsl} A-->A<!--/i--> *n*:*n* `Processor` that turns an arbitrary input event front into an output front made of randomly selected numerical values. The interval in which values are selected can be specified. It is represented graphically as:
 
-{@img images/util/Randomize.png}{Randomize}{.6}
+{@img images/util/Randomize.png}{Randomize}{.8}
 
 #### `ReadInputStream`
 
@@ -667,7 +667,7 @@ See also `PutInto` (`Sets`).
 
 @palette Core@ <!--\index{ReadLines@\texttt{ReadLines}|textsl} A-->A<!--/i--> Source that reads entire text lines from a Java `InputStream`. It is represented graphically as:
 
-{@img images/io/ReadLines.png}{ReadLines}{.6}
+{@img images/io/ReadLines.png}{ReadLines}{.8}
 
 #### `ReadStringStream`
 
@@ -677,7 +677,7 @@ See also `PutInto` (`Sets`).
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!RunOn@\texttt{RunOn}|textsl} A-->A<!--/i--> `Processor` provided by the `Bags` utility class. This processor is parameterized by another processor *P*. It receives as input a stream of collections. On each individual collection *c*, it resets *P*, feeds each element of *c* on *P*, and retrieves the last event output by *P* on that stream; this is the event is the event output by `RunOn` on *c*. It is represented graphically as:
 
-{@img images/util/RunOn.png}{RunOn}{.6}
+{@img images/util/RunOn.png}{RunOn}{.8}
 
 If the collection *c* is unordered and *P* is sensitive to event ordering, the output of `RunOn` on this collection may not always be the same.
 
@@ -685,7 +685,7 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 @palette Serialization@ <!--\index{Serialize@\texttt{Serialize}|textsl} A-->A<!--/i--> `Processor` that takes arbitrary objects as its inputs, and turns each of them into a structured character string depicting their content. It is represented graphically as follows:
 
-{@img images/other/Serialize.png}{Serialize}{.6}
+{@img images/other/Serialize.png}{Serialize}{.8}
 
 *Serialization* can be used to store the state of objects on a persistent medium, or to transmit non-primitive data types over a communication medium such as a network. The opposite operation is called *deserialization*.
 
@@ -697,7 +697,7 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Signum@\texttt{Signum}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It returns -1 if the argument is negative, +1 if it is positive, and 0 if the argument is the number 0. It is represented as:
 
-{@img images/util/Signum.png}{Signum}{.6}
+{@img images/util/Signum.png}{Signum}{.8}
 
 #### `SynchronousProcessor`
 
@@ -715,13 +715,13 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 @palette Core@  <!--\index{Slice@\texttt{Slice}|textsl} A-->A<!--/i--> `Processor` that separates the events from an input stream into multiple "sub-streams". A function *f*, called the *slicing function*, dispatches to a copy of *P* an input event *e* according to the value of *f*(*e*) (there is one copy of *P* for each possible output value of *f*). The `Slice` processor returns a Java `Map` containing as keys the value of *f*(*e*), and as value, the last event returned by the processor *P* associated to *f*(*e*). It is illustrated as:
 
-{@img images/tmf/Slice.png}{Slice}{.6}
+{@img images/tmf/Slice.png}{Slice}{.8}
 
 #### `Smooth`
 
 @palette Signal@  <!--\index{Smooth@\texttt{Smooth}|textsl} A-->A<!--/i--> `Processor` that smoothes a stream of numbers by replacing a value by an average over a window of events. It is illustrated as:
 
-{@img images/signal/Smooth.png}{Smooth}{.6}
+{@img images/signal/Smooth.png}{Smooth}{.8}
 
 #### `Source`
 
@@ -737,7 +737,7 @@ If the collection *c* is unordered and *P* is sensitive to event ordering, the o
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!SplitString@\texttt{SplitString}|textsl} A-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It receives as string as its input, and returns an *array* of strings, split according to a given character separator. It is represented as:
 
-{@img images/util/SplitString.png}{SplitString}{.6}
+{@img images/util/SplitString.png}{SplitString}{.8}
 
 The comma in the figure is to be replaced by the actual character used to separate the input string.
 
@@ -745,19 +745,19 @@ The comma in the figure is to be replaced by the actual character used to separa
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!SquareRoot@\texttt{SquareRoot}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Numbers` utility class. It computes the square root of its argument. It is represented as:
 
-{@img images/util/SquareRoot.png}{SquareRoot}{.6}
+{@img images/util/SquareRoot.png}{SquareRoot}{.8}
 
 #### `StartsWith`
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!StartsWith@\texttt{StartsWith}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Strings` utility class. It receives two strings as its arguments, and returns the Boolean value `true` if the first string starts with the second. It is represented as:
 
-{@img images/util/StartsWith.png}{StartsWith}{.6}
+{@img images/util/StartsWith.png}{StartsWith}{.8}
 
 #### `StreamVariable`
 
 @palette Core@ <!--\index{StreamVariable@\texttt{StreamVariable}|textsl} A-->A<!--/i--> `Function` standing for the *i*-th stream given as input to a processor. A `StreamVariable` can be given as an argument to a `FunctionTree`. It is represented as follows:
 
-{@img images/functions/StreamVariable.png}{StreamVariable}{.6}
+{@img images/functions/StreamVariable.png}{StreamVariable}{.8}
 
 The number inside the diamond represents the stream number. By convention, stream numbers start at 1 in diagrams.
 
@@ -769,13 +769,13 @@ The number inside the diamond represents the stream number. By convention, strea
 
 @palette Core@ <!--\index{Stutter@\texttt{Stutter}|textsl} A-->A<!--/i--> `Processor` that repeats each input event in its output a fixed number of times (*k*; see also `VariableStutter`). It is represented graphically as:
 
-{@img images/tmf/Stutter.png}{Stutter}{.6}
+{@img images/tmf/Stutter.png}{Stutter}{.8}
 
 #### `Subtraction`
 
 @palette Core@ <!--\index{Numbers@\texttt{Numbers}!Subtraction@\texttt{Subtraction}|textsl} A-->A<!--/i--> `BinaryFunction` provided by the `Numbers` utility class. It computes the difference of two numbers. It is represented as:
 
-{@img images/util/Subtraction.png}{Subtraction}{.6}
+{@img images/util/Subtraction.png}{Subtraction}{.8}
 
 #### `Tank`
 
@@ -783,7 +783,7 @@ The number inside the diamond represents the stream number. By convention, strea
 
 Graphically, this processor is represented as:
 
-{@img images/tmf/Tank.png}{Tank}{.6}
+{@img images/tmf/Tank.png}{Tank}{.8}
 
 The opposite of the tank is the `Pump`.
 
@@ -795,13 +795,13 @@ The opposite of the tank is the `Pump`.
 
 @palette Signal@ <!--\index{Threshold@\texttt{Threshold}|textsl} A-->A<!--/i--> 1:1 `Processor` that receives a stream of numerical values; the processor outputs an event if its value is above some threshold value *k*; otherwise it replaces it by 0. Graphically, this processor is represented as:
 
-{@img images/signal/Threshold.png}{Threshold}{.6}
+{@img images/signal/Threshold.png}{Threshold}{.8}
 
 #### `TimeDecimate`
 
 @palette Core@ <!--\index{TimeDecimate@\texttt{TimeDecimate}|textsl} A-->A<!--/i--> `Processor` which, after returning an input event, discards all others for the next *n* seconds. This processor therefore acts as a rate limiter. It is represented as:
 
-{@img images/tmf/TimeDecimate.png}{TimeDecimate}{.6}
+{@img images/tmf/TimeDecimate.png}{TimeDecimate}{.8}
 
 Note that this processor uses `System.currentTimeMillis()` as its clock. Moreover, a mode can be specified in order to output the last input event of the trace if it has not been output already.
 
@@ -809,7 +809,7 @@ Note that this processor uses `System.currentTimeMillis()` as its clock. Moreove
 
 @palette Core@ <!--\index{Lists@\texttt{Lists}!TimePack@\texttt{TimePack}|textsl} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It accumulates events from a first input pipe, and sends them in a burst into a list at predefined time intervals. This processor is represented graphically as follows:
 
-{@img images/util/TimePack.png}{TimePack}{.6}
+{@img images/util/TimePack.png}{TimePack}{.8}
 
 The opposite of `TimePack` in `Unpack`. See also `Pack`.
 
@@ -817,37 +817,37 @@ The opposite of `TimePack` in `Unpack`. See also `Pack`.
 
 @palette Core@ <!--\index{Bags@\texttt{Bags}!ToArray@\texttt{ToArray}|textsl} \index{Bags@\texttt{Bags}!ToList@\texttt{ToList}|textsl} \index{Bags@\texttt{Bags}!ToSet@\texttt{ToSet}|textsl} Three-->Three<!--/i--> *m*:1 `Function`s provided by the `Bags` utility class. Their input arity is defined by parameter *m*. They turn their *m* arguments into a Java array, list or set of size *m*. In the case of arrays and lists, the ordering of the arguments is preserved: the *i*-th argument of the function is placed at the *i*-th position in the output collection. The following picture shows the graphical representation of each of these functions:
 
-{@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.6}
+{@img images/util/ToArrayListSet.png}{ToArray, ToList, ToSet}{.8}
 
 #### `ToImageIcon`
 
 @palette Widgets@ <!--\index{ToImageIcon@\texttt{ToImageIcon}|textsl} An-->An<!--/i--> `UnaryFunction` that converts an array of bytes containing an image, into a Swing `ImageIcon`. It is represented as:
 
-{@img images/widgets/ToImageIcon.png}{ToImageIcon}{.6}
+{@img images/widgets/ToImageIcon.png}{ToImageIcon}{.8}
 
 #### `ToString`
 
 @palette Core@ <!--\index{Strings@\texttt{Strings}!ToString@\texttt{ToString}|textsl} An-->An<!--/i--> `UnaryFunction` provided by the `Strings` utility class. It attempts to convert an arbitrary Java `Object` into a `String`; this is done by calling the object's `toString` method. It is represented as:
 
-{@img images/util/ToString.png}{ToString}{.6}
+{@img images/util/ToString.png}{ToString}{.8}
 
 #### `Transition`
 
 @palette FSM@ <!--\index{Transition@\texttt{Transition}|textsl} An-->An<!--/i--> object used by the `MooreMachine` processor that indicates how the machine can move between its states. It is represented as:
 
-{@img images/fsm/Transition.png}{Transition}{.6}
+{@img images/fsm/Transition.png}{Transition}{.8}
 
 #### `TransitionOtherwise`
 
 @palette FSM@ <!--\index{TransitionOtherwise@\texttt{TransitionOtherwise}|textsl} A-->A<!--/i--> `Transition` object used by the `MooreMachine` processor that fires only if none of the other outgoing transitions from the same source state fires first.
 
-{@img images/fsm/TransitionOtherwise.png}{TransitionOtherwise}{.6}
+{@img images/fsm/TransitionOtherwise.png}{TransitionOtherwise}{.8}
 
 #### `Trim`
 
 @palette Core@ <!--\index{Trim@\texttt{Trim}|textsl} A-->A<!--/i--> `Processor` that discards the first *n* events of its input stream, and outputs the remaining ones as is. It is represented as:
 
-{@img images/tmf/Trim.png}{Trim}{.6}
+{@img images/tmf/Trim.png}{Trim}{.8}
 
 #### `Tuple`
 
@@ -857,13 +857,13 @@ The opposite of `TimePack` in `Unpack`. See also `Pack`.
 
 @palette Tuples@ <!--\index{TupleFeeder@\texttt{TupleFeeder}|textsl} A-->A<!--/i--> `Processor` that converts lines of text into `Tuple`s. It is represented as:
 
-{@img images/other/TupleFeeder.png}{TupleFeeder}{.6}
+{@img images/other/TupleFeeder.png}{TupleFeeder}{.8}
 
 #### `TurnInto`
 
 @palette Core@ <!--\index{TurnInto@\texttt{TurnInto}|textsl} A-->A<!--/i--> `Processor` that turns any input event into a predefined object. It is represented graphically as:
 
-{@img images/functions/TurnInto.png}{TurnInto}{.6}
+{@img images/functions/TurnInto.png}{TurnInto}{.8}
 
 #### `UnaryFunction`
 
@@ -877,7 +877,7 @@ A `Processor` that produces the same number of output fronts for every input fro
 
 @palette Core@ <!--\index{Lists@\texttt{Lists}!Unpack@\texttt{Unpack}|textsl} A-->A<!--/i--> `Processor` provided by the `Lists` utility class. It unpacks a list of objects by outputting its contents as separate events. This processor is represented graphically as follows: 
 
-{@img images/util/Unpack.png}{Unpack}{.6}
+{@img images/util/Unpack.png}{Unpack}{.8}
 
 The opposite of `Unpack` is `Pack`.
 
@@ -885,19 +885,19 @@ The opposite of `Unpack` is `Pack`.
 
 @palette LTL@ <!--\index{Until@\texttt{Until}|textsl} A-->A<!--/i--> `Processor` that implements the "until" or **U** operator of Linear Temporal Logic. If *p* and *q* are two streams of Boolean value, *p* **U** *q* stipulates that *q* should evaluate to `true` on some future input front, and that until then, *p* should evaluates to `true` on every input front. It is represented graphically as:
 
-{@img images/ltl/Until.png}{Until}{.6}
+{@img images/ltl/Until.png}{Until}{.8}
 
 #### `Values`
 
 @palette Core@ <!--\index{Maps@\texttt{Maps}!Values@\texttt{Values}|textsl} A-->A<!--/i--> `UnaryFunction` provided by the `Maps` utility class. Given a `Map` *m* as its input, it returns a `Set` made of all the values present in *m*. It is represented graphically as:
 
-{@img images/util/Values.png}{Values}{.6}
+{@img images/util/Values.png}{Values}{.8}
 
 #### `VariableStutter`
 
 @palette Core@ <!--\index{VariableStutter@\texttt{VariableStutter}|textsl} A-->A<!--/i--> 2:1 `Processor` that repeats each input event coming in its first input pipe a number of times defined by the input event coming into its second input pipe. It is represented graphically as:
 
-{@img images/tmf/VariableStutter.png}{VariableStutter}{.6}
+{@img images/tmf/VariableStutter.png}{VariableStutter}{.8}
 
 #### `Variant`
 
@@ -907,13 +907,13 @@ A <!--\index{Variant@\texttt{Variant}|textsl} special-->special<!--/i--> class t
 
 @palette Core@ <!--\index{Window@\texttt{Window}|textsl} A-->A<!--/i--> `Processor` that applies another processor on a "sliding window" of events. It takes as arguments another processor *P* and a window width *n*. It returns the result of P after processing events 0 to *n*-1... - Then the result of (a new instance of P) that processes events 1 to *n*, and so on. It is represented graphically as:
 
-{@img images/tmf/Window.png}{Window}{.6}
+{@img images/tmf/Window.png}{Window}{.8}
 
 #### `WindowFunction`
 
 @palette Core@ <!--\index{WindowFunction@\texttt{WindowFunction}|textsl} A-->A<!--/i--> `Processor` that applies a function on a "sliding window" of events. It takes a sliding window of *n* successive input events, passes them to the *n*-ary function *f* and outputs the result. It is represented graphically as:
 
-{@img images/tmf/WindowFunction.png}{WindowFunction}{.6}
+{@img images/tmf/WindowFunction.png}{WindowFunction}{.8}
 
 
 #### `WriteOutputStream`
@@ -924,12 +924,12 @@ A <!--\index{Variant@\texttt{Variant}|textsl} special-->special<!--/i--> class t
 
 #### `XmlElement`
 
-@palette XML@ <!--\index{XmlElement@\texttt{XmlElement}|textsl} An-->An<!--/i--> object representing an element of an XML document.«
+@palette XML@ <!--\index{XmlElement@\texttt{XmlElement}|textsl} An-->An<!--/i--> object representing an element of an XML document.
 
 #### `XPathFunction`
 
 @palette XML@ <!--\index{XPathFunction@\texttt{XPathFunction}|textsl} A-->A<!--/i--> 1:1 `Function` that receives an `XmlElement` as input, and returns a portion of this element as its output. The portion to extract is called a *path expression*, and corresponds to a specific traversal in the input object. The function is represented graphically as:
 
-{@img images/xml/XPathFunction.png}{XPathFunction}{.6}
+{@img images/xml/XPathFunction.png}{XPathFunction}{.8}
 
 <!-- :wrap=soft: -->

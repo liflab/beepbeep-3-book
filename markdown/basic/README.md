@@ -9,7 +9,7 @@ The first fundamental building block of BeepBeep is an object called a <!--\inde
 
 An easy way to understand processors is to think of them as "boxes" having one or more "pipes". Some of these pipes are used to feed events to the processor (input pipes), while others are used to collect events produced by the processor (output pipes). Throughout this book, processors will often be represented graphically exactly in this way, as in the upcoming diagram. A processor object is represented by a square box, with a pictogram giving an idea of the type of computation it executes on events. On the sides of this box are one or more "pipes" representing its inputs and outputs. Input pipes are indicated with a red, inward-pointing triangle, while output pipes are represented by a green, outward-pointing triangle. 
 
-![A graphical representation of a generic processor taking one input stream, and producing one output stream](Schematics.png)
+![A graphical representation of a generic processor taking one input stream, and producing one output stream.](Schematics.png)
 
 The colour of the pipes themselves will be used to denote the type of events passing through them. According to the convention in this book, a blue-green pipe represents a stream of numbers; a grey pipe contains a stream of Boolean values, etc.
 
@@ -38,7 +38,7 @@ for (int i = 0; i < 8; i++)
 
 The <!--\index{QueueSource@\texttt{QueueSource}} \texttt{QueueSource}-->`QueueSource`<!--/i--> object is a simple processor that does only one thing. When it is created, it is given a list of events; from that point on, it will endlessly output these events, one by one, looping back at the beginning of the list when it reaches the end. The first two lines of the previous snippet create a new instance of `QueueSource`, and then give the list of events it is instructed to repeat (in this case, the events are integers). Graphically, this can be represented as follows:
 
-![A first example](QueueSourceUsage.png)
+![A first example.](QueueSourceUsage.png)
 
 As one can see, the `QueueSource` object is a special type of processor that has an output pipe, but no input pipe (that is, its input arity is zero). This means that it does not produce events based on the output produced by other processors; in other words, it is impossible to connect another processor into a `QueueSource` (or into any other processor of input arity zero, for that matter). Rather, output events are produced "out of thin air" --or more accurately, from a list of values that is given to the source when it instantiated. In the diagram, this list is shown in the white rectangle overlapping the source's box.
 

@@ -5,7 +5,7 @@ As you may have noticed, in many cases the best way of understanding a chain of 
 
 A straightforward way of showing processor chains would be to depict processors as shapes, perhaps with a text label indicating what they do, and to use straight lines and arrows to illustrate their interlinking. Indeed, this is what is often done to represent composition in other systems, such as this example using Apache Storm Trident:
 
-{@img Trident.png}{The composition of "spouts" and "bolts" in Apache Storm Trident.}{.6}
+{@img Trident.png}{The composition of "spouts" and "bolts" in Apache Storm Trident.}{.3}
 
 However, we found early on that BeepBeep processor chains illustrated in such a way are neither particularly intuitive (all processor chains look alike until you start reading what's in the boxes) nor very pleasing to the eye (after all, we have been producing color and graphics on computer monitors for at least thirty years). Therefore, we decided to develop a more colorful, intuitive, yet standardized way of drawing chains of processors.
 
@@ -25,7 +25,7 @@ In longer pipes, only the main body is longer; the head is not stretched.
 
 The <!--\index{pipe!colour coding} \textbf{colour}-->**colour**<!--/i--> of a pipe should indicate the type of the events it contains. For the sake of consistency, we try to use the same colour for the same type across a diagram. At the very least, frequent event types should have the same colour across a common set of examples. Here are the colours that have been used for frequent event types in this book:
 
-{@img Colors.png}{Colour coding for pipes}{.6}
+{@img Colors.png}{Colour coding for pipes.}{.6}
 
 Pipe segments should be either
 vertical or  horizontal. Orientation

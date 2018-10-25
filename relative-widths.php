@@ -1,7 +1,8 @@
 <?php
 
 // The maximum width of an SVG (in mm); any file larger needs to be scaled down
-$MAX_WIDTH = 112;
+//$MAX_WIDTH = 112;
+$MAX_WIDTH = 40;
 
 // The default scale of figures
 $DEFAULT_SCALE = 0.6;

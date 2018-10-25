@@ -472,7 +472,7 @@ However, when the input event is an *a*, we must make sure that no *b* is immedi
 
 This process is a special case of what is called <!--\index{monitoring!enforcement} \emph{enforcement monitoring}-->*enforcement monitoring*<!--/i-->. It turns out that in BeepBeep, creating an enforcement monitor of this kind can be done easily, by using the Boolean output of our LTL processor as the control stream of a <!--\index{Filter@\texttt{Filter}} \texttt{Filter}-->`Filter`<!--/i-->. As a simple example, suppose we are monitoring a stream of operations made on a file, such as `read`, `open`, `close`, etc.). A possible constraint on this stream would be that an `open` operation must be followed later on by a `close`. In LTL, this would correspond to the expression *open* → **F** *close*. Consider the following processor chain ({@snipi ltl/OpenClose.java}{}):
 
-{@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property}{.3}
+{@img doc-files/ltl/OpenClose.png}{Filtering events that follow a temporal property.}{.3}
 
 The bottom part of the chain corresponds to the monitoring of the LTL formula. This output is then sent to the control pipe of a `Filter` processor, which receives on its data pipe a fork of the original stream. Pushing events on the fork produces an output like this:
 
@@ -619,7 +619,7 @@ The input of a processor chain may be a stream of numerical values obtained from
 
 To illustrate the operation of *Signal*'s various processors, we shall first generate a stream of values representing a "signal". To this end, we use the following processor chain ({@snipi signal/FakeSignal.java}{}):
 
-{@img doc-files/signal/FakeSignal.png}{Producing a numerical signal that varies with time.}{.3}
+{@img doc-files/signal/FakeSignal.png}{Producing a numerical signal that varies with time.}{.2}
 
 This example is one of the firsts using the <!--\index{VariableStutter@\texttt{VariableStutter}} \texttt{VariableStutter}-->`VariableStutter`<!--/i--> processor. In the previous processor chain, it is represented by the box connected into the `Fork`. Its first input (top) is a stream of values, while its second input (bottom) indicates how many times each value should be repeated in the output. With the numbers contained in the two sources, the processor is expected to output the value 0 five times, followed by the value 10 five times, and so on.
 
@@ -627,7 +627,7 @@ This stream is then forked in two copies. The topmost path should be familiar to
 
 This chain of seven processors gives us a crude way of producing a numerical signal whose behaviour is somewhat controlled by the contents of the two `QueueSource`s. In our example, in order to better see the end result, the pairs of values from "T" and "V" are sent into an <!--\index{UpdateTableStream@\texttt{UpdateTableStream}} \texttt{UpdateTableStream}-->`UpdateTableStream`<!--/i--> processor, transformed into a plot and displayed in a window. Running this program should show a plot like the following:
 
-{@img doc-files/signal/plot-envelope.png}{Plotting the numerical signal produced by the previous chain of processors.}{.45}
+{@img doc-files/signal/plot-envelope.png}{Plotting the numerical signal produced by the previous chain of processors.}{.3}
 
 As an exercise, try changing the contents of the two sources to see the effect they have on the resulting plot.
 
@@ -922,7 +922,7 @@ Let us assume that the input documents always have a single `<c>` element inside
 
 Finally, we put functions *d* and *f* inside a <!--\index{ForAll@\texttt{ForAll}} \texttt{ForAll}-->`ForAll`<!--/i--> quantifier. Graphically, this can be represented in the following figure; the parts of the image that correspond to functions *d* and *f* have been identified.
 
-{@img doc-files/xml/ContextExample.png}{Using an XPath expression inside a quantifier}{.6}
+{@img doc-files/xml/ContextExample.png}{Using an XPath expression inside a quantifier.}{.6}
 
 Given an XML document *x* as input, the quantifier:
 
