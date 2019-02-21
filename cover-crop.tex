@@ -1,0 +1,15 @@
+%% Produces a PDF with the book's front and cover, on a letter sheet
+%% with crop marks.
+%% Adapted from a solution found here: https://tex.stackexchange.com/q/49968
+\documentclass[11pt]{article}
+\usepackage[pdftex]{graphicx}
+\usepackage{pdfpages}
+\usepackage[dvips=false,pdftex=false,vtex=false,paperwidth=7in,paperheight=8.5in,margin=0.25in,bottom=1in,top=1in,nohead]{geometry}
+\usepackage[letter,pdflatex,center]{crop}
+\pagestyle{empty}
+
+\begin{document}%
+\crop[cam]
+\centering
+\includepdf[pages={1,last-last}]{book-pdfa.pdf}
+\end{document} 
